@@ -1,0 +1,26 @@
+name: User Story
+description: Dokumentiere Anforderungen, indem du beschreibst wie ein Nutzer mit der Software interagiert und welche Kriterien zur Akzeptanz gelten müssen.
+title: "[User Story]: "
+labels: ["user story"]
+body:
+  - type: textarea
+    id: beschreibung
+    attributes:
+      label: Beschreibung
+      description: Beschreibe wie ein Nutzer mit der Software interagiert.
+      placeholder: Als [Nutzer] kann ich [Interaktion], sodass [Ziel]
+    validations:
+      required: true
+  - type: textarea
+    id: akzeptanzkriterium
+    attributes:
+      label: Akzeptanzkriterium
+      description: Welche Kriterien müssen gelten, damit die User Story erfüllt ist?
+    validations:
+      required: true
+  - type: textarea
+    id: bemerkung
+    attributes:
+      label: Bemerkung
+    validations:
+      required: false
