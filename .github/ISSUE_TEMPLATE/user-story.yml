@@ -1,27 +1,27 @@
 name: User Story
-description: Dokumentiere Anforderungen, indem du beschreibst wie ein Nutzer mit der Software interagiert und welche Kriterien zur Akzeptanz gelten müssen.
+description: Document requirements by describing how a user interacts with the software and what criteria must hold for the acceptance of the requirement.
 title: "[User Story]: "
 labels: ["user story"]
 projects: ["PhyExDB/2"]
 body:
   - type: textarea
-    id: beschreibung
+    id: description
     attributes:
-      label: Beschreibung
-      description: Beschreibe wie ein Nutzer mit der Software interagiert.
-      placeholder: Als [Nutzer] kann ich [Interaktion], sodass [Ziel]
+      label: Description
+      description: Describe how the user interacts with the software.
+      placeholder: As a [User] I can [Interaction] such that [Goal].
     validations:
       required: true
   - type: textarea
-    id: akzeptanzkriterium
+    id: acceptance
     attributes:
-      label: Akzeptanzkriterium
-      description: Welche Kriterien müssen gelten, damit die User Story erfüllt ist?
+      label: Acceptance Criteria
+      description: What criteria must hold such that the user story is accepted?
     validations:
       required: true
   - type: textarea
-    id: bemerkung
+    id: comment
     attributes:
-      label: Bemerkung
+      label: Comment
     validations:
       required: false
