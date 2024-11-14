@@ -1,6 +1,6 @@
 name: Backend User Story
 description: Document requirements by describing how a user interacts with the backend of the software and what criteria must hold for the acceptance of the requirement.
-title: "[User Story]: "
+title: "[Backend]: "
 labels: ["user story", "backend"]
 projects: ["PhyExDB/2"]
 body:
