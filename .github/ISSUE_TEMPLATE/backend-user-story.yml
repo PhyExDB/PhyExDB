@@ -1,14 +1,14 @@
-name: User Story
-description: Document requirements by describing how a user interacts with the software and what criteria must hold for the acceptance of the requirement.
-title: "[User Story]: "
-labels: ["user story"]
+name: Backend User Story
+description: Document requirements by describing how a user interacts with the backend of the software and what criteria must hold for the acceptance of the requirement.
+title: "[Backend]: "
+labels: ["user story", "backend"]
 projects: ["PhyExDB/2"]
 body:
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: Describe how the user interacts with the software.
+      description: Describe how the user interacts with the backend of the software.
       placeholder: As a [User] I can [Interaction] such that [Goal].
     validations:
       required: true
