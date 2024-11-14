@@ -1,0 +1,27 @@
+name: Frontend User Story
+description: Document requirements by describing how a user interacts with the frontend of the software and what criteria must hold for the acceptance of the requirement.
+title: "[User Story]: "
+labels: ["user story", "frontend"]
+projects: ["PhyExDB/2"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe how the user interacts with the frontend of the software.
+      placeholder: As a [User] I can [Interaction] such that [Goal].
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What criteria must hold such that the user story is accepted?
+    validations:
+      required: true
+  - type: textarea
+    id: comment
+    attributes:
+      label: Comment
+    validations:
+      required: false
