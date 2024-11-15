@@ -17,6 +17,3 @@ logs
 
 ### Kotlin ###
 .kotlin
-
-### Teamscale ###
-.teamscale.toml
