@@ -1,3 +1,14 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
 # Logs
 logs
 *.log
@@ -6,14 +17,9 @@ logs
 .DS_Store
 .fleet
 .idea
+.vscode/
 
 # Local env files
 .env
 .env.*
 !.env.example
-
-### VS Code ###
-.vscode/
-
-### Kotlin ###
-.kotlin
