@@ -1,0 +1,13 @@
+services:
+  dev_db:
+    image: postgres:17-alpine
+    env_file:
+      - .env.development
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
