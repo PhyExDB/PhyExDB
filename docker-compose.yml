@@ -1,0 +1,30 @@
+services:
+  backend:
+    image: ghcr.io/phyexdb/phyexdb:latest
+    container_name: phyexdb_backend
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - public_data:/app/public
+
+  db:
+    image: postgres:17-alpine
+    container_name: phyexdb_db
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+
+volumes:
+  db_data:
+  public_data:
