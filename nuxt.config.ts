@@ -4,6 +4,14 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
+  runtimeConfig: {
+    databaseUser: "nuxt",
+    databasePassword: "nuxt_password",
+    databaseName: "phyexdb",
+    databaseHost: "localhost",
+    databasePort: 5432,
+  },
+
   future: {
     compatibilityVersion: 4,
   },
