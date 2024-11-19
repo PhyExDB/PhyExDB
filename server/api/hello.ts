@@ -1,11 +1,7 @@
 import sequelize from "../database/config"
 import User from "../models/User"
 
-export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-
-  sequelize.sync()
-
+export default defineEventHandler(async () => {
   try {
     await sequelize.authenticate()
     console.log("Connection has been established successfully.")
@@ -14,11 +10,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const users = await User.findAll()
-  console.log(users)
-
-  if (query.name) {
-    return `Hello ${query.name}`
-  } else {
-    return "Hello World"
+  let description: string = ""
+  console.log(users.length)
+  for (let i = 0; i < users.length; i++) {
+    description += `[Name = ${users[i].getDataValue("username")}, Mail = ${users[i].getDataValue("email")}, Password = ${users[i].getDataValue("password")}] \t`
   }
+
+  return `Users: \t ${description}`
 })
