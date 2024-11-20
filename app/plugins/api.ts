@@ -8,7 +8,6 @@
  * @returns {Object} An object providing the API client.
  *
  * @example
- * // Usage in a Nuxt component or page
  * const { $api } = useNuxtApp();
  * $api.get('/endpoint').then(response => {
  *   console.log(response);
