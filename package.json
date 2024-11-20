@@ -14,6 +14,9 @@
   "dependencies": {
     "@nuxt/eslint": "^0.7.0",
     "nuxt": "^3.14.159",
+    "pg": "^8.13.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.5",
     "vue": "latest",
     "vue-router": "latest"
   }
