@@ -5,7 +5,6 @@ export default defineNitroPlugin(async () => {
   try {
     // Connect to the database
     await sequelize.authenticate()
-    console.log("Database connected successfully.")
 
     // Sync all models
     if (process.env.NODE_ENV === "development") {
@@ -13,7 +12,6 @@ export default defineNitroPlugin(async () => {
     } else {
       await sequelize.sync()
     }
-    console.log("All models were synchronized successfully.")
   } catch (error) {
     console.error("Unable to connect to the database:", error)
   }
