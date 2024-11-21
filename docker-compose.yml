@@ -9,6 +9,8 @@ services:
       - db
     volumes:
       - public_data:/app/public
+    ports:
+      - 8080:8080
 
   db:
     image: postgres:17-alpine
