@@ -1,7 +1,9 @@
 import sequelize from "../utils/sequelize"
+import "pg" // Do not remove this, because otherwise pg will not be included in the final bundle
 
 export default defineNitroPlugin(async () => {
   try {
+    // Connect to the database
     await sequelize.authenticate()
     console.log("Database connected successfully.")
 
