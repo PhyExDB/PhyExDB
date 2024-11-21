@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "dotenv -e .env.development nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -23,6 +23,7 @@
     "@nuxt/eslint": "^0.7.1",
     "@types/pg": "^8.11.10",
     "@types/sequelize": "^4.28.20",
+    "dotenv-cli": "^7.4.4",
     "eslint": "^9.15.0",
     "typescript": "^5.6.3"
   }
