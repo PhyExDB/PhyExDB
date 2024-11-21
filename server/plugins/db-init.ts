@@ -8,7 +8,11 @@ export default defineNitroPlugin(async () => {
     console.log("Database connected successfully.")
 
     // Sync all models
-    await sequelize.sync({ alter: true }) // Use `alter: true` for development, but avoid in production
+    if (process.env.NODE_ENV === "development") {
+      await sequelize.sync({ alter: true })
+    } else {
+      await sequelize.sync()
+    }
     console.log("All models were synchronized successfully.")
   } catch (error) {
     console.error("Unable to connect to the database:", error)
