@@ -6,7 +6,9 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     volumes:
       - public_data:/app/public
     ports:
