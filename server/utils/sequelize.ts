@@ -8,6 +8,4 @@ const db = new Sequelize(config.databaseName, config.databaseUser, config.databa
   dialect: "postgres",
 })
 
-db.sync()
-
 export default db
