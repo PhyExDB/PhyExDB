@@ -1,5 +1,6 @@
 import sequelize from "../utils/sequelize"
 import "pg" // Do not remove this, because otherwise pg will not be included in the final bundle
+import "../models/User"
 
 export default defineNitroPlugin(async () => {
   try {
