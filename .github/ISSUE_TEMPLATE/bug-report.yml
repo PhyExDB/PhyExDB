@@ -1,0 +1,28 @@
+name: Bug Report
+description: Describe how the intended behavior of the system differs from the actual behavior, and list the steps necessary to reproduce the exceptional behavior.
+title: "[Bug Report]: "
+labels: ["bug"]
+projects: ["PhyExDB/2"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened and what did you expect to happen?
+      placeholder: I wanted to [Action/Goal], but [Bug]...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce the Bug
+      description: Which steps have to be taken to reproduce the bug?
+      placeholder: 1...
+    validations:
+      required: true
+  - type: textarea
+    id: comment
+    attributes:
+      label: Comment
+    validations:
+      required: false
