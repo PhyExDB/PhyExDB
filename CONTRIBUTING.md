@@ -5,7 +5,32 @@
 - Extensions
   - Nuxt Extension Pack
   - ESLint
+    ```
+    {
+      // ...
+      "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+      },
+      // ...
+    }
+    ```
+    in .vscode/settins.json to format on save
   - Teamscale
+    ```
+    {
+      // ...
+      "teamscale.teamscaleServers": [
+          {
+              "serverUrl": "https://teamscale.niklhut.de",
+              "username": "<GitHub username>",
+              "accessKey": "<accessToken>",
+              "trustAllCertificates": false
+          }
+      ],
+      // ...
+    }
+    ```
+    in .vscode/settins.json
 
 ## Quality assurance
 
@@ -27,7 +52,7 @@
   docker compose -f docker-compose.development.yml down
   ```
 
-  Starten von Datenbank und Backend Image:
+  Starten von Datenbank und Backend Image von Github:
 
   ```bash
   docker compose up -d
