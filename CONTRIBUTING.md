@@ -14,7 +14,7 @@
       // ...
     }
     ```
-    in .vscode/settins.json to format on save
+    in `.vscode/settings.json` to format on save
   - Teamscale
     ```
     {
@@ -30,7 +30,7 @@
       // ...
     }
     ```
-    in .vscode/settins.json
+    in `.vscode/settings.json`
 
 ## Quality assurance
 
@@ -43,7 +43,7 @@
   ```
 
 - Docker
-  Setup: copy `.env.example` to `.env` and `.env.development`
+  Setup: copy `.env.example` to `.env` and `.env.development` and set `NUXT_DATABASE_HOST=db` in `.env` instead of `localhost`,
 
   Starten und Löschen von Datenbank für Entwicklung:
 
@@ -66,5 +66,5 @@
   - new feature branch for an issue
   - open pull request
     - draft until ready for review
-    - Fixes #[issue number] in description
+    - `Fixes #[issue number]` in description
   - pull requests require Actions to pass and a review
