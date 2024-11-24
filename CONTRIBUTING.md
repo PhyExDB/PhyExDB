@@ -45,20 +45,20 @@
 - Docker
   Setup: copy `.env.example` to `.env` and `.env.development` and set `NUXT_DATABASE_HOST=db` in `.env` instead of `localhost`,
 
-  Starten und Löschen von Datenbank für Entwicklung:
+  Start and delete development docker containers:
 
   ```bash
   docker compose -f docker-compose.development.yml up -d
   docker compose -f docker-compose.development.yml down
   ```
 
-  Starten von Datenbank und Backend Image von Github:
+  Start the database and backend image from GitHub:
 
   ```bash
   docker compose up -d
   ```
 
-  Dabei kann in der `docker-compose.yml` das Image vom Backend angepasst werden. Standardmäßig wird der `latest` Tag verwendet, welcher den neusten Stand des `main` Branches verwendet. Um den Stand einer Pull Request zu testen, kann der Tag auf `pr-[PR-Nummer]` gesetzt werden.
+  In the `docker-compose.yml`, the backend image can be adjusted. By default, the `latest` tag is used, which refers to the latest state of the `main` branch. To test the state of a pull request, the tag can be set to `pr-[PR-number]`.
 
 ## Git
 
