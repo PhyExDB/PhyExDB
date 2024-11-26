@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize"
 
 async function up({ context: queryInterface }) {
-  await queryInterface.createTable("legal", {
+  await queryInterface.createTable("Legal", {
     id: {
       type: DataTypes.UUID,
       primaryKey: true,
@@ -19,11 +19,21 @@ async function up({ context: queryInterface }) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   })
 }
 
 async function down({ context: queryInterface }) {
-  await queryInterface.dropTable("legal")
+  await queryInterface.dropTable("Legal")
 }
 
 export { up, down }
