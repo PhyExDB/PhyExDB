@@ -16,6 +16,7 @@
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.5",
+    "umzug": "^3.8.2",
     "vue": "latest",
     "vue-router": "latest"
   },
