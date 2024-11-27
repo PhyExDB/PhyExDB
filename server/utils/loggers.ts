@@ -23,10 +23,6 @@ const rootLogger = winston.createLogger({
   ),
   transports: [
 
-    // new winston.transports.File({
-    //   filename: path + "logfile.log",
-    // }),
-
     new DailyRotateFile({
       filename: path + "logfile-%DATE%.log",
       datePattern: "YYYY-MM-DD",
@@ -35,22 +31,23 @@ const rootLogger = winston.createLogger({
       maxFiles: "14d",
     }),
 
+    new winston.transports.Console({
+      format: combine(
+        format(
+          (info, _) => info,
+        )(),
+        colorize(),
+        printf(({ level, message, label }) => {
+          return `${level}${typeof label == "undefined" ? "" : ` ${label}`}: ${message}`
+        }),
+      ),
+    }),
+
   ],
 })
 
 // only log to terminal in development
 if (process.env.NODE_ENV === "development") {
-  rootLogger.add(new winston.transports.Console({
-    format: combine(
-      format(
-        (info, _) => info,
-      )(),
-      colorize(),
-      printf(({ level, message, label }) => {
-        return `${level}${typeof label == "undefined" ? "" : ` ${label}`}: ${message}`
-      }),
-    ),
-  }))
   rootLogger.add(new winston.transports.File({
     filename: path + "json-filtered.log",
     format: combine(
@@ -74,6 +71,7 @@ if (process.env.NODE_ENV === "development") {
     ),
   }))
 }
+
 /** logger with label main */
 export const logger = rootLogger.child({ label: "main" })
 /** logger with label db */
