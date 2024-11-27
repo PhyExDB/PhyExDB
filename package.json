@@ -17,7 +17,9 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.5",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^0.7.1",
