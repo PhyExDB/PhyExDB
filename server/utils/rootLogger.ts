@@ -18,14 +18,12 @@ const rootLogger = winston.createLogger({
   level: config.logLevel,
   format: combine(
     timestamp(),
-    // prettyPrint only in development
-    process.env.NODE_ENV === "development" ? json() : prettyPrint(),
+    json(),
   ),
   transports: [
 
     new winston.transports.File({
       filename: path + "logfile.log",
-      level: config.logLevel,
     }),
 
   ],
@@ -35,9 +33,34 @@ const rootLogger = winston.createLogger({
 if (process.env.NODE_ENV === "development") {
   rootLogger.add(new winston.transports.Console({
     format: combine(
+      format(
+        (info, _) => info,
+      )(),
       colorize(),
       printf(({ level, message, label }) => {
         return `${typeof label == "undefined" ? "" : `[${label}] `}${level}: ${message}`
+      }),
+    ),
+  }))
+  rootLogger.add(new winston.transports.File({
+    filename: path + "json-filtered.log",
+    format: combine(
+      format(
+        (info, _) => info.label !== "db" ? info : false,
+      )(),
+      timestamp(),
+      prettyPrint(),
+    ),
+  }))
+  rootLogger.add(new winston.transports.File({
+    filename: path + "human-filtered.log",
+    format: combine(
+      format(
+        (info, _) => info.label !== "db" ? info : false,
+      )(),
+      timestamp(),
+      printf(({ level, message, label }) => {
+        return `${format.timestamp({ format: "HH:mm:ss" })} ${typeof label == "undefined" ? "" : `[${label}] `}${level}: ${message}`
       }),
     ),
   }))
