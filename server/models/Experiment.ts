@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../utils/sequelize"
-import Section from "./Section"
 
+const experimentStatusEnum = DataTypes.ENUM("Draft", "Submitted", "Accepted")
 class Experiment extends Model {}
 
 Experiment.init(
@@ -12,13 +12,20 @@ Experiment.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    text: {
-      type: DataTypes.TEXT,
+    title: {
+      type: DataTypes.STRING,
       allowNull: false,
-      references: {
-        model: Section,
-        key: "id",
-      },
+    },
+    experimentStatus: {
+      type: experimentStatusEnum,
+      allowNull: false,
+      defaultValue: "Draft",
+    },
+    // Duration in minutes
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
     },
   },
   {
