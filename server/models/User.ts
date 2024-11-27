@@ -6,11 +6,6 @@ class User extends Model {}
 User.init(
   {
     // Model attributes are defined here
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
-    },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -22,8 +17,12 @@ User.init(
         isEmail: true,
       },
     },
-    password: {
+    passwordHash: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
   },
