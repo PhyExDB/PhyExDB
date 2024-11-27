@@ -1,4 +1,5 @@
 import winston, { format } from "winston"
+import DailyRotateFile from "winston-daily-rotate-file"
 
 const { printf, combine, timestamp, colorize, json, prettyPrint } = format
 const config = useRuntimeConfig()
@@ -22,8 +23,16 @@ const rootLogger = winston.createLogger({
   ),
   transports: [
 
-    new winston.transports.File({
-      filename: path + "logfile.log",
+    // new winston.transports.File({
+    //   filename: path + "logfile.log",
+    // }),
+
+    new DailyRotateFile({
+      filename: path + "logfile-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      // zippedArchive: true,
+      maxSize: "20m",
+      maxFiles: "14d",
     }),
 
   ],
@@ -58,9 +67,9 @@ if (process.env.NODE_ENV === "development") {
       format(
         (info, _) => info.label !== "db" ? info : false,
       )(),
-      timestamp(),
-      printf(({ level, message, label }) => {
-        return `${format.timestamp({ format: "HH:mm:ss" })} ${typeof label == "undefined" ? "" : `[${label}] `}${level}: ${message}`
+      timestamp({ format: "HH:mm:ss" }),
+      printf(({ level, message, timestamp, label }) => {
+        return `[${timestamp}] ${typeof label == "undefined" ? "" : `[${label}] `}${level}: ${message}`
       }),
     ),
   }))
