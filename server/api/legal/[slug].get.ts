@@ -20,3 +20,31 @@ export default defineEventHandler(async (event) => {
 
   return document.toLegalDetail()
 })
+
+defineRouteMeta({
+  openAPI: {
+    description: "Get a legal document",
+    tags: ["Legal"],
+    responses: {
+      200: {
+        description: "The legal document",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                title: { type: "string" },
+                content: { type: "string" },
+              },
+              required: ["id", "title", "content", "createdAt", "updatedAt"],
+            },
+          },
+        },
+      },
+      400: {
+        description: "Invalid slug",
+      },
+    },
+  },
+})
