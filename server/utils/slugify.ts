@@ -4,7 +4,9 @@
  * @returns A slugified version of the input string.
  */
 export default function slugify(input: string): string {
-  if (!input) return ""
+  if (!input) {
+    return ""
+  }
 
   return input
     .normalize("NFD") // Normalize to decompose accents (e.g., "é" to "e")
