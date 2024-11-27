@@ -47,7 +47,7 @@ if (process.env.NODE_ENV === "development") {
       )(),
       colorize(),
       printf(({ level, message, label }) => {
-        return `${typeof label == "undefined" ? "" : `[${label}] `}${level}: ${message}`
+        return `${level}${typeof label == "undefined" ? "" : ` ${label}`}: ${message}`
       }),
     ),
   }))
@@ -69,10 +69,12 @@ if (process.env.NODE_ENV === "development") {
       )(),
       timestamp({ format: "HH:mm:ss" }),
       printf(({ level, message, timestamp, label }) => {
-        return `[${timestamp}] ${typeof label == "undefined" ? "" : `[${label}] `}${level}: ${message}`
+        return `[${timestamp}] ${level}${typeof label == "undefined" ? "" : ` ${label}`}: ${message}`
       }),
     ),
   }))
 }
 
+export const dbLogger = rootLogger.child({ label: "db" })
+export const logger = rootLogger.child({ label: "main" })
 export default rootLogger

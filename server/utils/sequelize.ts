@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize"
-import dbLogger from "./dbLogger"
+import { dbLogger } from "./loggers"
 
 const config = useRuntimeConfig()
 
