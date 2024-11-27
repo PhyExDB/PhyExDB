@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   runtimeConfig: {
+    logLevel: "debug",
     databaseUser: "nuxt",
     databasePassword: "nuxt_password",
     databaseName: "phyexdb",
