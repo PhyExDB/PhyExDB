@@ -19,10 +19,6 @@ ExperimentAttributesValues.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      references: {
-        model: ExperimentAttributes,
-        key: "name",
-      },
     },
   },
   {
