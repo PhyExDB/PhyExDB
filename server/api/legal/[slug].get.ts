@@ -8,10 +8,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const isId = uuidValidate(slugOrId)
+  const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
   const document = await Legal.findOne({
-    where: {
-      [isId ? "id" : "slug"]: slugOrId,
-    },
+    where: whereClause,
   })
 
   if (!document) {

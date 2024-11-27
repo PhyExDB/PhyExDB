@@ -1,5 +1,8 @@
 import { v4 as uuidv4 } from "uuid"
 
+/**
+ * Seed the Legal table with initial data.
+ */
 export const up = async ({ context: queryInterface }) => {
   await queryInterface.bulkInsert("Legal", [
     { id: uuidv4(), name: "Privacy Policy", slug: "privacy-policy", content: "This is the privacy policy.", createdAt: new Date(), updatedAt: new Date() },
@@ -8,6 +11,9 @@ export const up = async ({ context: queryInterface }) => {
   ])
 }
 
+/**
+ * Revert the seeding of the Legal table.
+ */
 export const down = async ({ context: queryInterface }) => {
   await queryInterface.bulkDelete("Legal", null, {})
 }

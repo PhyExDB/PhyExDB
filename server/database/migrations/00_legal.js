@@ -1,5 +1,8 @@
 import { DataTypes } from "sequelize"
 
+/**
+ * Run the Legal migrations.
+ */
 async function up({ context: queryInterface }) {
   await queryInterface.createTable("Legal", {
     id: {
@@ -27,11 +30,13 @@ async function up({ context: queryInterface }) {
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW,
     },
   })
 }
 
+/**
+ * Revert the Legal migrations.
+ */
 async function down({ context: queryInterface }) {
   await queryInterface.dropTable("Legal")
 }
