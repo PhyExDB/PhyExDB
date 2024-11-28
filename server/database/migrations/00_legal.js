@@ -17,6 +17,7 @@ async function up({ context: queryInterface }) {
     slug: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     content: {
       type: DataTypes.TEXT,
@@ -30,6 +31,7 @@ async function up({ context: queryInterface }) {
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
   })
 }
