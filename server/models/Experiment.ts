@@ -26,6 +26,11 @@ Experiment.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
   },
   {
     // Other model options go here
