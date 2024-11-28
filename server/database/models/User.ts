@@ -22,7 +22,7 @@ User.init(
     },
     passwordHash: {
       type: DataTypes.STRING,
-      async set(password: string) {
+      set(password: string) {
         const salt: string = bcrypt.genSaltSync()
         this.setDataValue("passwordHash", bcrypt.hashSync(password, salt))
       },
