@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt"
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../utils/sequelize"
 
@@ -21,6 +22,10 @@ User.init(
     },
     passwordHash: {
       type: DataTypes.STRING,
+      async set(password: string) {
+        const salt: string = bcrypt.genSaltSync()
+        this.setDataValue("passwordHash", bcrypt.hashSync(password, salt))
+      },
       allowNull: false,
     },
     verified: {
