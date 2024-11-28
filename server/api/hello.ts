@@ -1,4 +1,4 @@
-import User from "../models/User"
+import User from "../database/models/User"
 
 export default defineEventHandler(async () => {
   logger.info("asked for hello")
