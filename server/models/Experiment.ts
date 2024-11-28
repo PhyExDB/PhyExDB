@@ -25,7 +25,6 @@ Experiment.init(
     duration: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0,
     },
   },
   {
