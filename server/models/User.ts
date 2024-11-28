@@ -22,9 +22,9 @@ User.init(
     },
     passwordHash: {
       type: DataTypes.STRING,
-      async set(password: string) {
-        const salt = await bcrypt.genSalt()
-        this.setDataValue("passwordHash", await bcrypt.hash(password, salt))
+      set(password: string) {
+        const salt: string = bcrypt.genSaltSync()
+        this.setDataValue("passwordHash", bcrypt.hashSync(password, salt))
       },
       allowNull: false,
     },
