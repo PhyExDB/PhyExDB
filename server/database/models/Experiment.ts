@@ -1,5 +1,4 @@
 import { DataTypes, Model } from "sequelize"
-import sequelize from "../utils/sequelize"
 
 const experimentStatusEnum = DataTypes.ENUM("Draft", "Submitted", "Accepted")
 class Experiment extends Model {}
