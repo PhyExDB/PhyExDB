@@ -17,6 +17,11 @@ async function up({ context: queryInterface }) {
       unique: true,
       allowNull: false,
     },
+    role: {
+      type: DataTypes.ENUM,
+      allowNull: false,
+      values: ["User", "Moderator", "Administrator"],
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -27,11 +32,11 @@ async function up({ context: queryInterface }) {
     },
     passwordHash: {
       type: DataTypes.STRING,
-      allowNull: false,
       set(password) {
         const salt = bcrypt.genSaltSync()
         this.setDataValue("passwordHash", bcrypt.hashSync(password, salt))
       },
+      allowNull: false,
     },
     verified: {
       type: DataTypes.BOOLEAN,
