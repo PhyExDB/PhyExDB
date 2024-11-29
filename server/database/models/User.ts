@@ -6,10 +6,20 @@ class User extends Model {}
 User.init(
   {
     // Model attributes are defined here
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     username: {
       type: DataTypes.STRING,
       unique: true,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM,
+      allowNull: false,
+      values: ["User", "Moderator", "Administrator"],
     },
     email: {
       type: DataTypes.STRING,
