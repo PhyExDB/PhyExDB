@@ -74,12 +74,19 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
   })
 
   it.each(["name", "content"])("should return an error when the field %s is empty", async (field) => {
+    const updateContent = {
+      name: `New name ${uuidv4()}`,
+      content: `New content ${uuidv4()}`,
+    }
+    if (field === "name") {
+      updateContent.name = ""
+    } else if (field === "content") {
+      updateContent.content = ""
+    }
+
     const response = await fetch(url("/api/legal/imprint"), {
       method: "PUT",
-      body: JSON.stringify({
-        name: field === "name" ? "" : `New name ${uuidv4()}`,
-        content: field === "content" ? "" : `New content ${uuidv4()}`,
-      }),
+      body: JSON.stringify(updateContent),
     })
 
     expect(response.status).toBe(400)
