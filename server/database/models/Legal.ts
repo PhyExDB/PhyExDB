@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize"
 import type { LegalDetail, LegalList } from "~~/shared/types"
+import sequelize from "~~/server/utils/sequelize"
 
 class Legal extends Model {
   declare id: string
