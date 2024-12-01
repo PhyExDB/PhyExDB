@@ -5,7 +5,7 @@ import { DataTypes } from "sequelize"
  * Run the User migrations.
  */
 async function up({ context: queryInterface }) {
-  await queryInterface.createTable("User", {
+  await queryInterface.createTable("Users", {
     // Model attributes are defined here
     id: {
       type: DataTypes.UUID,
@@ -59,7 +59,7 @@ async function up({ context: queryInterface }) {
  * Revert the User migrations.
  */
 async function down({ context: queryInterface }) {
-  await queryInterface.dropTable("User")
+  await queryInterface.dropTable("Users")
 }
 
 export { up, down }
