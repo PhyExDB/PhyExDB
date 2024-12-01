@@ -1,4 +1,4 @@
-import { umzugSeeds, sequelize, umzug } from "./setup.js"
+import { umzug, umzugSeeds, sequelize, logger } from "./setup.js"
 
 async function status() {
   const pendingMigrations = await umzug.pending()
@@ -6,13 +6,16 @@ async function status() {
   const pendingSeeds = await umzugSeeds.pending()
   const executedSeeds = await umzugSeeds.executed()
 
-  console.log("\nCurrent Migration Status")
-  console.log("Executed migrations:", executedMigrations.map(m => m.name))
-  console.log("Pending migrations:", pendingMigrations.map(m => m.name))
-  console.log("Executed seeds:", executedSeeds.map(m => m.name))
-  console.log("Pending seeds:", pendingSeeds.map(m => m.name))
+  const statusMessage = `
+Current Migration Status:
+Executed migrations: ${executedMigrations.map(m => m.name).join(", ")}
+Pending migrations: ${pendingMigrations.map(m => m.name).join(", ")}
+Executed seeds: ${executedSeeds.map(m => m.name).join(", ")}
+Pending seeds: ${pendingSeeds.map(m => m.name).join(", ")}
+  `
+  logger.info(statusMessage)
 
   await sequelize.close()
 }
 
-status()
+await status()

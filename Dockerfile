@@ -24,7 +24,7 @@ RUN npm prune --production
 # Create a clean production node_modules with only what we need for migrations
 RUN cd .output/migrations && \
   npm init es6 -y && \
-  npm install --production uuid dotenv sequelize pg-hstore pg umzug
+  npm install --production winston uuid dotenv sequelize pg-hstore pg umzug
 
 # ================================
 # Run image

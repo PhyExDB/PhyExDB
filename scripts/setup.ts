@@ -1,12 +1,38 @@
-import { Umzug, SequelizeStorage } from "umzug"
+import { Umzug, SequelizeStorage, type MigrationMeta } from "umzug"
 import { Sequelize } from "sequelize"
 import * as dotenv from "dotenv"
+import winston, { format } from "winston"
 
 if (process.env.NODE_ENV === "production") {
   dotenv.config()
 } else {
   dotenv.config({ path: ".env.development" })
 }
+
+const { printf, combine, timestamp, colorize, json } = format
+
+const logger = winston.createLogger({
+  levels: winston.config.syslog.levels,
+  level: process.env.NUXT_LOG_LEVEL,
+  format: combine(
+    timestamp(),
+    json(),
+  ),
+  transports: [
+    new winston.transports.Console({
+      format: combine(
+        format(
+          (info, _) => info,
+        )(),
+        colorize(),
+        printf(({ level, message, label }) => {
+          return `${level}${typeof label == "undefined" ? "" : ` ${label}`}: ${message}`
+        }),
+      ),
+    }),
+
+  ],
+})
 
 const sequelize = new Sequelize(
   process.env.NUXT_DATABASE_NAME!,
@@ -25,14 +51,36 @@ const umzug = new Umzug({
   migrations: { glob: `${databaseDir}/database/migrations/*.js` },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
-  logger: console,
+  logger: logger,
 })
 
 const umzugSeeds = new Umzug({
   migrations: { glob: `${databaseDir}/database/seeds/*.js` },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
-  logger: console,
+  logger: logger,
 })
 
-export { umzug, umzugSeeds, sequelize }
+/**
+ * Executes a given asynchronous action and handles success and failure scenarios.
+ *
+ * @param action - A function that returns a promise resolving to an array of MigrationMeta objects.
+ * @param successDescription - A message to log upon successful completion of the action.
+ * @param failureDescription - A message to log upon failure of the action.
+ *
+ * @throws Will log the failure description and exit the process with code 1 if the action throws an error.
+ */
+async function performAction(action: () => Promise<MigrationMeta[]>, { successDescription, failureDescription }: { successDescription: string, failureDescription: string }) {
+  try {
+    const migrations = await action()
+    const migrationNames = migrations.map(migration => migration.name).join(", ")
+    logger.info(`${successDescription} ${migrationNames}`)
+  } catch (error) {
+    logger.error(`${failureDescription} ${error}`)
+    process.exit(1)
+  } finally {
+    await sequelize.close()
+  }
+}
+
+export { umzug, umzugSeeds, sequelize, performAction, logger }
