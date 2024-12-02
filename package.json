@@ -4,12 +4,19 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "dotenv -e .env.development nuxt dev",
+    "build:migrations": "tsc -p tsconfig.migrations.json",
+    "build:all": "npm run build && npm run build:migrations",
+    "dev": "npm run migrate && dotenv -e .env.development nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "migrate": "npm run migrate:models && npm run migrate:seed",
+    "migrate:models": "tsx scripts/migrate.ts",
+    "migrate:seed": "tsx scripts/seed.ts",
+    "migrate:revert": "tsx scripts/revert.ts",
+    "migrate:status": "tsx scripts/migrationStatus.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -32,6 +39,7 @@
     "@types/uuid": "^10.0.0",
     "dotenv-cli": "^7.4.4",
     "eslint": "^9.15.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }
 }
