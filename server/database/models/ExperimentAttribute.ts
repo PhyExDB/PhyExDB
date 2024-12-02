@@ -1,8 +1,8 @@
 import { DataTypes, Model } from "sequelize"
 
-class ExperimentAttributesValues extends Model {}
+class ExperimentAttribute extends Model {}
 
-ExperimentAttributesValues.init(
+ExperimentAttribute.init(
   {
     // Model attributes are defined here
     id: {
@@ -18,8 +18,8 @@ ExperimentAttributesValues.init(
   {
     // Other model options go here
     sequelize, // connection instance
-    modelName: "ExperimentAttributesValues", // model name
+    modelName: "ExperimentAttribute", // model name
   },
 )
 
-export default ExperimentAttributesValues
+export default ExperimentAttribute

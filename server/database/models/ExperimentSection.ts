@@ -1,15 +1,33 @@
 import { DataTypes, Model } from "sequelize"
 import Section from "./Section"
+import Experiment from "./Experiment"
+import File from "./File"
 
 class ExperimentSection extends Model {}
 
 ExperimentSection.init(
   {
     // Model attributes are defined here
-    id: {
+    experiment: {
       type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+      references: {
+        model: Experiment,
+        key: "id",
+      },
+    },
+    section: {
+      type: DataTypes.UUID,
+      references: {
+        model: Section,
+        key: "id",
+      },
+    },
+    file: {
+      type: DataTypes.UUID,
+      references: {
+        model: File,
+        key: "id",
+      },
     },
     text: {
       type: DataTypes.TEXT,
