@@ -1,7 +1,33 @@
 import bcrypt from "bcrypt"
 import { DataTypes, Model } from "sequelize"
+import type { UserList, UserDetail } from "~~/shared/types"
 
-class User extends Model {}
+class User extends Model {
+  declare id: string
+  declare username: string
+  declare role: string
+  declare email: string
+  declare verified: string
+
+  toUserList(): UserList {
+    return {
+      id: this.id,
+      username: this.username,
+      role: this.role,
+      verified: this.verified,
+    }
+  }
+
+  toUserDetail(): UserDetail {
+    return {
+      id: this.id,
+      username: this.username,
+      role: this.role,
+      verified: this.verified,
+      email: this.email,
+    }
+  }
+}
 
 User.init(
   {
