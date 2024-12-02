@@ -12,7 +12,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest"
+    "test": "vitest",
     "migrate": "npm run migrate:models && npm run migrate:seed",
     "migrate:models": "tsx scripts/migrate.ts",
     "migrate:seed": "tsx scripts/seed.ts",
@@ -46,7 +46,7 @@
     "happy-dom": "^15.11.7",
     "playwright-core": "^1.49.0",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.6"
-    "tsx": "^4.19.2",
+    "vitest": "^2.1.6",
+    "tsx": "^4.19.2"
   }
 }
