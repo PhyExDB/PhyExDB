@@ -26,7 +26,9 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^0.7.1",
+    "@playwright/test": "^1.49.0",
     "@types/bcrypt": "^5.0.2",
+    "@types/node": "^22.10.1",
     "@types/pg": "^8.11.10",
     "@types/sequelize": "^4.28.20",
     "@types/uuid": "^10.0.0",

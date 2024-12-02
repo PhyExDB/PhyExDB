@@ -60,6 +60,14 @@
 
   In the `docker-compose.yml`, the backend image can be adjusted. By default, the `latest` tag is used, which refers to the latest state of the `main` branch. To test the state of a pull request, the tag can be set to `pr-[PR-number]`.
 
+### Tests
+
+#### e2e playwright
+```bash
+npx playwright install
+sudo npx playwright install-deps # requires sudo
+```
+
 ## Git
 
 - Main Branch Protection
