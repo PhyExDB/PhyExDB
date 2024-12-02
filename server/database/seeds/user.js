@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from "uuid"
 export const up = async ({ context: queryInterface }) => {
   await queryInterface.bulkInsert("Users", [
     { id: uuidv4(), username: "Alice", role: "Administrator", email: "Alice@gmail.com", passwordHash: "secure", verified: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: uuidv4(), username: "Bob", role: "Moderator", email: "Bob@gmail.com", passwordHash: "ILikeAlice", verified: true, createdAt: new Date(), updatedAt: new Date() },
+    { id: uuidv4(), username: "Eve", role: "User", email: "Eve@gmail.com", passwordHash: "password", verified: true, createdAt: new Date(), updatedAt: new Date() },
   ])
 }
 
