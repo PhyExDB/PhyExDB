@@ -18,8 +18,13 @@ RUN npm ci
 COPY . .
 
 # build the application
-RUN npm run build
+RUN npm run build:all
 RUN npm prune --production
+
+# Create a clean production node_modules with only what we need for migrations
+RUN cd .output/migrations && \
+  npm init es6 -y && \
+  npm install --production winston uuid dotenv sequelize pg-hstore pg umzug
 
 # ================================
 # Run image
@@ -38,6 +43,11 @@ WORKDIR /app
 # copy the output directory to the /app directory from
 # build stage with proper permissions for user nuxt user
 COPY --chown=nuxtuser:nuxtuser --from=build /build/.output ./
+# Copy migration files and scripts
+COPY --chown=nuxtuser:nuxtuser --from=build /build/server/database/migrations ./migrations/database/migrations
+COPY --chown=nuxtuser:nuxtuser --from=build /build/server/database/seeds ./migrations/database/seeds
+COPY --chown=nuxtuser:nuxtuser --from=build /build/.output/migrations/node_modules ./migrations/node_modules
+
 
 # expose 8080 on the container
 EXPOSE 8080
