@@ -51,3 +51,5 @@ The Test Suite can be run with:
 ```bash
 npm run test
 ```
+
+For the tests to run, a `.env.test` file must be present. You can copy the `.env.example` file and rename it to `.env.test`. Also, the database must be running.
