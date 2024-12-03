@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ghcr.io/phyexdb/phyexdb:latest
+    image: phyexdb
     container_name: phyexdb_backend
     restart: always
     env_file:
