@@ -56,6 +56,9 @@ class User extends Model {
     }
   }
 }
+import sequelize from "~~/server/utils/sequelize"
+
+class User extends Model {}
 
 User.init(
   {
