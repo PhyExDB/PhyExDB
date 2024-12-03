@@ -33,15 +33,15 @@ defineRouteMeta({
               type: "object",
               properties: {
                 id: { type: "string", format: "uuid" },
-                title: { type: "string" },
+                name: { type: "string" },
                 content: { type: "string" },
               },
-              required: ["id", "title", "content", "createdAt", "updatedAt"],
+              required: ["id", "name", "content"],
             },
           },
         },
       },
-      400: {
+      404: {
         description: "Invalid slug",
       },
     },

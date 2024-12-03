@@ -3,7 +3,7 @@ import * as v from "valibot"
 import Legal from "~~/server/database/models/Legal"
 
 const legalUpdateSchema = v.object({
-  title: v.string(),
+  name: v.string(),
   content: v.string(),
 })
 
@@ -38,10 +38,10 @@ defineRouteMeta({
           schema: {
             type: "object",
             properties: {
-              title: { type: "string" },
+              name: { type: "string" },
               content: { type: "string" },
             },
-            required: ["title", "content"],
+            required: ["name", "content"],
           },
         },
       },
@@ -55,16 +55,16 @@ defineRouteMeta({
               type: "object",
               properties: {
                 id: { type: "string", format: "uuid" },
-                title: { type: "string" },
+                name: { type: "string" },
                 content: { type: "string" },
               },
-              required: ["id", "title", "content", "createdAt", "updatedAt"],
+              required: ["id", "name", "content"],
             },
           },
         },
       },
       400: {
-        description: "Invalid slug",
+        description: "Invalid body",
       },
       404: {
         description: "Document not found",
