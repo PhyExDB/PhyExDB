@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
   // Validate user data
   const userSchema = v.object({
-    name: v.string(),
+    name: v.pipe(v.string(), v.nonEmpty("Please enter Name")),
     email: v.pipe(v.string(), v.nonEmpty("Please enter Email"), v.email("Not an Email")),
     password: v.pipe(v.string(), v.nonEmpty("Please enter Password"), v.minLength(8, "Password must be at least 8 characters"), v.regex(/[a-z]/, "Password must contain at least one lowercase letter"), v.regex(/[A-Z]/, "Password must contain at least one uppercase letter"), v.regex(/[0-9]/, "Password must contain at least one number")),
   })
