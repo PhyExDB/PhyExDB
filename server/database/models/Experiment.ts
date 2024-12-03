@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize"
 import User from "./User"
+import sequelize from "~~/server/utils/sequelize"
 
 class Experiment extends Model {}
 
