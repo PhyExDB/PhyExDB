@@ -1,6 +1,7 @@
 import { DataTypes, Model } from "sequelize"
 import Experiment from "./Experiment"
 import ExperimentAttributeValue from "./ExperimentAttributeValue"
+import sequelize from "~~/server/utils/sequelize"
 
 class Experiment_AttributeValue extends Model {}
 
