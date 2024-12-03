@@ -1,19 +1,9 @@
-import { validate as uuidValidate } from "uuid"
 import * as v from "valibot"
-import { readBody, createError, getRouterParam } from "h3"
+import { readBody, createError } from "h3"
 import Users from "~~/server/database/models/User"
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const user = getRouterParam(event, "user")
-  if (!user) {
-    throw createError({ status: 400, message: "Invalid user" })
-  }
-
-  const isId = uuidValidate(user)
-  if (!isId) {
-    throw createError({ status: 400, message: "Invalid user ID" })
-  }
 
   const userData = {
     name: body.name,
