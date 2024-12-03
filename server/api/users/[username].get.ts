@@ -6,5 +6,5 @@ export default defineEventHandler(async (event) => {
     where: { username: username },
   },
   )
-  return "Hello Nitro"
+  return users.map(user => user.toUserDetail())
 })
