@@ -2,6 +2,23 @@ import bcrypt from "bcrypt"
 import { DataTypes, Model } from "sequelize"
 import type { UserList, UserDetail } from "~~/shared/types"
 
+/**
+ * Represents a user in the system.
+ *
+ * @extends Model
+ *
+ * @property {string} id - The unique identifier for the user.
+ * @property {string} username - The username of the user.
+ * @property {string} role - The role of the user (e.g., admin, user).
+ * @property {string} email - The email address of the user.
+ * @property {string} verified - The verification status of the user.
+ *
+ * @method toUserList - Converts the current User instance to a UserList object.
+ * @returns {UserList} An object containing the user's id, username, role, and verification status.
+ *
+ * @method toUserDetail - Converts the current User instance to a UserDetail object.
+ * @returns {UserDetail} An object containing the user's id, username, role, verification status, and email.
+ */
 class User extends Model {
   declare id: string
   declare username: string
@@ -9,6 +26,11 @@ class User extends Model {
   declare email: string
   declare verified: string
 
+  /**
+   * Converts the current User instance to a UserList object.
+   *
+   * @returns {UserList} An object containing the user's id, username, role, and verification status.
+   */
   toUserList(): UserList {
     return {
       id: this.id,
@@ -18,6 +40,11 @@ class User extends Model {
     }
   }
 
+  /**
+   * Converts the User instance to a UserDetail object.
+   *
+   * @returns {UserDetail} An object containing the user's details including id, username, role, verified status, and email.
+   */
   toUserDetail(): UserDetail {
     return {
       id: this.id,
