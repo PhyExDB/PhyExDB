@@ -2,7 +2,6 @@ import { DataTypes, Model } from "sequelize"
 import Section from "./Section"
 import Experiment from "./Experiment"
 import File from "./File"
-import sequelize from "~~/server/utils/sequelize"
 
 class ExperimentSection extends Model {}
 
