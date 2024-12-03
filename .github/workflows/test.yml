@@ -1,0 +1,58 @@
+name: test
+
+on:
+  release:
+    types:
+      - published
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    env:
+      NUXT_DATABASE_USER: nuxt
+      NUXT_DATABASE_PASSWORD: nuxt_password
+      NUXT_DATABASE_NAME: phyexdb
+      NUXT_DATABASE_HOST: localhost
+      NUXT_DATABASE_PORT: 5432
+      # For Databsae migrations, change server to migrations in docker
+      NUXT_DATABASE_DIR_LOCATION: server
+      # For API Base URL
+      NUXT_PUBLIC_API_BASE: http://db:3000/api/
+
+    services:
+      db:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: ${{ env.NUXT_DATABASE_NAME }}
+          POSTGRES_USER: ${{ env.NUXT_DATABASE_USER }}
+          POSTGRES_PASSWORD: ${{ env.NUXT_DATABASE_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run db migrations and seeds
+        run: npm run migrate
+
+      - name: Run tests
+        run: npm test
