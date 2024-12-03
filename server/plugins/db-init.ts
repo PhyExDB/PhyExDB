@@ -1,13 +1,12 @@
 import "pg" // Do not remove this, because otherwise pg will not be included in the final bundle
-import { umzug, seed } from "../utils/umzug"
+import sequelize from "~~/server/utils/sequelize"
+import logger from "~~/server/utils/loggers"
 
 export default defineNitroPlugin(async () => {
   try {
-    const migrations = await umzug.up()
-    logger.info("Migrations executed:", migrations)
-    const seeds = await seed.up()
-    logger.info("Seeds executed:", seeds)
+    sequelize.authenticate()
+    logger.info("Connection to database has been established successfully.")
   } catch (error) {
-    console.error("Unable to connect to the database:", error)
+    logger.error("Unable to connect to the database:", error)
   }
 })

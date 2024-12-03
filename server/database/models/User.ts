@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt"
 import { DataTypes, Model } from "sequelize"
 import type { UserList, UserDetail } from "~~/shared/types"
+import sequelize from "~~/server/utils/sequelize"
 
 /**
  * Represents a user in the system.

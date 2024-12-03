@@ -43,3 +43,13 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 The API is documented with OpenAPI. You can view the documentation by running the development server and visiting `http://localhost:3000/_scalar`.
 
 To add additional routes, set the `openAPI` value of `defineRouteMeta` in the respective route file.
+
+## Running Tests
+
+The Test Suite can be run with:
+
+```bash
+npm run test
+```
+
+For the tests to run, a `.env.test` file must be present. You can copy the `.env.example` file and rename it to `.env.test`. Also, the database must be running.

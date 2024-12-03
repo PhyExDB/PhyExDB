@@ -43,7 +43,7 @@
   ```
 
 - Docker
-  Setup: copy `.env.example` to `.env` and `.env.development` and set `NUXT_DATABASE_HOST=db` in `.env` instead of `localhost`,
+  Setup: copy `.env.example` to `.env` and `.env.development` and set `NUXT_DATABASE_HOST=db` in `.env` instead of `localhost`. Also, for the production environment `.env` which is used by the docker container, change `NUXT_DATABASE_DIR_LOCATION` from `server` to `migrations` for the docker container to work correctly.
 
   Start and delete development docker containers:
 

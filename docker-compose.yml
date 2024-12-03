@@ -29,6 +29,41 @@ services:
       start_period: 5s
       timeout: 5s
 
+  migrate:
+    image: phyexdb
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - tools
+    command: sh -c "node /app/migrations/migrate.js && node /app/migrations/seed.js"
+
+  migration-status:
+    image: phyexdb
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - tools
+    command: node /app/migrations/migrationStatus.js
+
+  revert:
+    image: phyexdb
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - tools
+    command: node /app/migrations/revert.js
+
+
+
 volumes:
   db_data:
   public_data:
