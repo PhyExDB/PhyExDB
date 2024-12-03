@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt"
 import { DataTypes, Model } from "sequelize"
-import sequelize from "~~/server/utils/sequelize"
 
 class User extends Model {}
 
