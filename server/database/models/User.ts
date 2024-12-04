@@ -13,12 +13,6 @@ import sequelize from "~~/server/utils/sequelize"
  * @property {string} role - The role of the user (e.g., admin, user).
  * @property {string} email - The email address of the user.
  * @property {string} verified - The verification status of the user.
- *
- * @method toUserList - Converts the current User instance to a UserList object.
- * @returns {UserList} An object containing the user's id, username, role, and verification status.
- *
- * @method toUserDetail - Converts the current User instance to a UserDetail object.
- * @returns {UserDetail} An object containing the user's id, username, role, verification status, and email.
  */
 class User extends Model {
   declare id: string
@@ -56,9 +50,6 @@ class User extends Model {
     }
   }
 }
-import sequelize from "~~/server/utils/sequelize"
-
-class User extends Model {}
 
 User.init(
   {
