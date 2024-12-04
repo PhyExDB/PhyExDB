@@ -23,7 +23,7 @@ defineRouteMeta({
                   id: { type: "string", format: "uuid" },
                   username: { type: "string" },
                   role: { type: "string" },
-                  verified: { type: "string", format: "enum: User, Moderator, Administrator" },
+                  verified: { type: "string", enum: ["User", "Moderator", "Administrator"] },
                 },
               },
             },

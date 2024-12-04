@@ -42,18 +42,25 @@ export interface UserUpdate {
    */
   username: string
   /**
-   * The content of the legal document.
-   */
-  role: string
-  /**
-   * The role of the user.
-   */
-  verified: string
-  /**
-   * The verification status of the user.
-   */
-  email: string
-  /**
    * The email of the user.
    */
+  email: string
+}
+
+/**
+ * Interface representing the data required to create a new user.
+ */
+export interface UserCreate {
+  /**
+   * The username of the user.
+   */
+  username: string
+  /**
+  * The email of the user.
+  */
+  email: string
+  /**
+   * The password of the user.
+   */
+  password: string
 }
