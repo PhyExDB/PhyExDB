@@ -1,4 +1,5 @@
 import * as v from "valibot"
+import { Op } from "sequelize"
 import User from "~~/server/database/models/User"
 
 const registerSchema = v.object({
@@ -14,15 +15,38 @@ const registerSchema = v.object({
 export default defineEventHandler(async (event) => {
   const registerContent = await readValidatedBody(event, body => v.parse(registerSchema, body))
 
-  const user = User.build({
-    username: registerContent.username,
-    email: registerContent.email,
-    passwordHash: registerContent.password,
-    role: "User",
-    verified: false,
+  const [user, created] = await User.findOrCreate({
+    where: {
+      [Op.or]: [
+        { username: registerContent.username },
+        { email: registerContent.email },
+      ],
+    },
+    defaults: {
+      username: registerContent.username,
+      email: registerContent.email,
+      passwordHash: registerContent.password,
+      role: "User",
+      verified: false,
+    },
   })
 
-  await user.save()
+  if (!created) {
+    if (user.username === registerContent.username) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Username already exists",
+      })
+    }
+    if (user.email === registerContent.email) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Email already exists",
+      })
+    }
+  }
+  setResponseStatus(event, 201)
+  return {}
 })
 
 defineRouteMeta({

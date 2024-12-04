@@ -1,7 +1,10 @@
 import bcrypt from "bcrypt"
 import { DataTypes, Model } from "sequelize"
 
-class User extends Model {}
+class User extends Model {
+  declare username: string
+  declare email: string
+}
 
 User.init(
   {
