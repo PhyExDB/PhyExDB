@@ -11,23 +11,8 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Returns details for a userr",
+    description: "Returns details for a user",
     tags: ["User"],
-    requestBody: {
-      description: "Username to get details for",
-      required: true,
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              username: { type: "string" },
-            },
-            required: ["username"],
-          },
-        },
-      },
-    },
     responses: {
       200: {
         description: "User found and details returned",
