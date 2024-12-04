@@ -1,10 +1,11 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "~~/server/utils/sequelize"
-import type { AttributeList } from "~~/shared/types/experiment/ExperimentAttribute.type"
+import type { AttributeDetail, AttributeList, AttributeValue } from "~~/shared/types/experiment/ExperimentAttribute.type"
 
 class ExperimentAttribute extends Model {
   declare id: string
   declare name: string
+  declare attributeValueList: AttributeValue[]
   /**
    * Converts the current instance to a LegalList object.
    *
@@ -14,6 +15,14 @@ class ExperimentAttribute extends Model {
     return {
       id: this.id,
       name: this.name,
+    }
+  }
+
+  toDetailAttributeList(): AttributeDetail {
+    return {
+      id: this.id,
+      name: this.name,
+      valueList: this.attributeValueList,
     }
   }
 }
