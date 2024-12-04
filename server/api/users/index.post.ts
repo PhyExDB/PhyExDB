@@ -48,8 +48,11 @@ defineRouteMeta({
             schema: {
               type: "object",
               properties: {
-                message: { type: "string" },
-                user: { type: "object" },
+                id: { type: "string", format: "uuid" },
+                username: { type: "string" },
+                role: { type: "string" },
+                verified: { type: "string", enum: ["User", "Moderator", "Administrator"] },
+                email: { type: "string" },
               },
             },
           },

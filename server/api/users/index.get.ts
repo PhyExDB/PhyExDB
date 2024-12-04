@@ -9,7 +9,7 @@ export default defineEventHandler(async () => {
 defineRouteMeta({
   openAPI: {
     description: "Get a list of users",
-    tags: ["Users"],
+    tags: ["User"],
     responses: {
       200: {
         description: "A list of users",
