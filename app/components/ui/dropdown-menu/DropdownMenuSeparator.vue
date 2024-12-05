@@ -4,7 +4,7 @@ import {
   type DropdownMenuSeparatorProps,
 } from "radix-vue"
 import { computed, type HTMLAttributes } from "vue"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 
 const props = defineProps<DropdownMenuSeparatorProps & {
   class?: HTMLAttributes["class"]
@@ -20,6 +20,6 @@ const delegatedProps = computed(() => {
 <template>
   <DropdownMenuSeparator
     v-bind="delegatedProps"
-    :class="cn('-mx-1 my-1 h-px bg-slate-100 dark:bg-slate-800', props.class)"
+    :class="cn('-mx-1 my-1 h-px bg-muted', props.class)"
   />
 </template>
