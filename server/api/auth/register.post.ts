@@ -43,13 +43,13 @@ export default defineEventHandler(async (event) => {
   if (!created) {
     if (user.username === registerContent.username) {
       throw createError({
-        statusCode: 400,
+        statusCode: 422,
         statusMessage: "Username already exists",
       })
     }
     if (user.email === registerContent.email) {
       throw createError({
-        statusCode: 400,
+        statusCode: 422,
         statusMessage: "Email already exists",
       })
     }
