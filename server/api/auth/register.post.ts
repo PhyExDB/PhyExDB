@@ -3,7 +3,16 @@ import { Op } from "sequelize"
 import User from "~~/server/database/models/User"
 
 const registerSchema = v.object({
-  username: v.string(),
+  username: v.pipe(
+    v.string(),
+    v.check(
+      value =>
+        !v.is(v.pipe(
+          v.string(),
+          v.email(""),
+        ), value),
+      "Username can't be an email."),
+  ),
   email: v.pipe(
     v.string(),
     v.nonEmpty("Please enter your email."),
