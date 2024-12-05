@@ -34,6 +34,22 @@ const logger = winston.createLogger({
   ],
 })
 
+const requiredEnvVars = [
+  "NUXT_DATABASE_NAME",
+  "NUXT_DATABASE_USER",
+  "NUXT_DATABASE_PASSWORD",
+  "NUXT_DATABASE_HOST",
+  "NUXT_DATABASE_PORT",
+  "NUXT_DATABASE_DIR_LOCATION",
+]
+
+requiredEnvVars.forEach((envVar) => {
+  if (!process.env[envVar]) {
+    logger.error(`${envVar} is not set. Please set it in your environment variables.`)
+    process.exit(1)
+  }
+})
+
 const sequelize = new Sequelize(
   process.env.NUXT_DATABASE_NAME!,
   process.env.NUXT_DATABASE_USER!,
