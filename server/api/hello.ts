@@ -5,8 +5,8 @@ export default defineEventHandler(async () => {
 
   const users = await User.findAll()
   let description: string = ""
-  for (let i = 0; i < users.length; i++) {
-    description += `[Name = ${users[i].getDataValue("username")}, Mail = ${users[i].getDataValue("email")}, Password = ${users[i].getDataValue("passwordHash")}] \t`
+  for (const element of users) {
+    description += `[Name = ${element.getDataValue("username")}, Mail = ${element.getDataValue("email")}, Password = ${element.getDataValue("passwordHash")}] \t`
   }
 
   return `Users: \t ${description}`
