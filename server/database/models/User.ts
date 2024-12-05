@@ -4,6 +4,7 @@ import { DataTypes, Model } from "sequelize"
 class User extends Model {
   declare username: string
   declare email: string
+  declare passwordHash: string
 }
 
 User.init(
