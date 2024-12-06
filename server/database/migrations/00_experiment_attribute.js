@@ -1,21 +1,13 @@
 import { DataTypes } from "sequelize"
-import ExperimentAttribute from "../../models/ExperimentAttribute"
 /**
- * run the value migration
+ * run the Attribute
  */
 async function up({ context: queryInterface }) {
-  await queryInterface.createTable("Value", {
+  await queryInterface.createTable("ExperimentAttributes", {
     id: {
       type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
-    },
-    attributeValue: {
-      type: DataTypes.UUIDV4,
-      refereces: {
-        model: ExperimentAttribute,
-        key: "id",
-      },
     },
     name: {
       type: DataTypes.STRING,
@@ -34,10 +26,10 @@ async function up({ context: queryInterface }) {
   })
 }
 /**
- * revert the Experiment Value Migration
+ * revert the Experiment Attribute Migration
  */
 async function down({ context: queryInterface }) {
-  await queryInterface.dropTable("Value")
+  await queryInterface.dropTable("ExperimentAttributes")
 }
 
 export { up, down }
