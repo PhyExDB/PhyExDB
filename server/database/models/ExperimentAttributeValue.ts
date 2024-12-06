@@ -5,6 +5,11 @@ import type { AttributeValue } from "~~/shared/types/experiment/ExperimentAttrib
 class ExperimentAttributeValue extends Model {
   declare id: string
   declare name: string
+
+  /**
+  * converts the instance to an AttributeValue object
+  * @returns {AttributeValue}
+  */
   toAtrributeValueList(): AttributeValue {
     return {
       id: this.id,
