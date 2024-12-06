@@ -1,7 +1,48 @@
 import { DataTypes, Model } from "sequelize"
+import sequelize from "~~/server/utils/sequelize"
+import type { AttributeDetail, AttributeList, AttributeValue } from "~~/shared/types/experiment/ExperimentAttribute.type"
 
-class ExperimentAttribute extends Model {}
+class ExperimentAttribute extends Model {
+  declare id: string
+  declare name: string
+  declare attributeValueList: AttributeValue[]
 
+  /**
+   * Converts the current instance to a AttributeList object.
+   * @returns {AttributeList}
+   */
+  toAttributeList(): AttributeList {
+    return {
+      id: this.id,
+      name: this.name,
+    }
+  }
+
+  /**
+   * converts the current instance to a AttributeDetail Object
+   * @returns {AttributeDetail}
+   */
+  toAttributeDetail(): AttributeDetail {
+    return {
+      id: this.id,
+      name: this.name,
+      valueList: this.attributeValueList,
+    }
+  }
+
+  /**
+   * adds a Value to an Attribute
+   * @param valueList gets the added ValueList
+   * @returns {valueList}
+   */
+  toAttributeDetailWithAdditionalValue(valueList: AttributeList): AttributeDetail {
+    return {
+      id: this.id,
+      name: this.name,
+      valueList: this.attributeValueList.concat(valueList),
+    }
+  }
+}
 ExperimentAttribute.init(
   {
     // Model attributes are defined here

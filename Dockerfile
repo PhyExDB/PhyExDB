@@ -11,8 +11,14 @@ WORKDIR /build
 
 # copy the package.json and package-lock.json files to the working directory
 COPY package*.json ./
-# install the dependencies
+# install the root dependencies
 RUN npm ci
+
+# copy the scripts directory
+COPY scripts/package*.json ./scripts/
+
+# install the scripts-specific dependencies
+RUN cd scripts && npm ci && cd ..
 
 # copy the rest of the application files to the working directory
 COPY . .
@@ -21,10 +27,8 @@ COPY . .
 RUN npm run build:all
 RUN npm prune --production
 
-# Create a clean production node_modules with only what we need for migrations
-RUN cd .output/migrations && \
-  npm init es6 -y && \
-  npm install --production winston uuid dotenv sequelize pg-hstore pg umzug
+# Prune the `scripts` node_modules to production
+RUN cd scripts && npm prune --production
 
 # ================================
 # Run image
@@ -46,8 +50,8 @@ COPY --chown=nuxtuser:nuxtuser --from=build /build/.output ./
 # Copy migration files and scripts
 COPY --chown=nuxtuser:nuxtuser --from=build /build/server/database/migrations ./migrations/database/migrations
 COPY --chown=nuxtuser:nuxtuser --from=build /build/server/database/seeds ./migrations/database/seeds
-COPY --chown=nuxtuser:nuxtuser --from=build /build/.output/migrations/node_modules ./migrations/node_modules
-
+# Copy the scripts directory with its node_modules
+COPY --chown=nuxtuser:nuxtuser --from=build /build/scripts/node_modules ./migrations/node_modules
 
 # expose 8080 on the container
 EXPOSE 8080

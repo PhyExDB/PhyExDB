@@ -4,9 +4,20 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/test-utils/module",
     "nuxt-authorization",
+    "@nuxtjs/tailwindcss",
+    "shadcn-nuxt",
+    "@nuxtjs/color-mode",
+    "@nuxt/icon",
   ],
 
   devtools: { enabled: true },
+
+  css: ["~/assets/css/main.css"],
+
+  colorMode: {
+    classSuffix: "", // Ensure "dark" and "light" classes are applied directly
+    disableTransition: true,
+  },
 
   runtimeConfig: {
     logLevel: "debug",
@@ -39,6 +50,13 @@ export default defineNuxtConfig({
     },
   },
 
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
+  },
+
   eslint: {
     config: {
       stylistic: {
@@ -49,5 +67,9 @@ export default defineNuxtConfig({
         semi: false,
       },
     },
+  },
+
+  shadcn: {
+    componentDir: "./app/components/ui",
   },
 })
