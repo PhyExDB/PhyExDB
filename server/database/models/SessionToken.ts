@@ -1,13 +1,13 @@
 import { DataTypes, Model } from "sequelize"
-import User from "./User"
+import Session from "./Session"
 
-class Session extends Model {
+class SessionToken extends Model {
   declare id: string
-  declare sub: string
+  declare session: string
   declare exp: Date
 }
 
-Session.init(
+SessionToken.init(
   {
     // Model attributes are defined here
     id: {
@@ -15,11 +15,10 @@ Session.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    // subject
-    sub: {
+    session: {
       type: DataTypes.UUID,
       references: {
-        model: User,
+        model: Session,
         key: "id",
       },
       allowNull: false,
@@ -33,7 +32,7 @@ Session.init(
   {
     // Other model options go here
     sequelize, // connection instance
-    modelName: "Session", // model name
+    modelName: "SessionToken", // model name
   },
 )
 

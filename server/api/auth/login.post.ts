@@ -4,6 +4,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import User from "~~/server/database/models/User"
 import Session from "~~/server/database/models/Session"
+import SessionToken from "~~/server/database/models/SessionToken"
 
 const schema = v.object({
   usernameOrEmail: v.pipe(
@@ -22,6 +23,7 @@ const config = useRuntimeConfig()
 
 const refreshTokenSecret = config.refreshTokenSecret
 const accessTokenSecret = config.accessTokenSecret
+const expSeccondsSession = config.expSeccondsSession
 const expSeccondsRefreshToken = config.expSeccondsRefreshToken
 const expSeccondsAccessToken = config.expSeccondsAccessToken
 
@@ -49,11 +51,16 @@ export default defineEventHandler(async (event) => {
 
   const session = await Session.create({
     sub: user.id,
+    exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
+  })
+
+  const sessionToken = await SessionToken.create({
+    session: session.id,
     exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
   })
 
   const refreshToken = jwt.sign({
-    session: session.id,
+    token: sessionToken.id,
   }, refreshTokenSecret, {
     subject: user.id,
     expiresIn: expSeccondsRefreshToken,
