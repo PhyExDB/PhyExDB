@@ -19,6 +19,7 @@ class User extends Model {
   declare username: string
   declare role: string
   declare email: string
+  declare passwordHash: string
   declare verified: string
 
   /**
