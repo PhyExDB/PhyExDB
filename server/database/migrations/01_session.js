@@ -13,10 +13,10 @@ async function up({ context: queryInterface }) {
     // subject
     sub: {
       type: DataTypes.UUID,
-      // references: {
-      //   model: User,
-      //   key: "id",
-      // },
+      references: {
+        model: "Users",
+        key: "id",
+      },
     },
     // expiration time
     exp: {
