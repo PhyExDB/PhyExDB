@@ -1,22 +1,21 @@
 services:
   backend:
-    image: ghcr.io/phyexdb/phyexdb:latest
-    container_name: phyexdb_backend
+    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
+    container_name: ${APP_NAME:-phyexdb}_backend
     restart: always
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
-        restart: true
     volumes:
       - public_data:/app/public
     ports:
       - 8080:8080
 
   db:
-    image: postgres:17-alpine
-    container_name: phyexdb_db
+    image: postgres:${POSTGRES_TAG:-17-alpine}
+    container_name: ${APP_NAME:-phyexdb}_db
     restart: always
     env_file:
       - .env
@@ -30,7 +29,7 @@ services:
       timeout: 5s
 
   migrate:
-    image: phyexdb
+    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
     env_file:
       - .env
     depends_on:
@@ -41,7 +40,7 @@ services:
     command: sh -c "node /app/migrations/migrate.js && node /app/migrations/seed.js"
 
   migration-status:
-    image: phyexdb
+    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
     env_file:
       - .env
     depends_on:
@@ -52,7 +51,7 @@ services:
     command: node /app/migrations/migrationStatus.js
 
   revert:
-    image: phyexdb
+    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
     env_file:
       - .env
     depends_on:
@@ -61,8 +60,6 @@ services:
     profiles:
       - tools
     command: node /app/migrations/revert.js
-
-
 
 volumes:
   db_data:
