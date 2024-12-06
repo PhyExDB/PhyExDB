@@ -5,6 +5,7 @@ import User from "~~/server/database/models/User"
 const registerSchema = v.object({
   username: v.pipe(
     v.string(),
+    v.nonEmpty("Please enter Name"),
     v.check(
       value =>
         !v.is(v.pipe(
@@ -18,7 +19,14 @@ const registerSchema = v.object({
     v.nonEmpty("Please enter your email."),
     v.email("The email is badly formatted."),
   ),
-  password: v.string(),
+  password: v.pipe(
+    v.string(), 
+    v.nonEmpty("Please enter Password"), 
+    v.minLength(8, "Password must be at least 8 characters"), 
+    v.regex(/[a-z]/, "Password must contain at least one lowercase letter"), 
+    v.regex(/[A-Z]/, "Password must contain at least one uppercase letter"), 
+    v.regex(/[0-9]/, "Password must contain at least one number")
+  ),
 })
 
 export default defineEventHandler(async (event) => {
@@ -54,8 +62,9 @@ export default defineEventHandler(async (event) => {
       })
     }
   }
+  // todo return tokens
   setResponseStatus(event, 201)
-  return {}
+  return user.toUserDetail()
 })
 
 defineRouteMeta({
@@ -80,6 +89,20 @@ defineRouteMeta({
     responses: {
       201: {
         description: "User created",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                username: { type: "string" },
+                role: { type: "string" },
+                verified: { type: "string", enum: ["User", "Moderator", "Administrator"] },
+                email: { type: "string" },
+              },
+            },
+          },
+        },
       },
       400: {
         description: "Invalid body",
