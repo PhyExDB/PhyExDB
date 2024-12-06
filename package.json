@@ -24,6 +24,7 @@
   "dependencies": {
     "@nuxt/icon": "^1.9.0",
     "@nuxtjs/color-mode": "^3.5.2",
+    "@prisma/nuxt": "^0.1.2",
     "@vueuse/core": "^12.0.0",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.1",
@@ -50,6 +51,7 @@
     "@nuxt/test-utils": "^3.14.4",
     "@nuxtjs/tailwindcss": "^6.12.2",
     "@playwright/test": "^1.49.0",
+    "@prisma/client": "^6.0.1",
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^22.10.1",
     "@types/pg": "^8.11.10",
@@ -62,6 +64,7 @@
     "happy-dom": "^15.11.7",
     "playwright-core": "^1.49.0",
     "postcss": "^8.4.49",
+    "prisma": "^6.0.1",
     "tailwindcss": "^3.4.16",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
