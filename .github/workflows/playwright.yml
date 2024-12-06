@@ -56,10 +56,10 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run db migrations and seeds
-        run: npm run migrate:integration
+        run: npm run migrate
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npm run test:e2e
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
