@@ -1,7 +1,9 @@
 import * as v from "valibot"
 import { Op } from "sequelize"
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 import User from "~~/server/database/models/User"
+import Session from "~~/server/database/models/Session"
 
 const schema = v.object({
   usernameOrEmail: v.pipe(
@@ -16,6 +18,13 @@ const error = createError({
   message: "Username, email or password wrong",
 })
 
+const config = useRuntimeConfig()
+
+const refreshTokenSecret = config.refreshTokenSecret
+const accessTokenSecret = config.accessTokenSecret
+const expSeccondsRefreshToken = config.expSeccondsRefreshToken
+const expSeccondsAccessToken = config.expSeccondsAccessToken
+
 export default defineEventHandler(async (event) => {
   const c = await readValidatedBody(event, body => v.parse(schema, body))
 
@@ -28,15 +37,36 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  if (!user) {
+  if (user == null) {
+    authLogger.debug("User not found", { usernameOrEmail: c.usernameOrEmail })
     throw error
   }
   const match = bcrypt.compareSync(c.password, user.passwordHash)
   if (!match) {
+    authLogger.debug("Password does not match")
     throw error
   }
 
-  // valid login
+  const session = await Session.create({
+    sub: user.id,
+    exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
+  })
+
+  const refreshToken = jwt.sign({
+    session: session.id,
+  }, refreshTokenSecret, {
+    subject: user.id,
+    expiresIn: expSeccondsRefreshToken,
+  })
+
+  const accessToken = jwt.sign({
+    // username: user.username,
+  }, accessTokenSecret, {
+    subject: user.id,
+    expiresIn: expSeccondsAccessToken,
+  })
+
+  return { refreshToken: refreshToken, accessToken: accessToken }
 })
 
 defineRouteMeta({
@@ -59,17 +89,16 @@ defineRouteMeta({
     },
     responses: {
       200: {
-        description: "User created",
+        description: "login successfull",
         content: {
           "application/json": {
             schema: {
               type: "object",
               properties: {
-                id: { type: "string", format: "uuid" },
-                name: { type: "string" },
-                content: { type: "string" },
+                refreshToken: { type: "string", format: "jwt" },
+                accessToken: { type: "string", format: "jwt" },
               },
-              required: ["id", "name", "content"],
+              required: ["refreshToken", "accessToken"],
             },
           },
         },
