@@ -1,5 +1,4 @@
 import { DataTypes } from "sequelize"
-import ExperimentAttribute from "../models/ExperimentAttribute"
 /**
  * run the value migration
  */
@@ -13,7 +12,7 @@ async function up({ context: queryInterface }) {
     attributeValue: {
       type: DataTypes.UUIDV4,
       refereces: {
-        model: ExperimentAttribute,
+        model: "ExperimentAttributes",
         key: "id",
       },
     },
