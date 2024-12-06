@@ -2,13 +2,13 @@ import ExperimentAttribute from "~~/server/database/models/ExperimentAttribute"
 
 export default defineEventHandler(async () => {
   const attribute = await ExperimentAttribute.findAll()
-  return attribute.map(attribute => attribute.toDetailAttributeList())
+  return attribute.map(attribute => attribute.toAttributeDetail())
 })
 
 defineRouteMeta({
   openAPI: {
     description: "Get a List with Attributes and their Values",
-    tags: ["Attribute"],
+    tags: ["ExperimentAttribute"],
     responses: {
       200: {
         description: "A list of Experiment Attributes and their Values",

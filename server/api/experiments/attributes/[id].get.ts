@@ -13,13 +13,13 @@ export default defineEventHandler(async (event) => {
   if (!attribute) {
     throw createError({ status: 404, message: "Attribute not found" })
   }
-  return attribute.toDetailAttributeList()
+  return attribute.toAttributeDetail()
 })
 
 defineRouteMeta({
   openAPI: {
     description: "Get the values per Attribute",
-    tags: ["Attribute"],
+    tags: ["ExperimentAttribute"],
     responses: {
       200: {
         description: "The values",

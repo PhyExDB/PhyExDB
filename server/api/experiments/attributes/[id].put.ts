@@ -18,13 +18,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Attribute not found" })
   }
   const updateName = await readValidatedBody(event, body => v.parse(attributeUpdateSchema, body))
-  return ((await attribute.update(updateName)).toDetailAttributeList)
+  return ((await attribute.update(updateName)).toAttributeDetail)
 })
 
 defineRouteMeta({
   openAPI: {
     description: "Update an Experiment Attribute",
-    tags: ["Attribute"],
+    tags: ["ExperimentAttribute"],
     requestBody: {
       content: {
         "application/json": {
