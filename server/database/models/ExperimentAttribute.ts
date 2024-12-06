@@ -29,6 +29,19 @@ class ExperimentAttribute extends Model {
       valueList: this.attributeValueList,
     }
   }
+
+  /**
+   * adds a Value to an Attribute
+   * @param valueList gets the added ValueList
+   * @returns {valueList}
+   */
+  toAddValueListToAttribute(valueList: AttributeList): AttributeDetail {
+    return {
+      id: this.id,
+      name: this.name,
+      valueList: this.attributeValueList.concat(valueList),
+    }
+  }
 }
 ExperimentAttribute.init(
   {
