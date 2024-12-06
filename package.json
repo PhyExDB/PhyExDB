@@ -20,7 +20,9 @@
     "migrate:status": "tsx scripts/migrationStatus.ts"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
     "nuxt": "^3.14.159",
     "nuxt-authorization": "^0.3.2",
     "pg": "^8.13.1",
