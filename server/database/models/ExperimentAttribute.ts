@@ -22,7 +22,7 @@ class ExperimentAttribute extends Model {
    * converts the current instance to a AttributeDetail Object
    * @returns {AttributeDetail}
    */
-  toDetailAttributeList(): AttributeDetail {
+  toAttributeDetail(): AttributeDetail {
     return {
       id: this.id,
       name: this.name,
@@ -35,7 +35,7 @@ class ExperimentAttribute extends Model {
    * @param valueList gets the added ValueList
    * @returns {valueList}
    */
-  toAddValueListToAttribute(valueList: AttributeList): AttributeDetail {
+  toAttributeDetailWithAdditionalValue(valueList: AttributeList): AttributeDetail {
     return {
       id: this.id,
       name: this.name,

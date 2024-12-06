@@ -8,7 +8,7 @@ const valueUpdateSchema = v.object({
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id")
   if (!id) {
-    throw createError({ status: 400, message: "invalid id" })
+    throw createError({ status: 400, message: "Invalid id" })
   }
 
   const value = await ExperimentAttributeValue.findOne({
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 defineRouteMeta({
   openAPI: {
     description: "Update an Experiment Value",
-    tags: ["Attribute", "Value"],
+    tags: ["ExperimentAttribute"],
     requestBody: {
       content: {
         "application/json": {
