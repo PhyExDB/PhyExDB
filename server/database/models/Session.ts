@@ -1,10 +1,12 @@
 import { DataTypes, Model } from "sequelize"
 import User from "./User"
+import SessionToken from "./SessionToken"
 
 class Session extends Model {
   declare id: string
-  declare sub: string
+  declare sub: User
   declare exp: Date
+  declare SessionTokens: SessionToken[]
 }
 
 Session.init(

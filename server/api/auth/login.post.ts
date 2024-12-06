@@ -49,15 +49,30 @@ export default defineEventHandler(async (event) => {
     throw error
   }
 
-  const session = await Session.create({
-    sub: user.id,
-    exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
-  })
+  const sessionToken = await SessionToken.create(
+    {
+      Session: {
+        sub: user.id,
+        exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
+      },
+      valid: true,
+      exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
+    }, 
+    {
+      include: ["Session"],
+    }
+  )
+  const session = sessionToken.Session
 
-  const sessionToken = await SessionToken.create({
-    session: session.id,
-    exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
-  })
+  // const session = await Session.create({
+  //   sub: user.id,
+  //   exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
+  // })
+
+  // const sessionToken = await SessionToken.create({
+  //   session: session.id,
+  //   exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
+  // })
 
   const refreshToken = jwt.sign({
     token: sessionToken.id,

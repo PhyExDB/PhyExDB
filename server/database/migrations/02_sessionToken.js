@@ -10,14 +10,18 @@ async function up({ context: queryInterface }) {
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    // subject
-    session: {
+    SessionId: {
       type: DataTypes.UUID,
       references: {
         model: "Sessions",
         key: "id",
       },
       allowNull: false,
+    },
+    valid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
     },
     // expiration time
     exp: {

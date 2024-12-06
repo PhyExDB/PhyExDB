@@ -3,7 +3,9 @@ import Session from "./Session"
 
 class SessionToken extends Model {
   declare id: string
-  declare session: string
+  declare Session: Session
+  declare SessionId: string
+  declare valid: boolean
   declare exp: Date
 }
 
@@ -15,13 +17,18 @@ SessionToken.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    session: {
-      type: DataTypes.UUID,
-      references: {
-        model: Session,
-        key: "id",
-      },
+    // session: {
+    //   type: DataTypes.UUID,
+    //   references: {
+    //     model: Session,
+    //     key: "id",
+    //   },
+    //   allowNull: false,
+    // },
+    valid: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
     },
     // expiration time
     exp: {
@@ -36,4 +43,7 @@ SessionToken.init(
   },
 )
 
-export default Session
+Session.hasMany(SessionToken)
+SessionToken.belongsTo(Session)
+
+export default SessionToken
