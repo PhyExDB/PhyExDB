@@ -53,7 +53,7 @@ jobs:
         run: npm ci
 
       - name: Run db migrations and seeds
-        run: npm run migrate:integration
+        run: npm run migrate
 
       - name: Run tests
-        run: npm test
+        run: npm test:integration
