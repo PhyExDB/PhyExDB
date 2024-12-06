@@ -56,4 +56,4 @@ jobs:
         run: npm run migrate
 
       - name: Run tests
-        run: npm test:integration
+        run: npm run test:integration
