@@ -6,10 +6,10 @@ class ExperimentAttribute extends Model {
   declare id: string
   declare name: string
   declare attributeValueList: AttributeValue[]
+
   /**
-   * Converts the current instance to a LegalList object.
-   *
-   * @returns {AttributeList} An object containing the id, name, and slug of the current instance.
+   * Converts the current instance to a AttributeList object.
+   * @returns {AttributeList}
    */
   toAttributeList(): AttributeList {
     return {
@@ -18,6 +18,10 @@ class ExperimentAttribute extends Model {
     }
   }
 
+  /**
+   * converts the current instance to a AttributeDetail Object
+   * @returns {AttributeDetail}
+   */
   toDetailAttributeList(): AttributeDetail {
     return {
       id: this.id,
