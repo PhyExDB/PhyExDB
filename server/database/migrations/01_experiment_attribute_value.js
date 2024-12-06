@@ -21,12 +21,12 @@ async function up({ context: queryInterface }) {
       allowNull: false,
     },
     createdAt: {
-      type: DataTypes.Date,
+      type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
     updatedAt: {
-      type: DataTypes.Date,
+      type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
