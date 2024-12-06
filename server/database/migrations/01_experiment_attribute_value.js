@@ -10,7 +10,7 @@ async function up({ context: queryInterface }) {
       defaultValue: DataTypes.UUIDV4,
     },
     attributeValue: {
-      type: DataTypes.UUIDV4,
+      type: DataTypes.UUID,
       refereces: {
         model: "ExperimentAttributes",
         key: "id",
