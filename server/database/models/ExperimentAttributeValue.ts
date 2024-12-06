@@ -1,7 +1,22 @@
 import { DataTypes, Model } from "sequelize"
 import ExperimentAttribute from "./ExperimentAttribute"
+import type { AttributeValue } from "~~/shared/types/experiment/ExperimentAttribute.type"
 
-class ExperimentAttributeValue extends Model {}
+class ExperimentAttributeValue extends Model {
+  declare id: string
+  declare name: string
+
+  /**
+  * converts the instance to an AttributeValue object
+  * @returns {AttributeValue}
+  */
+  toAtrributeValueList(): AttributeValue {
+    return {
+      id: this.id,
+      name: this.name,
+    }
+  }
+}
 
 ExperimentAttributeValue.init(
   {
