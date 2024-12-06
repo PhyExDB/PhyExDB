@@ -2,6 +2,7 @@ import bcrypt from "bcrypt"
 import { DataTypes, Model } from "sequelize"
 
 class User extends Model {
+  declare id: string
   declare username: string
   declare email: string
   declare passwordHash: string
