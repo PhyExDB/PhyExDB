@@ -25,7 +25,7 @@ import { expect } from "@nuxt/test-utils/playwright"
  * });
  * ```
  */
-export async function validateFooter(page: Page) {
+export async function validateFooter(page: Page): Promise<void> {
   // Locate the footer
   const footer = page.locator("footer.bg-muted.text-muted-foreground")
   await expect(footer).toBeVisible()

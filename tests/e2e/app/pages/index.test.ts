@@ -1,4 +1,4 @@
-import { expect, test } from "@nuxt/test-utils/playwright"
+import { test } from "@nuxt/test-utils/playwright"
 import { validateFooter } from "~~/tests/helpers/validateFooter"
 
 test.describe("Homepage", () => {
@@ -6,6 +6,6 @@ test.describe("Homepage", () => {
     // Navigate to the homepage
     await goto("/", { waitUntil: "hydration" })
     // Validate the footer
-    validateFooter(page)
+    await validateFooter(page)
   })
 })
