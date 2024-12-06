@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Attribute not found" })
   }
   const newValue = await readValidatedBody(event, body => v.parse(valueSchema, body))
-  const createValue = await ExperimentAttributeValue.create({ id: newValue.id, name: newValue.name })
+  const createValue = await ExperimentAttributeValue.create({ id: newValue.id, name: newValue.name, attributeValue: attributeId })
   return attribute.toAttributeDetailWithAdditionalValue(createValue)
 })
 
