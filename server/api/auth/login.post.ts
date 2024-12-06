@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
       include: ["Session"],
     }
   )
-  const session = sessionToken.Session
+  const session = sessionToken.getSession()
 
   // const session = await Session.create({
   //   sub: user.id,

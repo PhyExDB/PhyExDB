@@ -7,6 +7,10 @@ class SessionToken extends Model {
   declare SessionId: string
   declare valid: boolean
   declare exp: Date
+
+  getSession(): Session {
+    return this.Session
+  }
 }
 
 SessionToken.init(
