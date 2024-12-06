@@ -1,6 +1,30 @@
 import type { Page } from "@playwright/test"
 import { expect } from "@nuxt/test-utils/playwright"
 
+/**
+ * Validates the footer section of a web page.
+ *
+ * @param page - The Playwright Page object representing the web page.
+ *
+ * @remarks
+ * This function performs the following checks:
+ * - Ensures the footer is visible.
+ * - Verifies the current year is displayed in the footer.
+ * - Checks the presence and correctness of specific footer links and their URLs.
+ * - Ensures the GitHub link is visible, has the correct URL, and opens in a new tab.
+ * - Verifies the presence of the GitHub icon within the GitHub link.
+ *
+ * @example
+ * ```typescript
+ * import { validateFooter } from './helpers/validateFooter';
+ * import { test, expect } from '@nuxt/test-utils/playwright';
+ *
+ * test('validate footer', async ({ page }) => {
+ *   await page.goto('https://example.com');
+ *   await validateFooter(page);
+ * });
+ * ```
+ */
 export async function validateFooter(page: Page) {
   // Locate the footer
   const footer = page.locator("footer.bg-muted.text-muted-foreground")
