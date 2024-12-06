@@ -28,3 +28,6 @@ logs
 shell.nix
 .envrc
 .direnv
+
+# Tests
+test-results
