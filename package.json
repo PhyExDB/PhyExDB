@@ -6,10 +6,8 @@
     "seed": "tsx prisma/seed.ts"
   },
   "scripts": {
-    "build": "nuxt build",
-    "build:migrations": "tsc -p tsconfig.migrations.json",
-    "build:all": "npm run build && npm run build:migrations",
-    "dev": "dotenv -e .env.development nuxt dev",
+    "build": "npx prisma generate && nuxt build",
+    "dev": "npx prisma generate && dotenv -e .env.development nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -19,6 +17,7 @@
     "test:integration": "vitest",
     "test:e2e": "playwright test",
     "migrate": "npx prisma migrate dev",
+    "migrate:production": "npx prisma migrate deploy",
     "migrate:seed": "npx prisma db seed"
   },
   "dependencies": {

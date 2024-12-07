@@ -67,6 +67,7 @@ export default defineNuxtConfig({
 
   prisma: {
     autoSetupPrisma: true,
+    generateClient: false,
   },
 
   shadcn: {

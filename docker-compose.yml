@@ -37,9 +37,9 @@ services:
         condition: service_healthy
     profiles:
       - tools
-    command: sh -c "node /app/migrations/migrate.js && node /app/migrations/seed.js"
+    command: sh -c "cd prisma && npx prisma migrate deploy"
 
-  migration-status:
+  seed:
     image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
     env_file:
       - .env
@@ -48,18 +48,7 @@ services:
         condition: service_healthy
     profiles:
       - tools
-    command: node /app/migrations/migrationStatus.js
-
-  revert:
-    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    profiles:
-      - tools
-    command: node /app/migrations/revert.js
+    command: sh -c "cd prisma && npx prisma db seed"
 
 volumes:
   db_data:
