@@ -1,9 +1,11 @@
-import Legal from "~~/server/database/models/Legal"
+import prisma from "~~/lib/prisma"
 
 export default defineEventHandler(async () => {
-  const documents = await Legal.findAll()
+  const documents = await prisma.legalDocument.findMany()
 
-  return documents.map(document => document.toLegalList())
+  // return documents.map(document => document.toLegalList())
+  // TODO: to detail
+  return documents
 })
 
 defineRouteMeta({

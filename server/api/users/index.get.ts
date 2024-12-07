@@ -1,9 +1,11 @@
-import User from "~~/server/database/models/User"
+import prisma from "~~/lib/prisma"
 
 export default defineEventHandler(async () => {
-  const users = await User.findAll()
+  const users = await prisma.user.findMany()
 
-  return users.map(user => user.toUserList())
+  // return users.map(user => user.toUserList())
+  // TODO: to list
+  return users
 })
 
 defineRouteMeta({

@@ -10,6 +10,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "role" "UserRole" NOT NULL DEFAULT 'USER',
+    "verified" BOOLEAN NOT NULL DEFAULT false,
     "passwordHash" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -81,7 +82,7 @@ CREATE TABLE "ExperimentAttribute" (
 CREATE TABLE "ExperimentAttributeValue" (
     "id" TEXT NOT NULL,
     "attributeId" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

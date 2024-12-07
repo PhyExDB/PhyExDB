@@ -1,6 +1,6 @@
 import { validate as uuidValidate } from "uuid"
 import * as v from "valibot"
-import Legal from "~~/server/database/models/Legal"
+import prisma from "~~/lib/prisma"
 
 const legalUpdateSchema = v.object({
   name: v.string(),
@@ -15,17 +15,24 @@ export default defineEventHandler(async (event) => {
 
   const isId = uuidValidate(slugOrId)
   const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
-  const document = await Legal.findOne({
-    where: whereClause,
-  })
+  // const document = await prisma.legalDocument.findFirst({
+  //   where: whereClause,
+  // })
 
-  if (!document) {
-    throw createError({ status: 404, message: "Document not found" })
-  }
+  // if (!document) {
+  //   throw createError({ status: 404, message: "Document not found" })
+  // }
 
   const updateContent = await readValidatedBody(event, body => v.parse(legalUpdateSchema, body))
 
-  return (await document.update(updateContent)).toLegalDetail()
+  // return (await document.update(updateContent)).toLegalDetail()
+  // TODO: catch error when not found and return 404
+  const updatedDocument = await prisma.legalDocument.update({
+    where: whereClause,
+    data: updateContent,
+  })
+  // TODO: to detail
+  return updatedDocument
 })
 
 defineRouteMeta({
@@ -41,7 +48,7 @@ defineRouteMeta({
               name: { type: "string" },
               content: { type: "string" },
             },
-            required: ["name", "content"],
+            required: ["name", "text"],
           },
         },
       },
@@ -58,7 +65,7 @@ defineRouteMeta({
                 name: { type: "string" },
                 content: { type: "string" },
               },
-              required: ["id", "name", "content"],
+              required: ["id", "name", "text"],
             },
           },
         },

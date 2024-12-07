@@ -15,6 +15,7 @@ model User {
   email        String   @unique
   username     String   @unique
   role         UserRole @default(USER)
+  verified     Boolean  @default(false)
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -89,7 +90,7 @@ model ExperimentAttributeValue {
   experiments Experiment[] // implicit many to many, pivot managed by Prisma
   attribute   ExperimentAttribute @relation(fields: [attributeId], references: [id])
   attributeId String
-  value       String
+  name        String
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 }

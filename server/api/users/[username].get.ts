@@ -1,5 +1,5 @@
 import { validate as uuidValidate } from "uuid"
-import Users from "~~/server/database/models/User"
+import prisma from "~~/lib/prisma"
 
 export default defineEventHandler(async (event) => {
   const usernameOrId = getRouterParam(event, "username")
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   // Find user to update
   const isId = uuidValidate(usernameOrId)
   const whereClause = isId ? { id: usernameOrId } : { username: usernameOrId }
-  const user = await Users.findOne({
+  const user = await prisma.user.findFirst({
     where: whereClause,
   })
 
@@ -18,7 +18,9 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     throw createError({ status: 404, message: "User not found" })
   }
-  return user.toUserDetail()
+  // return user.toUserDetail()
+  // TODO: to detail
+  return user
 })
 
 defineRouteMeta({
