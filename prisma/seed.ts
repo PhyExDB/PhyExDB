@@ -13,21 +13,27 @@ async function userMigrations() {
     data: {
       email: "user@test.test",
       username: "User",
+      role: "USER",
       passwordHash: await hash("user"),
+      verified: true,
     },
   })
   await prisma.user.create({
     data: {
       email: "moderator@test.test",
       username: "Moderator",
+      role: "MODERATOR",
       passwordHash: await hash("moderator"),
+      verified: true,
     },
   })
   await prisma.user.create({
     data: {
       email: "admin@test.test",
       username: "Admin",
+      role: "ADMIN",
       passwordHash: await hash("admin"),
+      verified: true,
     },
   })
 }
