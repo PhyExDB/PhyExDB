@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
     "@nuxt/icon",
+    "@prisma/nuxt",
   ],
 
   devtools: { enabled: true },
@@ -40,9 +41,6 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    externals: {
-      external: ["pg"],
-    },
   },
 
   postcss: {
@@ -62,6 +60,11 @@ export default defineNuxtConfig({
         semi: false,
       },
     },
+  },
+
+  prisma: {
+    autoSetupPrisma: true,
+    generateClient: false,
   },
 
   shadcn: {

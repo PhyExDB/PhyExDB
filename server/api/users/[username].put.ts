@@ -1,7 +1,7 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
 import { validate as uuidValidate } from "uuid"
-import Users from "~~/server/database/models/User"
+import prisma from "~~/lib/prisma"
 
 export default defineEventHandler(async (event) => {
   // Extract username or id from the event
@@ -13,14 +13,14 @@ export default defineEventHandler(async (event) => {
   // Find user to update
   const isId = uuidValidate(usernameOrId)
   const whereClause = isId ? { id: usernameOrId } : { username: usernameOrId }
-  const user = await Users.findOne({
-    where: whereClause,
-  })
+  // const user = await Users.findOne({
+  //   where: whereClause,
+  // })
 
-  // Check that user exists
-  if (!user) {
-    throw createError({ status: 404, message: "User not found" })
-  }
+  // // Check that user exists
+  // if (!user) {
+  //   throw createError({ status: 404, message: "User not found" })
+  // }
 
   // Validate user data
   const userSchema = v.object({
@@ -31,7 +31,16 @@ export default defineEventHandler(async (event) => {
   // This is a helper function that reads the body and validates it against the schema
   const updateUserContent = await readValidatedBody(event, body => v.parse(userSchema, body))
 
-  return (await user.update(updateUserContent)).toUserDetail()
+  // TODO: catch error when not found and return 404
+  const updatedUser = await prisma.user.update({
+    where: whereClause,
+    data: updateUserContent,
+  })
+
+  // TODO: to detail
+  return updatedUser
+
+  // return (await user.update(updateUserContent)).toUserDetail()
 })
 
 defineRouteMeta({
