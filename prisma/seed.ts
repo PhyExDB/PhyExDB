@@ -1,28 +1,33 @@
 import { PrismaClient } from "@prisma/client"
-import hashPassword from "~~/server/utils/hashPassword"
+import bcrypt from "bcrypt"
 
 const prisma = new PrismaClient()
+
+async function hash(password: string) {
+  const salt = await bcrypt.genSalt()
+  return await bcrypt.hash(password, salt)
+}
 
 async function userMigrations() {
   await prisma.user.create({
     data: {
       email: "user@test.test",
       username: "User",
-      passwordHash: await hashPassword("user"),
+      passwordHash: await hash("user"),
     },
   })
   await prisma.user.create({
     data: {
       email: "moderator@test.test",
       username: "Moderator",
-      passwordHash: await hashPassword("moderator"),
+      passwordHash: await hash("moderator"),
     },
   })
   await prisma.user.create({
     data: {
       email: "admin@test.test",
       username: "Admin",
-      passwordHash: await hashPassword("admin"),
+      passwordHash: await hash("admin"),
     },
   })
 }

@@ -22,9 +22,31 @@ RUN npm run build
 RUN npm prune --production
 
 # ================================
+# Migrations image
+# ================================
+FROM node:23-alpine AS migrations
+
+WORKDIR /build
+
+# copy the prisma directory package.json and package-lock.json files to the working directory
+COPY prisma/package*.json ./
+
+# install the scripts-specific dependencies
+RUN npm ci
+
+# copy the rest of the prisma directory files to the working directory
+COPY prisma .
+
+# run the prisma generate command
+RUN npx prisma generate
+
+# Prune the `prisma` node_modules to production
+RUN npm prune --production
+
+# ================================
 # Run image
 # ================================
-FROM node:23-alpine
+FROM node:23-alpine AS run
 
 # update and install latest dependencies, add dumb-init package
 # add a non root user
@@ -37,6 +59,8 @@ WORKDIR /app
 
 # Copy the built application and Prisma client
 COPY --chown=nuxtuser:nuxtuser --from=build /build/.output ./
+# Copy prisma directory with its node_modules
+COPY --chown=nuxtuser:nuxtuser --from=migrations /build ./prisma/
 
 # expose 8080 on the container
 EXPOSE 8080
