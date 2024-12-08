@@ -7,16 +7,21 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
 Make sure to install dependencies:
 
 ```bash
-# npm
 npm install
 ```
-
+Run the database migration:
+```bash
+npm run migration
+```
+Run the database seed (throws an error if the tables aren't created or the data allready exists):
+```bash
+npm run migration:seed
+```
 ## Development Server
 
 Start the development server on `http://localhost:3000`:
 
 ```bash
-# npm
 npm run dev
 ```
 
@@ -25,14 +30,12 @@ npm run dev
 Build the application for production:
 
 ```bash
-# npm
 npm run build
 ```
 
 Locally preview production build:
 
 ```bash
-# npm
 npm run preview
 ```
 
