@@ -32,7 +32,7 @@
     "nuxt": "^3.14.159",
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",
-    "radix-vue": "^1.9.10",
+    "radix-vue": "^1.9.11",
     "sequelize": "^6.37.5",
     "shadcn-nuxt": "^0.11.3",
     "tailwind-merge": "^2.5.5",
