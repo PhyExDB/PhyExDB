@@ -11,12 +11,13 @@ async function up({ context: queryInterface }) {
       defaultValue: DataTypes.UUIDV4,
     },
     // subject
-    sub: {
+    UserId: {
       type: DataTypes.UUID,
       references: {
         model: "Users",
         key: "id",
       },
+      onDelete: "CASCADE",
     },
     // expiration time
     exp: {

@@ -19,21 +19,12 @@ const expSeccondsAccessToken = config.expSeccondsAccessToken
 export default defineEventHandler(async (event) => {
   const session = await acceptRefreshTokenFromEvent(event)
 
-  const newSessionToken = await SessionToken.create(
-    {
-      SessionId: session.id,
-      exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
-    },
-  )
-
-  const tokens = createTokens(newSessionToken.id, session.UserId)
-
-  return tokens
+  session.destroy()
 })
 
 defineRouteMeta({
   openAPI: {
-    description: "Get a new refresh and access token with a refresh token",
+    description: "logout",
     tags: ["Auth"],
     requestBody: {
       content: {
@@ -51,18 +42,6 @@ defineRouteMeta({
     responses: {
       200: {
         description: "successfull",
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                refreshToken: { type: "string", format: "jwt" },
-                accessToken: { type: "string", format: "jwt" },
-              },
-              required: ["refreshToken", "accessToken"],
-            },
-          },
-        },
       },
       400: {
         description: "Invalid body",

@@ -17,6 +17,7 @@ async function up({ context: queryInterface }) {
         key: "id",
       },
       allowNull: false,
+      onDelete: "CASCADE",
     },
     valid: {
       type: DataTypes.BOOLEAN,

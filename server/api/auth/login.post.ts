@@ -48,11 +48,12 @@ export default defineEventHandler(async (event) => {
     authLogger.debug("Password does not match")
     throw error
   }
+  authLogger.debug("Credentials accepted")
 
   const sessionToken = await SessionToken.create(
     {
       Session: {
-        sub: user.id,
+        UserId: user.id,
         exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
       },
       valid: true,
@@ -64,31 +65,9 @@ export default defineEventHandler(async (event) => {
   )
   const session = sessionToken.getSession()
 
-  // const session = await Session.create({
-  //   sub: user.id,
-  //   exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
-  // })
+  const tokens = createTokens(sessionToken.id, user.id)
 
-  // const sessionToken = await SessionToken.create({
-  //   session: session.id,
-  //   exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
-  // })
-
-  const refreshToken = jwt.sign({
-    token: sessionToken.id,
-  }, refreshTokenSecret, {
-    subject: user.id,
-    expiresIn: expSeccondsRefreshToken,
-  })
-
-  const accessToken = jwt.sign({
-    // username: user.username,
-  }, accessTokenSecret, {
-    subject: user.id,
-    expiresIn: expSeccondsAccessToken,
-  })
-
-  return { refreshToken: refreshToken, accessToken: accessToken }
+  return tokens
 })
 
 defineRouteMeta({
