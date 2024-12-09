@@ -1,4 +1,5 @@
 import type { BaseList } from "./Base.type"
+import Prisma from "@prisma/client"
 
 /**
  * Represents a list of users with their ids, usernames, roles, and verification statuses.
@@ -20,7 +21,15 @@ export interface UserList extends BaseList {
   /**
    * Whether the user has verified their account.
    */
-  verified: string
+  verified: boolean
+}
+export const toUserList = (user: Prisma.User): UserList => {
+  return {
+    id: user.id,
+    username: user.username,
+    role: user.role,
+    verified: user.verified,
+  }
 }
 
 /**

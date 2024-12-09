@@ -34,8 +34,28 @@ const prismaClientSingleton = () => {
   prisma.$on('warn', (e) => {
     dbLogger.warn(e.message)
   })
-  
-  return prisma
+
+  const extendedPrisma = prisma.$extends({
+    result: {
+      user: {
+        toUserList: {
+          needs: { id: true, username: true, role: true, verified: true },
+          compute(user) {
+            return () => { 
+              return {
+                id: user.id,
+                username: user.username,
+                role: user.role,
+                verified: user.verified,
+              }
+            }
+          },
+        },
+      },
+    },
+  })
+
+  return extendedPrisma
 }
 
 declare const globalThis: {
