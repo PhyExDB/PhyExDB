@@ -27,12 +27,12 @@ export default defineEventHandler(async (event) => {
     username: v.pipe(
       v.string(),
       v.nonEmpty("Please enter Name"),
-      v.check(name => !uuidValidate(name), "Invalid username format")
+      v.check(name => !uuidValidate(name), "Invalid username format"),
     ),
     email: v.pipe(
       v.string(),
       v.nonEmpty("Please enter Email"),
-      v.email("Not an Email")
+      v.email("Not an Email"),
     ),
   })
 

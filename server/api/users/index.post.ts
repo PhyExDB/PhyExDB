@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     email: v.pipe(
       v.string(),
       v.nonEmpty("Please enter Email"),
-      v.email("Not an Email")
+      v.email("Not an Email"),
     ),
     password: v.pipe(
       v.string(),
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
       v.minLength(8, "Password must be at least 8 characters"),
       v.regex(/[a-z]/, "Password must contain at least one lowercase letter"),
       v.regex(/[A-Z]/, "Password must contain at least one uppercase letter"),
-      v.regex(/[0-9]/, "Password must contain at least one number")
+      v.regex(/[0-9]/, "Password must contain at least one number"),
     ),
   })
 
