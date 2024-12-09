@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 
   // Validate user data
   const userSchema = v.object({
-    username: v.pipe(v.string(), v.nonEmpty("Please enter Name")),
+    username: v.pipe(v.string(), v.nonEmpty("Please enter Name"), v.check(name => !uuidValidate(name), "Invalid username format")),
     email: v.pipe(v.string(), v.nonEmpty("Please enter Email"), v.email("Not an Email")),
   })
 
