@@ -11,11 +11,11 @@ npm install
 ```
 Run the database migration:
 ```bash
-npm run migration
+npm run migrate
 ```
 Run the database seed (throws an error if the tables aren't created or the data allready exists):
 ```bash
-npm run migration:seed
+npm run migrate:seed
 ```
 ## Development Server
 
