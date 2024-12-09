@@ -28,3 +28,9 @@ logs
 shell.nix
 .envrc
 .direnv
+
+# Tests
+test-results
+/playwright-report/
+/blob-report/
+/playwright/.cache/
