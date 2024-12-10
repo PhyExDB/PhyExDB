@@ -23,14 +23,6 @@ export interface UserList extends BaseList {
    */
   verified: boolean
 }
-export const toUserList = (user: Prisma.User): UserList => {
-  return {
-    id: user.id,
-    username: user.username,
-    role: user.role,
-    verified: user.verified,
-  }
-}
 
 /**
  * Represents a user with their id, username, role, email, and verification status.
