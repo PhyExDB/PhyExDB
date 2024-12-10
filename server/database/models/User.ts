@@ -17,7 +17,7 @@ import sequelize from "~~/server/utils/sequelize"
 class User extends Model {
   declare id: string
   declare username: string
-  declare role: string
+  declare role: "User" | "Moderator" | "Administrator"
   declare email: string
   declare passwordHash: string
   declare verified: string

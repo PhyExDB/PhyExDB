@@ -1,3 +1,5 @@
+// https://github.com/Barbapapazes/nuxt-authorization
+
 /**
  * Test ability to try it out
  */
@@ -5,12 +7,17 @@ export const forbiddenAbillity = defineAbility(_ => false)
 /**
  * Test ability to try it out
  */
-export const testAbillity = defineAbility({ allowGuest: true }, _ => true)
+export const allowedAbillity = defineAbility({ allowGuest: true }, _ => true)
 
-// export const listPosts = defineAbility(() => true) // Only authenticated users can list posts
-
-// export const editPost = defineAbility((user: User, post: Post) => {
-//   return user.id === post.authorId
-// })
-
-// export const listPosts2 = defineAbility({ allowGuest: true }, (user: User | null) => true)
+/**
+ * Ability to edit experiment
+ */
+export const canEditExperiment = defineAbility((user: UserDetail, experiment: ExperimentList) => {
+  return user.role === "Administrator" || user.id === experiment.userId
+})
+/**
+ * Ability to see experiment
+ */
+export const canSeeExperiment = defineAbility({ allowGuest: true }, (user: UserDetail, experiment: ExperimentList) => {
+  return experiment.status === "Accepted" || (user.role === "Moderator" || user.id === experiment.userId)
+})

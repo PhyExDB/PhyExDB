@@ -1,12 +1,12 @@
 <template>
   <div>
     <Can
-      :ability="testAbillity"
+      :ability="allowedAbillity"
     >
       <button>Edit</button>
     </Can>
     <Bouncer
-      :ability="testAbillity"
+      :ability="allowedAbillity"
     >
       <template #can>
         can
@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-if (await allows(testAbillity)) {
+if (await allows(allowedAbillity)) {
   console.log("can")
 }
 if (await allows(forbiddenAbillity)) {
