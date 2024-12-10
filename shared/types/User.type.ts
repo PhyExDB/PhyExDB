@@ -1,5 +1,5 @@
+import type Prisma from "@prisma/client"
 import type { BaseList } from "./Base.type"
-import Prisma from "@prisma/client"
 
 /**
  * Represents a list of users with their ids, usernames, roles, and verification statuses.
