@@ -31,7 +31,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
 
     // Expect the new content
     expect(response).toHaveProperty("text")
-    // expect(response.content).toBe(updateContent.content)
+    expect(response.text).toBe(updateContent.text)
 
     // Expect a UUID for each field
     expect(response).toHaveProperty("id")
@@ -66,7 +66,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
 
     // Expect the new content
     expect(response).toHaveProperty("text")
-    // expect(response.content).toBe(updateContent.content)
+    expect(response.text).toBe(updateContent.text)
 
     // Expect a UUID for each field
     expect(response).toHaveProperty("id")
@@ -81,7 +81,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
     if (field === "name") {
       updateContent.name = ""
     } else if (field === "text") {
-      updateContent.content = ""
+      updateContent.text = ""
     }
 
     const response = await fetch(url("/api/legal/imprint"), {
