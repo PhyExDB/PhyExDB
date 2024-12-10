@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client"
+import type { ExperimentAttributeValueList } from "~~/shared/types/ExperimentAttributeValue.type"
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
@@ -96,6 +97,57 @@ const prismaClientSingleton = () => {
                 username: user.username,
                 role: user.role,
                 verified: user.verified,
+              }
+            }
+          },
+        },
+      },
+      experimentAttribute: {
+        toList: {
+          needs: { id: true, name: true, slug: true },
+          compute(attribute) {
+            return () => {
+              return {
+                id: attribute.id,
+                name: attribute.name,
+                slug: attribute.slug,
+              }
+            }
+          },
+        },
+        toDetail: {
+          needs: { id: true, name: true, slug: true },
+          compute(attribute) {
+            return (values: ExperimentAttributeValueList[]) => {
+              return {
+                id: attribute.id,
+                name: attribute.name,
+                slug: attribute.slug,
+                values: values,
+              }
+            }
+          },
+        },
+      },
+      experimentAttributeValue: {
+        toList: {
+          needs: { id: true, name: true },
+          compute(value) {
+            return () => {
+              return {
+                id: value.id,
+                name: value.name,
+              }
+            }
+          },
+        },
+        toDetail: {
+          needs: { id: true, name: true },
+          compute(value) {
+            return () => {
+              return {
+                id: value.id,
+                name: value.name,
               }
             }
           },

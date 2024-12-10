@@ -8,14 +8,14 @@ export default defineEventHandler(async (event) => {
 
   const attribute = await prisma.experimentAttribute.findFirst({
     where: { id: id },
+    include: { values: true },
   })
 
   if (!attribute) {
     throw createError({ status: 404, message: "Attribute not found" })
   }
-  // return attribute.toAttributeDetail()
-  // TODO: to detail
-  return attribute
+
+  return attribute.toDetail(attribute.values.map(value => value.toList()))
 })
 
 defineRouteMeta({

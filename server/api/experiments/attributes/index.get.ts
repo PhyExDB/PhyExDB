@@ -1,10 +1,13 @@
 import prisma from "~~/lib/prisma"
 
 export default defineEventHandler(async () => {
-  const attributes = await prisma.experimentAttribute.findMany()
-  // return attribute.map(attribute => attribute.toAttributeDetail())
-  // TODO: to detail
-  return attributes
+  const attributes = await prisma.experimentAttribute.findMany({
+    include: {
+      values: true,
+    },
+  })
+
+  return attributes.map(attribute => attribute.toDetail(attribute.values.map(value => value.toList())))
 })
 
 defineRouteMeta({

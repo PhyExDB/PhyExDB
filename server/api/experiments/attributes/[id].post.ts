@@ -12,22 +12,25 @@ export default defineEventHandler(async (event) => {
   }
   const attribute = await prisma.experimentAttribute.findFirst({
     where: { id: attributeId },
+    include: { values: true },
   })
+
   if (!attribute) {
     throw createError({ status: 404, message: "Attribute not found" })
   }
-  const newValue = await readValidatedBody(event, body => v.parse(valueSchema, body))
+
+  const newValueContent = await readValidatedBody(event, body => v.parse(valueSchema, body))
+
   const attributeValue = await prisma.experimentAttributeValue.create({
     data: {
-      name: newValue.name,
+      name: newValueContent.name,
       attribute: { connect: { id: attributeId } },
     },
   })
 
-  // .create({ id: newValue.id, name: newValue.name, attributeValue: attributeId })
-  // return attribute.toAttributeDetailWithAdditionalValue(createValue)
-  // TODO: to detail
-  return attributeValue
+  const attributeValues = [...attribute.values.map(value => value.toList()), attributeValue.toList()]
+
+  return attribute.toDetail(attributeValues)
 })
 
 defineRouteMeta({

@@ -11,16 +11,23 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 400, message: "invalid id" })
   }
 
+  const attribute = await prisma.experimentAttribute.findFirst({
+    where: { id: id },
+    include: { values: true },
+  })
+
+  if (!attribute) {
+    throw createError({ status: 404, message: "Attribute not found" })
+  }
+
   const updateName = await readValidatedBody(event, body => v.parse(attributeUpdateSchema, body))
 
-  // TODO catch error when not found and return 404
   const updatedAttribute = await prisma.experimentAttribute.update({
     where: { id: id },
     data: { name: updateName.name },
   })
 
-  // TODO: detail
-  return updatedAttribute
+  return updatedAttribute.toDetail(attribute.values.map(value => value.toList()))
 })
 
 defineRouteMeta({
