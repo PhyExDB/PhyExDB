@@ -1,5 +1,3 @@
-import { validate as uuidValidate } from "uuid"
-import Users from "~~/server/database/models/User"
 import { getUserByEvent } from "~~/server/utils/user"
 
 export default defineEventHandler(async (event) => {

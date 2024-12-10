@@ -1,32 +1,27 @@
 import * as v from "valibot"
 import jwt from "jsonwebtoken"
+import type { H3Event, EventHandlerRequest } from "h3"
 import User from "~~/server/database/models/User"
 import Session from "~~/server/database/models/Session"
 import SessionToken from "~~/server/database/models/SessionToken"
-import { AccessToken, Tokens } from "~~/shared/types/Auth"
+import type { AccessToken, Tokens } from "~~/shared/types/Auth"
 
-const config = useRuntimeConfig()
+const { refreshTokenSecret, accessTokenSecret, expSeccondsRefreshToken, expSeccondsAccessToken } = useRuntimeConfig()
 
-const refreshTokenSecret = config.refreshTokenSecret
-const accessTokenSecret = config.accessTokenSecret
-const expSeccondsSession = config.expSeccondsSession
-const expSeccondsRefreshToken = config.expSeccondsRefreshToken
-const expSeccondsAccessToken = config.expSeccondsAccessToken
-
-export function createAccessToken(userId: string): AccessToken{
+export function createAccessToken(userId: string): AccessToken {
   const accessToken = jwt.sign({
     // username: user.username,
   }, accessTokenSecret, {
     subject: userId,
     expiresIn: expSeccondsAccessToken,
   })
-  
+
   return {
     accessToken: accessToken,
   }
 }
 
-export function createTokens(sessionTokenId: string, userId: string): Tokens{
+export function createTokens(sessionTokenId: string, userId: string): Tokens {
   const refreshToken = jwt.sign({
     token: sessionTokenId,
   }, refreshTokenSecret, {
@@ -36,7 +31,7 @@ export function createTokens(sessionTokenId: string, userId: string): Tokens{
 
   return {
     refreshToken: refreshToken,
-    ...createAccessToken(userId)
+    ...createAccessToken(userId),
   }
 }
 
@@ -45,10 +40,10 @@ export const errorInvalidRefreshToken = createError({
   message: "invalid refreshToken",
 })
 
-export async function acceptRefreshToken(refreshToken: string): Promise<Session>{
-  try{
+export async function acceptRefreshToken(refreshToken: string): Promise<Session> {
+  try {
     const decoded = jwt.verify(refreshToken, refreshTokenSecret)
-    if(typeof decoded === 'string'){
+    if (typeof decoded === "string") {
       throw errorInvalidRefreshToken
     }
 
@@ -59,8 +54,8 @@ export async function acceptRefreshToken(refreshToken: string): Promise<Session>
         id: decoded.token,
       },
       include: {
-        model: Session
-      }
+        model: Session,
+      },
     })
 
     if (sessionToken === null) {
@@ -69,14 +64,14 @@ export async function acceptRefreshToken(refreshToken: string): Promise<Session>
     }
 
     const session = sessionToken.Session
-    if (!sessionToken.valid){
+    if (!sessionToken.valid) {
       session.destroy()
       authLogger.debug("RefreshToken used allready, Session got deleted")
       throw errorInvalidRefreshToken
     }
 
     // expiration of sessionToken gets checked by jwt
-    if(session.exp < new Date()){
+    if (session.exp < new Date()) {
       session.destroy()
       authLogger.debug("Session expired, got deleted")
       throw errorInvalidRefreshToken
@@ -87,16 +82,16 @@ export async function acceptRefreshToken(refreshToken: string): Promise<Session>
     await sessionToken.save()
 
     return session
-  } catch(e){
+  } catch (_) {
     throw errorInvalidRefreshToken
   }
 }
 
 const refreshTokenSchema = v.object({
-  refreshToken: v.string()
+  refreshToken: v.string(),
 })
 
-export async function acceptRefreshTokenFromEvent(event: any): Promise<Session>{
+export async function acceptRefreshTokenFromEvent(event: H3Event<EventHandlerRequest>): Promise<Session> {
   const c = await readValidatedBody(event, body => v.parse(refreshTokenSchema, body))
 
   return await acceptRefreshToken(c.refreshToken)
@@ -107,24 +102,24 @@ export const errorInvalidAccessToken = createError({
   message: "invalid accessToken",
 })
 export async function getUserFromAccessToken(accessToken: string): Promise<User> {
-  try{
+  try {
     const decoded = jwt.verify(accessToken, accessTokenSecret)
-    if(typeof decoded === 'string'){
+    if (typeof decoded === "string") {
       throw errorInvalidAccessToken
     }
     const userId = decoded.subject
 
     const user = await User.findOne({
       where: {
-        id: userId
-      }
+        id: userId,
+      },
     })
-    if(user == null){
+    if (user == null) {
       throw errorInvalidAccessToken
     }
 
     return user
-  } catch(e) {
+  } catch (_) {
     throw errorInvalidAccessToken
   }
 }

@@ -1,7 +1,5 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
-import { validate as uuidValidate } from "uuid"
-import User from "~~/server/database/models/User"
 import { getUserByEvent } from "~~/server/utils/user"
 
 const schema = v.object({

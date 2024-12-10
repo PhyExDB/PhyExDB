@@ -1,19 +1,19 @@
 /**
  * Access token
 */
-export interface AccessToken{
-    /**
+export interface AccessToken {
+  /**
      * Access token
      */
-    accessToken: string
+  accessToken: string
 }
 
 /**
  * Tokens
  */
 export interface Tokens extends AccessToken {
-    /**
+  /**
      * Refresh token
      */
-    refreshToken: string
+  refreshToken: string
 }

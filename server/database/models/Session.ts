@@ -1,6 +1,6 @@
 import { DataTypes, Model } from "sequelize"
 import User from "./User"
-import SessionToken from "./SessionToken"
+import type SessionToken from "./SessionToken"
 
 class Session extends Model {
   declare id: string

@@ -1,6 +1,5 @@
 import * as v from "valibot"
 import { Op } from "sequelize"
-import { validate as uuidValidate } from "uuid"
 import User from "~~/server/database/models/User"
 
 const schema = v.object({

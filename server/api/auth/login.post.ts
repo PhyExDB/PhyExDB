@@ -1,10 +1,9 @@
 import * as v from "valibot"
-import { Op } from "sequelize"
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
 import User from "~~/server/database/models/User"
-import Session from "~~/server/database/models/Session"
 import SessionToken from "~~/server/database/models/SessionToken"
+
+const { expSeccondsSession, expSeccondsRefreshToken } = useRuntimeConfig()
 
 const schema = v.object({
   usernameOrEmail: v.pipe(
@@ -19,25 +18,15 @@ const error = createError({
   message: "Username, email or password wrong",
 })
 
-const config = useRuntimeConfig()
-
-const refreshTokenSecret = config.refreshTokenSecret
-const accessTokenSecret = config.accessTokenSecret
-const expSeccondsSession = config.expSeccondsSession
-const expSeccondsRefreshToken = config.expSeccondsRefreshToken
-const expSeccondsAccessToken = config.expSeccondsAccessToken
-
 export default defineEventHandler(async (event) => {
   const c = await readValidatedBody(event, body => v.parse(schema, body))
 
-  const user = await User.findOne({
-    where: {
-      [Op.or]: [
-        { username: c.usernameOrEmail },
-        { email: c.usernameOrEmail },
-      ],
-    },
-  })
+  const whereClause
+    = v.is(v.pipe(v.string(), v.email()), c.usernameOrEmail)
+      ? { email: c.usernameOrEmail }
+      : { username: c.usernameOrEmail }
+
+  const user = await User.findOne({ where: whereClause })
 
   if (user == null) {
     authLogger.debug("User not found", { usernameOrEmail: c.usernameOrEmail })
@@ -58,12 +47,8 @@ export default defineEventHandler(async (event) => {
       },
       valid: true,
       exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
-    }, 
-    {
-      include: ["Session"],
-    }
+    },
   )
-  const session = sessionToken.getSession()
 
   const tokens = createTokens(sessionToken.id, user.id)
 

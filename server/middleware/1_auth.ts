@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const token = getHeader(event, "token");
+  const token = getHeader(event, "token")
   if (token === undefined) {
     authLogger.debug("No token found")
   } else {
@@ -8,10 +8,9 @@ export default defineEventHandler(async (event) => {
     try {
       const user = getUserFromAccessToken(token)
       authLogger.debug("AccessToken: User found")
-      
-      event.context.user = (await user).toUserDetail
 
-    } catch (e) {}
+      event.context.user = (await user).toUserDetail
+    } catch (_) { /* nothing todo */ }
     authLogger.debug("invalid AccessToken")
   }
 })
