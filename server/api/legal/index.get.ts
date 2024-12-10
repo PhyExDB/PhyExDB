@@ -3,9 +3,7 @@ import prisma from "~~/lib/prisma"
 export default defineEventHandler(async () => {
   const documents = await prisma.legalDocument.findMany()
 
-  // return documents.map(document => document.toLegalList())
-  // TODO: to detail
-  return documents
+  return documents.map(document => document.toList())
 })
 
 defineRouteMeta({

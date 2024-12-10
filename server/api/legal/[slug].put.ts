@@ -1,10 +1,12 @@
+import { Prisma } from "@prisma/client"
 import { validate as uuidValidate } from "uuid"
 import * as v from "valibot"
+import { as } from "vitest/dist/chunks/reporters.D7Jzd9GS.js"
 import prisma from "~~/lib/prisma"
 
 const legalUpdateSchema = v.object({
   name: v.string(),
-  content: v.string(),
+  text: v.string(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -15,24 +17,22 @@ export default defineEventHandler(async (event) => {
 
   const isId = uuidValidate(slugOrId)
   const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
-  // const document = await prisma.legalDocument.findFirst({
-  //   where: whereClause,
-  // })
+  const document = await prisma.legalDocument.findFirst({
+    where: whereClause,
+  })
 
-  // if (!document) {
-  //   throw createError({ status: 404, message: "Document not found" })
-  // }
+  if (!document) {
+    throw createError({ status: 404, message: "Document not found" })
+  }
 
   const updateContent = await readValidatedBody(event, body => v.parse(legalUpdateSchema, body))
 
-  // return (await document.update(updateContent)).toLegalDetail()
-  // TODO: catch error when not found and return 404
   const updatedDocument = await prisma.legalDocument.update({
     where: whereClause,
     data: updateContent,
   })
-  // TODO: to detail
-  return updatedDocument
+
+  return updatedDocument.toDetail()
 })
 
 defineRouteMeta({
@@ -46,7 +46,7 @@ defineRouteMeta({
             type: "object",
             properties: {
               name: { type: "string" },
-              content: { type: "string" },
+              text: { type: "string" },
             },
             required: ["name", "text"],
           },
@@ -63,7 +63,7 @@ defineRouteMeta({
               properties: {
                 id: { type: "string", format: "uuid" },
                 name: { type: "string" },
-                content: { type: "string" },
+                text: { type: "string" },
               },
               required: ["id", "name", "text"],
             },

@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "npm run test:integration && npm run test:e2e",
-    "test:integration": "prisma generate && vitest",
+    "test:integration": "prisma generate && dotenv -e .env.test vitest",
     "test:e2e": "prisma generate && playwright test",
     "migrate": "dotenv -e .env.development prisma migrate dev",
     "migrate:seed": "dotenv -e .env.development prisma db seed"

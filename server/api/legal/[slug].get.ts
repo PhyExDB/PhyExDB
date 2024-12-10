@@ -17,9 +17,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Document not found" })
   }
 
-  // return document.toLegalDetail()
-  // TODO: to detail
-  return document
+  return document.toDetail()
 })
 
 defineRouteMeta({

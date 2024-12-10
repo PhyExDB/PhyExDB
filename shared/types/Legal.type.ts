@@ -22,7 +22,7 @@ export interface LegalDetail extends LegalList {
   /**
    * The content of the legal document.
    */
-  content: string
+  text: string
 }
 
 /**
@@ -36,5 +36,5 @@ export interface LegalUpdate {
   /**
    * The content of the legal document.
    */
-  content: string
+  text: string
 }

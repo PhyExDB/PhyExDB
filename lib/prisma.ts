@@ -45,6 +45,33 @@ const prismaClientSingleton = () => {
 
   const extendedPrisma = prisma.$extends({
     result: {
+      legalDocument: {
+        toList: {
+          needs: { id: true, name: true, slug: true },
+          compute(legal) {
+            return () => {
+              return {
+                id: legal.id,
+                name: legal.name,
+                slug: legal.slug,
+              }
+            }
+          },
+        },
+        toDetail: {
+          needs: { id: true, name: true, slug: true, text: true },
+          compute(legal) {
+            return () => {
+              return {
+                id: legal.id,
+                name: legal.name,
+                slug: legal.slug,
+                text: legal.text,
+              }
+            }
+          },
+        },
+      },
       user: {
         toUserList: {
           needs: { id: true, username: true, role: true, verified: true },
