@@ -1,9 +1,6 @@
 import * as v from "valibot"
 import bcrypt from "bcrypt"
 import User from "~~/server/database/models/User"
-import SessionToken from "~~/server/database/models/SessionToken"
-
-const { expSeccondsSession, expSeccondsRefreshToken } = useRuntimeConfig()
 
 const schema = v.object({
   usernameOrEmail: v.pipe(
@@ -39,18 +36,7 @@ export default defineEventHandler(async (event) => {
   }
   authLogger.debug("Credentials accepted")
 
-  const sessionToken = await SessionToken.create(
-    {
-      Session: {
-        UserId: user.id,
-        exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
-      },
-      valid: true,
-      exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
-    },
-  )
-
-  const tokens = createTokens(sessionToken.id, user.id)
+  const tokens = createTokensOfNewSession(user.id)
 
   return tokens
 })

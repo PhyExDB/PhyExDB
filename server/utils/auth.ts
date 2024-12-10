@@ -6,7 +6,13 @@ import Session from "~~/server/database/models/Session"
 import SessionToken from "~~/server/database/models/SessionToken"
 import type { AccessToken, Tokens } from "~~/shared/types/Auth"
 
-const { refreshTokenSecret, accessTokenSecret, expSeccondsRefreshToken, expSeccondsAccessToken } = useRuntimeConfig()
+const {
+  refreshTokenSecret,
+  accessTokenSecret,
+  expSeccondsRefreshToken,
+  expSeccondsAccessToken,
+  expSeccondsSession,
+} = useRuntimeConfig()
 
 export function createAccessToken(userId: string): AccessToken {
   const accessToken = jwt.sign({
@@ -33,6 +39,23 @@ export function createTokens(sessionTokenId: string, userId: string): Tokens {
     refreshToken: refreshToken,
     ...createAccessToken(userId),
   }
+}
+
+export async function createTokensOfNewSession(userId: string): Promise<Tokens> {
+  const sessionToken = await SessionToken.create(
+    {
+      Session: {
+        UserId: userId,
+        exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
+      },
+      valid: true,
+      exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
+    },
+  )
+
+  const tokens = createTokens(sessionToken.id, userId)
+
+  return tokens
 }
 
 export const errorInvalidRefreshToken = createError({

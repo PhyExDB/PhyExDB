@@ -41,9 +41,16 @@ export default defineEventHandler(async (event) => {
       })
     }
   }
-  // todo return tokens
+
+  const tokens = await createTokensOfNewSession(user.id)
+
+  const tokensWithUserDetail: TokensWithUserDetail = {
+    ...tokens,
+    user: user.toUserDetail(),
+  }
+
   setResponseStatus(event, 201)
-  return user.toUserDetail()
+  return tokensWithUserDetail
 })
 
 defineRouteMeta({
