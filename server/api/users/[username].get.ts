@@ -18,9 +18,8 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     throw createError({ status: 404, message: "User not found" })
   }
-  // return user.toUserDetail()
-  // TODO: to detail
-  return user
+
+  return user.toDetail()
 })
 
 defineRouteMeta({
@@ -38,7 +37,7 @@ defineRouteMeta({
                 id: { type: "string" },
                 username: { type: "string" },
                 role: { type: "string" },
-                verified: { type: "string" },
+                verified: { type: "string", enum: ["User", "Moderator", "Administrator"] },
                 email: { type: "string" },
               },
             },

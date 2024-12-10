@@ -23,9 +23,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  // return user.toUserDetail()
-  // TODO: to detail
-  return user
+  return user.toDetail()
 })
 
 defineRouteMeta({
