@@ -13,7 +13,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
   ])("should return the updated detail of the legal document with slug $slug", async ({ slug }) => {
     const updateContent = {
       name: `New name ${uuidv4()}`,
-      content: `New content ${uuidv4()}`,
+      text: `New content ${uuidv4()}`,
     }
 
     const response = await $fetch(`/api/legal/${slug}`, {
@@ -47,7 +47,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
   ])("should return the updated detail of the legal document with slug $slug when getting by id", async ({ slug }) => {
     const updateContent = {
       name: `New name ${uuidv4()}`,
-      content: `New content ${uuidv4()}`,
+      text: `New content ${uuidv4()}`,
     }
 
     const id = (await prisma.legalDocument.findFirst({ where: { slug: slug } }))!.id
@@ -76,7 +76,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
   it.each(["name", "text"])("should return an error when the field %s is empty", async (field) => {
     const updateContent = {
       name: `New name ${uuidv4()}`,
-      content: `New content ${uuidv4()}`,
+      text: `New content ${uuidv4()}`,
     }
     if (field === "name") {
       updateContent.name = ""
