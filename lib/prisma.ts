@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client"
-import type { ExperimentAttributeValueList } from "~~/shared/types/ExperimentAttributeValue.type"
+import type { ExperimentAttributeValueList } from "~~/shared/types"
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
