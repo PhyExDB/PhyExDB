@@ -11,6 +11,22 @@ updates:
     schedule:
       interval: "daily"
 
+  # Enable version updates for npm in prisma directory
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `prisma` directory
+    directory: "prisma"
+    # Check the npm registry for updates every day (weekdays)
+    schedule:
+      interval: "daily"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    # Look for workflow files in the `.github/workflows` directory
+    directory: ".github/workflows"
+    # Check for updates once a week
+    schedule:
+      interval: "weekly"
+
   # Enable version updates for Docker
   - package-ecosystem: "docker"
     # Look for a `Dockerfile` in the `root` directory
