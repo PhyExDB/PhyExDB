@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { setup, $fetch, url } from "@nuxt/test-utils/e2e"
 import { v4 as uuidv4 } from "uuid"
-import Legal from "~~/server/database/models/Legal"
+import prisma from "../../../../../lib/prisma"
 
 describe("Api Route PUT /api/legal/{slug}", async () => {
   await setup()
@@ -30,7 +30,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
     expect(response.name).toBe(updateContent.name)
 
     // Expect the new content
-    expect(response).toHaveProperty("content")
+    expect(response).toHaveProperty("text")
     expect(response.content).toBe(updateContent.content)
 
     // Expect a UUID for each field
@@ -50,7 +50,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
       content: `New content ${uuidv4()}`,
     }
 
-    const id = (await Legal.findOne({ where: { slug: slug } }))!.id
+    const id = (await prisma.legalDocument.findFirst({ where: { slug: slug } }))!.id
     const response = await $fetch(`/api/legal/${id}`, {
       method: "PUT",
       body: JSON.stringify(updateContent),
@@ -65,7 +65,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
     expect(response.name).toBe(updateContent.name)
 
     // Expect the new content
-    expect(response).toHaveProperty("content")
+    expect(response).toHaveProperty("text")
     expect(response.content).toBe(updateContent.content)
 
     // Expect a UUID for each field
@@ -73,14 +73,14 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
     expect(response.id).toBe(id)
   })
 
-  it.each(["name", "content"])("should return an error when the field %s is empty", async (field) => {
+  it.each(["name", "text"])("should return an error when the field %s is empty", async (field) => {
     const updateContent = {
       name: `New name ${uuidv4()}`,
       content: `New content ${uuidv4()}`,
     }
     if (field === "name") {
       updateContent.name = ""
-    } else if (field === "content") {
+    } else if (field === "text") {
       updateContent.content = ""
     }
 

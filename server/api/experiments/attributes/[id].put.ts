@@ -1,5 +1,5 @@
 import * as v from "valibot"
-import ExperimentAttribute from "~~/server/database/models/ExperimentAttribute"
+import prisma from "~~/lib/prisma"
 
 const attributeUpdateSchema = v.object({
   name: v.string(),
@@ -11,14 +11,16 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 400, message: "invalid id" })
   }
 
-  const attribute = await ExperimentAttribute.findOne({
-    where: { id: id },
-  })
-  if (!attribute) {
-    throw createError({ status: 404, message: "Attribute not found" })
-  }
   const updateName = await readValidatedBody(event, body => v.parse(attributeUpdateSchema, body))
-  return ((await attribute.update(updateName)).toAttributeDetail)
+
+  // TODO catch error when not found and return 404
+  const updatedAttribute = await prisma.experimentAttribute.update({
+    where: { id: id },
+    data: { name: updateName.name },
+  })
+
+  // TODO: detail
+  return updatedAttribute
 })
 
 defineRouteMeta({

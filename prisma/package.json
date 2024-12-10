@@ -1,0 +1,22 @@
+{
+  "name": "phyedb-prisma",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "license": "AGPL-version-3.0",
+  "private": false,
+  "engines": {
+    "node": ">= 14.0.0",
+    "npm": ">= 6.0.0"
+  },
+  "prisma": {
+    "seed": "tsx seed.ts"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "prisma": "^6.0.1",
+    "tsx": "^4.19.2",
+    "@prisma/client": "^6.0.1"
+  }
+}
