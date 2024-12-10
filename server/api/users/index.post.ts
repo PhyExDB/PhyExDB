@@ -1,7 +1,7 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
 import prisma from "~~/lib/prisma"
-import hashPassword from "~~/server/utils/hashPassword"
+import hash from "~~/server/utils/hash-password"
 
 export default defineEventHandler(async (event) => {
   // Validate user data
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     data: {
       username: newUserContent.username,
       email: newUserContent.email,
-      passwordHash: await hashPassword(newUserContent.password),
+      passwordHash: await hash(newUserContent.password),
     },
   })
 
