@@ -23,16 +23,24 @@ const prismaClientSingleton = () => {
   })
 
   prisma.$on("query", (e) => {
-    dbLogger.debug(e.query, { params: e.params })
+    if (process.env.NODE_ENV !== "test") {
+      dbLogger.debug(e.query, { params: e.params })
+    }
   })
   prisma.$on("error", (e) => {
-    dbLogger.error(e.message)
+    if (process.env.NODE_ENV !== "test") {
+      dbLogger.error(e.message)
+    }
   })
   prisma.$on("info", (e) => {
-    dbLogger.info(e.message)
+    if (process.env.NODE_ENV !== "test") {
+      dbLogger.info(e.message)
+    }
   })
   prisma.$on("warn", (e) => {
-    dbLogger.warn(e.message)
+    if (process.env.NODE_ENV !== "test") {
+      dbLogger.warn(e.message)
+    }
   })
 
   const extendedPrisma = prisma.$extends({
