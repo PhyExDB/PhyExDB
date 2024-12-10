@@ -37,9 +37,11 @@ describe("Api Route /api/users", async () => {
 
   it("Should return an empty list if no users exist", async () => {
     // Mock the User model to return an empty array
-    User.findAll = vi.fn().mockResolvedValue([])
+    // User.findAll = vi.fn().mockResolvedValue([])
+    const _spy = vi.spyOn(User, "findAll").mockReturnValue([])
     const response = await $fetch("/api/users")
     expect(response).toEqual([])
+    vi.resetAllMocks()
   })
 
   it("Should return users with correct roles", async () => {
@@ -58,7 +60,7 @@ describe("Api Route /api/users", async () => {
 
   it("Mock faulty response", async () => {
     // Mock the User model to throw an error
-    User.findAll = vi.fn().mockRejectedValue(new Error("Database error"))
+    const _spy = vi.spyOn(User, "findAll").mockResolvedValue([])
     const response = await $fetch("/api/users")
     expect(response).toEqual({ error: "Database error" })
   })

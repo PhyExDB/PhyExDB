@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it } from "vitest"
 import { setup, $fetch } from "@nuxt/test-utils/e2e"
 import User from "~~/server/database/models/User"
 
@@ -32,6 +32,9 @@ describe("Api Route /api/users", async () => {
       throw new Error("User not found in database")
     }
     expect(dbUser.username).toBe(testUser.username)
+
+    // Clean up the created user
+    await User.destroy({ where: { username: "TestUser" } })
   })
 
   it("Should fail with invalid username", async () => {
