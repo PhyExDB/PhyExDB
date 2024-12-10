@@ -42,10 +42,10 @@ model Experiment {
   slug       String                     @unique
   status     ExperimentStatus           @default(DRAFT)
   duration   Int
-  createdAt  DateTime                   @default(now())
-  updatedAt  DateTime                   @updatedAt
   sections   ExperimentSectionContent[]
   attributes ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
+  createdAt  DateTime                   @default(now())
+  updatedAt  DateTime                   @updatedAt
 }
 
 enum ExperimentStatus {
@@ -58,9 +58,9 @@ model ExperimentSection {
   id          String                     @id @default(uuid())
   name        String
   order       Int
+  experiments ExperimentSectionContent[]
   createdAt   DateTime                   @default(now())
   updatedAt   DateTime                   @updatedAt
-  experiments ExperimentSectionContent[]
 }
 
 model ExperimentSectionContent {
@@ -80,9 +80,9 @@ model ExperimentAttribute {
   id        String                     @id @default(uuid())
   name      String
   slug      String                     @unique
+  values    ExperimentAttributeValue[]
   createdAt DateTime                   @default(now())
   updatedAt DateTime                   @updatedAt
-  values    ExperimentAttributeValue[]
 }
 
 model ExperimentAttributeValue {
@@ -100,8 +100,8 @@ model File {
   path                String
   mimeType            String
   description         String?
-  createdAt           DateTime                  @default(now())
-  updatedAt           DateTime                  @updatedAt
   experimentSection   ExperimentSectionContent? @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
