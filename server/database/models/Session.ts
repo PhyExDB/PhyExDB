@@ -18,15 +18,6 @@ Session.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    // subject
-    // sub: {
-    //   type: DataTypes.UUID,
-    //   references: {
-    //     model: User,
-    //     key: "id",
-    //   },
-    //   allowNull: false,
-    // },
     // expiration time
     exp: {
       type: DataTypes.DATE,

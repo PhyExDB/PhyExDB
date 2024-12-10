@@ -18,10 +18,8 @@ const error = createError({
 export default defineEventHandler(async (event) => {
   const c = await readValidatedBody(event, body => v.parse(schema, body))
 
-  const whereClause
-    = v.is(v.pipe(v.string(), v.email()), c.usernameOrEmail)
-      ? { email: c.usernameOrEmail }
-      : { username: c.usernameOrEmail }
+  const isEmail = v.is(v.pipe(v.string(), v.email()), c.usernameOrEmail)
+  const whereClause = isEmail ? { email: c.usernameOrEmail } : { username: c.usernameOrEmail }
 
   const user = await User.findOne({ where: whereClause })
 

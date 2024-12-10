@@ -50,7 +50,8 @@ export const passwordSchema = {
  * Finds a user by either their username or id.
  *
  * @param {string} usernameOrId The username or id of the user to search for.
- * @returns {Promise<User>} A promise which resolves to the user object if found, or rejects with a 404 error if not found.
+ * @returns {Promise<User>} A promise which resolves to the user object if found,
+ * or rejects with a 404 error if not found.
  */
 export async function getUserByUsernameOrId(usernameOrId: string): Promise<User> {
   const whereClause = uuidValidate(usernameOrId) ? { id: usernameOrId } : { username: usernameOrId }

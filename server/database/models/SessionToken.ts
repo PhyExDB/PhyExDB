@@ -7,10 +7,6 @@ class SessionToken extends Model {
   declare SessionId: string
   declare valid: boolean
   declare exp: Date
-
-  getSession(): Session {
-    return this.Session
-  }
 }
 
 SessionToken.init(
@@ -21,14 +17,6 @@ SessionToken.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    // session: {
-    //   type: DataTypes.UUID,
-    //   references: {
-    //     model: Session,
-    //     key: "id",
-    //   },
-    //   allowNull: false,
-    // },
     valid: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
