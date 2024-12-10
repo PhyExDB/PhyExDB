@@ -1,61 +1,41 @@
 import * as v from "valibot"
 import { Op } from "sequelize"
+import { validate as uuidValidate } from "uuid"
 import User from "~~/server/database/models/User"
 
-const registerSchema = v.object({
-  username: v.pipe(
-    v.string(),
-    v.nonEmpty("Please enter Name"),
-    v.check(
-      value =>
-        !v.is(v.pipe(
-          v.string(),
-          v.email(""),
-        ), value),
-      "Username can't be an email."),
-  ),
-  email: v.pipe(
-    v.string(),
-    v.nonEmpty("Please enter your email."),
-    v.email("The email is badly formatted."),
-  ),
-  password: v.pipe(
-    v.string(), 
-    v.nonEmpty("Please enter Password"), 
-    v.minLength(8, "Password must be at least 8 characters"), 
-    v.regex(/[a-z]/, "Password must contain at least one lowercase letter"), 
-    v.regex(/[A-Z]/, "Password must contain at least one uppercase letter"), 
-    v.regex(/[0-9]/, "Password must contain at least one number")
-  ),
+const schema = v.object({
+  ...usernameSchema,
+  ...emailSchema,
+  ...passwordSchema,
 })
 
 export default defineEventHandler(async (event) => {
-  const registerContent = await readValidatedBody(event, body => v.parse(registerSchema, body))
+  const c = await readValidatedBody(event, body => v.parse(schema, body))
 
   const [user, created] = await User.findOrCreate({
     where: {
       [Op.or]: [
-        { username: registerContent.username },
-        { email: registerContent.email },
+        { username: c.username },
+        { email: c.email },
       ],
     },
     defaults: {
-      username: registerContent.username,
-      email: registerContent.email,
-      passwordHash: registerContent.password,
+      username: c.username,
+      email: c.email,
+      passwordHash: c.password,
       role: "User",
       verified: false,
     },
   })
 
   if (!created) {
-    if (user.username === registerContent.username) {
+    if (user.username === c.username) {
       throw createError({
         statusCode: 422,
         statusMessage: "Username already exists",
       })
     }
-    if (user.email === registerContent.email) {
+    if (user.email === c.email) {
       throw createError({
         statusCode: 422,
         statusMessage: "Email already exists",

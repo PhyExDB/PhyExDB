@@ -1,43 +1,18 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
 import { validate as uuidValidate } from "uuid"
-import Users from "~~/server/database/models/User"
+import User from "~~/server/database/models/User"
+import { getUserByEvent } from "~~/server/utils/user"
+
+const schema = v.object({
+  ...usernameSchema,
+  ...emailSchema,
+})
 
 export default defineEventHandler(async (event) => {
-  // Extract username or id from the event
-  const usernameOrId = getRouterParam(event, "username")
-  if (!usernameOrId) {
-    throw createError({ status: 400, message: "Invalid username or id" })
-  }
+  const user = await getUserByEvent(event)
 
-  // Find user to update
-  const isId = uuidValidate(usernameOrId)
-  const whereClause = isId ? { id: usernameOrId } : { username: usernameOrId }
-  const user = await Users.findOne({
-    where: whereClause,
-  })
-
-  // Check that user exists
-  if (!user) {
-    throw createError({ status: 404, message: "User not found" })
-  }
-
-  // Validate user data
-  const userSchema = v.object({
-    username: v.pipe(
-      v.string(),
-      v.nonEmpty("Please enter Name"),
-      v.check(name => !uuidValidate(name), "Invalid username format"),
-    ),
-    email: v.pipe(
-      v.string(),
-      v.nonEmpty("Please enter Email"),
-      v.email("Not an Email"),
-    ),
-  })
-
-  // This is a helper function that reads the body and validates it against the schema
-  const updateUserContent = await readValidatedBody(event, body => v.parse(userSchema, body))
+  const updateUserContent = await readValidatedBody(event, body => v.parse(schema, body))
 
   return (await user.update(updateUserContent)).toUserDetail()
 })
