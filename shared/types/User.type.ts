@@ -16,7 +16,7 @@ export interface UserList extends BaseList {
   /**
    * The role of the user.
    */
-  role: string
+  role: "User" | "Moderator" | "Administrator"
   /**
    * Whether the user has verified their account.
    */

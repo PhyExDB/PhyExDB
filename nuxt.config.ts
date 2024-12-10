@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   modules: [
     "@nuxt/eslint",
     "@nuxt/test-utils/module",
+    "nuxt-authorization",
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
@@ -28,6 +29,11 @@ export default defineNuxtConfig({
     public: {
       apiBase: "http://localhost:3000/api",
     },
+    refreshTokenSecret: "set in env",
+    accessTokenSecret: "set in env",
+    expSeccondsSession: 60 * 60 * 24 * 90, // 90 days
+    expSeccondsRefreshToken: 60 * 60 * 24 * 7, // 7 days
+    expSeccondsAccessToken: 5 * 60, // 5 minute
   },
 
   future: {

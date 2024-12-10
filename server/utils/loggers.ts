@@ -37,8 +37,8 @@ const rootLogger = winston.createLogger({
           (info, _) => info,
         )(),
         colorize(),
-        printf(({ level, message, label }) => {
-          return `${level}${typeof label == "undefined" ? "" : ` ${label}`}: ${message}`
+        printf(({ level, message, label, timestamp, ...meta }) => {
+          return `${level}${typeof label == "undefined" ? "" : ` ${label}`}: ${message} ${JSON.stringify(meta)}`
         }),
       ),
     }),
@@ -76,4 +76,6 @@ if (process.env.NODE_ENV === "development") {
 export const logger = rootLogger.child({ label: "main" })
 /** logger with label db */
 export const dbLogger = rootLogger.child({ label: "db" })
+/** logger with label auth */
+export const authLogger = rootLogger.child({ label: "auth" })
 export default rootLogger
