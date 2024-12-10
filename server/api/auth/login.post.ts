@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     authLogger.debug("User not found", { usernameOrEmail: c.usernameOrEmail })
     throw error
   }
-  const match = bcrypt.compareSync(c.password, user.passwordHash)
+  const match = await bcrypt.compare(c.password, user.passwordHash)
   if (!match) {
     authLogger.debug("Password does not match")
     throw error
