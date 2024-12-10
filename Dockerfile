@@ -4,7 +4,7 @@
 FROM node:23-alpine AS build
 
 # update and install the latest dependencies for the alpine version
-RUN apk update && apk upgrade
+RUN apk update && apk upgrade && apk add openssl
 
 # set the working directory
 WORKDIR /build
