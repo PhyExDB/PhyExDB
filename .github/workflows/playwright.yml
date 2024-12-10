@@ -18,10 +18,7 @@ jobs:
       contents: read
 
     env:
-      DATABASE_USER: nuxt
-      DATABASE_PASSWORD: nuxt_password
-      DATABASE_NAME: phyexdb
-      DATABASE_URL: postgresql://$DATABASE_USER:$DATABASE_PASSWORD@localhost:5432/$DATABASE_NAME
+      DATABASE_URL: postgresql://nuxt:nuxt_password@localhost:5432/phyexdb
       # For API Base URL
       NUXT_PUBLIC_API_BASE: http://db:3000/api/
 
@@ -29,9 +26,9 @@ jobs:
       db:
         image: postgres:17-alpine
         env:
-          POSTGRES_DB: ${{ env.DATABASE_NAME }}
-          POSTGRES_USER: ${{ env.DATABASE_USER }}
-          POSTGRES_PASSWORD: ${{ env.DATABASE_PASSWORD }}
+          POSTGRES_DB: phyexdb
+          POSTGRES_USER: nuxt
+          POSTGRES_PASSWORD: nuxt_password
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
