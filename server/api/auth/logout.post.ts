@@ -2,6 +2,8 @@ export default defineEventHandler(async (event) => {
   const session = await acceptRefreshTokenFromEvent(event)
 
   session.destroy()
+
+  return {}
 })
 
 defineRouteMeta({

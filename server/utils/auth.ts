@@ -16,9 +16,9 @@ const {
 
 export function createAccessToken(userId: string): AccessToken {
   const accessToken = jwt.sign({
+    subject: userId,
     // username: user.username,
   }, accessTokenSecret, {
-    subject: userId,
     expiresIn: expSeccondsAccessToken,
   })
 
@@ -29,9 +29,9 @@ export function createAccessToken(userId: string): AccessToken {
 
 export function createTokens(sessionTokenId: string, userId: string): Tokens {
   const refreshToken = jwt.sign({
+    subject: userId,
     token: sessionTokenId,
   }, refreshTokenSecret, {
-    subject: userId,
     expiresIn: expSeccondsRefreshToken,
   })
 
@@ -50,6 +50,9 @@ export async function createTokensOfNewSession(userId: string): Promise<Tokens> 
       },
       valid: true,
       exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
+    },
+    {
+      include: ["Session"],
     },
   )
 
@@ -105,7 +108,8 @@ export async function acceptRefreshToken(refreshToken: string): Promise<Session>
     await sessionToken.save()
 
     return session
-  } catch (_) {
+  } catch (error) {
+    consume(error)
     throw errorInvalidRefreshToken
   }
 }
@@ -127,7 +131,9 @@ export const errorInvalidAccessToken = createError({
 export async function getUserFromAccessToken(accessToken: string): Promise<User> {
   try {
     const decoded = jwt.verify(accessToken, accessTokenSecret)
+    authLogger.debug("decoded accessToken")
     if (typeof decoded === "string") {
+      authLogger.debug("invalid accessToken: returned string")
       throw errorInvalidAccessToken
     }
     const userId = decoded.subject
@@ -138,11 +144,13 @@ export async function getUserFromAccessToken(accessToken: string): Promise<User>
       },
     })
     if (user == null) {
+      authLogger.debug("invalid accessToken: User not found")
       throw errorInvalidAccessToken
     }
 
     return user
-  } catch (_) {
+  } catch (error) {
+    authLogger.debug("invalid accessToken", error)
     throw errorInvalidAccessToken
   }
 }
