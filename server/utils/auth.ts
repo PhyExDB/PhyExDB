@@ -14,6 +14,11 @@ const {
   expSeccondsSession,
 } = useRuntimeConfig()
 
+/**
+ * Creates a new access token
+ * @param {string} userId - The id of the user who requested the token
+ * @returns {AccessToken} - A new access token
+ */
 export function createAccessToken(userId: string): AccessToken {
   const accessToken = jwt.sign({
     subject: userId,
@@ -27,6 +32,12 @@ export function createAccessToken(userId: string): AccessToken {
   }
 }
 
+/**
+ * Creates a new refresh token and a new access token
+ * @param {string} sessionTokenId - The id of the session token which will be used for the refresh token
+ * @param {string} userId - The id of the user who requested the token
+ * @returns {Tokens} - A new refresh token and a new access token
+ */
 export function createTokens(sessionTokenId: string, userId: string): Tokens {
   const refreshToken = jwt.sign({
     subject: userId,
@@ -41,6 +52,11 @@ export function createTokens(sessionTokenId: string, userId: string): Tokens {
   }
 }
 
+/**
+ * Creates a new session and a new refresh token and a new access token
+ * @param {string} userId - The id of the user who requested the token
+ * @returns {Tokens} - A new refresh token and a new access token
+ */
 export async function createTokensOfNewSession(userId: string): Promise<Tokens> {
   const sessionToken = await SessionToken.create(
     {
@@ -61,11 +77,27 @@ export async function createTokensOfNewSession(userId: string): Promise<Tokens> 
   return tokens
 }
 
+/**
+ * Error for invalid refresh token
+ */
 export const errorInvalidRefreshToken = createError({
   status: 401,
   message: "invalid refreshToken",
 })
 
+/**
+ * Accepts a refresh token and returns the associated session if valid.
+ *
+ * This function verifies the provided refresh token, checks its validity,
+ * and retrieves the corresponding session. If the refresh token is invalid,
+ * already used, or expired, an error is thrown. Upon successful validation,
+ * the session token is marked as invalid to prevent reuse, and the associated
+ * session is returned.
+ *
+ * @param {string} refreshToken - The refresh token to be accepted.
+ * @returns {Promise<Session>} - The session associated with the valid refresh token.
+ * @throws {Error} - Throws an error if the refresh token is invalid or the session is not found.
+ */
 export async function acceptRefreshToken(refreshToken: string): Promise<Session> {
   try {
     const decoded = jwt.verify(refreshToken, refreshTokenSecret)
@@ -118,16 +150,40 @@ const refreshTokenSchema = v.object({
   refreshToken: v.string(),
 })
 
+/**
+ * Accepts a refresh token and returns the associated session if valid.
+ *
+ * This function reads the body of the request and verifies the provided refresh token.
+ * If the refresh token is invalid, already used, or expired, an error is thrown.
+ * Upon successful validation, the session token is marked as invalid to prevent reuse,
+ * and the associated session is returned.
+ *
+ * @param {H3Event<EventHandlerRequest>} event - The request containing the refresh token.
+ * @returns {Promise<Session>} - The session associated with the valid refresh token.
+ * @throws {Error} - Throws an error if the refresh token is invalid or the session is not found.
+ */
 export async function acceptRefreshTokenFromEvent(event: H3Event<EventHandlerRequest>): Promise<Session> {
   const c = await readValidatedBody(event, body => v.parse(refreshTokenSchema, body))
 
   return await acceptRefreshToken(c.refreshToken)
 }
 
+/**
+ * Error for invalid access token
+ */
 export const errorInvalidAccessToken = createError({
   status: 401,
   message: "invalid accessToken",
 })
+/**
+ * Extracts the user associated with the given access token.
+ *
+ * If the access token is invalid, expired, or doesn't match a user, an error is thrown.
+ *
+ * @param {string} accessToken - The access token to verify.
+ * @returns {Promise<User>} - The user associated with the valid access token.
+ * @throws {Error} - Throws an error if the access token is invalid or the user is not found.
+ */
 export async function getUserFromAccessToken(accessToken: string): Promise<User> {
   try {
     const decoded = jwt.verify(accessToken, accessTokenSecret)
