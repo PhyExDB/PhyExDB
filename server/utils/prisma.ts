@@ -1,5 +1,8 @@
 import { PrismaClient } from "@prisma/client"
-import type { ExperimentAttributeValueList } from "~~/shared/types"
+import { legalDocumentResultExtensions } from "../db/models/legalDocument"
+import { experimentAttributeValueResultExtensions } from "../db/models/experimentAttributeValue"
+import { experimentAttributeResultExtensions } from "../db/models/experimentAttribute"
+import { userResultExtensions } from "../db/models/user"
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
@@ -44,116 +47,15 @@ const prismaClientSingleton = () => {
     }
   })
 
+  const resultExtensions = {
+    legalDocument: legalDocumentResultExtensions,
+    user: userResultExtensions,
+    experimentAttribute: experimentAttributeResultExtensions,
+    experimentAttributeValue: experimentAttributeValueResultExtensions,
+  }
+
   const extendedPrisma = prisma.$extends({
-    result: {
-      legalDocument: {
-        toList: {
-          needs: { id: true, name: true, slug: true },
-          compute(legal) {
-            return () => {
-              return {
-                id: legal.id,
-                name: legal.name,
-                slug: legal.slug,
-              }
-            }
-          },
-        },
-        toDetail: {
-          needs: { id: true, name: true, slug: true, text: true },
-          compute(legal) {
-            return () => {
-              return {
-                id: legal.id,
-                name: legal.name,
-                slug: legal.slug,
-                text: legal.text,
-              }
-            }
-          },
-        },
-      },
-      user: {
-        toList: {
-          needs: { id: true, username: true, role: true, verified: true },
-          compute(user) {
-            return () => {
-              return {
-                id: user.id,
-                username: user.username,
-                role: user.role,
-                verified: user.verified,
-              }
-            }
-          },
-        },
-        toDetail: {
-          needs: { id: true, email: true, username: true, role: true, verified: true },
-          compute(user) {
-            return () => {
-              return {
-                id: user.id,
-                email: user.email,
-                username: user.username,
-                role: user.role,
-                verified: user.verified,
-              }
-            }
-          },
-        },
-      },
-      experimentAttribute: {
-        toList: {
-          needs: { id: true, name: true, slug: true },
-          compute(attribute) {
-            return () => {
-              return {
-                id: attribute.id,
-                name: attribute.name,
-                slug: attribute.slug,
-              }
-            }
-          },
-        },
-        toDetail: {
-          needs: { id: true, name: true, slug: true },
-          compute(attribute) {
-            return (values: ExperimentAttributeValueList[]) => {
-              return {
-                id: attribute.id,
-                name: attribute.name,
-                slug: attribute.slug,
-                values: values,
-              }
-            }
-          },
-        },
-      },
-      experimentAttributeValue: {
-        toList: {
-          needs: { id: true, name: true },
-          compute(value) {
-            return () => {
-              return {
-                id: value.id,
-                name: value.name,
-              }
-            }
-          },
-        },
-        toDetail: {
-          needs: { id: true, name: true },
-          compute(value) {
-            return () => {
-              return {
-                id: value.id,
-                name: value.name,
-              }
-            }
-          },
-        },
-      },
-    },
+    result: resultExtensions,
   })
 
   return extendedPrisma
