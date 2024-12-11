@@ -27,6 +27,24 @@ enum UserRole {
   ADMIN
 }
 
+model Session{
+  id            String        @id @default(uuid())
+  exp           DateTime
+  sessionTokens SessionToken[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model SessionToken{
+  id            String        @id @default(uuid())
+  exp           DateTime
+  valid         Boolean       @default(true)
+  sessionId     String
+  session       Session       @relation(fields: [sessionId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
 model LegalDocument {
   id        String   @id @default(uuid())
   name      String
