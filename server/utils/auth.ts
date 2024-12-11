@@ -1,9 +1,6 @@
 import * as v from "valibot"
 import jwt from "jsonwebtoken"
 import type { H3Event, EventHandlerRequest } from "h3"
-import User from "~~/server/database/models/User"
-import Session from "~~/server/database/models/Session"
-import SessionToken from "~~/server/database/models/SessionToken"
 import type { AccessToken, Tokens } from "~~/shared/types/Auth"
 
 const {
@@ -58,17 +55,18 @@ export function createTokens(sessionTokenId: string, userId: string): Tokens {
  * @returns {Tokens} - A new refresh token and a new access token
  */
 export async function createTokensOfNewSession(userId: string): Promise<Tokens> {
-  const sessionToken = await SessionToken.create(
+  const sessionToken = await prisma.sessionToken.create(
     {
-      Session: {
-        UserId: userId,
-        exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
+      data: {
+        session: {
+          create: {
+            userId: userId,
+            exp: new Date((new Date()).getTime() + (expSeccondsSession * 1000)),
+          },
+        },
+        valid: true,
+        exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
       },
-      valid: true,
-      exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
-    },
-    {
-      include: ["Session"],
     },
   )
 
@@ -98,7 +96,7 @@ export const errorInvalidRefreshToken = createError({
  * @returns {Promise<Session>} - The session associated with the valid refresh token.
  * @throws {Error} - Throws an error if the refresh token is invalid or the session is not found.
  */
-export async function acceptRefreshToken(refreshToken: string): Promise<Session> {
+export async function acceptRefreshToken(refreshToken: string) {
   try {
     const decoded = jwt.verify(refreshToken, refreshTokenSecret)
     if (typeof decoded === "string") {
@@ -107,12 +105,12 @@ export async function acceptRefreshToken(refreshToken: string): Promise<Session>
 
     authLogger.debug("decoded refreshToken")
 
-    const sessionToken = await SessionToken.findOne({
+    const sessionToken = await prisma.sessionToken.findFirst({
       where: {
         id: decoded.token,
       },
       include: {
-        model: Session,
+        session: true,
       },
     })
 
@@ -121,23 +119,37 @@ export async function acceptRefreshToken(refreshToken: string): Promise<Session>
       throw errorInvalidRefreshToken
     }
 
-    const session = sessionToken.Session
+    const session = sessionToken.session
     if (!sessionToken.valid) {
-      session.destroy()
+      prisma.session.delete({
+        where: {
+          id: session.id,
+        },
+      })
       authLogger.debug("RefreshToken used allready, Session got deleted")
       throw errorInvalidRefreshToken
     }
 
     // expiration of sessionToken gets checked by jwt
     if (session.exp < new Date()) {
-      session.destroy()
+      prisma.session.delete({
+        where: {
+          id: session.id,
+        },
+      })
       authLogger.debug("Session expired, got deleted")
       throw errorInvalidRefreshToken
     }
     authLogger.debug("found session")
 
-    sessionToken.valid = false
-    await sessionToken.save()
+    prisma.sessionToken.update({
+      where: {
+        id: sessionToken.id,
+      },
+      data: {
+        valid: false,
+      },
+    })
 
     return session
   } catch (error) {
@@ -162,7 +174,7 @@ const refreshTokenSchema = v.object({
  * @returns {Promise<Session>} - The session associated with the valid refresh token.
  * @throws {Error} - Throws an error if the refresh token is invalid or the session is not found.
  */
-export async function acceptRefreshTokenFromEvent(event: H3Event<EventHandlerRequest>): Promise<Session> {
+export async function acceptRefreshTokenFromEvent(event: H3Event<EventHandlerRequest>) {
   const c = await readValidatedBody(event, body => v.parse(refreshTokenSchema, body))
 
   return await acceptRefreshToken(c.refreshToken)
@@ -184,7 +196,7 @@ export const errorInvalidAccessToken = createError({
  * @returns {Promise<User>} - The user associated with the valid access token.
  * @throws {Error} - Throws an error if the access token is invalid or the user is not found.
  */
-export async function getUserFromAccessToken(accessToken: string): Promise<User> {
+export async function getUserFromAccessToken(accessToken: string) {
   try {
     const decoded = jwt.verify(accessToken, accessTokenSecret)
     authLogger.debug("decoded accessToken")
@@ -194,7 +206,7 @@ export async function getUserFromAccessToken(accessToken: string): Promise<User>
     }
     const userId = decoded.subject
 
-    const user = await User.findOne({
+    const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },

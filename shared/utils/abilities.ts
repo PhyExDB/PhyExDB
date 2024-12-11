@@ -13,7 +13,7 @@ export const allowedAbillity = defineAbility({ allowGuest: true }, _ => true)
  * Ability to edit experiment
  */
 export const canEditExperiment = defineAbility((user: UserDetail, experiment: ExperimentList) => {
-  return user.role === "Administrator" || user.id === experiment.userId
+  return user.role === "ADMIN" || user.id === experiment.userId
 })
 /**
  * Ability to see experiment

@@ -1,18 +1,18 @@
-import SessionToken from "~~/server/database/models/SessionToken"
-
 const { expSeccondsRefreshToken } = useRuntimeConfig()
 
 export default defineEventHandler(async (event) => {
   const session = await acceptRefreshTokenFromEvent(event)
 
-  const newSessionToken = await SessionToken.create(
+  const newSessionToken = await prisma.sessionToken.create(
     {
-      SessionId: session.id,
-      exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
+      data: {
+        sessionId: session.id,
+        exp: new Date((new Date()).getTime() + (expSeccondsRefreshToken * 1000)),
+      },
     },
   )
 
-  const tokens = createTokens(newSessionToken.id, session.UserId)
+  const tokens = createTokens(newSessionToken.id, session.userId)
 
   return tokens
 })

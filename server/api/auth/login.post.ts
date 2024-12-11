@@ -1,6 +1,5 @@
 import * as v from "valibot"
 import bcrypt from "bcrypt"
-import User from "~~/server/database/models/User"
 
 const schema = v.object({
   usernameOrEmail: v.pipe(
@@ -21,7 +20,7 @@ export default defineEventHandler(async (event) => {
   const isEmail = v.is(v.pipe(v.string(), v.email()), c.usernameOrEmail)
   const whereClause = isEmail ? { email: c.usernameOrEmail } : { username: c.usernameOrEmail }
 
-  const user = await User.findOne({ where: whereClause })
+  const user = await prisma.user.findFirst({ where: whereClause })
 
   if (user == null) {
     authLogger.debug("User not found", { usernameOrEmail: c.usernameOrEmail })

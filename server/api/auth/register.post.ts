@@ -1,6 +1,4 @@
 import * as v from "valibot"
-import { Op } from "sequelize"
-import User from "~~/server/database/models/User"
 
 const schema = v.object({
   ...usernameSchema,
@@ -11,22 +9,17 @@ const schema = v.object({
 export default defineEventHandler(async (event) => {
   const c = await readValidatedBody(event, body => v.parse(schema, body))
 
-  const [user, created] = await User.findOrCreate({
-    where: {
-      [Op.or]: [
-        { username: c.username },
-        { email: c.email },
-      ],
-    },
-    defaults: {
+  const user = await prisma.user.create({
+    data: {
       username: c.username,
       email: c.email,
       passwordHash: c.password,
-      role: "User",
+      role: "USER",
       verified: false,
     },
   })
 
+  const created = true
   if (!created) {
     if (user.username === c.username) {
       throw createError({
@@ -46,7 +39,7 @@ export default defineEventHandler(async (event) => {
 
   const tokensWithUserDetail: TokensWithUserDetail = {
     ...tokens,
-    user: user.toUserDetail(),
+    user: user.toDetail(),
   }
 
   setResponseStatus(event, 201)

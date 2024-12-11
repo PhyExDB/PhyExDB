@@ -1,3 +1,4 @@
+import type { UserRole } from "@prisma/client"
 import type { BaseList } from "./Base.type"
 
 /**
@@ -16,7 +17,7 @@ export interface UserList extends BaseList {
   /**
    * The role of the user.
    */
-  role: "User" | "Moderator" | "Administrator"
+  role: UserRole
   /**
    * Whether the user has verified their account.
    */

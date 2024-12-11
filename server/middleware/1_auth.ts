@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
       const user = getUserFromAccessToken(token)
       authLogger.debug("AccessToken: User found")
 
-      event.context.user = (await user).toUserDetail()
+      event.context.user = (await user).toDetail()
     } catch (error) {
       consume(error)
     }

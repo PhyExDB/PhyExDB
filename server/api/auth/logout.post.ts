@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const session = await acceptRefreshTokenFromEvent(event)
 
-  session.destroy()
+  prisma.session.delete({ where: { id: session.id } })
 
   return {}
 })

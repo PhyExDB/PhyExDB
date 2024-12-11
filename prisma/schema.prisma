@@ -17,6 +17,7 @@ model User {
   role         UserRole @default(USER)
   verified     Boolean  @default(false)
   passwordHash String
+  sessions     Session[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -30,6 +31,8 @@ enum UserRole {
 model Session{
   id            String        @id @default(uuid())
   exp           DateTime
+  userId        String        
+  user          User          @relation(fields: [userId], references: [id])
   sessionTokens SessionToken[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
