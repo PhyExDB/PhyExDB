@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { LegalDocumentDetail } from "~~/shared/types"
 
-const { data: termsOfService } = await useAPI<LegalDocumentDetail>("/api/legal/imprint")
+const { data: termsOfService } = await useAPI<LegalDocumentDetail>("/api/legal/terms-of-service")
 </script>
 
 <template>
