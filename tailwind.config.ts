@@ -1,4 +1,5 @@
 import animate from "tailwindcss-animate"
+import typography from "@tailwindcss/typography"
 import type { Config } from "tailwindcss"
 
 export default <Partial<Config>>{
@@ -82,5 +83,5 @@ export default <Partial<Config>>{
       },
     },
   },
-  plugins: [animate],
+  plugins: [animate, typography],
 }
