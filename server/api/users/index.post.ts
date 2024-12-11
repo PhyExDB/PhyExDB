@@ -1,6 +1,6 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
-import prisma from "~~/server/utils/prisma"
+
 import hash from "~~/server/utils/hash-password"
 
 export default defineEventHandler(async (event) => {

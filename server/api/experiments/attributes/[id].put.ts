@@ -1,5 +1,5 @@
 import * as v from "valibot"
-import prisma from "~~/server/utils/prisma"
+
 
 const attributeUpdateSchema = v.object({
   name: v.string(),

@@ -1,6 +1,6 @@
 import { validate as uuidValidate } from "uuid"
 import * as v from "valibot"
-import prisma from "~~/server/utils/prisma"
+
 
 const legalUpdateSchema = v.object({
   name: v.string(),

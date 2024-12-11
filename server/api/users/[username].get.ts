@@ -1,5 +1,5 @@
 import { validate as uuidValidate } from "uuid"
-import prisma from "~~/server/utils/prisma"
+
 
 export default defineEventHandler(async (event) => {
   const usernameOrId = getRouterParam(event, "username")
