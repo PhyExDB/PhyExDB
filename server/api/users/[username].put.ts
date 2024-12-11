@@ -1,7 +1,7 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
 import { validate as uuidValidate } from "uuid"
-import prisma from "~~/lib/prisma"
+import prisma from "~~/server/utils/prisma"
 
 export default defineEventHandler(async (event) => {
   // Extract username or id from the event

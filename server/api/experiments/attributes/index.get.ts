@@ -1,4 +1,4 @@
-import prisma from "~~/lib/prisma"
+import prisma from "~~/server/utils/prisma"
 
 export default defineEventHandler(async () => {
   const attributes = await prisma.experimentAttribute.findMany({

@@ -1,5 +1,5 @@
 import * as v from "valibot"
-import prisma from "~~/lib/prisma"
+import prisma from "~~/server/utils/prisma"
 
 const valueSchema = v.object({
   id: v.string(),

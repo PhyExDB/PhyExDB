@@ -5,6 +5,6 @@ export default defineVitestConfig({
     dir: "./tests/",
     exclude: ["**/e2e/**"],
     environment: "nuxt",
-    setupFiles: ["./lib/prisma.ts"],
+    setupFiles: ["./server/utils/prisma.ts"],
   },
 })

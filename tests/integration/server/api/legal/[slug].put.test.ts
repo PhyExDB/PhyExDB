@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { setup, $fetch, url } from "@nuxt/test-utils/e2e"
 import { v4 as uuidv4 } from "uuid"
-import prisma from "../../../../../lib/prisma"
+import prisma from "../../../../../server/utils/prisma"
 
 describe("Api Route PUT /api/legal/{slug}", async () => {
   await setup()
