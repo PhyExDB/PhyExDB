@@ -24,7 +24,7 @@ describe("Api Route /api/legal", async () => {
       // Expect the list items to have a name
       expect(item).toHaveProperty("name")
       // Expect the list items to not have a content field
-      expect(item).not.toHaveProperty("content")
+      expect(item).not.toHaveProperty("text")
       // Expect a UUID for each item
       expect(item).toHaveProperty("id")
       expect(item.id).toMatch(

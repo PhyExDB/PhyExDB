@@ -12,7 +12,12 @@ export default defineEventHandler(async (event) => {
 
   const updateUserContent = await readValidatedBody(event, body => v.parse(schema, body))
 
-  return (await user.update(updateUserContent)).toUserDetail()
+  const updatedUser = await prisma.user.update({
+    where: whereClause,
+    data: updateUserContent,
+  })
+
+  return updatedUser.toDetail()
 })
 
 defineRouteMeta({

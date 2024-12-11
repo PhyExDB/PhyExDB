@@ -18,13 +18,7 @@ jobs:
       contents: read
 
     env:
-      NUXT_DATABASE_USER: nuxt
-      NUXT_DATABASE_PASSWORD: nuxt_password
-      NUXT_DATABASE_NAME: phyexdb
-      NUXT_DATABASE_HOST: localhost
-      NUXT_DATABASE_PORT: 5432
-      # For Databsae migrations, change server to migrations in docker
-      NUXT_DATABASE_DIR_LOCATION: server
+      DATABASE_URL: postgresql://nuxt:nuxt_password@localhost:5432/phyexdb
       # For API Base URL
       NUXT_PUBLIC_API_BASE: http://db:3000/api/
 
@@ -32,9 +26,9 @@ jobs:
       db:
         image: postgres:17-alpine
         env:
-          POSTGRES_DB: ${{ env.NUXT_DATABASE_NAME }}
-          POSTGRES_USER: ${{ env.NUXT_DATABASE_USER }}
-          POSTGRES_PASSWORD: ${{ env.NUXT_DATABASE_PASSWORD }}
+          POSTGRES_DB: phyexdb
+          POSTGRES_USER: nuxt
+          POSTGRES_PASSWORD: nuxt_password
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -53,7 +47,7 @@ jobs:
         run: npm ci
 
       - name: Run db migrations and seeds
-        run: npm run migrate
+        run: npm run migrate && npm run migrate:seed
 
       - name: Run tests
         run: npm run test:integration

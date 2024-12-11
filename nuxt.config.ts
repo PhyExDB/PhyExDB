@@ -26,9 +26,6 @@ export default defineNuxtConfig({
     databaseName: "phyexdb",
     databaseHost: "localhost",
     databasePort: 5432,
-    public: {
-      apiBase: "http://localhost:3000/api",
-    },
     refreshTokenSecret: "set in env",
     accessTokenSecret: "set in env",
     expSeccondsSession: 60 * 60 * 24 * 90, // 90 days
@@ -45,9 +42,6 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       openAPI: true,
-    },
-    externals: {
-      external: ["pg"],
     },
   },
 

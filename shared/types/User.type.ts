@@ -20,7 +20,7 @@ export interface UserList extends BaseList {
   /**
    * Whether the user has verified their account.
    */
-  verified: string
+  verified: boolean
 }
 
 /**

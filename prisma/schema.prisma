@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  role         UserRole @default(USER)
+  verified     Boolean  @default(false)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+model LegalDocument {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Experiment {
+  id         String                     @id @default(uuid())
+  name       String
+  slug       String                     @unique
+  status     ExperimentStatus           @default(DRAFT)
+  duration   Int
+  sections   ExperimentSectionContent[]
+  attributes ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
+  createdAt  DateTime                   @default(now())
+  updatedAt  DateTime                   @updatedAt
+}
+
+enum ExperimentStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+}
+
+model ExperimentSection {
+  id          String                     @id @default(uuid())
+  name        String
+  order       Int
+  experiments ExperimentSectionContent[]
+  createdAt   DateTime                   @default(now())
+  updatedAt   DateTime                   @updatedAt
+}
+
+model ExperimentSectionContent {
+  id                  String            @id @default(uuid())
+  experiment          Experiment        @relation(fields: [experimentId], references: [id])
+  experimentId        String
+  experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
+  experimentSectionId String
+  text                String
+  order               Int
+  files               File[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
+
+model ExperimentAttribute {
+  id        String                     @id @default(uuid())
+  name      String
+  slug      String                     @unique
+  values    ExperimentAttributeValue[]
+  createdAt DateTime                   @default(now())
+  updatedAt DateTime                   @updatedAt
+}
+
+model ExperimentAttributeValue {
+  id          String              @id @default(uuid())
+  experiments Experiment[] // implicit many to many, pivot managed by Prisma
+  attribute   ExperimentAttribute @relation(fields: [attributeId], references: [id])
+  attributeId String
+  name        String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model File {
+  id                  String                    @id @default(uuid())
+  path                String
+  mimeType            String
+  description         String?
+  experimentSection   ExperimentSectionContent? @relation(fields: [experimentSectionId], references: [id])
+  experimentSectionId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
