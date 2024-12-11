@@ -1,6 +1,5 @@
 import * as v from "valibot"
 
-
 const valueUpdateSchema = v.object({
   name: v.string(),
 })

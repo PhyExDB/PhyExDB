@@ -1,5 +1,3 @@
-
-
 export default defineEventHandler(async () => {
   const documents = await prisma.legalDocument.findMany()
 

@@ -1,7 +1,6 @@
 import { validate as uuidValidate } from "uuid"
 import * as v from "valibot"
 
-
 const legalUpdateSchema = v.object({
   name: v.string(),
   text: v.string(),

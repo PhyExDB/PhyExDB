@@ -1,6 +1,5 @@
 import { validate as uuidValidate } from "uuid"
 
-
 export default defineEventHandler(async (event) => {
   const slugOrId = getRouterParam(event, "slug")
   if (!slugOrId) {
