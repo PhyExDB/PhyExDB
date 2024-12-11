@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     data: {
       username: c.username,
       email: c.email,
-      passwordHash: hash(c.password),
+      passwordHash: await hashPassword(c.password),
       role: "USER",
       verified: false,
     },

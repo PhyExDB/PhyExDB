@@ -1,5 +1,4 @@
 import * as v from "valibot"
-import bcrypt from "bcrypt"
 
 const schema = v.object({
   usernameOrEmail: v.pipe(
@@ -26,7 +25,7 @@ export default defineEventHandler(async (event) => {
     authLogger.debug("User not found", { usernameOrEmail: c.usernameOrEmail })
     throw error
   }
-  const match = await bcrypt.compare(c.password, user.passwordHash)
+  const match = await comparePassword(c.password, user.passwordHash)
   if (!match) {
     authLogger.debug("Password does not match")
     throw error

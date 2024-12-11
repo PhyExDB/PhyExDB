@@ -1,5 +1,6 @@
 import * as v from "valibot"
 import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
 import type { H3Event, EventHandlerRequest } from "h3"
 import type { AccessToken, Tokens } from "~~/shared/types/Auth"
 
@@ -10,6 +11,26 @@ const {
   expSeccondsAccessToken,
   expSeccondsSession,
 } = useRuntimeConfig()
+
+/**
+ * Hash a password with a randomly generated salt.
+ * @param password The password to hash
+ * @returns A promise that resolves with the hashed password
+ */
+export async function hashPassword(password: string) {
+  const salt = await bcrypt.genSalt()
+  return await bcrypt.hash(password, salt)
+}
+
+/**
+ * Compares a given password with a hashed password.
+ * @param password The password to compare
+ * @param passwordHash The hashed password
+ * @returns A promise that resolves with true if the password matches the hash, false otherwise
+ */
+export async function comparePassword(password: string, passwordHash: string) {
+  return bcrypt.compare(password, passwordHash)
+}
 
 /**
  * Creates a new access token
