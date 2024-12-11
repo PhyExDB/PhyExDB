@@ -1,5 +1,6 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { getUserByEvent } from "~~/server/utils/user"
 
 const schema = v.object({
@@ -12,12 +13,27 @@ export default defineEventHandler(async (event) => {
 
   const updateUserContent = await readValidatedBody(event, body => v.parse(schema, body))
 
-  const updatedUser = await prisma.user.update({
-    where: { id: user.id },
-    data: updateUserContent,
-  })
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: updateUserContent,
+    })
 
-  return updatedUser.toDetail()
+    return updatedUser.toDetail()
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2002" && error.meta?.target && error.meta?.target instanceof Array) {
+        const target = error.meta.target
+        const isEmail = target.includes("email")
+        throw createError({
+          statusCode: 422,
+          statusMessage: (isEmail ? "Email" : "Username") + " already exists",
+        })
+      }
+    } else {
+      throw error
+    }
+  }
 })
 
 defineRouteMeta({

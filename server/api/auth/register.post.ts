@@ -1,3 +1,4 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import * as v from "valibot"
 
 const schema = v.object({
@@ -9,41 +10,39 @@ const schema = v.object({
 export default defineEventHandler(async (event) => {
   const c = await readValidatedBody(event, body => v.parse(schema, body))
 
-  const user = await prisma.user.create({
-    data: {
-      username: c.username,
-      email: c.email,
-      passwordHash: await hashPassword(c.password),
-      role: "USER",
-      verified: false,
-    },
-  })
+  try {
+    const user = await prisma.user.create({
+      data: {
+        username: c.username,
+        email: c.email,
+        passwordHash: await hashPassword(c.password),
+        role: "USER",
+        verified: false,
+      },
+    })
+    const tokens = await createTokensOfNewSession(user.id)
 
-  const created = true
-  if (!created) {
-    if (user.username === c.username) {
-      throw createError({
-        statusCode: 422,
-        statusMessage: "Username already exists",
-      })
+    const tokensWithUserDetail: TokensWithUserDetail = {
+      ...tokens,
+      user: user.toDetail(),
     }
-    if (user.email === c.email) {
-      throw createError({
-        statusCode: 422,
-        statusMessage: "Email already exists",
-      })
+
+    setResponseStatus(event, 201)
+    return tokensWithUserDetail
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2002" && error.meta?.target && error.meta?.target instanceof Array) {
+        const target = error.meta.target
+        const isEmail = target.includes("email")
+        throw createError({
+          statusCode: 422,
+          statusMessage: (isEmail ? "Email" : "Username") + " already exists",
+        })
+      }
+    } else {
+      throw error
     }
   }
-
-  const tokens = await createTokensOfNewSession(user.id)
-
-  const tokensWithUserDetail: TokensWithUserDetail = {
-    ...tokens,
-    user: user.toDetail(),
-  }
-
-  setResponseStatus(event, 201)
-  return tokensWithUserDetail
 })
 
 defineRouteMeta({
