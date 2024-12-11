@@ -76,4 +76,6 @@ if (process.env.NODE_ENV === "development") {
 export const logger = rootLogger.child({ label: "main" })
 /** logger with label db */
 export const dbLogger = rootLogger.child({ label: "db" })
+/** logger with label auth */
+export const authLogger = rootLogger.child({ label: "auth" })
 export default rootLogger
