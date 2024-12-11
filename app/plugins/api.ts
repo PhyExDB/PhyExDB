@@ -18,10 +18,7 @@
  * - The `onResponseError` hook handles 401 Unauthorized responses by redirecting to the login page.
  */
 export default defineNuxtPlugin((nuxtApp) => {
-  const config = useRuntimeConfig()
-
   const api = $fetch.create({
-    baseURL: config.public.apiBase,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
     onRequest({ options }: any) {
       // Here we can later set the token to the Authorization header

@@ -25,9 +25,6 @@ export default defineNuxtConfig({
     databaseName: "phyexdb",
     databaseHost: "localhost",
     databasePort: 5432,
-    public: {
-      apiBase: "http://localhost:3000/api",
-    },
   },
 
   future: {
