@@ -18,7 +18,7 @@ export interface LegalDocumentList extends BaseList {
 /**
  * Represents a legal document with its name, slug, and content.
  */
-export interface LegalDocumentDetail extends LegalList {
+export interface LegalDocumentDetail extends LegalDocumentList {
   /**
    * The content of the legal document.
    */
