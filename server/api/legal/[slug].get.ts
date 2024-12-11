@@ -1,5 +1,4 @@
 import { validate as uuidValidate } from "uuid"
-import Legal from "~~/server/database/models/Legal"
 
 export default defineEventHandler(async (event) => {
   const slugOrId = getRouterParam(event, "slug")
@@ -9,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const isId = uuidValidate(slugOrId)
   const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
-  const document = await Legal.findOne({
+  const document = await prisma.legalDocument.findFirst({
     where: whereClause,
   })
 
@@ -17,7 +16,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Document not found" })
   }
 
-  return document.toLegalDetail()
+  return document.toDetail()
 })
 
 defineRouteMeta({
@@ -36,7 +35,7 @@ defineRouteMeta({
                 name: { type: "string" },
                 content: { type: "string" },
               },
-              required: ["id", "name", "content"],
+              required: ["id", "name", "text"],
             },
           },
         },

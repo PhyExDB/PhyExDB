@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { setup, $fetch, url } from "@nuxt/test-utils/e2e"
 import { v4 as uuidv4 } from "uuid"
-import Legal from "~~/server/database/models/Legal"
+import prisma from "../../../../../server/utils/prisma"
 
 describe("Api Route PUT /api/legal/{slug}", async () => {
   await setup()
@@ -13,7 +13,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
   ])("should return the updated detail of the legal document with slug $slug", async ({ slug }) => {
     const updateContent = {
       name: `New name ${uuidv4()}`,
-      content: `New content ${uuidv4()}`,
+      text: `New content ${uuidv4()}`,
     }
 
     const response = await $fetch(`/api/legal/${slug}`, {
@@ -30,8 +30,8 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
     expect(response.name).toBe(updateContent.name)
 
     // Expect the new content
-    expect(response).toHaveProperty("content")
-    expect(response.content).toBe(updateContent.content)
+    expect(response).toHaveProperty("text")
+    expect(response.text).toBe(updateContent.text)
 
     // Expect a UUID for each field
     expect(response).toHaveProperty("id")
@@ -47,10 +47,10 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
   ])("should return the updated detail of the legal document with slug $slug when getting by id", async ({ slug }) => {
     const updateContent = {
       name: `New name ${uuidv4()}`,
-      content: `New content ${uuidv4()}`,
+      text: `New content ${uuidv4()}`,
     }
 
-    const id = (await Legal.findOne({ where: { slug: slug } }))!.id
+    const id = (await prisma.legalDocument.findFirst({ where: { slug: slug } }))!.id
     const response = await $fetch(`/api/legal/${id}`, {
       method: "PUT",
       body: JSON.stringify(updateContent),
@@ -65,23 +65,23 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
     expect(response.name).toBe(updateContent.name)
 
     // Expect the new content
-    expect(response).toHaveProperty("content")
-    expect(response.content).toBe(updateContent.content)
+    expect(response).toHaveProperty("text")
+    expect(response.text).toBe(updateContent.text)
 
     // Expect a UUID for each field
     expect(response).toHaveProperty("id")
     expect(response.id).toBe(id)
   })
 
-  it.each(["name", "content"])("should return an error when the field %s is empty", async (field) => {
+  it.each(["name", "text"])("should return an error when the field %s is empty", async (field) => {
     const updateContent = {
       name: `New name ${uuidv4()}`,
-      content: `New content ${uuidv4()}`,
+      text: `New content ${uuidv4()}`,
     }
     if (field === "name") {
       updateContent.name = ""
-    } else if (field === "content") {
-      updateContent.content = ""
+    } else if (field === "text") {
+      updateContent.text = ""
     }
 
     const response = await fetch(url("/api/legal/imprint"), {

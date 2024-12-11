@@ -40,9 +40,6 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    externals: {
-      external: ["pg"],
-    },
   },
 
   postcss: {

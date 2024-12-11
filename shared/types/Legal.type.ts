@@ -4,7 +4,7 @@ import type { BaseList } from "./Base.type"
  * Represents a list of legal documents with their names and slugs.
  * Extends the BaseList interface.
  */
-export interface LegalList extends BaseList {
+export interface LegalDocumentList extends BaseList {
   /**
    * The name of the legal document.
    */
@@ -18,17 +18,17 @@ export interface LegalList extends BaseList {
 /**
  * Represents a legal document with its name, slug, and content.
  */
-export interface LegalDetail extends LegalList {
+export interface LegalDocumentDetail extends LegalDocumentList {
   /**
    * The content of the legal document.
    */
-  content: string
+  text: string
 }
 
 /**
  * Represents an update to a legal document.
  */
-export interface LegalUpdate {
+export interface LegalDocumentUpdate {
   /**
    * The name of the legal document.
    */
@@ -36,5 +36,5 @@ export interface LegalUpdate {
   /**
    * The content of the legal document.
    */
-  content: string
+  text: string
 }

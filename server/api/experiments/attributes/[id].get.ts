@@ -1,19 +1,19 @@
-import ExperimentAttribute from "~~/server/database/models/ExperimentAttribute"
-
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id")
   if (!id) {
     throw createError({ status: 400, message: "invalid id" })
   }
 
-  const attribute = await ExperimentAttribute.findOne({
+  const attribute = await prisma.experimentAttribute.findFirst({
     where: { id: id },
+    include: { values: true },
   })
 
   if (!attribute) {
     throw createError({ status: 404, message: "Attribute not found" })
   }
-  return attribute.toAttributeDetail()
+
+  return attribute.toDetail(attribute.values.map(value => value.toList()))
 })
 
 defineRouteMeta({
