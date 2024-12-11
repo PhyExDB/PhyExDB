@@ -19,7 +19,7 @@ describe("Api Routes /api/auth/", async () => {
     })
 
     assertType<TokensWithUserDetail>(registerResponse)
-    const { password, ...userDetailContent } = { ...registerContent, role: "User" }
+    const { password, ...userDetailContent } = { ...registerContent, role: "USER" }
     expect(registerResponse.user).toMatchObject(userDetailContent)
 
     const sessionResponse = await $fetch("/api/auth/session", {
