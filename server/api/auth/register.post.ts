@@ -30,15 +30,13 @@ export default defineEventHandler(async (event) => {
     setResponseStatus(event, 201)
     return tokensWithUserDetail
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2002" && error.meta?.target && error.meta?.target instanceof Array) {
-        const target = error.meta.target
-        const isEmail = target.includes("email")
-        throw createError({
-          statusCode: 422,
-          statusMessage: (isEmail ? "Email" : "Username") + " already exists",
-        })
-      }
+    if (error instanceof PrismaClientKnownRequestError && error.code === "P2002" && error.meta?.target && error.meta?.target instanceof Array) {
+      const target = error.meta.target
+      const isEmail = target.includes("email")
+      throw createError({
+        statusCode: 422,
+        statusMessage: (isEmail ? "Email" : "Username") + " already exists",
+      })
     } else {
       throw error
     }
