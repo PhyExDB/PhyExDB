@@ -1,7 +1,6 @@
 import * as v from "valibot"
 import { validate as uuidValidate } from "uuid"
 import type { H3Event, EventHandlerRequest } from "h3"
-import User from "~~/server/database/models/User"
 
 /**
  * Schema to verify username
@@ -53,9 +52,9 @@ export const passwordSchema = {
  * @returns {Promise<User>} A promise which resolves to the user object if found,
  * or rejects with a 404 error if not found.
  */
-export async function getUserByUsernameOrId(usernameOrId: string): Promise<User> {
+export async function getUserByUsernameOrId(usernameOrId: string) {
   const whereClause = uuidValidate(usernameOrId) ? { id: usernameOrId } : { username: usernameOrId }
-  const user = await User.findOne({ where: whereClause })
+  const user = await prisma.user.findFirst({ where: whereClause })
 
   // Check that user exists
   if (!user) {
@@ -78,7 +77,7 @@ export async function getUserByUsernameOrId(usernameOrId: string): Promise<User>
  * @throws {Error} - Throws a 400 error if the username or id is invalid or not present,
  * and a 404 error if the user is not found.
  */
-export async function getUserByEvent(event: H3Event<EventHandlerRequest>): Promise<User> {
+export async function getUserByEvent(event: H3Event<EventHandlerRequest>) {
   const usernameOrId = getRouterParam(event, "username")
   if (!usernameOrId) {
     throw createError({ status: 400, message: "Invalid username or id" })

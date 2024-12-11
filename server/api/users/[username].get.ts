@@ -1,7 +1,7 @@
 import { getUserByEvent } from "~~/server/utils/user"
 
 export default defineEventHandler(async (event) => {
-  return (await getUserByEvent(event)).toUserDetail()
+  return (await getUserByEvent(event)).toDetail()
 })
 
 defineRouteMeta({

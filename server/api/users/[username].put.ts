@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   const updateUserContent = await readValidatedBody(event, body => v.parse(schema, body))
 
   const updatedUser = await prisma.user.update({
-    where: whereClause,
+    where: { id: user.id },
     data: updateUserContent,
   })
 
