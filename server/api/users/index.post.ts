@@ -1,7 +1,8 @@
 import * as v from "valibot"
 import { validate as uuidValidate } from "uuid"
 import { readValidatedBody } from "h3"
-import Users from "~~/server/database/models/User"
+
+import hash from "~~/server/utils/hash-password"
 
 export default defineEventHandler(async (event) => {
   // Validate user data
@@ -30,9 +31,15 @@ export default defineEventHandler(async (event) => {
   const newUserContent = await readValidatedBody(event, body => v.parse(userSchema, body))
 
   // Create new user
-  const user = await Users.create({ username: newUserContent.username, email: newUserContent.email, passwordHash: newUserContent.password, verified: false, role: "User" })
+  const user = await prisma.user.create({
+    data: {
+      username: newUserContent.username,
+      email: newUserContent.email,
+      passwordHash: await hash(newUserContent.password),
+    },
+  })
 
-  return user.toUserDetail()
+  return user.toDetail()
 })
 
 defineRouteMeta({

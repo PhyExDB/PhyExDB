@@ -1,9 +1,7 @@
-import User from "~~/server/database/models/User"
-
 export default defineEventHandler(async () => {
-  const users = await User.findAll()
+  const users = await prisma.user.findMany()
 
-  return users.map(user => user.toUserList())
+  return users.map(user => user.toList())
 })
 
 defineRouteMeta({
@@ -24,6 +22,7 @@ defineRouteMeta({
                   username: { type: "string" },
                   role: { type: "string" },
                   verified: { type: "string", enum: ["User", "Moderator", "Administrator"] },
+                  email: { type: "string", format: "email" },
                 },
               },
             },

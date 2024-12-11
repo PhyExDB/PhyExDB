@@ -1,7 +1,6 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
 import { validate as uuidValidate } from "uuid"
-import Users from "~~/server/database/models/User"
 
 export default defineEventHandler(async (event) => {
   // Extract username or id from the event
@@ -13,7 +12,7 @@ export default defineEventHandler(async (event) => {
   // Find user to update
   const isId = uuidValidate(usernameOrId)
   const whereClause = isId ? { id: usernameOrId } : { username: usernameOrId }
-  const user = await Users.findOne({
+  const user = await prisma.user.findFirst({
     where: whereClause,
   })
 
@@ -39,7 +38,12 @@ export default defineEventHandler(async (event) => {
   // This is a helper function that reads the body and validates it against the schema
   const updateUserContent = await readValidatedBody(event, body => v.parse(userSchema, body))
 
-  return (await user.update(updateUserContent)).toUserDetail()
+  const updatedUser = await prisma.user.update({
+    where: whereClause,
+    data: updateUserContent,
+  })
+
+  return updatedUser.toDetail()
 })
 
 defineRouteMeta({

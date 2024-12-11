@@ -1,6 +1,4 @@
 import * as v from "valibot"
-import ExperimentAttribute from "~~/server/database/models/ExperimentAttribute"
-import ExperimentAttributeValue from "~~/server/database/models/ExperimentAttributeValue"
 
 const valueSchema = v.object({
   id: v.string(),
@@ -11,15 +9,27 @@ export default defineEventHandler(async (event) => {
   if (!attributeId) {
     throw createError({ status: 400, message: "Invalid attribute id" })
   }
-  const attribute = await ExperimentAttribute.findOne({
+  const attribute = await prisma.experimentAttribute.findFirst({
     where: { id: attributeId },
+    include: { values: true },
   })
+
   if (!attribute) {
     throw createError({ status: 404, message: "Attribute not found" })
   }
-  const newValue = await readValidatedBody(event, body => v.parse(valueSchema, body))
-  const createValue = await ExperimentAttributeValue.create({ id: newValue.id, name: newValue.name, attributeValue: attributeId })
-  return attribute.toAttributeDetailWithAdditionalValue(createValue)
+
+  const newValueContent = await readValidatedBody(event, body => v.parse(valueSchema, body))
+
+  const attributeValue = await prisma.experimentAttributeValue.create({
+    data: {
+      name: newValueContent.name,
+      attribute: { connect: { id: attributeId } },
+    },
+  })
+
+  const attributeValues = [...attribute.values.map(value => value.toList()), attributeValue.toList()]
+
+  return attribute.toDetail(attributeValues)
 })
 
 defineRouteMeta({
