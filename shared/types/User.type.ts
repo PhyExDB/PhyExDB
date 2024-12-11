@@ -1,4 +1,3 @@
-import type Prisma from "@prisma/client"
 import type { BaseList } from "./Base.type"
 
 /**
