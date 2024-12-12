@@ -1,6 +1,11 @@
 import type { BaseList } from "./Base.type"
 
 /**
+ * Type for the role of a user
+ */
+export type UserRole = "USER" | "MODERATOR" | "ADMIN"
+
+/**
  * Represents a list of users with their ids, usernames, roles, and verification statuses.
  * Extends the BaseList interface.
  */
@@ -16,7 +21,7 @@ export interface UserList extends BaseList {
   /**
    * The role of the user.
    */
-  role: string
+  role: UserRole
   /**
    * Whether the user has verified their account.
    */

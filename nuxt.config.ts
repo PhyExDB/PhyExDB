@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   modules: [
     "@nuxt/eslint",
     "@nuxt/test-utils/module",
+    "nuxt-authorization",
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
@@ -25,6 +26,11 @@ export default defineNuxtConfig({
     databaseName: "phyexdb",
     databaseHost: "localhost",
     databasePort: 5432,
+    refreshTokenSecret: "set in env",
+    accessTokenSecret: "set in env",
+    expSeccondsSession: 60 * 60 * 24 * 90, // 90 days
+    expSeccondsRefreshToken: 60 * 60 * 24 * 7, // 7 days
+    expSeccondsAccessToken: 5 * 60, // 5 minute
   },
 
   future: {

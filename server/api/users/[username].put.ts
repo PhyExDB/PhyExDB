@@ -1,49 +1,39 @@
 import * as v from "valibot"
 import { readValidatedBody } from "h3"
-import { validate as uuidValidate } from "uuid"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
+import { getUserByEvent } from "~~/server/utils/user"
+
+const schema = v.object({
+  ...usernameSchema,
+  ...emailSchema,
+})
 
 export default defineEventHandler(async (event) => {
-  // Extract username or id from the event
-  const usernameOrId = getRouterParam(event, "username")
-  if (!usernameOrId) {
-    throw createError({ status: 400, message: "Invalid username or id" })
+  const user = await getUserByEvent(event)
+
+  const updateUserContent = await readValidatedBody(event, body => v.parse(schema, body))
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: updateUserContent,
+    })
+
+    return updatedUser.toDetail()
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2002" && error.meta?.target && error.meta?.target instanceof Array) {
+        const target = error.meta.target
+        const isEmail = target.includes("email")
+        throw createError({
+          statusCode: 422,
+          statusMessage: (isEmail ? "Email" : "Username") + " already exists",
+        })
+      }
+    } else {
+      throw error
+    }
   }
-
-  // Find user to update
-  const isId = uuidValidate(usernameOrId)
-  const whereClause = isId ? { id: usernameOrId } : { username: usernameOrId }
-  const user = await prisma.user.findFirst({
-    where: whereClause,
-  })
-
-  // Check that user exists
-  if (!user) {
-    throw createError({ status: 404, message: "User not found" })
-  }
-
-  // Validate user data
-  const userSchema = v.object({
-    username: v.pipe(
-      v.string(),
-      v.nonEmpty("Please enter Name"),
-      v.check(name => !uuidValidate(name), "Invalid username format"),
-    ),
-    email: v.pipe(
-      v.string(),
-      v.nonEmpty("Please enter Email"),
-      v.email("Not an Email"),
-    ),
-  })
-
-  // This is a helper function that reads the body and validates it against the schema
-  const updateUserContent = await readValidatedBody(event, body => v.parse(userSchema, body))
-
-  const updatedUser = await prisma.user.update({
-    where: whereClause,
-    data: updateUserContent,
-  })
-
-  return updatedUser.toDetail()
 })
 
 defineRouteMeta({
