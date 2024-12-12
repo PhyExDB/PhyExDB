@@ -16,10 +16,12 @@
     <NavigationSearch />
     <ColorModeButton />
     <!-- Add user dropdown here and put in separate component -->
-    <Button
-      href="/examples/dashboard"
+    <NuxtLink
+      href="/login"
     >
-      Anmelden
-    </Button>
+      <Button>
+        Anmelden
+      </Button>
+    </NuxtLink>
   </nav>
 </template>
