@@ -1,5 +1,9 @@
-import type { UserRole } from "@prisma/client"
 import type { BaseList } from "./Base.type"
+
+/**
+ * Type for the role of a user
+ */
+export type UserRole = "USER" | "MODERATOR" | "ADMIN"
 
 /**
  * Represents a list of users with their ids, usernames, roles, and verification statuses.
