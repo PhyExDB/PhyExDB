@@ -45,6 +45,14 @@ definePageMeta({
           required
         />
       </div>
+      <div class="grid gap-2">
+        <Label for="password">Passwort wiederholen</Label>
+        <Input
+          id="password"
+          type="password"
+          required
+        />
+      </div>
       <Button class="w-full">
         Registrieren
       </Button>
