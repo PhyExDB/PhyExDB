@@ -1,3 +1,4 @@
+import * as v from "valibot"
 import type { BaseList } from "./Base.type"
 
 /**
@@ -26,15 +27,9 @@ export interface LegalDocumentDetail extends LegalDocumentList {
 }
 
 /**
- * Represents an update to a legal document.
+ * Schema for validating updates to a legal document.
  */
-export interface LegalDocumentUpdate {
-  /**
-   * The name of the legal document.
-   */
-  name: string
-  /**
-   * The content of the legal document.
-   */
-  text: string
-}
+export const legalDocumentUpdateSchema = v.object({
+  name: v.string(),
+  text: v.string(),
+})

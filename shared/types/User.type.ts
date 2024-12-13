@@ -104,3 +104,12 @@ export const userLoginSchema = v.object({
   ),
   password: v.string(),
 })
+
+/**
+ * Schema for updating a user.
+ * Combines the username and email schemas into a single object schema.
+ */
+export const userUpdateSchema = v.object({
+  ...usernameSchema,
+  ...emailSchema,
+})
