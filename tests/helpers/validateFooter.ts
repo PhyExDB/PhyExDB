@@ -42,9 +42,9 @@ export async function validateFooter(page: Page): Promise<void> {
     "Datenschutzerklärung",
   ]
   const linkUrls = [
-    "/terms-of-service",
-    "/imprint",
-    "/privacy-policy",
+    "/legal/terms-of-service",
+    "/legal/imprint",
+    "/legal/privacy-policy",
   ]
 
   for (let i = 0; i < linkTexts.length; i++) {
