@@ -62,4 +62,4 @@ jobs:
           accesskey: ${{ secrets.TEAMSCALE_ACCESS_KEY }}
           revision: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           format: CLOVER
-          files: coverage/clover.xml
+          files: coverage/lcov.info
