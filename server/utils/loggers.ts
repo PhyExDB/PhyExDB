@@ -34,7 +34,7 @@ const rootLogger = winston.createLogger({
     new winston.transports.Console({
       format: combine(
         format(
-          (info, _) => info,
+          (info, _) => info.label !== "db" ? info : false,
         )(),
         colorize(),
         printf(({ level, message, label, timestamp, ...meta }) => {

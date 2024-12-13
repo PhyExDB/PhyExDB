@@ -1,9 +1,11 @@
 export default defineEventHandler(async (event) => {
-  const token = getHeader(event, "token")
-  if (token === undefined) {
-    authLogger.debug("No token found")
+  const authorization = getHeader(event, "Authorization")
+  if (authorization === undefined) {
+    authLogger.debug("No authorization found")
   } else {
-    authLogger.debug("", { accessToken: token })
+    authLogger.debug("", { authorization: authorization })
+
+    const token = authorization.replace("Bearer ", "")
 
     try {
       const user = getUserFromAccessToken(token)

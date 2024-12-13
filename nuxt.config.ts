@@ -4,6 +4,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/test-utils/module",
     "nuxt-authorization",
+    "@sidebase/nuxt-auth",
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
@@ -49,6 +50,65 @@ export default defineNuxtConfig({
     plugins: {
       tailwindcss: {},
       autoprefixer: {},
+    },
+  },
+
+  auth: {
+    isEnabled: true,
+    disableServerSideAuth: false,
+    originEnvKey: "AUTH_ORIGIN",
+    baseURL: "http://localhost:3000/api/auth",
+    provider: {
+      type: "local",
+      token: {
+        signInResponseTokenPointer: "/accessToken",
+        type: "Bearer",
+        cookieName: "auth.token",
+        headerName: "Authorization",
+        maxAgeInSeconds: 180000, // todo
+        // sameSiteAttribute: "lax",
+        // cookieDomain: "sidebase.io",
+        secureCookieAttribute: false,
+        httpOnlyCookieAttribute: false,
+      },
+      endpoints: {
+        signIn: { path: "/login", method: "post" },
+        signOut: { path: "/logout", method: "post" },
+        signUp: { path: "/register", method: "post" },
+        getSession: { path: "/session", method: "get" },
+      },
+      refresh: {
+        isEnabled: true,
+        endpoint: { path: "/refresh", method: "post" },
+        refreshOnlyToken: false,
+        token: {
+          signInResponseRefreshTokenPointer: "/refreshToken",
+          refreshResponseTokenPointer: "/refreshToken",
+          refreshRequestTokenPointer: "/refreshToken",
+          cookieName: "auth.refreshToken",
+          maxAgeInSeconds: 180000, // todo
+          // sameSiteAttribute: "lax",
+          // secureCookieAttribute: false,
+          // cookieDomain: "sidebase.io",
+          httpOnlyCookieAttribute: false,
+        },
+      },
+      session: {
+        dataType: {
+          id: "string",
+          username: "USER | MODERATOR | ADMIN",
+          email: "string",
+          role: "string",
+          verified: "boolean",
+        },
+      },
+      pages: {
+        login: "/login",
+      },
+    },
+    sessionRefresh: {
+      enablePeriodically: false,
+      enableOnWindowFocus: false,
     },
   },
 

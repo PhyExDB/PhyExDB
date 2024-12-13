@@ -9,6 +9,16 @@ definePageMeta({
   description: "Login to your account",
   layout: "auth",
 })
+
+const {
+  signIn,
+} = useAuth()
+
+// `credentials` are the credentials your sign-in endpoint expects,
+const credentials = { usernameOrEmail: "User", password: "user" }
+
+// Trigger a signIn
+await signIn(credentials, { callbackUrl: "/hello" })
 </script>
 
 <template>
