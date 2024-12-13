@@ -54,7 +54,7 @@ definePageMeta({
           href="/login"
           class="underline"
         >
-          Anemlden
+          Anmelden
         </NuxtLink>
       </div>
     </CardContent>
