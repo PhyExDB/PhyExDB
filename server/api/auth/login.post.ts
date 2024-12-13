@@ -1,12 +1,5 @@
 import * as v from "valibot"
-
-const schema = v.object({
-  usernameOrEmail: v.pipe(
-    v.string(),
-    v.nonEmpty("Please enter your email."),
-  ),
-  password: v.string(),
-})
+import { userLoginSchema } from "~~/shared/types"
 
 const error = createError({
   status: 401,
@@ -14,7 +7,7 @@ const error = createError({
 })
 
 export default defineEventHandler(async (event) => {
-  const c = await readValidatedBody(event, body => v.parse(schema, body))
+  const c = await readValidatedBody(event, body => v.parse(userLoginSchema, body))
 
   const isEmail = v.is(v.pipe(v.string(), v.email()), c.usernameOrEmail)
   const whereClause = isEmail ? { email: c.usernameOrEmail } : { username: c.usernameOrEmail }
