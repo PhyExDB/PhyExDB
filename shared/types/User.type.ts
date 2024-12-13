@@ -1,3 +1,5 @@
+import * as v from "valibot"
+import { validate as uuidValidate } from "uuid"
 import type { BaseList } from "./Base.type"
 
 /**
@@ -39,33 +41,75 @@ export interface UserDetail extends UserList {
 }
 
 /**
- * Represents an update to a user
+ * Schema to verify username
  */
-export interface UserUpdate {
-  /**
-   * The username of the user.
-   */
-  username: string
-  /**
-   * The email of the user.
-   */
-  email: string
+const usernameSchema = {
+  username: v.pipe(
+    v.string(),
+    v.nonEmpty("Please enter Name"),
+    v.check(
+      value =>
+        !v.is(v.pipe(
+          v.string(),
+          v.email(""),
+        ), value),
+      "Username can't be an email."),
+    v.check(name => !uuidValidate(name), "Invalid username format"),
+  ),
 }
 
 /**
- * Interface representing the data required to create a new user.
+ * Schema to verify email
  */
-export interface UserCreate {
-  /**
-   * The username of the user.
-   */
-  username: string
-  /**
-  * The email of the user.
-  */
-  email: string
-  /**
-   * The password of the user.
-   */
-  password: string
+const emailSchema = {
+  email: v.pipe(
+    v.string(),
+    v.nonEmpty("Please enter your email."),
+    v.email("The email is badly formatted."),
+  ),
 }
+
+/**
+ * Schema to verify password
+ */
+const passwordSchema = {
+  password: v.pipe(
+    v.string(),
+    v.nonEmpty("Please enter Password"),
+    v.minLength(8, "Password must be at least 8 characters"),
+    v.regex(/[a-z]/, "Password must contain at least one lowercase letter"),
+    v.regex(/[A-Z]/, "Password must contain at least one uppercase letter"),
+    v.regex(/[0-9]/, "Password must contain at least one number"),
+  ),
+}
+
+/**
+ * Schema for user registration.
+ * Combines the username, email, and password schemas into a single object schema.
+ */
+export const userRegisterSchema = v.object({
+  ...usernameSchema,
+  ...emailSchema,
+  ...passwordSchema,
+})
+
+/**
+ * Schema for user login.
+ * Combines the username or email and password schemas into a single object schema.
+ */
+export const userLoginSchema = v.object({
+  usernameOrEmail: v.pipe(
+    v.string(),
+    v.nonEmpty("Please enter your username or email."),
+  ),
+  password: v.string(),
+})
+
+/**
+ * Schema for updating a user.
+ * Combines the username and email schemas into a single object schema.
+ */
+export const userUpdateSchema = v.object({
+  ...usernameSchema,
+  ...emailSchema,
+})

@@ -1,10 +1,6 @@
 import { validate as uuidValidate } from "uuid"
 import * as v from "valibot"
-
-const legalUpdateSchema = v.object({
-  name: v.string(),
-  text: v.string(),
-})
+import { legalDocumentUpdateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
   const slugOrId = getRouterParam(event, "slug")
@@ -22,7 +18,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Document not found" })
   }
 
-  const updateContent = await readValidatedBody(event, body => v.parse(legalUpdateSchema, body))
+  const updateContent = await readValidatedBody(event, body => v.parse(legalDocumentUpdateSchema, body))
 
   const updatedDocument = await prisma.legalDocument.update({
     where: whereClause,
