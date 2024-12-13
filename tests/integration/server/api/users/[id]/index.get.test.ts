@@ -23,7 +23,6 @@ describe("Api Route GET /api/users/{id}", async () => {
     })
     expect(user.id).toEqual(newUser.id)
     expectTypeOf(user).toEqualTypeOf<UserDetail>()
-    expectTypeOf(user).toEqualTypeOf<UserDetail>()
   })
 
   it ("Should get a user via username", async () => {
