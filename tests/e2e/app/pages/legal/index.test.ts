@@ -9,7 +9,7 @@ test.describe("Homepage", () => {
   ].forEach((slug) => {
     test(`should render the legal document with slug ${slug}`, async ({ page, goto }) => {
       // Navigate to the homepage
-      await goto(`/${slug}`, { waitUntil: "hydration" })
+      await goto(`/legal/${slug}`, { waitUntil: "hydration" })
 
       const legalDocument = await $fetch(`/api/legal/${slug}`)
 
