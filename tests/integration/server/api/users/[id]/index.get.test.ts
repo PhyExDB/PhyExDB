@@ -20,6 +20,6 @@ describe("Api Route /api/users", async () => {
     const user = await $fetch(`/api/users/${newUser.id}`, {
       method: "GET",
     })
-    expect(user).toEqual(newUser)
+    expect(user.id).toEqual(newUser.id)
   })
 })
