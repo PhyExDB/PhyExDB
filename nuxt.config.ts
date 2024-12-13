@@ -31,6 +31,8 @@ export default defineNuxtConfig({
     expSeccondsSession: 60 * 60 * 24 * 90, // 90 days
     expSeccondsRefreshToken: 60 * 60 * 24 * 7, // 7 days
     expSeccondsAccessToken: 5 * 60, // 5 minute
+    BETTER_AUTH_SECRET: "set in env",
+    BETTER_AUTH_URL: "http://localhost:3000 #Base URL of your app",
   },
 
   future: {
