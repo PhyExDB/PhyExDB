@@ -25,9 +25,9 @@ export interface UserList extends BaseList {
    */
   role: UserRole
   /**
-   * Whether the user has verified their account.
+   * Whether the user has emailVerified their account.
    */
-  verified: boolean
+  emailVerified: boolean
 }
 
 /**

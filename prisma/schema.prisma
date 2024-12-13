@@ -12,19 +12,17 @@ datasource db {
 
 model User {
   id            String    @id @default(uuid())
-  email         String    @unique
-  username      String    @unique
   role          UserRole  @default(USER)
-  verified      Boolean   @default(false)
-  passwordHash  String
-  sessions      Session[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   name          String
+  email         String
   emailVerified Boolean
   image         String?
+  sessions      Session[]
   accounts      Account[]
 
+  @@unique([email])
   @@map("user")
 }
 
@@ -32,33 +30,6 @@ enum UserRole {
   USER
   MODERATOR
   ADMIN
-}
-
-model Session {
-  id            String         @id @default(uuid())
-  exp           DateTime
-  userId        String
-  user          User           @relation(fields: [userId], references: [id])
-  sessionTokens SessionToken[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  expiresAt     DateTime
-  token         String
-  ipAddress     String?
-  userAgent     String?
-
-  @@unique([token])
-  @@map("session")
-}
-
-model SessionToken {
-  id        String   @id @default(uuid())
-  exp       DateTime
-  valid     Boolean  @default(true)
-  sessionId String
-  session   Session  @relation(fields: [sessionId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model LegalDocument {
@@ -138,6 +109,21 @@ model File {
   experimentSectionId String?
   createdAt           DateTime                  @default(now())
   updatedAt           DateTime                  @updatedAt
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
 }
 
 model Account {

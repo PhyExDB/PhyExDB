@@ -1,41 +1,37 @@
 import { PrismaClient } from "@prisma/client"
-import bcrypt from "bcrypt"
 
 const prisma = new PrismaClient()
 
-async function hash(password: string) {
-  const salt = await bcrypt.genSalt()
-  return await bcrypt.hash(password, salt)
-}
-
 async function userMigrations() {
-  await prisma.user.create({
-    data: {
-      email: "user@test.test",
-      username: "User",
-      role: "USER",
-      passwordHash: await hash("user"),
-      verified: true,
-    },
-  })
-  await prisma.user.create({
-    data: {
-      email: "moderator@test.test",
-      username: "Moderator",
-      role: "MODERATOR",
-      passwordHash: await hash("moderator"),
-      verified: true,
-    },
-  })
-  await prisma.user.create({
-    data: {
-      email: "admin@test.test",
-      username: "Admin",
-      role: "ADMIN",
-      passwordHash: await hash("admin"),
-      verified: true,
-    },
-  })
+  // await prisma.user.create({
+  //   data: {
+  //     email: "user@test.test",
+  //     name: "User",
+  //     role: "USER",
+  //     emailVerified: true,
+  //     accounts: {
+  //       create: {
+  //     }
+  //   },
+  // })
+  // await prisma.user.create({
+  //   data: {
+  //     email: "moderator@test.test",
+  //     name: "Moderator",
+  //     role: "MODERATOR",
+  //     passwordHash: await hash("moderator"),
+  //     emailVerified: true,
+  //   },
+  // })
+  // await prisma.user.create({
+  //   data: {
+  //     email: "admin@test.test",
+  //     name: "Admin",
+  //     role: "ADMIN",
+  //     passwordHash: await hash("admin"),
+  //     emailVerified: true,
+  //   },
+  // })
 }
 
 async function legalMigrations() {
