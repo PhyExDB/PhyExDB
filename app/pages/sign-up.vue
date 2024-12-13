@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 definePageMeta({
-  title: "Login",
-  description: "Login to your account",
+  title: "Sign Up",
+  description: "Sign up for a new account",
   layout: "auth",
 })
 </script>
