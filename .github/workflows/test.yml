@@ -52,7 +52,7 @@ jobs:
       - name: Run tests
         run: npm run test:integration:coverage
 
-      - name: Upload coverage to Codecov
+      - name: Upload coverage to Teamscale
         uses: cqse/teamscale-upload-action@v2.4.0
         with:
           server: https://teamscale.niklhut.de
