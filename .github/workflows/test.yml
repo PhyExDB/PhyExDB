@@ -50,4 +50,15 @@ jobs:
         run: npm run migrate && npm run migrate:seed
 
       - name: Run tests
-        run: npm run test:integration
+        run: npm run test:integration:coverage
+
+      - name: Upload coverage to Codecov
+        uses: cqse/teamscale-upload-action@v2.4.0
+        with:
+          server: https://teamscale.niklhut.de
+          project: phyexdb
+          user: ci
+          partition: Github Action > Vitest
+          accesskey: ${{ secrets.TEAMSCALE_ACCESS_KEY }}
+          format: CLOVER
+          files: coverage/clover.xml
