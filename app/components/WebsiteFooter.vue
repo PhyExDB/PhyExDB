@@ -9,7 +9,7 @@ const currentYear = new Date().getFullYear()
       <ul class="flex space-x-4 items-center">
         <li>
           <NuxtLink
-            to="/terms-of-service"
+            to="/legal/terms-of-service"
             class="hover:text-foreground flex items-center transition-colors"
           >
             Nutzungsbedingungen
@@ -17,7 +17,7 @@ const currentYear = new Date().getFullYear()
         </li>
         <li>
           <NuxtLink
-            to="/imprint"
+            to="/legal/imprint"
             class="hover:text-foreground flex items-center transition-colors"
           >
             Impressum
@@ -25,7 +25,7 @@ const currentYear = new Date().getFullYear()
         </li>
         <li>
           <NuxtLink
-            to="/privacy-policy"
+            to="/legal/privacy-policy"
             class="hover:text-foreground flex items-center transition-colors"
           >
             Datenschutzerklärung
