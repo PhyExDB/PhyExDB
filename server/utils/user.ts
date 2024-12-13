@@ -1,49 +1,5 @@
-import * as v from "valibot"
 import { validate as uuidValidate } from "uuid"
 import type { H3Event, EventHandlerRequest } from "h3"
-
-/**
- * Schema to verify username
- */
-export const usernameSchema = {
-  username: v.pipe(
-    v.string(),
-    v.nonEmpty("Please enter Name"),
-    v.check(
-      value =>
-        !v.is(v.pipe(
-          v.string(),
-          v.email(""),
-        ), value),
-      "Username can't be an email."),
-    v.check(name => !uuidValidate(name), "Invalid username format"),
-  ),
-}
-
-/**
- * Schema to verify email
- */
-export const emailSchema = {
-  email: v.pipe(
-    v.string(),
-    v.nonEmpty("Please enter your email."),
-    v.email("The email is badly formatted."),
-  ),
-}
-
-/**
- * Schema to verify password
- */
-export const passwordSchema = {
-  password: v.pipe(
-    v.string(),
-    v.nonEmpty("Please enter Password"),
-    v.minLength(8, "Password must be at least 8 characters"),
-    v.regex(/[a-z]/, "Password must contain at least one lowercase letter"),
-    v.regex(/[A-Z]/, "Password must contain at least one uppercase letter"),
-    v.regex(/[0-9]/, "Password must contain at least one number"),
-  ),
-}
 
 /**
  * Finds a user by either their username or id.

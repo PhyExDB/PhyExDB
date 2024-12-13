@@ -1,14 +1,9 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import * as v from "valibot"
-
-const schema = v.object({
-  ...usernameSchema,
-  ...emailSchema,
-  ...passwordSchema,
-})
+import { userRegisterSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  const c = await readValidatedBody(event, body => v.parse(schema, body))
+  const c = await readValidatedBody(event, body => v.parse(userRegisterSchema, body))
 
   try {
     const user = await prisma.user.create({

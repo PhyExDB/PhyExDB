@@ -1,8 +1,5 @@
 import * as v from "valibot"
-
-const valueUpdateSchema = v.object({
-  name: v.string(),
-})
+import { experimentAttributeValueUpdateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id")
@@ -18,7 +15,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Value not found" })
   }
 
-  const updateName = await readValidatedBody(event, body => v.parse(valueUpdateSchema, body))
+  const updateName = await readValidatedBody(event, body => v.parse(experimentAttributeValueUpdateSchema, body))
 
   const updatedValue = await prisma.experimentAttributeValue.update({
     where: { id: id },
