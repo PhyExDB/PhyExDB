@@ -24,32 +24,25 @@ const userLoginSchema = z.object({
 const formSchema = toTypedSchema(userLoginSchema)
 const form = useForm({ validationSchema: formSchema })
 
-const onSubmit = form.handleSubmit((values) => {
-  signIn(values.email, values.password)
-})
-
-async function signIn(email: string, password: string) {
+const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
-  console.log("hi", email, password)
-  // const { error } = await authClient.signIn.email({
-  //   email: email.value,
-  //   password: password.value,
-  // })
-  // if (error) {
-  //   console.log(error)
-  //   // toast.add({
-  //   //   title: error.message,
-  //   //   color: 'red',
-  //   // })
-  // } else {
-  //   await navigateTo("/user")
-  //   // toast.add({
-  //   //   title: `You have been signed in!`,
-  //   // })
-  // }
+  console.log("hi", values)
+  const { error } = await authClient.signIn.email(values)
+  if (error) {
+    console.log(error)
+    // toast.add({
+    //   title: error.message,
+    //   color: 'red',
+    // })
+  } else {
+    await navigateTo("/user")
+    // toast.add({
+    //   title: `You have been signed in!`,
+    // })
+  }
   loading.value = false
-}
+})
 </script>
 
 <template>
@@ -81,9 +74,9 @@ async function signIn(email: string, password: string) {
                 required
               />
             </FormControl>
-            <FormDescription>
+            <!-- <FormDescription>
               This is your public display name.
-            </FormDescription>
+            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
@@ -101,13 +94,16 @@ async function signIn(email: string, password: string) {
                 required
               />
             </FormControl>
-            <FormDescription>
+            <!-- <FormDescription>
               This is your public display name.
-            </FormDescription>
+            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
-        <Button type="submit">
+        <Button
+          loading="{loading}"
+          type="submit"
+        >
           Submit
         </Button>
       </form>
