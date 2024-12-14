@@ -10,7 +10,7 @@ export default defineVitestConfig({
     coverage: {
       reportsDirectory: "./coverage",
       provider: "istanbul",
-      include: ["**/server/**", "**/app/**", "**/shared/**"],
+      include: ["server/**", "shared/**"],
       reporter: ["text", "html", "json", "lcovonly"],
     },
   },

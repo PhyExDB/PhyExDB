@@ -1,4 +1,7 @@
 import { validate as uuidValidate } from "uuid"
+import { defineEventHandler, getRouterParam } from "h3"
+import { defineRouteMeta } from "nitropack/dist/runtime/internal/meta"
+import prisma from "~~/server/utils/prisma"
 
 export default defineEventHandler(async (event) => {
   const slugOrId = getRouterParam(event, "slug")
