@@ -23,6 +23,7 @@
     "@nuxt/icon": "^1.10.1",
     "@nuxtjs/color-mode": "^3.5.2",
     "@types/jsonwebtoken": "^9.0.7",
+    "@vee-validate/valibot": "^4.14.7",
     "@vueuse/core": "^12.0.0",
     "bcrypt": "^5.1.1",
     "better-auth": "^1.0.18",
