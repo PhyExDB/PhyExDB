@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { toTypedSchema } from "@vee-validate/valibot"
+import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+// import { Label } from "@/components/ui/label"
 // import { userLoginSchema } from "~~/shared/types/User.type"
 
 definePageMeta({
@@ -15,7 +16,17 @@ definePageMeta({
 
 const loading = ref(false)
 
+const userLoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+})
+
 const formSchema = toTypedSchema(userLoginSchema)
+const form = useForm({ validationSchema: formSchema })
+
+const onSubmit = form.handleSubmit((values) => {
+  signIn(values.email, values.password)
+})
 
 async function signIn(email: string, password: string) {
   if (loading.value) return
@@ -52,9 +63,9 @@ async function signIn(email: string, password: string) {
       </CardDescription>
     </CardHeader>
     <CardContent class="grid gap-4">
-      <Form
+      <form
         class="w-2/3 space-y-6"
-        @submit="signIn"
+        @submit="onSubmit"
       >
         <FormField
           v-slot="{ componentField }"
@@ -100,33 +111,6 @@ async function signIn(email: string, password: string) {
           Submit
         </Button>
       </form>
-
-      <div class="grid gap-2">
-        <Label for="email">E-Mail oder Nutzername</Label>
-        <Input
-          id="email"
-          v-model="email"
-          type="email"
-          required
-        />
-      </div>
-      <div class="grid gap-2">
-        <Label for="password">Passwort</Label>
-        <Input
-          id="password"
-          v-model="password"
-          type="password"
-          required
-        />
-      </div>
-      <Button
-        class="w-full"
-        loading="loading"
-        type="button"
-        @click="signIn"
-      >
-        Anmelden
-      </Button>
       <div class="text-center text-sm">
         Noch kein Account?
         <NuxtLink
