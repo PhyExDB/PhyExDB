@@ -1,4 +1,3 @@
-import * as v from "valibot"
 import { experimentAttributeValueCreateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
@@ -15,7 +14,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Attribute not found" })
   }
 
-  const newValueContent = await readValidatedBody(event, body => v.parse(experimentAttributeValueCreateSchema, body))
+  const newValueContent = await readValidatedBody(event, body => experimentAttributeValueCreateSchema.parse(body))
 
   const attributeValue = await prisma.experimentAttributeValue.create({
     data: {

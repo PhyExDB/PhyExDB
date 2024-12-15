@@ -1,4 +1,3 @@
-import * as v from "valibot"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { getUserByEvent } from "~~/server/utils/user"
 import { userUpdateSchema } from "~~/shared/types"
@@ -6,7 +5,7 @@ import { userUpdateSchema } from "~~/shared/types"
 export default defineEventHandler(async (event) => {
   const user = await getUserByEvent(event)
 
-  const updateUserContent = await readValidatedBody(event, body => v.parse(userUpdateSchema, body))
+  const updateUserContent = await readValidatedBody(event, body => userUpdateSchema.parse(body))
 
   try {
     const updatedUser = await prisma.user.update({
