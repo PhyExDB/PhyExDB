@@ -1,4 +1,4 @@
-import * as v from "valibot"
+import { z } from "zod"
 import type { ExperimentAttributeValueList } from "./ExperimentAttributeValue.type"
 
 /**
@@ -35,6 +35,6 @@ export interface ExperimentAttributeDetail extends ExperimentAttributeList {
  * This schema validates that the object has the following property:
  * - `name`: A string representing the value of the attribute.
  */
-export const experimentAttributeUpdateSchema = v.object({
-  name: v.string(),
+export const experimentAttributeUpdateSchema = z.object({
+  name: z.string(),
 })
