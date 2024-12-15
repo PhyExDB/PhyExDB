@@ -5,6 +5,7 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { userRegisterSchema } from "~~/shared/types/User.type"
 
 definePageMeta({
   title: "Sign Up",
@@ -14,17 +15,16 @@ definePageMeta({
 
 const loading = ref(false)
 
-const userLoginSchema = z.object({
-  email: z.string().email(),
-  username: z.string().min(3),
-  password: z.string().min(6),
-  confirm: z.string().min(6),
-}).refine(data => data.password === data.confirm, {
+const userRegisterFormSchema = userRegisterSchema.and(
+  z.object({
+    confirm: z.string(),
+  }),
+).refine(data => data.password === data.confirm, {
   message: "Passwords don't match",
   path: ["confirm"],
 })
 
-const formSchema = toTypedSchema(userLoginSchema)
+const formSchema = toTypedSchema(userRegisterFormSchema)
 const form = useForm({ validationSchema: formSchema })
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -35,7 +35,9 @@ const onSubmit = form.handleSubmit(async (values) => {
     name: values.username,
     password: values.password,
   }
-  console.log("hi", values)
+
+  console.log("signup: ", values)
+
   const { error } = await authClient.signUp.email(data)
   if (error) {
     console.log(error)

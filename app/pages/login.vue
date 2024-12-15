@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
-import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
-// import { userLoginSchema } from "~~/shared/types/User.type"
+import { userLoginSchema } from "~~/shared/types/User.type"
 
 definePageMeta({
   title: "Login",
@@ -16,18 +14,15 @@ definePageMeta({
 
 const loading = ref(false)
 
-const userLoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-})
-
 const formSchema = toTypedSchema(userLoginSchema)
 const form = useForm({ validationSchema: formSchema })
 
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
-  console.log("hi", values)
+
+  console.log("signin: ", values)
+
   const { error } = await authClient.signIn.email(values)
   if (error) {
     console.log(error)
