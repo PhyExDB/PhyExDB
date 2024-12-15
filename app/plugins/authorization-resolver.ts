@@ -5,9 +5,10 @@ export default defineNuxtPlugin({
     return {
       provide: {
         authorization: {
-          resolveClientUser: () => {
+          resolveClientUser: async () => {
             // Your logic to retrieve the user from the client
-            return "Max Musterman"
+            const { data: session } = await authClient.useSession(useFetch)
+            return session?.value?.user
           },
         },
       },
