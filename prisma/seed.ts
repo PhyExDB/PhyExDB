@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 async function userMigrations() {
   await prisma.account.create({
     data: {
-      /* password: password */
+      // password: password
       password: "d5e0f1c480664b5cebf349bb252b2d95:d8b59da61839c29ff838df0df6b00082c21f8c999de07467b71cd19fc2dedd519042d6d0b6b043d0ac3367dec911c9ba54fd7acb4e6758159a034d4b2f713c40",
       providerId: "credential",
       accountId: uuidv4(),
