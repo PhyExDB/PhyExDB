@@ -1,4 +1,4 @@
-import { describe, expect, it, expectTypeOf } from "vitest"
+import { describe, expect, it } from "vitest"
 import { setup, $fetch } from "@nuxt/test-utils/e2e"
 
 describe("Api Route /api/users", async () => {
