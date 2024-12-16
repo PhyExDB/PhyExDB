@@ -1,13 +1,15 @@
 <script setup lang="ts">
-const { data: session } = await authClient.useSession(useFetch)
+import { useUser } from "~/utils/authHelper"
+
+const user = await useUser()
 </script>
 
 <template>
   <div>
     <div>
-      <pre>{{ session?.user }}</pre>
+      <pre>{{ user }}</pre>
       <button
-        v-if="session"
+        v-if="user"
         @click="authClient.signOut()"
       >
         Sign out
