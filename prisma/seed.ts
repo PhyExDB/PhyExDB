@@ -1,13 +1,40 @@
 import { PrismaClient } from "@prisma/client"
 import { v4 as uuidv4 } from "uuid"
+import { encodeHex } from "oslo/encoding"
+import { scryptAsync } from "@noble/hashes/scrypt"
+import { getRandomValues } from "uncrypto"
+
+// hashPassword function from better-aut
+// https://github.com/better-auth/better-auth/blob/main/packages/better-auth/src/crypto/password.ts
+const config = {
+  N: 16384,
+  r: 16,
+  p: 1,
+  dkLen: 64,
+}
+
+async function generateKey(password: string, salt: string) {
+  return await scryptAsync(password.normalize("NFKC"), salt, {
+    N: config.N,
+    p: config.p,
+    r: config.r,
+    dkLen: config.dkLen,
+    maxmem: 128 * config.N * config.r * 2,
+  })
+}
+
+const hashPassword = async (password: string) => {
+  const salt = encodeHex(getRandomValues(new Uint8Array(16)))
+  const key = await generateKey(password, salt)
+  return `${salt}:${encodeHex(key)}`
+}
 
 const prisma = new PrismaClient()
 
 async function userMigrations() {
   await prisma.account.create({
     data: {
-      // password: password
-      password: "d5e0f1c480664b5cebf349bb252b2d95:d8b59da61839c29ff838df0df6b00082c21f8c999de07467b71cd19fc2dedd519042d6d0b6b043d0ac3367dec911c9ba54fd7acb4e6758159a034d4b2f713c40",
+      password: await hashPassword("password"),
       providerId: "credential",
       accountId: uuidv4(),
       id: uuidv4(),
@@ -25,7 +52,7 @@ async function userMigrations() {
   })
   await prisma.account.create({
     data: {
-      password: "d5e0f1c480664b5cebf349bb252b2d95:d8b59da61839c29ff838df0df6b00082c21f8c999de07467b71cd19fc2dedd519042d6d0b6b043d0ac3367dec911c9ba54fd7acb4e6758159a034d4b2f713c40",
+      password: await hashPassword("password"),
       providerId: "credential",
       accountId: uuidv4(),
       id: uuidv4(),
@@ -43,7 +70,7 @@ async function userMigrations() {
   })
   await prisma.account.create({
     data: {
-      password: "d5e0f1c480664b5cebf349bb252b2d95:d8b59da61839c29ff838df0df6b00082c21f8c999de07467b71cd19fc2dedd519042d6d0b6b043d0ac3367dec911c9ba54fd7acb4e6758159a034d4b2f713c40",
+      password: await hashPassword("password"),
       providerId: "credential",
       accountId: uuidv4(),
       id: uuidv4(),
