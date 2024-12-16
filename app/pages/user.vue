@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useUser } from "~/utils/authHelper"
-
 const user = await useUser()
 </script>
 
