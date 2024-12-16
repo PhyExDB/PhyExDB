@@ -1,3 +1,4 @@
+import type { H3Event, EventHandlerRequest } from "h3"
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import prisma from "../../server/utils/prisma"
@@ -23,3 +24,13 @@ export const auth = betterAuth({
     },
   },
 })
+
+/**
+ * useUserDetail()
+ */
+export async function useUser(event: H3Event<EventHandlerRequest>) {
+  const session = await auth.api.getSession({
+    headers: event.headers,
+  })
+  return sessionToUserDetail(session)
+}

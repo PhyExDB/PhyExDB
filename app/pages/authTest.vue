@@ -1,7 +1,7 @@
 <template>
   <div>
     <Can
-      :ability="allowedAbillity"
+      :ability="onlyAdminAbillity"
     >
       <button>Edit</button>
     </Can>
