@@ -1,11 +1,8 @@
-import { describe, expect, it, vi, afterEach } from "vitest"
+import { describe, expect, it, expectTypeOf } from "vitest"
 import { setup, $fetch } from "@nuxt/test-utils/e2e"
 
 describe("Api Route /api/users", async () => {
   await setup()
-  afterEach(() => {
-    vi.resetAllMocks()
-  })
 
   it("Should return a list of users", async () => {
     const response = await $fetch("/api/users")
