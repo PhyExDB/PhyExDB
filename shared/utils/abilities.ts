@@ -14,6 +14,10 @@ export const allowedAbillity = defineAbility({ allowGuest: true }, _ => true)
  */
 export const onlyAdminAbillity = defineAbility((user: UserDetail) => user.role === "ADMIN")
 /**
+ * Ability only signed in
+ */
+export const onlySignedInAbillity = defineAbility(_ => true)
+/**
  * Ability to edit experiment
  */
 export const canEditExperiment = defineAbility((user: UserDetail, experiment: ExperimentList) => {

@@ -14,6 +14,8 @@ export const authClient = createAuthClient({
  */
 export async function useUser() {
   const { data: session } = await authClient.useSession(useFetch)
-  const user = toRef(() => sessionToUserDetail(session?.value))
+  const user = toRef(() => {
+    return sessionToUserDetail(session?.value)
+  })
   return user
 }

@@ -14,8 +14,8 @@ export function minModerator(role: UserRole): boolean {
 /**
  * Utillity function to convert a session to a user detail
  */
-export function sessionToUserDetail(session: typeof authClient.$Infer.Session | null): UserDetail | null {
-  if (session === null) {
+export function sessionToUserDetail(session: typeof authClient.$Infer.Session | null | undefined): UserDetail | null {
+  if (!session) {
     return null
   }
   if (!(session.user.role === "ADMIN" || session.user.role === "MODERATOR" || session.user.role === "USER")) {

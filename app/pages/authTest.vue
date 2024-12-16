@@ -3,7 +3,12 @@
     <Can
       :ability="onlyAdminAbillity"
     >
-      <button>Edit</button>
+      Admin
+    </Can>
+    <Can
+      :ability="onlySignedInAbillity"
+    >
+      SignedIn
     </Can>
     <Bouncer
       :ability="allowedAbillity"
