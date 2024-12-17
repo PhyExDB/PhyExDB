@@ -14,6 +14,13 @@ definePageMeta({
 })
 
 const loading = ref(false)
+type errorType = {
+  code?: string | undefined
+  message?: string | undefined
+  status: number
+  statusText: string
+} | null
+const lastError: Ref<errorType> = ref(null)
 
 const userRegisterFormSchema = userRegisterSchema.and(
   z.object({
@@ -40,8 +47,12 @@ const onSubmit = form.handleSubmit(async (values) => {
 
   const { error } = await authClient.signUp.email(data)
   if (error) {
-    console.log(error)
-    console.log("error")
+    if (error.code === "USER_ALREADY_EXISTS") {
+      error.message = "Zu dieser Email existiert bereits ein account."
+    } else {
+      console.log(error)
+    }
+    lastError.value = error
     // toast.add({
     //   title: error.message,
     //   color: 'red',
@@ -85,9 +96,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
@@ -105,9 +113,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
@@ -125,9 +130,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
@@ -145,12 +147,15 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
+        <div
+          v-if="lastError"
+          class="text-red-500"
+        >
+          {{ lastError.message }}
+        </div>
         <Button
           loading="{loading}"
           type="submit"
