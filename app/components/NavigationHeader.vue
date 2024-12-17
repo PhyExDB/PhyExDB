@@ -16,10 +16,6 @@
     <NavigationSearch />
     <ColorModeButton />
     <!-- Add user dropdown here and put in separate component -->
-    <Button
-      href="/examples/dashboard"
-    >
-      Anmelden
-    </Button>
+    <AuthControl />
   </nav>
 </template>

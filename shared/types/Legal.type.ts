@@ -1,4 +1,4 @@
-import * as v from "valibot"
+import { z } from "zod"
 import type { BaseList } from "./Base.type"
 
 /**
@@ -29,7 +29,7 @@ export interface LegalDocumentDetail extends LegalDocumentList {
 /**
  * Schema for validating updates to a legal document.
  */
-export const legalDocumentUpdateSchema = v.object({
-  name: v.pipe(v.string(), v.nonEmpty("Please enter name")),
-  text: v.pipe(v.string(), v.nonEmpty("Please enter text")),
+export const legalDocumentUpdateSchema = z.object({
+  name: z.string(),
+  text: z.string(),
 })

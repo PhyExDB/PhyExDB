@@ -13,9 +13,10 @@ export const userResultExtensions = {
      */
     needs: {
       id: true,
-      username: true,
+      name: true,
+      // username: true,
       role: true,
-      verified: true,
+      emailVerified: true,
     },
     /**
      * Computes the list format of the user object.
@@ -23,13 +24,13 @@ export const userResultExtensions = {
      * @param user - The user object containing the required properties.
      * @returns A function that returns the user object in list format.
      */
-    compute(user: { id: string, username: string, role: string, verified: boolean }) {
+    compute(user: { id: string, name: string, role: string, emailVerified: boolean }) {
       return () => {
         return {
           id: user.id,
-          username: user.username,
+          username: user.name,
           role: user.role,
-          verified: user.verified,
+          emailVerified: user.emailVerified,
         }
       }
     },
@@ -44,9 +45,10 @@ export const userResultExtensions = {
     needs: {
       id: true,
       email: true,
-      username: true,
+      name: true,
+      // username: true,
       role: true,
-      verified: true,
+      emailVerified: true,
     },
     /**
      * Computes the detailed format of the user object.
@@ -54,14 +56,14 @@ export const userResultExtensions = {
      * @param user - The user object containing the required properties.
      * @returns A function that returns the user object in detailed format.
      */
-    compute(user: { id: string, email: string, username: string, role: UserRole, verified: boolean }) {
+    compute(user: { id: string, email: string, name: string, role: UserRole, emailVerified: boolean }) {
       return () => {
         return {
           id: user.id,
           email: user.email,
-          username: user.username,
+          username: user.name,
           role: user.role,
-          verified: user.verified,
+          emailVerified: user.emailVerified,
         }
       }
     },

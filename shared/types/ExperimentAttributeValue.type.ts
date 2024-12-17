@@ -1,4 +1,4 @@
-import * as v from "valibot"
+import { z } from "zod"
 
 /**
  * Represents an AttributeValue List with id and name
@@ -21,9 +21,9 @@ export interface ExperimentAttributeValueList extends BaseList {
  * - `id`: A string representing the id of the value.
  * - `name`: A string representing the value of the attribute.
  */
-export const experimentAttributeValueCreateSchema = v.object({
-  id: v.string(),
-  name: v.string(),
+export const experimentAttributeValueCreateSchema = z.object({
+  id: z.string(),
+  name: z.string(),
 })
 
 /**
@@ -32,6 +32,6 @@ export const experimentAttributeValueCreateSchema = v.object({
  * This schema validates that the object has the following property:
  * - `name`: A string representing the value of the attribute.
  */
-export const experimentAttributeValueUpdateSchema = v.object({
-  name: v.string(),
+export const experimentAttributeValueUpdateSchema = z.object({
+  name: z.string(),
 })
