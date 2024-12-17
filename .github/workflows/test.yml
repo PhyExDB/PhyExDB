@@ -49,8 +49,11 @@ jobs:
       - name: Run db migrations and seeds
         run: npm run migrate && npm run migrate:seed
 
-      - name: Run tests
-        run: npm run test:integration:coverage
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Run unit tests with coverage
+        run: npm run test:unit:coverage
 
       - name: Upload coverage to Teamscale
         uses: cqse/teamscale-upload-action@v2.4.0
