@@ -13,8 +13,11 @@ definePageMeta({
 })
 
 const loading = ref(false)
+const lastWrong = ref(false)
 
-const formSchema = toTypedSchema(userLoginSchema)
+const schema = userLoginSchema
+
+const formSchema = toTypedSchema(schema)
 const form = useForm({ validationSchema: formSchema })
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -25,7 +28,12 @@ const onSubmit = form.handleSubmit(async (values) => {
 
   const { error } = await authClient.signIn.email(values)
   if (error) {
-    console.log(error)
+    if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
+      lastWrong.value = true
+      form.validate()
+    } else {
+      console.log(error)
+    }
     // toast.add({
     //   title: error.message,
     //   color: 'red',
@@ -69,9 +77,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
@@ -89,12 +94,15 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
+        <div
+          v-if="lastWrong"
+          class="text-red-500 text-sm"
+        >
+          Falsche E-Mail oder Passwort
+        </div>
         <Button
           loading="{loading}"
           type="submit"
