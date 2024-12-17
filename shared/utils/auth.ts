@@ -31,6 +31,9 @@ export function sessionToUserDetail(session: typeof authClient.$Infer.Session | 
   return user
 }
 
+/**
+ * Type of errors thrown by betterAuthClient
+ */
 export type ErrorType = {
   code?: string | undefined
   message?: string | undefined
