@@ -6,7 +6,7 @@ export default defineVitestConfig({
     dir: "./tests/",
     exclude: ["**/e2e/**"],
     environment: "nuxt",
-    setupFiles: ["./server/utils/prisma.ts"],
+    setupFiles: ["./tests/unit/setup.ts", "./server/utils/prisma.ts"],
     coverage: {
       reportsDirectory: "./coverage",
       provider: "istanbul",
