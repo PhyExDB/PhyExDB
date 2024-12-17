@@ -15,7 +15,10 @@ export const userResultExtensions = {
       id: true,
       name: true,
       // username: true,
+      name: true,
+      // username: true,
       role: true,
+      emailVerified: true,
       emailVerified: true,
     },
     /**
@@ -29,7 +32,9 @@ export const userResultExtensions = {
         return {
           id: user.id,
           username: user.name,
+          username: user.name,
           role: user.role,
+          emailVerified: user.emailVerified,
           emailVerified: user.emailVerified,
         }
       }
@@ -47,7 +52,10 @@ export const userResultExtensions = {
       email: true,
       name: true,
       // username: true,
+      name: true,
+      // username: true,
       role: true,
+      emailVerified: true,
       emailVerified: true,
     },
     /**
@@ -57,12 +65,15 @@ export const userResultExtensions = {
      * @returns A function that returns the user object in detailed format.
      */
     compute(user: { id: string, email: string, name: string, role: UserRole, emailVerified: boolean }) {
+    compute(user: { id: string, email: string, name: string, role: UserRole, emailVerified: boolean }) {
       return () => {
         return {
           id: user.id,
           email: user.email,
           username: user.name,
+          username: user.name,
           role: user.role,
+          emailVerified: user.emailVerified,
           emailVerified: user.emailVerified,
         }
       }
