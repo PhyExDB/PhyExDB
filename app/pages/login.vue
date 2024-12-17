@@ -34,15 +34,8 @@ const onSubmit = form.handleSubmit(async (values) => {
     } else {
       console.log(error)
     }
-    // toast.add({
-    //   title: error.message,
-    //   color: 'red',
-    // })
   } else {
     await navigateTo("/user")
-    // toast.add({
-    //   title: `You have been signed in!`,
-    // })
   }
   loading.value = false
 })

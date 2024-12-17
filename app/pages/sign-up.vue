@@ -16,7 +16,7 @@ definePageMeta({
 const loading = ref(false)
 const knownMails: string[] = []
 
-const userRegisterFormSchema = userRegisterSchema.and(
+const schema = userRegisterSchema.and(
   z.object({
     email: z.string().refine(
       value => !knownMails.includes(value),
@@ -29,7 +29,7 @@ const userRegisterFormSchema = userRegisterSchema.and(
   path: ["confirm"],
 })
 
-const formSchema = toTypedSchema(userRegisterFormSchema)
+const formSchema = toTypedSchema(schema)
 const form = useForm({ validationSchema: formSchema })
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -51,15 +51,8 @@ const onSubmit = form.handleSubmit(async (values) => {
     } else {
       console.log(error)
     }
-    // toast.add({
-    //   title: error.message,
-    //   color: 'red',
-    // })
   } else {
     await navigateTo("/user")
-    // toast.add({
-    //   title: `You have been signed in!`,
-    // })
   }
   loading.value = false
 })
