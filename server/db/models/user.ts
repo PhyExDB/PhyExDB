@@ -23,7 +23,7 @@ export const userResultExtensions = {
      * @param user - The user object containing the required properties.
      * @returns A function that returns the user object in list format.
      */
-    compute(user: { id: string, username: string, role: string, verified: boolean }) {
+    compute(user: { id: string, username: string, role: UserRole, verified: boolean }) {
       return () => {
         return {
           id: user.id,

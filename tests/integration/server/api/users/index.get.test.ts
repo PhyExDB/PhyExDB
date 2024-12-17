@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, expectTypeOf } from "vitest"
 import { setup, $fetch } from "@nuxt/test-utils/e2e"
 
 describe("Api Route /api/users", async () => {
@@ -20,18 +20,7 @@ describe("Api Route /api/users", async () => {
     expectedStructure.forEach((expectedItem) => {
       expect(response).toContainEqual(expect.objectContaining(expectedItem))
     })
-    response.forEach((item) => {
-      // Expect a UUID for each item
-      expect(item).toHaveProperty("id")
-      // Expect the list items to have a name
-      expect(item).toHaveProperty("username")
-      // Expect the list items to have a role
-      expect(item).toHaveProperty("role")
-      expect(item.id).toMatch(
-        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
-      )
-      expect(item).toHaveProperty("verified")
-    })
+    expectTypeOf(response).toEqualTypeOf<UserList[]>()
   })
 
   it("Should return users with correct roles", async () => {

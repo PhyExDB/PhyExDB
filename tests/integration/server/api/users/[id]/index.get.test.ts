@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, expectTypeOf } from "vitest"
 import { setup, $fetch } from "@nuxt/test-utils/e2e"
 import { v4 as uuidv4 } from "uuid"
 import prisma from "../../../../../../server/utils/prisma"
@@ -21,6 +21,7 @@ describe("Api Route GET /api/users/{id}", async () => {
       method: "GET",
     })
     expect(user.id).toEqual(newUser.id)
+    expectTypeOf(user).toEqualTypeOf<UserDetail>()
   })
 
   it ("Should get a user via username", async () => {
@@ -38,5 +39,19 @@ describe("Api Route GET /api/users/{id}", async () => {
       method: "GET",
     })
     expect(user.id).toEqual(newUser.id)
+    expectTypeOf(user).toEqualTypeOf<UserDetail>()
+  })
+
+  const uuid = uuidv4()
+  it.each([`unknownUser${uuid}`, uuid])("Throw error when user not found", async (usernameOrId) => {
+    const changedName = { username: "correctName", email: "correctName@gmail.com" }
+
+    // Update user info with new username
+    const response = await $fetch(`/api/users/${usernameOrId}`, {
+      method: "PUT",
+      body: changedName,
+    }).catch(e => e.data.statusCode)
+
+    expect(response).toBe(404)
   })
 })

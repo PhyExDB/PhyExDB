@@ -64,7 +64,7 @@ describe("Api Route PUT /api/users/{id}", async () => {
     expect(findChangedUser).not.toBeNull()
   })
 
-  it.each([[`correctUsername`, "WrongEmail"], ["", "correctMail@gmail.com"], ["correctUsername", ""]])(
+  it.each([["correctUsername", "WrongEmail"], ["", "correctMail@gmail.com"], ["correctUsername", ""]])(
     "Throw error when update data is missing or in wrong format",
     async (username, email) => {
       const uuid = uuidv4()
