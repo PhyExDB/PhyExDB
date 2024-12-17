@@ -20,7 +20,7 @@
     "migrate:seed": "dotenv -e .env.development prisma db seed"
   },
   "dependencies": {
-    "@nuxt/icon": "^1.10.1",
+    "@nuxt/icon": "^1.10.2",
     "@nuxtjs/color-mode": "^3.5.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@vee-validate/zod": "^4.14.7",
