@@ -1,8 +1,10 @@
+import { useUser } from "../utils/auth"
+
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook("request", async (event) => {
     event.context.$authorization = {
-      resolveServerUser: () => {
-        return event.context.user
+      resolveServerUser: async () => {
+        return useUser(event)
       },
     }
   })
