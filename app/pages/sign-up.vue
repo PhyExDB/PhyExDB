@@ -20,7 +20,7 @@ const schema = userRegisterSchema.and(
   z.object({
     email: z.string().refine(
       value => !knownMails.includes(value),
-      { message: "Diese E-mail ist schon vergeben." },
+      { message: "Es existiert bereist ein Account mit dieser E-Mail." },
     ),
     confirm: z.string(),
   }),
