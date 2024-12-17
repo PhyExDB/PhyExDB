@@ -9,7 +9,7 @@ import type { H3Event, EventHandlerRequest } from "h3"
  * or rejects with a 404 error if not found.
  */
 export async function getUserByUsernameOrId(usernameOrId: string) {
-  const whereClause = uuidValidate(usernameOrId) ? { id: usernameOrId } : { username: usernameOrId }
+  const whereClause = uuidValidate(usernameOrId) ? { id: usernameOrId } : { name: usernameOrId }
   const user = await prisma.user.findFirst({ where: whereClause })
 
   // Check that user exists
@@ -34,7 +34,7 @@ export async function getUserByUsernameOrId(usernameOrId: string) {
  * and a 404 error if the user is not found.
  */
 export async function getUserByEvent(event: H3Event<EventHandlerRequest>) {
-  const usernameOrId = getRouterParam(event, "username")
+  const usernameOrId = getRouterParam(event, "id")
   if (!usernameOrId) {
     throw createError({ status: 400, message: "Invalid username or id" })
   }

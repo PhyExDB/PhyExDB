@@ -6,8 +6,12 @@ import { mockDeep } from "vitest-mock-extended"
 vitest.stubGlobal("defineEventHandler", (func: unknown) => func)
 vitest.stubGlobal("defineRouteMeta", (func: unknown) => func)
 vitest.stubGlobal("defineNitroPlugin", (e: unknown) => e)
-vitest.stubGlobal("getRouterParam", (e: any) => e.context.params.slug)
 vitest.stubGlobal("getValidatedRouterParams", (e: any, f: any) => f(e.context.params))
+
+vitest.stubGlobal("getRouterParam", (event: any, paramName: string) => {
+  return event.context.params[paramName]
+})
+
 vitest.stubGlobal("readValidatedBody", async (event: any, validator: (body: any) => any) => {
   return validator(event.body)
 })
