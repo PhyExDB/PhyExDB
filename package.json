@@ -45,7 +45,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@iconify-json/heroicons": "^1.2.1",
+    "@iconify-json/heroicons": "^1.2.2",
     "@nuxt/eslint": "^0.7.3",
     "@nuxt/test-utils": "^3.14.4",
     "@nuxtjs/tailwindcss": "^6.12.2",
