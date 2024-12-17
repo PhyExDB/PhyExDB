@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod"
-import { useForm, defineRule } from "vee-validate"
+import { useForm } from "vee-validate"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,14 +14,6 @@ definePageMeta({
 })
 
 const loading = ref(false)
-type errorType = {
-  code?: string | undefined
-  message?: string | undefined
-  status: number
-  statusText: string
-} | null
-const lastError: Ref<errorType> = ref(null)
-
 const knownMails: string[] = []
 
 const userRegisterFormSchema = userRegisterSchema.and(
@@ -37,16 +29,8 @@ const userRegisterFormSchema = userRegisterSchema.and(
   path: ["confirm"],
 })
 
-const formSchema = computed(() => toTypedSchema(userRegisterFormSchema))
+const formSchema = toTypedSchema(userRegisterFormSchema)
 const form = useForm({ validationSchema: formSchema })
-
-// defineRule("knownEmail", (value: string) => {
-//   if (value === "user@test.test") {
-//     return "Diese E-mail ist schon vergeben."
-//   }
-
-//   return "Hi"
-// })
 
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
@@ -63,11 +47,10 @@ const onSubmit = form.handleSubmit(async (values) => {
   if (error) {
     if (error.code === "USER_ALREADY_EXISTS") {
       knownMails.push(values.email)
-      error.message = "Zu dieser Email existiert bereits ein account."
+      form.validate()
     } else {
       console.log(error)
     }
-    lastError.value = error
     // toast.add({
     //   title: error.message,
     //   color: 'red',
@@ -100,7 +83,6 @@ const onSubmit = form.handleSubmit(async (values) => {
         <FormField
           v-slot="{ componentField }"
           name="email"
-          rules="knownEmail"
         >
           <FormItem>
             <FormLabel>E-mail</FormLabel>
@@ -166,12 +148,6 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormMessage />
           </FormItem>
         </FormField>
-        <div
-          v-if="lastError"
-          class="text-red-500"
-        >
-          {{ lastError.message }}
-        </div>
         <Button
           loading="{loading}"
           type="submit"

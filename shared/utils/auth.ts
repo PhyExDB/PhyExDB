@@ -30,3 +30,10 @@ export function sessionToUserDetail(session: typeof authClient.$Infer.Session | 
   }
   return user
 }
+
+export type ErrorType = {
+  code?: string | undefined
+  message?: string | undefined
+  status: number
+  statusText: string
+} | null
