@@ -30,6 +30,6 @@ export interface LegalDocumentDetail extends LegalDocumentList {
  * Schema for validating updates to a legal document.
  */
 export const legalDocumentUpdateSchema = z.object({
-  name: z.string(),
-  text: z.string(),
+  name: z.string().trim().nonempty("Please enter a name."),
+  text: z.string().trim().nonempty("Please enter some content."),
 })

@@ -53,14 +53,17 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     })
   })
 
-  it.each(["name", "text"])("should return an error when the field %s is empty", async (field) => {
+  it.each([
+    { value: "name", description: "a name" },
+    { value: "text", description: "some content" },
+  ])(`should return an error when the field $value empty`, async ({ value, description }) => {
     const updateContent = {
       name: "New name",
       text: "New content",
     }
-    if (field === "name") {
+    if (value === "name") {
       updateContent.name = ""
-    } else if (field === "text") {
+    } else if (value === "text") {
       updateContent.text = ""
     }
 
@@ -91,7 +94,11 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     prisma.legalDocument.findFirst = getter
     prisma.legalDocument.update = getter
 
-    await expect(updateLegalDocument(event)).rejects.toThrow(`Please enter ${field}`)
+    await expect(updateLegalDocument(event)).rejects.toThrowError(
+      expect.objectContaining({
+        message: expect.stringContaining(`Please enter ${description}`),
+      }),
+    )
   })
 
   it ("should return an error when an unknown slug is passed", async () => {
