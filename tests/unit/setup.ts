@@ -8,6 +8,9 @@ vitest.stubGlobal("defineRouteMeta", (func: unknown) => func)
 vitest.stubGlobal("defineNitroPlugin", (e: unknown) => e)
 vitest.stubGlobal("getRouterParam", (e: any) => e.context.params.slug)
 vitest.stubGlobal("getValidatedRouterParams", (e: any, f: any) => f(e.context.params))
+vitest.stubGlobal("readValidatedBody", async (event: any, validator: (body: any) => any) => {
+  return validator(event.body)
+})
 
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
