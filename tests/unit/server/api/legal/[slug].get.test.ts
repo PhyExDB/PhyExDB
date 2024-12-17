@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 import getLegalDocument from "~~/server/api/legal/[slug].get"
 import { legalDocumentResultExtensions } from "~~/server/db/models/legalDocument"
 
-describe("Api Route /api/legal/{slug}", () => {
+describe("Api Route GET /api/legal/{slug}", () => {
   ["slug", "id of"].forEach((param) => {
     it.each([
       { slug: "privacy-policy" },
