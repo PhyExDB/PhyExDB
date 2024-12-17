@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
+import { useForm, defineRule } from "vee-validate"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,17 +22,31 @@ type errorType = {
 } | null
 const lastError: Ref<errorType> = ref(null)
 
+const knownMails: string[] = []
+
 const userRegisterFormSchema = userRegisterSchema.and(
   z.object({
+    email: z.string().refine(
+      value => !knownMails.includes(value),
+      { message: "Diese E-mail ist schon vergeben." },
+    ),
     confirm: z.string(),
   }),
 ).refine(data => data.password === data.confirm, {
-  message: "Passwords don't match",
+  message: "Passwörter stimmen nicht überein.",
   path: ["confirm"],
 })
 
-const formSchema = toTypedSchema(userRegisterFormSchema)
+const formSchema = computed(() => toTypedSchema(userRegisterFormSchema))
 const form = useForm({ validationSchema: formSchema })
+
+// defineRule("knownEmail", (value: string) => {
+//   if (value === "user@test.test") {
+//     return "Diese E-mail ist schon vergeben."
+//   }
+
+//   return "Hi"
+// })
 
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
@@ -48,6 +62,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   const { error } = await authClient.signUp.email(data)
   if (error) {
     if (error.code === "USER_ALREADY_EXISTS") {
+      knownMails.push(values.email)
       error.message = "Zu dieser Email existiert bereits ein account."
     } else {
       console.log(error)
@@ -85,6 +100,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         <FormField
           v-slot="{ componentField }"
           name="email"
+          rules="knownEmail"
         >
           <FormItem>
             <FormLabel>E-mail</FormLabel>
