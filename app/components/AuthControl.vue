@@ -1,31 +1,25 @@
 <script lang="ts" setup>
-const { data: session } = await authClient.useSession(useFetch)
+const user = await useUser()
 </script>
 
 <template>
-  <div>
-    <NuxtLink
-      v-if="!session"
-      href="/login"
-    >
-      <Button>
-        Anmelden
-      </Button>
-    </NuxtLink>
-
-    <NuxtLink
-      v-if="session"
-      href="/user"
-    >
-      <Button>
-        {{ session.user.name }}
-      </Button>
-    </NuxtLink>
-    <Button
-      v-if="session"
-      @click="authClient.signOut()"
-    >
-      Sign out
-    </Button>
-  </div>
+  <DropdownMenu v-if="user">
+    <DropdownMenuTrigger>{{ user.username }}</DropdownMenuTrigger>
+    <DropdownMenuContent>
+      <DropdownMenuItem>
+        <NuxtLink href="/user">
+          <span>Profil</span>
+        </NuxtLink>
+      </DropdownMenuItem>
+      <DropdownMenuItem @click="authClient.signOut()">
+        <span>Ausloggen</span>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+  <NuxtLink
+    v-if="!user"
+    href="/login"
+  >
+    Einloggen
+  </NuxtLink>
 </template>
