@@ -41,6 +41,7 @@ describe("Api Route PUT /api/legal/{slug}", async () => {
     })
 
     expectTypeOf(response).toEqualTypeOf<LegalDocumentDetail>()
+    expect(response).toMatchObject(updateContent)
   })
 
   it.each(["name", "text"])("should return an error when the field %s is empty", async (field) => {
