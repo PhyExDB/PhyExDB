@@ -14,17 +14,22 @@ definePageMeta({
 })
 
 const loading = ref(false)
+const knownMails: string[] = []
 
-const userRegisterFormSchema = userRegisterSchema.and(
+const schema = userRegisterSchema.and(
   z.object({
+    email: z.string().refine(
+      value => !knownMails.includes(value),
+      { message: "Es existiert bereist ein Account mit dieser E-Mail." },
+    ),
     confirm: z.string(),
   }),
 ).refine(data => data.password === data.confirm, {
-  message: "Passwords don't match",
+  message: "Passwörter stimmen nicht überein.",
   path: ["confirm"],
 })
 
-const formSchema = toTypedSchema(userRegisterFormSchema)
+const formSchema = toTypedSchema(schema)
 const form = useForm({ validationSchema: formSchema })
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -40,17 +45,14 @@ const onSubmit = form.handleSubmit(async (values) => {
 
   const { error } = await authClient.signUp.email(data)
   if (error) {
-    console.log(error)
-    console.log("error")
-    // toast.add({
-    //   title: error.message,
-    //   color: 'red',
-    // })
+    if (error.code === "USER_ALREADY_EXISTS") {
+      knownMails.push(values.email)
+      form.validate()
+    } else {
+      console.log(error)
+    }
   } else {
     await navigateTo("/user")
-    // toast.add({
-    //   title: `You have been signed in!`,
-    // })
   }
   loading.value = false
 })
@@ -85,9 +87,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
@@ -105,9 +104,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
@@ -125,9 +121,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
@@ -145,9 +138,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 required
               />
             </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
             <FormMessage />
           </FormItem>
         </FormField>
