@@ -21,6 +21,7 @@ jobs:
       DATABASE_URL: postgresql://nuxt:nuxt_password@localhost:5432/phyexdb
       # For API Base URL
       NUXT_PUBLIC_API_BASE: http://db:3000/api/
+      BETTER_AUTH_SECRET: better_auth_secret
 
     services:
       db:
