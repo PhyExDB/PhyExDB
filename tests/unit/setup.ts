@@ -3,6 +3,9 @@ import type { PrismaClient } from "@prisma/client"
 import { vitest } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
 
+const prisma = mockDeep<PrismaClient>()
+vitest.stubGlobal("prisma", prisma)
+
 vitest.stubGlobal("defineEventHandler", (func: unknown) => func)
 vitest.stubGlobal("defineRouteMeta", (func: unknown) => func)
 vitest.stubGlobal("defineNitroPlugin", (e: unknown) => e)
@@ -15,6 +18,3 @@ vitest.stubGlobal("getRouterParam", (event: any, paramName: string) => {
 vitest.stubGlobal("readValidatedBody", async (event: any, validator: (body: any) => any) => {
   return validator(event.body)
 })
-
-const prisma = mockDeep<PrismaClient>()
-vitest.stubGlobal("prisma", prisma)
