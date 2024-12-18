@@ -10,11 +10,15 @@ describe("Api Route /api/legal/{slug}", async () => {
     { slug: "terms-of-service" },
     { slug: "imprint" },
   ])("should return a detail of a legal document when getting by slug or id of $slug", async ({ slug }) => {
+    const id = (await prisma.legalDocument.findFirst({ where: { slug: slug } }))!.id
+
     const slugResponse = await $fetch(`/api/legal/${slug}`)
     expectTypeOf(slugResponse).toEqualTypeOf<LegalDocumentDetail>()
+    expect(slugResponse.id).toBe(id)
+    expect(slugResponse.slug).toBe(slug)
 
-    const id = (await prisma.legalDocument.findFirst({ where: { slug: slug } }))!.id
     const idResponse = await $fetch(`/api/legal/${id}`)
+    expect(slugResponse.id).toBe(id)
     expectTypeOf(idResponse).toEqualTypeOf<LegalDocumentDetail>()
   })
 
