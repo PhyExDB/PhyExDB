@@ -12,6 +12,12 @@ export const auth = betterAuth({
     enabled: true,
   },
   user: {
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailVerification: async ({ user, newEmail, url, token }, request) => {
+        authLogger.alert("changeEmail", { user, newEmail, url, token })
+      },
+    },
     additionalFields: {
       role: {
         type: "string",

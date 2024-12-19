@@ -42,7 +42,7 @@ export interface UserDetail extends UserList {
 /**
  * Schema to verify username
  */
-const usernameSchema = {
+export const usernameSchema = {
   username:
     z.string().trim().min(1)
       .refine(
@@ -60,7 +60,7 @@ const usernameSchema = {
 /**
  * Schema to verify email
  */
-const emailSchema = {
+export const emailSchema = {
   email:
     z.string().trim().min(1)
       .toLowerCase()
@@ -70,7 +70,7 @@ const emailSchema = {
 /**
  * Schema to verify password
  */
-const passwordSchema = {
+export const passwordSchema = {
   password:
     z.string()
       .min(8, "Password must be at least 8 characters long")

@@ -7,7 +7,7 @@ const user = await useUser()
     <DropdownMenuTrigger>{{ user.username }}</DropdownMenuTrigger>
     <DropdownMenuContent>
       <DropdownMenuItem>
-        <NuxtLink href="/user">
+        <NuxtLink href="/profile">
           <span>Profil</span>
         </NuxtLink>
       </DropdownMenuItem>
