@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import { legalDocumentResultExtensions } from "../db/models/legalDocument"
+import { experimentResultExtensions } from "../db/models/experiment"
 import { experimentAttributeValueResultExtensions } from "../db/models/experimentAttributeValue"
 import { experimentAttributeResultExtensions } from "../db/models/experimentAttribute"
 import { userResultExtensions } from "../db/models/user"
@@ -50,6 +51,7 @@ const prismaClientSingleton = () => {
   const resultExtensions = {
     legalDocument: legalDocumentResultExtensions,
     user: userResultExtensions,
+    experiment: experimentResultExtensions,
     experimentAttribute: experimentAttributeResultExtensions,
     experimentAttributeValue: experimentAttributeValueResultExtensions,
   }

@@ -31,3 +31,7 @@ export const canSeeExperiment = defineAbility({ allowGuest: true }, (user: UserD
     || user.id === experiment.userId
     || (minModerator(user.role) && experiment.status === "Submitted")
 })
+/**
+ * Ability to create an experiment
+ */
+export const canCreateExperiment = onlySignedInAbillity

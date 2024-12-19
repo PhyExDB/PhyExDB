@@ -112,9 +112,58 @@ async function legalMigrations() {
   })
 }
 
+async function experimentMigrations() {
+  const attribute = await prisma.experimentAttribute.create({
+    data: {
+      name: "Themenbereich",
+      slug: "thema",
+    },
+  })
+  // Maybe this works
+  /*
+  const attribute = await prisma.experimentAttribute.create({
+    data: {
+      name: "Themenbereich",
+      slug: "thema",
+      values: {
+        create: {
+          name: "Magnetismus",
+        },
+      },
+    },
+  })*/
+  const attributeValue = await prisma.experimentAttributeValue.create({
+    data: {
+      name: "Magnetismus",
+      attribute: {
+        connect: { id: attribute.id },
+      },
+    },
+  })
+  await prisma.experiment.create({
+    data: {
+      name: "Magnetismus Experiment",
+      slug: "magnetismus-experiment",
+      user: {
+        connect: {
+          id: (await prisma.user.findFirst())?.id ?? (() => { throw new Error("No user found") })(),
+        },
+      },
+      status: "PUBLISHED",
+      duration: 5,
+      attributes: {
+        connect: { id: attributeValue.id },
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  })
+}
+
 async function main() {
   await userMigrations()
   await legalMigrations()
+  await experimentMigrations()
 }
 
 main()
