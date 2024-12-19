@@ -112,6 +112,20 @@ async function legalMigrations() {
   })
 }
 
+async function sectionMigrations() {
+  await prisma.experimentSection.createMany({
+    data: [
+      { name: "Versuchsziel", order: 0 },
+      { name: "Material", order: 1 },
+      { name: "Versuchsaufbau", order: 2 },
+      { name: "Durchführung", order: 3 },
+      { name: "Beobachtung", order: 4 },
+      { name: "Ergebnis", order: 5 },
+      { name: "Tipps & Tricks", order: 6 },
+    ],
+  })
+}
+
 async function experimentMigrations() {
   const attribute = await prisma.experimentAttribute.create({
     data: {
@@ -163,6 +177,7 @@ async function experimentMigrations() {
 async function main() {
   await userMigrations()
   await legalMigrations()
+  await sectionMigrations()
   await experimentMigrations()
 }
 
