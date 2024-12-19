@@ -97,14 +97,28 @@ export const userRegisterSchema = z.object({
 /**
  * Schema for user registration with repeat password.
  */
-export const userRegisterSchemaWithRepeatPassword = z.object({
+const userRegisterSchemaWithRepeatPassword = z.object({
   ...userRegisterSchema.shape,
   confirmPassword: z.string({ required_error: "Passwort muss wiederholt werden" }),
 })
-  .refine(data => data.password === data.confirmPassword, {
-    message: "Passwörter stimmen nicht überein.",
-    path: ["confirmPassword"],
-  })
+
+/**
+ * Schema for user registration with repeat password.
+ * Also validates that the password and confirmPassword fields match.
+ *
+ * Workaround, see https://github.com/colinhacks/zod/issues/479#issuecomment-2429834215
+ */
+export const userRegisterSchemaWithRepeatValidatePassword = z.preprocess((input, ctx) => {
+  const parsed = userRegisterSchemaWithRepeatPassword.pick({ password: true, confirmPassword: true }).safeParse(input)
+  if (parsed.success && parsed.data.password !== parsed.data.confirmPassword) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["confirmPassword"],
+      message: "Passwörter stimmen nicht überein",
+    })
+  }
+  return input
+}, userRegisterSchemaWithRepeatPassword)
 
 /**
  * Schema for user login.

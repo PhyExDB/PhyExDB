@@ -5,7 +5,7 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { userRegisterSchemaWithRepeatPassword } from "~~/shared/types/User.type"
+import { userRegisterSchemaWithRepeatValidatePassword } from "~~/shared/types/User.type"
 
 definePageMeta({
   title: "Sign Up",
@@ -16,7 +16,7 @@ definePageMeta({
 const loading = ref(false)
 const knownMails: string[] = []
 
-const schema = userRegisterSchemaWithRepeatPassword.and(
+const schema = userRegisterSchemaWithRepeatValidatePassword.and(
   z.object({
     email: z.string().refine(
       value => !knownMails.includes(value),
@@ -79,7 +79,6 @@ const onSubmit = form.handleSubmit(async (values) => {
               <Input
                 id="email"
                 v-bind="componentField"
-                type="email"
               />
             </FormControl>
             <FormMessage />
@@ -119,7 +118,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </FormField>
         <FormField
           v-slot="{ componentField }"
-          name="confirm"
+          name="confirmPassword"
         >
           <FormItem>
             <FormLabel>Passwort wiederholen</FormLabel>
