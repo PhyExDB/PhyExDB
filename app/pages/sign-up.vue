@@ -5,7 +5,7 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { userRegisterSchema } from "~~/shared/types/User.type"
+import { userRegisterSchemaWithRepeatPassword } from "~~/shared/types/User.type"
 
 definePageMeta({
   title: "Sign Up",
@@ -16,18 +16,14 @@ definePageMeta({
 const loading = ref(false)
 const knownMails: string[] = []
 
-const schema = userRegisterSchema.and(
+const schema = userRegisterSchemaWithRepeatPassword.and(
   z.object({
     email: z.string().refine(
       value => !knownMails.includes(value),
       { message: "Es existiert bereist ein Account mit dieser E-Mail." },
     ),
-    confirm: z.string(),
   }),
-).refine(data => data.password === data.confirm, {
-  message: "Passwörter stimmen nicht überein.",
-  path: ["confirm"],
-})
+)
 
 const formSchema = toTypedSchema(schema)
 const form = useForm({ validationSchema: formSchema })
@@ -129,7 +125,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormLabel>Passwort wiederholen</FormLabel>
             <FormControl>
               <Input
-                id="confirm"
+                id="confirmPassword"
                 v-bind="componentField"
                 type="password"
               />
@@ -138,7 +134,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           </FormItem>
         </FormField>
         <Button
-          loading="{loading}"
+          :loading="loading"
           type="submit"
         >
           Submit

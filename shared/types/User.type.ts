@@ -44,16 +44,18 @@ export interface UserDetail extends UserList {
  */
 const usernameSchema = {
   username:
-    z.string().trim().min(1)
+    z.string({ required_error: "Username muss angegeben werden" })
+      .trim()
+      .nonempty("Username muss angegeben werden")
       .refine(
         value =>
           z.string().email().safeParse(value).success === false,
-        { message: "Username can't be an email." },
+        { message: "Username darf keine E-Mail-Adresse sein" },
       )
       .refine(
         value =>
           z.string().uuid().safeParse(value).success === false,
-        { message: "Invalid username format" },
+        { message: "Invalider username" },
       ),
 }
 
@@ -62,9 +64,11 @@ const usernameSchema = {
  */
 const emailSchema = {
   email:
-    z.string().trim().min(1)
+    z.string({ required_error: "E-Mail-Adresse muss angegeben werden" })
+      .trim()
+      .nonempty("E-Mail-Adresse muss angegeben werden")
       .toLowerCase()
-      .email(),
+      .email("Invalide E-Mail-Adresse"),
 }
 
 /**
@@ -72,11 +76,12 @@ const emailSchema = {
  */
 const passwordSchema = {
   password:
-    z.string()
-      .min(8, "Password must be at least 8 characters long")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
+    z.string({ required_error: "Passwort muss angegeben werden" })
+      .nonempty("Passwort muss angegeben werden")
+      .min(8, "Passwort muss mindestens 8 Zeichen lang sein")
+      .regex(/[a-z]/, "Passwort muss mindestens einen Kleinbuchstaben enthalten")
+      .regex(/[A-Z]/, "Passwort muss mindestens einen Grossbuchstaben enthalten")
+      .regex(/[0-9]/, "Passwort muss mindestens eine Zahl enthalten"),
 }
 
 /**
@@ -90,6 +95,18 @@ export const userRegisterSchema = z.object({
 })
 
 /**
+ * Schema for user registration with repeat password.
+ */
+export const userRegisterSchemaWithRepeatPassword = z.object({
+  ...userRegisterSchema.shape,
+  confirmPassword: z.string({ required_error: "Passwort muss wiederholt werden" }),
+})
+  .refine(data => data.password === data.confirmPassword, {
+    message: "Passwörter stimmen nicht überein.",
+    path: ["confirmPassword"],
+  })
+
+/**
  * Schema for user login.
  * Combines the username or email and password schemas into a single object schema.
  */
@@ -97,8 +114,7 @@ export const userLoginSchema = z.object({
   // usernameOrEmail:
   //   z.string().trim().min(1),
   ...emailSchema,
-  password:
-    z.string(),
+  ...passwordSchema,
 })
 
 /**

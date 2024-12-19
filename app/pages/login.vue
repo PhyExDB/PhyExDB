@@ -15,9 +15,7 @@ definePageMeta({
 const loading = ref(false)
 const lastWrong = ref(false)
 
-const schema = userLoginSchema
-
-const formSchema = toTypedSchema(schema)
+const formSchema = toTypedSchema(userLoginSchema)
 const form = useForm({ validationSchema: formSchema })
 
 const onSubmit = form.handleSubmit(async (values) => {
