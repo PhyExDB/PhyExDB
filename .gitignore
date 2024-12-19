@@ -17,7 +17,8 @@ logs
 .DS_Store
 .fleet
 .idea
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 # Local env files
 .env
