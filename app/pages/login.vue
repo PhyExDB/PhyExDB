@@ -88,7 +88,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </FormField>
         <div
           v-if="lastWrong"
-          class="text-red-500 text-sm"
+          class="text-destructive text-sm"
         >
           Falsche E-Mail oder Passwort
         </div>
