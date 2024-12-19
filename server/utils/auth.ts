@@ -24,11 +24,22 @@ export const auth = betterAuth({
 })
 
 /**
- * useUserDetail()
+ * getUserDetail()
  */
-export async function useUser(event: H3Event<EventHandlerRequest>) {
+export async function getUser(event: H3Event<EventHandlerRequest>): Promise<UserDetail | null> {
   const session = await auth.api.getSession({
     headers: event.headers,
   })
   return sessionToUserDetail(session)
+}
+
+/**
+ * getUserDetailOrThrowError()
+ */
+export async function getUserOrThrowError(event: H3Event<EventHandlerRequest>): Promise<UserDetail> {
+  const user = await getUser(event)
+  if (!user) {
+    throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+  }
+  return user
 }
