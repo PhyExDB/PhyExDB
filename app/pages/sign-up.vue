@@ -5,7 +5,7 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { userRegisterSchema } from "~~/shared/types/User.type"
+import { userRegisterSchemaWithRepeatValidatePassword } from "~~/shared/types/User.type"
 
 definePageMeta({
   title: "Sign Up",
@@ -16,18 +16,14 @@ definePageMeta({
 const loading = ref(false)
 const knownMails: string[] = []
 
-const schema = userRegisterSchema.and(
+const schema = userRegisterSchemaWithRepeatValidatePassword.and(
   z.object({
     email: z.string().refine(
       value => !knownMails.includes(value),
       { message: "Es existiert bereist ein Account mit dieser E-Mail." },
     ),
-    confirm: z.string(),
   }),
-).refine(data => data.password === data.confirm, {
-  message: "Passwörter stimmen nicht überein.",
-  path: ["confirm"],
-})
+)
 
 const formSchema = toTypedSchema(schema)
 const form = useForm({ validationSchema: formSchema })
@@ -70,7 +66,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     </CardHeader>
     <CardContent class="grid gap-4">
       <form
-        class="w-2/3 space-y-6"
+        class="grid gap-4"
         @submit="onSubmit"
       >
         <FormField
@@ -78,13 +74,11 @@ const onSubmit = form.handleSubmit(async (values) => {
           name="email"
         >
           <FormItem>
-            <FormLabel>E-mail</FormLabel>
+            <FormLabel>E-Mail</FormLabel>
             <FormControl>
               <Input
                 id="email"
                 v-bind="componentField"
-                type="email"
-                required
               />
             </FormControl>
             <FormMessage />
@@ -101,7 +95,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 id="username"
                 v-bind="componentField"
                 type="text"
-                required
               />
             </FormControl>
             <FormMessage />
@@ -118,7 +111,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 id="password"
                 v-bind="componentField"
                 type="password"
-                required
               />
             </FormControl>
             <FormMessage />
@@ -126,23 +118,22 @@ const onSubmit = form.handleSubmit(async (values) => {
         </FormField>
         <FormField
           v-slot="{ componentField }"
-          name="confirm"
+          name="confirmPassword"
         >
           <FormItem>
             <FormLabel>Passwort wiederholen</FormLabel>
             <FormControl>
               <Input
-                id="confirm"
+                id="confirmPassword"
                 v-bind="componentField"
                 type="password"
-                required
               />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
         <Button
-          loading="{loading}"
+          :loading="loading"
           type="submit"
         >
           Submit

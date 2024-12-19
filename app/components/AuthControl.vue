@@ -1,10 +1,18 @@
 <script lang="ts" setup>
+import getInitials from "~~/shared/utils/initials"
+
 const user = await useUser()
 </script>
 
 <template>
   <DropdownMenu v-if="user">
-    <DropdownMenuTrigger>{{ user.username }}</DropdownMenuTrigger>
+    <DropdownMenuTrigger>
+      <NuxtLink href="/user">
+        <Avatar>
+          <AvatarFallback>{{ getInitials(user.username) }}</AvatarFallback>
+        </Avatar>
+      </NuxtLink>
+    </DropdownMenuTrigger>
     <DropdownMenuContent>
       <DropdownMenuItem>
         <NuxtLink href="/user">
@@ -16,10 +24,11 @@ const user = await useUser()
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-  <NuxtLink
-    v-if="!user"
-    href="/login"
-  >
-    Einloggen
-  </NuxtLink>
+  <Button v-if="!user">
+    <NuxtLink
+      href="/login"
+    >
+      Einloggen
+    </NuxtLink>
+  </Button>
 </template>
