@@ -70,7 +70,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     </CardHeader>
     <CardContent class="grid gap-4">
       <form
-        class="w-2/3 space-y-6"
+        class="grid gap-4"
         @submit="onSubmit"
       >
         <FormField
@@ -78,13 +78,12 @@ const onSubmit = form.handleSubmit(async (values) => {
           name="email"
         >
           <FormItem>
-            <FormLabel>E-mail</FormLabel>
+            <FormLabel>E-Mail</FormLabel>
             <FormControl>
               <Input
                 id="email"
                 v-bind="componentField"
                 type="email"
-                required
               />
             </FormControl>
             <FormMessage />
@@ -101,7 +100,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 id="username"
                 v-bind="componentField"
                 type="text"
-                required
               />
             </FormControl>
             <FormMessage />
@@ -118,7 +116,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 id="password"
                 v-bind="componentField"
                 type="password"
-                required
               />
             </FormControl>
             <FormMessage />
@@ -135,7 +132,6 @@ const onSubmit = form.handleSubmit(async (values) => {
                 id="confirm"
                 v-bind="componentField"
                 type="password"
-                required
               />
             </FormControl>
             <FormMessage />
