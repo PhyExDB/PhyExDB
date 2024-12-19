@@ -114,7 +114,8 @@ export const userLoginSchema = z.object({
   // usernameOrEmail:
   //   z.string().trim().min(1),
   ...emailSchema,
-  ...passwordSchema,
+  password: z.string({ required_error: "Passwort muss angegeben werden" })
+    .nonempty("Passwort muss angegeben werden"),
 })
 
 /**
