@@ -16,10 +16,11 @@ const user = await useUser()
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-  <NuxtLink
-    v-if="!user"
-    href="/login"
-  >
-    Einloggen
-  </NuxtLink>
+  <Button v-if="!user">
+    <NuxtLink
+      href="/login"
+    >
+      Einloggen
+    </NuxtLink>
+  </Button>
 </template>
