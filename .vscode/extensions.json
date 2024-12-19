@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "Nuxtr.nuxt-vscode-extentions",
+    "vitest.explorer",
+    "ms-playwright.playwright",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "Prisma.prisma",
+    "shardulm94.trailing-spaces"
+  ]
+}
