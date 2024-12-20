@@ -151,7 +151,8 @@ const validatePasswordForSchema = <
  * Schema for user registration with repeat password.
  * Also validates that the password and confirmPassword fields match.
  */
-export const userRegisterSchemaWithRepeatValidatePassword = validatePasswordForSchema(userRegisterSchemaWithRepeatPassword)
+export const userRegisterSchemaWithRepeatValidatePassword
+  = validatePasswordForSchema(userRegisterSchemaWithRepeatPassword)
 
 /**
  * Schema for user login.
