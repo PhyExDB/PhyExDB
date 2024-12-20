@@ -159,8 +159,6 @@ export const userRegisterSchemaWithRepeatValidatePassword
  * Combines the username or email and password schemas into a single object schema.
  */
 export const userLoginSchema = z.object({
-  // usernameOrEmail:
-  //   z.string().trim().min(1),
   ...emailSchema,
   password: z.string({ required_error: "Passwort muss angegeben werden" })
     .nonempty("Passwort muss angegeben werden"),
