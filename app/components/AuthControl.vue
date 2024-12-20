@@ -7,11 +7,9 @@ const user = await useUser()
 <template>
   <DropdownMenu v-if="user">
     <DropdownMenuTrigger>
-      <NuxtLink href="/user">
-        <Avatar>
-          <AvatarFallback>{{ getInitials(user.username) }}</AvatarFallback>
-        </Avatar>
-      </NuxtLink>
+      <Avatar>
+        <AvatarFallback>{{ getInitials(user.username) }}</AvatarFallback>
+      </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
       <DropdownMenuItem>
