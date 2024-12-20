@@ -18,7 +18,7 @@ const user = await useUser()
         </NuxtLink>
       </DropdownMenuItem>
       <DropdownMenuItem @click="authClient.signOut()">
-        <span>Ausloggen</span>
+        <span>Abmelden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
@@ -26,7 +26,7 @@ const user = await useUser()
     <NuxtLink
       href="/login"
     >
-      Einloggen
+      Anmelden
     </NuxtLink>
   </Button>
 </template>
