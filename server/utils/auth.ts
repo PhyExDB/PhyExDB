@@ -13,7 +13,8 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url, token }, _) => {
-      authLogger.alert("signupEmail", { user, url, token })
+      const devUrl = url.replace("http://localhost", "http://localhost:3000/")
+      authLogger.alert("signupEmail", { user, devUrl, token })
     },
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
