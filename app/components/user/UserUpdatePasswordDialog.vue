@@ -37,11 +37,11 @@ const onSubmit = form.handleSubmit(async (values) => {
     <DialogTrigger as-child>
       <slot />
     </DialogTrigger>
-    <DialogContent class="sm:max-w-[425px]">
+    <DialogContent class="max-w-[425px]">
       <DialogHeader>
-        <DialogTitle>Nutzername oder E-Mail ändern</DialogTitle>
+        <DialogTitle>Passwort ändern</DialogTitle>
         <DialogDescription>
-          Ändere deinen Nutzernamen oder deine E-Mail Adresse.
+          Ändere dein Passwort.
         </DialogDescription>
       </DialogHeader>
       <form
