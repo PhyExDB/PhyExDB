@@ -127,7 +127,7 @@ function sendVerificationEmail() {
                     Make changes to your profile here. Click save when you're done.
                   </DialogDescription>
                 </DialogHeader>
-                <UserUpdateAccountForm />
+                <UserUpdateAccountForm :user="user" />
                 <DialogFooter>
                   <Button type="submit">
                     Save changes
