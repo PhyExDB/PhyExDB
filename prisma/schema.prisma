@@ -21,6 +21,7 @@ model User {
   image         String?
   sessions      Session[]
   accounts      Account[]
+  comments      Comment[]
 
   @@unique([email])
   @@map("user")
@@ -115,12 +116,12 @@ model Session {
   id        String   @id
   expiresAt DateTime
   token     String
-  createdAt DateTime
-  updatedAt DateTime
   ipAddress String?
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime
+  updatedAt DateTime
 
   @@unique([token])
   @@map("session")
@@ -154,4 +155,13 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Comment {
+  id        String   @id
+  text      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime
+  updatedAt DateTime
 }
