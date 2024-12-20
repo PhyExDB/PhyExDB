@@ -36,10 +36,18 @@ const sendVerificationEmail = async () => {
           </Avatar>
           <div class="flex-1">
             <div class="text-center sm:text-left">
-              <p class="font-medium">
-                {{ user.username }}
-              </p>
-              <div class="flex items-center justify-center sm:justify-start">
+              <div class="flex items-center justify-center sm:justify-start space-x-2">
+                <p class="font-medium">
+                  {{ user.username }}
+                </p>
+                <Badge
+                  v-if="user.role !== 'USER'"
+                  variant="outline"
+                >
+                  {{ capitalizeFirstLetter(user.role) }}
+                </Badge>
+              </div>
+              <div class="flex items-center justify-center sm:justify-start space-x-2">
                 <p class="text-muted-foreground">
                   {{ user.email }}
                 </p>
@@ -48,13 +56,13 @@ const sendVerificationEmail = async () => {
                     <Icon
                       v-if="user.emailVerified"
                       size="1.2em"
-                      class="ml-2 text-success"
+                      class="text-success"
                       name="heroicons:check-badge"
                     />
                     <Icon
                       v-else
                       size="1.2em"
-                      class="ml-2 text-destructive"
+                      class="text-destructive"
                       name="heroicons:exclamation-circle"
                     />
                   </PopoverTrigger>
