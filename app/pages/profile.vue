@@ -13,36 +13,36 @@ definePageMeta({
 
 const user = await useUser()
 
-const loading = ref(false)
-const knownMails: string[] = []
+// const loading = ref(false)
+// const knownMails: string[] = []
 
-const schema = z.object({
-  ...emailSchema,
-  ...usernameSchema,
-}).partial()
+// const schema = z.object({
+//   ...emailSchema,
+//   ...usernameSchema,
+// }).partial()
 
-const form = useForm({ validationSchema: toTypedSchema(schema) })
+// const form = useForm({ validationSchema: toTypedSchema(schema) })
 
-const onSubmit = form.handleSubmit(async (values) => {
-  if (user.value) {
-    if (values.email && values.email !== user.value.email) {
-      console.log("email changed")
-      authClient.changeEmail({
-        newEmail: values.email,
-      })
-      const input = document.getElementById("email") as HTMLInputElement
-      input.value = ""
-    }
-    if (values.username && values.username !== user.value.username) {
-      console.log("username changed")
-      authClient.updateUser({
-        name: values.username,
-      })
-      const input = document.getElementById("username") as HTMLInputElement
-      input.value = ""
-    }
-  }
-})
+// const onSubmit = form.handleSubmit(async (values) => {
+//   if (user.value) {
+//     if (values.email && values.email !== user.value.email) {
+//       console.log("email changed")
+//       authClient.changeEmail({
+//         newEmail: values.email,
+//       })
+//       const input = document.getElementById("email") as HTMLInputElement
+//       input.value = ""
+//     }
+//     if (values.username && values.username !== user.value.username) {
+//       console.log("username changed")
+//       authClient.updateUser({
+//         name: values.username,
+//       })
+//       const input = document.getElementById("username") as HTMLInputElement
+//       input.value = ""
+//     }
+//   }
+// })
 
 // authClient.changePassword({
 //     newPassword: "newPassword123",
@@ -53,58 +53,78 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 <template>
   <div v-if="user">
-    emailVerified: {{ user.emailVerified }}
-    <Button v-if="user.emailVerified">
-      E-Mail Verifizieren
-    </Button>
-
-    <form
-      class="w-2/3 space-y-6"
-      @submit="onSubmit"
+    <Tabs
+      default-value="account"
+      class="w-[400px]"
     >
-      <FormField
-        v-slot="{ componentField }"
-        name="email"
-      >
-        <FormItem>
-          <FormLabel>E-mail</FormLabel>
-          <FormControl>
-            <Input
-              id="email"
-              v-bind="componentField"
-              type="email"
-              :placeholder="user.email"
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      </FormField>
-      <FormField
-        v-slot="{ componentField }"
-        name="username"
-      >
-        <FormItem>
-          <FormLabel>Username</FormLabel>
-          <FormControl>
-            <Input
-              id="username"
-              v-bind="componentField"
-              type="string"
-              :placeholder="user.username"
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      </FormField>
-      <Button
-        :loading="loading"
-        type="submit"
-      >
-        Submit
-      </Button>
-    </form>
-    <Button>
-      Passwort Ändern
-    </Button>
+      <TabsList class="grid w-full grid-cols-2">
+        <TabsTrigger value="account">
+          Account
+        </TabsTrigger>
+        <TabsTrigger value="password">
+          Password
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="account">
+        <Card>
+          <CardHeader>
+            <CardTitle>Account</CardTitle>
+            <CardDescription>
+              Ändere hier deine Account-Informationen. Klicke auf "Speichern", wenn du fertig bist.
+            </CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-2">
+            <div class="space-y-1">
+              <Label for="username">Benutzername</Label>
+              <Input
+                id="username"
+                :default-value="user.username"
+              />
+            </div>
+          </CardContent>
+          <CardContent class="space-y-2">
+            <div class="space-y-1">
+              <Label for="email">E-Mail</Label>
+              <Input
+                id="email"
+                :default-value="user.email"
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button>Speichern</Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+      <TabsContent value="password">
+        <Card>
+          <CardHeader>
+            <CardTitle>Passwort</CardTitle>
+            <CardDescription>
+              Ändere hier dein Passwort. Klicke auf "Speichern", wenn du fertig bist.
+            </CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-2">
+            <div class="space-y-1">
+              <Label for="current">Aktuelles Passwort</Label>
+              <Input
+                id="current"
+                type="password"
+              />
+            </div>
+            <div class="space-y-1">
+              <Label for="new">Neues Passwort</Label>
+              <Input
+                id="new"
+                type="password"
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button>Speichern</Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+    </Tabs>
   </div>
 </template>
