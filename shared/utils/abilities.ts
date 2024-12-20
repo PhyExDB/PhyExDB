@@ -10,20 +10,35 @@ import { UserRole } from "~~/shared/types/User.type"
 export function minRole(minRole: UserRole, user: UserDetail): boolean {
   return user.role >= minRole
 }
-
-export const editLegalDocumentAbillity = defineAbility((user: UserDetail) => {
-  return minRole(UserRole.Admin, user)
-})
+/**
+ * Checks if the given user has an admin role.
+ *
+ * @param user - The user details to check.
+ * @returns `true` if the user is an admin, otherwise `false`.
+ */
+export function isAdmin(user: UserDetail): boolean {
+  return user.role === UserRole.Admin
+}
+/**
+ * Checks if the user has at least a Moderator role.
+ *
+ * @param user - The details of the user to check.
+ * @returns `true` if the user's role is Moderator or higher, otherwise `false`.
+ */
+export function minModerator(user: UserDetail): boolean {
+  return user.role >= UserRole.Moderator
+}
 
 /**
- * Ability only signed in
+ * Defines the ability for a user to edit legal documents.
  */
-export const onlySignedInAbillity = defineAbility(_ => true)
+export const editLegalDocumentAbillity = defineAbility(isAdmin)
+
 /**
  * Ability to edit experiment
  */
 export const canEditExperiment = defineAbility((user: UserDetail, experiment: ExperimentList) => {
-  return minRole(UserRole.Moderator, user) || user.id === experiment.userId
+  return minModerator(user) || user.id === experiment.userId
 })
 /**
  * Ability to see experiment
@@ -31,5 +46,5 @@ export const canEditExperiment = defineAbility((user: UserDetail, experiment: Ex
 export const canSeeExperiment = defineAbility({ allowGuest: true }, (user: UserDetail, experiment: ExperimentList) => {
   return experiment.status === "Accepted"
     || user.id === experiment.userId
-    || (minModerator(user.role) && experiment.status === "Submitted")
+    || (minModerator(user) && experiment.status === "Submitted")
 })

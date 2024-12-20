@@ -2,6 +2,8 @@ import { validate as uuidValidate } from "uuid"
 import { legalDocumentUpdateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
+  await authorize(event, editLegalDocumentAbillity)
+
   const slugOrId = getRouterParam(event, "slug")
   if (!slugOrId) {
     throw createError({ status: 400, message: "Invalid slug" })
