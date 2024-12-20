@@ -2,8 +2,6 @@
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
 import { z } from "zod"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { emailSchema } from "~~/shared/types/User.type"
 import getInitials from "~~/shared/utils/initials"
 
@@ -13,6 +11,8 @@ definePageMeta({
 })
 
 const user = await useUser()
+
+const verifiedValue = user.value?.emailVerified ? "verifiziert" : "nicht verifiziert"
 
 const loading = ref(false)
 const knownMails: string[] = []
@@ -45,6 +45,13 @@ const onSubmit = form.handleSubmit(async (values) => {
   }
 })
 
+function sendVerificationEmail() {
+  authClient.sendVerificationEmail({
+    email: user.value!.email,
+    callbackURL: "/profile",
+  })
+}
+
 // authClient.changePassword({
 //     newPassword: "newPassword123",
 //     currentPassword: "oldPassword123",
@@ -54,126 +61,106 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 <template>
   <div v-if="user">
-    <Card class="max-w-sm w-full">
-      <CardContent class="grid gap-4">
-        <Avatar>
-          <AvatarFallback>{{ getInitials(user.username) }}</AvatarFallback>
-        </Avatar>
-        <p
-          order-1
-          md:order-1
-        >
-          {{ user.username }}
-        </p>
-        <p
-          order-2
-          md:order-3
-          color:muted
-        >
-          {{ user.email }}
-        </p>
-        <Dialog
-          order-3
-          md:order-2
-        >
-          <DialogTrigger as-child>
-            <Button variant="outline">
-              Edit Profile
-            </Button>
-          </DialogTrigger>
-          <DialogContent class="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Edit profile</DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click save when you're done.
-              </DialogDescription>
-            </DialogHeader>
-            fhgfhg
-            <DialogFooter>
-              <Button type="submit">
-                Save changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <Dialog
-          order-4
-          md:order-4
-        >
-          <DialogTrigger as-child>
-            <Button variant="outline">
-              Edit Profile
-            </Button>
-          </DialogTrigger>
-          <DialogContent class="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Edit profile</DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click save when you're done.
-              </DialogDescription>
-            </DialogHeader>
-            fhgfhg
-            <DialogFooter>
-              <Button type="submit">
-                Save changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <!-- emailVerified: {{ user.emailVerified }}
-        <Button v-if="user.emailVerified">
-          E-Mail Verifizieren
-        </Button>
-
-        <form
-          class="w-2/3 space-y-6"
-          @submit="onSubmit"
-        >
-          <FormField
-            v-slot="{ componentField }"
-            name="email"
-          >
-            <FormItem>
-              <FormLabel>E-mail</FormLabel>
-              <FormControl>
-                <Input
-                  id="email"
-                  v-bind="componentField"
-                  type="email"
-                  :placeholder="user.email"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-          <FormField
-            v-slot="{ componentField }"
-            name="username"
-          >
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input
-                  id="username"
-                  v-bind="componentField"
-                  type="string"
-                  :placeholder="user.username"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-          <Button
-            :loading="loading"
-            type="submit"
-          >
-            Submit
-          </Button>
-        </form>
-        <Button>
-          Passwort Ändern
-        </Button> -->
+    <Card>
+      <CardContent class="p-6">
+        <div class="flex items-center flex-col sm:flex-row">
+          <Avatar class="w-24 h-24 mb-4 sm:mb-0 sm:mr-4 mx-auto">
+            <AvatarFallback class="text-xl font-bold">
+              {{ getInitials(user.username) }}
+            </AvatarFallback>
+          </Avatar>
+          <div class="flex-1">
+            <div class="text-center sm:text-left">
+              <p class="font-medium">
+                {{ user.username }}
+              </p>
+              <div class="flex items-center justify-center sm:justify-start">
+                <p class="text-muted-foreground">
+                  {{ user.email }}
+                </p>
+                <HoverCard>
+                  <HoverCardTrigger as-child>
+                    <Icon
+                      v-if="user.emailVerified"
+                      size="1.2em"
+                      class="ml-2 text-success"
+                      name="heroicons:check-badge"
+                    />
+                    <Icon
+                      v-else
+                      size="1.2em"
+                      class="ml-2 text-destructive"
+                      name="heroicons:exclamation-circle"
+                    />
+                  </HoverCardTrigger>
+                  <HoverCardContent class="w-auto">
+                    <p class="text-sm text-muted-foreground px-1">
+                      E-Mail ist {{ verifiedValue }}
+                    </p>
+                    <Button
+                      v-if="!user.emailVerified"
+                      variant="outline"
+                      class="mt-3 w-full"
+                      @click="sendVerificationEmail"
+                    >
+                      E-Mail verifizieren
+                    </Button>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col mt-4 sm:mt-0">
+            <Dialog>
+              <DialogTrigger as-child>
+                <Button
+                  variant="outline"
+                  class="m-1 px-5 justify-center"
+                >
+                  Name oder E-Mail ändern
+                </Button>
+              </DialogTrigger>
+              <DialogContent class="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Edit profile</DialogTitle>
+                  <DialogDescription>
+                    Make changes to your profile here. Click save when you're done.
+                  </DialogDescription>
+                </DialogHeader>
+                <UserUpdateAccountForm />
+                <DialogFooter>
+                  <Button type="submit">
+                    Save changes
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Dialog>
+              <DialogTrigger as-child>
+                <Button
+                  variant="outline"
+                  class="m-1 px-5 justify-center"
+                >
+                  Passwort ändern
+                </Button>
+              </DialogTrigger>
+              <DialogContent class="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Edit profile</DialogTitle>
+                  <DialogDescription>
+                    Make changes to your profile here. Click save when you're done.
+                  </DialogDescription>
+                </DialogHeader>
+                fhgfhg
+                <DialogFooter>
+                  <Button type="submit">
+                    Save changes
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
       </CardContent>
     </Card>
   </div>
