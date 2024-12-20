@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z, type UnknownKeysParam } from "zod"
 import type { BaseList } from "./Base.type"
 
 /**
@@ -84,6 +84,10 @@ export const passwordSchema = {
       .regex(/[0-9]/, "Passwort muss mindestens eine Zahl enthalten"),
 }
 
+const confirmPasswordSchema = {
+  confirmPassword: z.string({ required_error: "Passwort muss wiederholt werden" }),
+}
+
 /**
  * Schema for user registration.
  * Combines the username, email, and password schemas into a single object schema.
@@ -99,26 +103,55 @@ export const userRegisterSchema = z.object({
  */
 const userRegisterSchemaWithRepeatPassword = z.object({
   ...userRegisterSchema.shape,
-  confirmPassword: z.string({ required_error: "Passwort muss wiederholt werden" }),
+  ...confirmPasswordSchema,
 })
+
+/**
+ * Validates that the password and confirmPassword fields match.
+ *
+ * Workaround, see https://github.com/colinhacks/zod/issues/479#issuecomment-2429834215
+ */
+const validatePasswordForSchema = <
+  T extends z.ZodObject<
+    { password: z.ZodString, confirmPassword: z.ZodString } & z.ZodRawShape,
+    UnknownKeysParam,
+    z.ZodTypeAny
+  >,
+>(
+  schema: T,
+) =>
+  z.preprocess((input, ctx) => {
+    // Assert that input is an object
+    if (typeof input !== "object" || input === null) {
+      return input // Let the schema handle non-object inputs
+    }
+
+    // Validate only the password and confirmPassword fields
+    const parsed = z
+      .object({
+        password: z.string(),
+        confirmPassword: z.string(),
+      })
+      .safeParse(input)
+
+    // Check if passwords match
+    if (parsed.success && parsed.data.password !== parsed.data.confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["confirmPassword"],
+        message: "Passwörter stimmen nicht überein",
+      })
+    }
+
+    // Return the input to allow further schema validation
+    return input
+  }, schema)
 
 /**
  * Schema for user registration with repeat password.
  * Also validates that the password and confirmPassword fields match.
- *
- * Workaround, see https://github.com/colinhacks/zod/issues/479#issuecomment-2429834215
  */
-export const userRegisterSchemaWithRepeatValidatePassword = z.preprocess((input, ctx) => {
-  const parsed = userRegisterSchemaWithRepeatPassword.pick({ password: true, confirmPassword: true }).safeParse(input)
-  if (parsed.success && parsed.data.password !== parsed.data.confirmPassword) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["confirmPassword"],
-      message: "Passwörter stimmen nicht überein",
-    })
-  }
-  return input
-}, userRegisterSchemaWithRepeatPassword)
+export const userRegisterSchemaWithRepeatValidatePassword = validatePasswordForSchema(userRegisterSchemaWithRepeatPassword)
 
 /**
  * Schema for user login.
@@ -140,3 +173,18 @@ export const userUpdateSchema = z.object({
   ...usernameSchema,
   ...emailSchema,
 })
+
+/**
+ * Schema for updating a user's password.
+ */
+const userUpdatePasswordSchema = z.object({
+  oldPassword: z.string({ required_error: "Altes Passwort muss angegeben werden" })
+    .nonempty("Altes Passwort muss angegeben werden"),
+  ...passwordSchema,
+  ...confirmPasswordSchema,
+})
+
+/**
+ * Validates that the password and confirmPassword fields match.
+ */
+export const userUpdatePasswordValidateSchema = validatePasswordForSchema(userUpdatePasswordSchema)
