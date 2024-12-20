@@ -63,14 +63,10 @@ const onSubmit = form.handleSubmit(async (values) => {
       newEmail: values.email,
       callbackURL: "/profile",
     })
-    if (error) {
+    if (error?.code === "COULDNT_UPDATE_YOUR_EMAIL") {
       hasError = true
-      if (error.code === "COULDNT_UPDATE_YOUR_EMAIL") {
-        knownMails.push(values.email)
-        form.validate()
-      } else {
-        console.log(error)
-      }
+      knownMails.push(values.email)
+      form.validate()
     }
   }
 
