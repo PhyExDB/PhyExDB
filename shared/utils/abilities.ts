@@ -1,18 +1,20 @@
+import { UserRole } from "~~/shared/types/User.type"
 // https://github.com/Barbapapazes/nuxt-authorization
 
 /**
- * Test ability to try it out
+ * Checks if a given role is at least a moderator.
+ *
+ * @param role the role to check
+ * @returns true if the role is Moderator or Administrator, false otherwise
  */
-export const forbiddenAbillity = defineAbility(_ => false)
-/**
- * Test ability to try it out
- */
-export const allowedAbillity = defineAbility({ allowGuest: true }, _ => true)
+export function minRole(minRole: UserRole, user: UserDetail): boolean {
+  return user.role >= minRole
+}
 
-/**
- * Ability only by admin
- */
-export const onlyAdminAbillity = defineAbility((user: UserDetail) => user.role === "ADMIN")
+export const editLegalDocumentAbillity = defineAbility((user: UserDetail) => {
+  return minRole(UserRole.Admin, user)
+})
+
 /**
  * Ability only signed in
  */
@@ -21,7 +23,7 @@ export const onlySignedInAbillity = defineAbility(_ => true)
  * Ability to edit experiment
  */
 export const canEditExperiment = defineAbility((user: UserDetail, experiment: ExperimentList) => {
-  return user.role === "ADMIN" || user.id === experiment.userId
+  return minRole(UserRole.Moderator, user) || user.id === experiment.userId
 })
 /**
  * Ability to see experiment
