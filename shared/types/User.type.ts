@@ -44,18 +44,18 @@ export interface UserDetail extends UserList {
  */
 export const usernameSchema = {
   username:
-    z.string({ required_error: "Username muss angegeben werden" })
+    z.string({ required_error: "Nutzername muss angegeben werden" })
       .trim()
-      .nonempty("Username muss angegeben werden")
+      .nonempty("Nutzername muss angegeben werden")
       .refine(
         value =>
           z.string().email().safeParse(value).success === false,
-        { message: "Username darf keine E-Mail-Adresse sein" },
+        { message: "Nutzername darf keine E-Mail-Adresse sein" },
       )
       .refine(
         value =>
           z.string().uuid().safeParse(value).success === false,
-        { message: "Invalider username" },
+        { message: "Invalider Nutzername" },
       ),
 }
 

@@ -2,6 +2,7 @@
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
 import { z } from "zod"
+import { authClient } from "../utils/authClient"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -89,7 +90,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           name="username"
         >
           <FormItem>
-            <FormLabel>Username</FormLabel>
+            <FormLabel>Nutzername</FormLabel>
             <FormControl>
               <Input
                 id="username"
@@ -136,7 +137,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           :loading="loading"
           type="submit"
         >
-          Submit
+          Registrieren
         </Button>
       </form>
       <div class="text-center text-sm">

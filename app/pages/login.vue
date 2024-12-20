@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
+import { authClient } from "../utils/authClient"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -96,13 +97,13 @@ const onSubmit = form.handleSubmit(async (values) => {
           loading="{loading}"
           type="submit"
         >
-          Submit
+          Anmelden
         </Button>
       </form>
       <div class="text-center text-sm">
         Noch kein Account?
         <NuxtLink
-          href="/sign-up"
+          href="/register"
           class="underline"
         >
           Registrieren
