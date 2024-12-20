@@ -11,10 +11,17 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }, _) => {
+      authLogger.alert("signupEmail", { user, url, token })
+    },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+  },
   user: {
     changeEmail: {
       enabled: true,
-      sendChangeEmailVerification: async ({ user, newEmail, url, token }, request) => {
+      sendChangeEmailVerification: async ({ user, newEmail, url, token }, _) => {
         authLogger.alert("changeEmail", { user, newEmail, url, token })
       },
     },
