@@ -43,8 +43,8 @@ const sendVerificationEmail = async () => {
                 <p class="text-muted-foreground">
                   {{ user.email }}
                 </p>
-                <HoverCard>
-                  <HoverCardTrigger as-child>
+                <Popover>
+                  <PopoverTrigger as-child>
                     <Icon
                       v-if="user.emailVerified"
                       size="1.2em"
@@ -57,8 +57,8 @@ const sendVerificationEmail = async () => {
                       class="ml-2 text-destructive"
                       name="heroicons:exclamation-circle"
                     />
-                  </HoverCardTrigger>
-                  <HoverCardContent class="w-auto">
+                  </PopoverTrigger>
+                  <PopoverContent class="w-auto">
                     <p class="text-sm text-muted-foreground px-1">
                       E-Mail ist {{ verifiedValue }}
                     </p>
@@ -70,8 +70,8 @@ const sendVerificationEmail = async () => {
                     >
                       E-Mail verifizieren
                     </Button>
-                  </HoverCardContent>
-                </HoverCard>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>
