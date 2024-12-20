@@ -162,6 +162,9 @@ model Comment {
   text      String
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  parent    Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: SetNull)
+  parentId  String?
+  children  Comment[]   @relation("CommentToComment")
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 }
