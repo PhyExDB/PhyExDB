@@ -15,7 +15,7 @@ const user = await useUser()
     </DropdownMenuTrigger>
     <DropdownMenuContent>
       <DropdownMenuItem>
-        <NuxtLink href="/user">
+        <NuxtLink href="/profile">
           <span>Profil</span>
         </NuxtLink>
       </DropdownMenuItem>
