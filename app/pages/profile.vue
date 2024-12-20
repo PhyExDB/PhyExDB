@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
-import { z } from "zod"
-import { emailSchema } from "~~/shared/types/User.type"
 import getInitials from "~~/shared/utils/initials"
 
 definePageMeta({
@@ -13,50 +9,6 @@ definePageMeta({
 const user = await useUser()
 
 const verifiedValue = user.value?.emailVerified ? "verifiziert" : "nicht verifiziert"
-
-const loading = ref(false)
-const knownMails: string[] = []
-
-const schema = z.object({
-  ...emailSchema,
-  ...usernameSchema,
-}).partial()
-
-const form = useForm({ validationSchema: toTypedSchema(schema) })
-
-const onSubmit = form.handleSubmit(async (values) => {
-  if (user.value) {
-    if (values.email && values.email !== user.value.email) {
-      console.log("email changed")
-      authClient.changeEmail({
-        newEmail: values.email,
-      })
-      const input = document.getElementById("email") as HTMLInputElement
-      input.value = ""
-    }
-    if (values.username && values.username !== user.value.username) {
-      console.log("username changed")
-      authClient.updateUser({
-        name: values.username,
-      })
-      const input = document.getElementById("username") as HTMLInputElement
-      input.value = ""
-    }
-  }
-})
-
-function sendVerificationEmail() {
-  authClient.sendVerificationEmail({
-    email: user.value!.email,
-    callbackURL: "/profile",
-  })
-}
-
-// authClient.changePassword({
-//     newPassword: "newPassword123",
-//     currentPassword: "oldPassword123",
-//     revokeOtherSessions: true, // revoke all other sessions the user is signed into
-// });
 </script>
 
 <template>
