@@ -8,7 +8,20 @@ definePageMeta({
 
 const user = await useUser()
 
-const verifiedValue = user.value?.emailVerified ? "verifiziert" : "nicht verifiziert"
+if (!user.value) {
+  await navigateTo("/")
+}
+
+const verifiedValue = user.value?.emailVerified
+  ? "verifiziert"
+  : "nicht verifiziert"
+
+const sendVerificationEmail = async () => {
+  await authClient.sendVerificationEmail({
+    email: user.value!.email,
+    callbackURL: "/profile",
+  })
+}
 </script>
 
 <template>
