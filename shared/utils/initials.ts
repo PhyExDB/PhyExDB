@@ -10,6 +10,6 @@ export default function getInitials(username: string): string {
     return nameParts[0]!.slice(0, 2).toUpperCase()
   } else {
     // If there are multiple parts, return the first letter of each part, uppercased
-    return nameParts.map(part => part[0]!.toUpperCase()).join("")
+    return nameParts.slice(0, 3).map(part => part[0]!.toUpperCase()).join("")
   }
 }
