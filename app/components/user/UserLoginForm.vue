@@ -23,7 +23,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       console.log(error)
     }
   } else {
-    await navigateTo("/user")
+    await navigateTo("/profile")
   }
   loading.value = false
 })
