@@ -6,6 +6,7 @@ definePageMeta({
   description: "Change your information",
 })
 
+const emailVerifiedPopoverOpen = ref(false)
 const user = await useUser()
 
 if (!user.value) {
@@ -21,6 +22,7 @@ const sendVerificationEmail = async () => {
     email: user.value!.email,
     callbackURL: "/profile",
   })
+  emailVerifiedPopoverOpen.value = false
 }
 </script>
 
@@ -51,7 +53,10 @@ const sendVerificationEmail = async () => {
                 <p class="text-muted-foreground">
                   {{ user.email }}
                 </p>
-                <Popover>
+                <Popover
+                  :open="emailVerifiedPopoverOpen"
+                  @update:open="emailVerifiedPopoverOpen = $event"
+                >
                   <PopoverTrigger as-child>
                     <Icon
                       v-if="user.emailVerified"
