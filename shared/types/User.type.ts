@@ -137,5 +137,6 @@ export const userLoginSchema = z.object({
  * Combines the username and email schemas into a single object schema.
  */
 export const userUpdateSchema = z.object({
+  ...usernameSchema,
   ...emailSchema,
 })

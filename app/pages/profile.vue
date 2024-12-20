@@ -111,30 +111,14 @@ function sendVerificationEmail() {
             </div>
           </div>
           <div class="flex flex-col mt-4 sm:mt-0">
-            <Dialog>
-              <DialogTrigger as-child>
-                <Button
-                  variant="outline"
-                  class="m-1 px-5 justify-center"
-                >
-                  Name oder E-Mail ändern
-                </Button>
-              </DialogTrigger>
-              <DialogContent class="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Edit profile</DialogTitle>
-                  <DialogDescription>
-                    Make changes to your profile here. Click save when you're done.
-                  </DialogDescription>
-                </DialogHeader>
-                <UserUpdateAccountForm :user="user" />
-                <DialogFooter>
-                  <Button type="submit">
-                    Save changes
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <UserUpdateAccountDialog :user="user">
+              <Button
+                variant="outline"
+                class="m-1 px-5 justify-center"
+              >
+                Name oder E-Mail ändern
+              </Button>
+            </UserUpdateAccountDialog>
             <Dialog>
               <DialogTrigger as-child>
                 <Button
