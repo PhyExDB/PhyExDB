@@ -83,7 +83,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     <DialogTrigger as-child>
       <slot />
     </DialogTrigger>
-    <DialogContent class="sm:max-w-[425px]">
+    <DialogContent class="max-w-[425px]">
       <DialogHeader>
         <DialogTitle>Nutzername oder E-Mail ändern</DialogTitle>
         <DialogDescription>
@@ -126,6 +126,20 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormMessage />
           </FormItem>
         </FormField>
+        <Alert v-if="user.emailVerified">
+          <div class="flex items-start">
+            <Icon
+              name="heroicons:information-circle"
+              class="w-4 h-4 mr-2 shrink-0"
+            />
+            <div>
+              <AlertTitle>E-Mail Änderung</AlertTitle>
+              <AlertDescription>
+                Die Änderung der E-Mail Adresse muss zunächst über die bisherige E-Mail Adresse bestätigt werden, bevor sie wirksam wird.
+              </AlertDescription>
+            </div>
+          </div>
+        </Alert>
       </form>
       <DialogFooter>
         <Button
