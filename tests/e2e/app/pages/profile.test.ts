@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 
 test.describe("Profile Page", () => {
   test("should show verified badge when email is verified", async ({ page }) => {
-    await page.goto("http://localhost:3000/login", { waitUntil: "networkidle" })
+    await page.goto("/login", { waitUntil: "networkidle" })
     await page.locator("#email").click()
     await page.locator("#email").fill("user@test.test")
     await page.locator("#email").press("Tab")
@@ -27,7 +27,7 @@ test.describe("Profile Page", () => {
   })
 
   test("should show unverified badge when email is not verified", async ({ page }) => {
-    await page.goto("http://localhost:3000/login", { waitUntil: "networkidle" })
+    await page.goto("/login", { waitUntil: "networkidle" })
     await page.locator("#email").click()
     await page.locator("#email").fill("unverified@test.test")
     await page.locator("#email").press("Tab")
@@ -52,7 +52,7 @@ test.describe("Profile Page", () => {
   })
 
   test("change name and email flow should work", async ({ page }) => {
-    await page.goto("http://localhost:3000/register", { waitUntil: "networkidle" })
+    await page.goto("/register", { waitUntil: "networkidle" })
 
     const id = uuidv4()
     const username = `changeme-${id}`
@@ -74,7 +74,7 @@ test.describe("Profile Page", () => {
       - button "Name oder E-Mail ändern"
       - button "Passwort ändern"
       `)
-    await page.goto("http://localhost:3000/profile", { waitUntil: "networkidle" })
+    await page.goto("/profile", { waitUntil: "networkidle" })
     await page.getByRole("button", { name: "Name oder E-Mail ändern" }).click()
     await expect(page.getByLabel("Nutzername oder E-Mail ändern")).toMatchAriaSnapshot(`
       - dialog "Nutzername oder E-Mail ändern":
@@ -132,7 +132,7 @@ test.describe("Profile Page", () => {
   })
 
   test("change password flow should work", async ({ page }) => {
-    await page.goto("http://localhost:3000/register", { waitUntil: "networkidle" })
+    await page.goto("/register", { waitUntil: "networkidle" })
 
     const id = uuidv4()
     const username = `changeme-${id}`
@@ -154,7 +154,7 @@ test.describe("Profile Page", () => {
       - button "Name oder E-Mail ändern"
       - button "Passwort ändern"
       `)
-    await page.goto("http://localhost:3000/profile", { waitUntil: "networkidle" })
+    await page.goto("/profile", { waitUntil: "networkidle" })
     await page.getByRole("button", { name: "Passwort ändern" }).click()
     await expect(page.getByLabel("Passwort ändern")).toMatchAriaSnapshot(`
       - dialog "Passwort ändern":
