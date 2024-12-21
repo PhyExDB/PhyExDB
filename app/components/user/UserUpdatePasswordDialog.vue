@@ -21,7 +21,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
   if (error?.code === "INVALID_PASSWORD") {
     hasError = true
-    form.setFieldError("oldPassword", "Das Passwort ist falsch.")
+    form.setFieldError("oldPassword", "Das Passwort ist falsch")
   }
 
   open.value = hasError
