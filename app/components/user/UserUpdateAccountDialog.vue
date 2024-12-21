@@ -52,11 +52,13 @@ const onSubmit = form.handleSubmit(async (values) => {
   loading.value = true
   let hasError = false
 
-  if (values.username !== user.username) {
-    await authClient.updateUser({
-      name: values.username,
-    })
-  }
+  // Do not put this in an if and only update when changed
+  // because then the email update is not displayed when the
+  // email is changed directly because the current email was
+  // not verified.
+  await authClient.updateUser({
+    name: values.username,
+  })
 
   if (values.email !== user.email) {
     const { error } = await authClient.changeEmail({
