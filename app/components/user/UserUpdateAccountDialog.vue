@@ -136,7 +136,9 @@ const onSubmit = form.handleSubmit(async (values) => {
             <div>
               <AlertTitle>E-Mail Änderung</AlertTitle>
               <AlertDescription>
-                Die Änderung der E-Mail Adresse muss zunächst über die bisherige E-Mail Adresse bestätigt werden, bevor sie wirksam wird.
+                Die Änderung der E-Mail Adresse muss zunächst
+                über die bisherige E-Mail Adresse bestätigt werden,
+                bevor sie wirksam wird.
               </AlertDescription>
             </div>
           </div>
