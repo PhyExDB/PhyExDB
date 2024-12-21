@@ -32,7 +32,6 @@ const form = useForm({ validationSchema: formSchema, initialValues: user })
  */
 const openForm = (event: boolean) => {
   open.value = event
-  console.log("open", event)
   if (event) {
     form.resetForm()
   }

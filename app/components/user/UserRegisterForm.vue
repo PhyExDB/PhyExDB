@@ -27,15 +27,11 @@ const onSubmit = form.handleSubmit(async (values) => {
     password: values.password,
   }
 
-  console.log("signup: ", values)
-
   const { error } = await authClient.signUp.email(data)
   if (error) {
     if (error.code === "USER_ALREADY_EXISTS") {
       knownMails.push(values.email)
       form.validate()
-    } else {
-      console.log(error)
     }
   } else {
     await navigateTo("/profile")

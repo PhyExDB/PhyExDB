@@ -12,15 +12,11 @@ const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
 
-  console.log("signin: ", values)
-
   const { error } = await authClient.signIn.email(values)
   if (error) {
     if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
       lastWrong.value = true
       form.validate()
-    } else {
-      console.log(error)
     }
   } else {
     await navigateTo("/profile")
