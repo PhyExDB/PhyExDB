@@ -1,15 +1,15 @@
-import { test, expect } from "@nuxt/test-utils/playwright"
+import { test, expect } from "@playwright/test"
 import { validateFooter } from "~~/tests/helpers/validateFooter"
 
 test.describe("Login Page", () => {
-  test("should have link to register page", async ({ page, goto }) => {
-    await goto("/login", { waitUntil: "hydration" })
+  test("should have link to register page", async ({ page }) => {
+    await page.goto("/login", { waitUntil: "networkidle" })
     await expect(page.getByRole("main")).toContainText("Registrieren")
     await expect(page.getByRole("link", { name: "Registrieren" })).toHaveAttribute("href", "/register")
   })
 
-  test("should validate email", async ({ page, goto }) => {
-    await goto("/login", { waitUntil: "hydration" })
+  test("should validate email", async ({ page }) => {
+    await page.goto("/login", { waitUntil: "networkidle" })
     await page.locator("#email").click()
     await page.locator("#email").fill("hallo")
     await expect(page.locator("form")).toMatchAriaSnapshot(`
@@ -25,8 +25,8 @@ test.describe("Login Page", () => {
       `)
   })
 
-  test("should display errors and work correctly", async ({ page, goto }) => {
-    await goto("/login", { waitUntil: "hydration" })
+  test("should display errors and work correctly", async ({ page }) => {
+    await page.goto("/login", { waitUntil: "networkidle" })
     await validateFooter(page)
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - main:
@@ -74,7 +74,7 @@ test.describe("Login Page", () => {
     await page.getByRole("button", { name: "Anmelden" }).click()
     await expect(page).toHaveURL("/profile")
 
-    await goto("/login", { waitUntil: "hydration" })
+    await page.goto("/login", { waitUntil: "commit" })
     await expect(page).toHaveURL("/profile")
   })
 })

@@ -1,15 +1,15 @@
-import { test, expect } from "@nuxt/test-utils/playwright"
+import { test, expect } from "@playwright/test"
 import { v4 as uuidv4 } from "uuid"
 
 test.describe("Register Page", () => {
-  test("should have link to login page", async ({ page, goto }) => {
-    await goto("/register", { waitUntil: "hydration" })
+  test("should have link to login page", async ({ page }) => {
+    await page.goto("/register", { waitUntil: "networkidle" })
     await expect(page.getByRole("main")).toContainText("Anmelden")
     await expect(page.getByRole("link", { name: "Anmelden" })).toHaveAttribute("href", "/login")
   })
 
-  test("should validate email", async ({ page, goto }) => {
-    await goto("/register", { waitUntil: "hydration" })
+  test("should validate email", async ({ page }) => {
+    await page.goto("/register", { waitUntil: "networkidle" })
     await page.locator("#email").click()
     await page.locator("#email").fill("hallo")
     await expect(page.locator("form")).toMatchAriaSnapshot(`
@@ -25,8 +25,8 @@ test.describe("Register Page", () => {
       `)
   })
 
-  test("should validate password", async ({ page, goto }) => {
-    await goto("/register", { waitUntil: "hydration" })
+  test("should validate password", async ({ page }) => {
+    await page.goto("/register", { waitUntil: "networkidle" })
     await page.locator("#password").fill("pass")
     await expect(page.locator("form")).toMatchAriaSnapshot(`
       - text: Passwort
@@ -69,8 +69,8 @@ test.describe("Register Page", () => {
       `)
   })
 
-  test("should display errors and work correctly", async ({ page, goto }) => {
-    await goto("/register", { waitUntil: "hydration" })
+  test("should display errors and work correctly", async ({ page }) => {
+    await page.goto("/register", { waitUntil: "networkidle" })
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - main:
         - heading "Registrieren" [level=3]
@@ -138,7 +138,7 @@ test.describe("Register Page", () => {
     await page.getByRole("button", { name: "Registrieren" }).click()
     await expect(page).toHaveURL("/profile")
 
-    await goto("/register", { waitUntil: "hydration" })
+    await page.goto("/register", { waitUntil: "commit" })
     await expect(page).toHaveURL("/profile")
   })
 })
