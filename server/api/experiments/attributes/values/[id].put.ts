@@ -58,7 +58,7 @@ defineRouteMeta({
         },
       },
       400: {
-        description: "Invalid body",
+        description: "Invalid id",
       },
       404: {
         description: "Value not found",

@@ -26,7 +26,7 @@ export interface ExperimentAttributeDetail extends ExperimentAttributeList {
   /**
    * The values of the attribute
    */
-  valueList: ExperimentAttributeValueList[]
+  values: ExperimentAttributeValueList[]
 }
 
 /**
