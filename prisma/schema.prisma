@@ -21,6 +21,7 @@ model User {
   image         String?
   sessions      Session[]
   accounts      Account[]
+  comments      Comment[]
 
   @@unique([email])
   @@map("user")
@@ -49,6 +50,7 @@ model Experiment {
   duration   Int
   sections   ExperimentSectionContent[]
   attributes ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
+  comments   Comment[]
   createdAt  DateTime                   @default(now())
   updatedAt  DateTime                   @updatedAt
 }
@@ -114,12 +116,12 @@ model Session {
   id        String   @id
   expiresAt DateTime
   token     String
-  createdAt DateTime
-  updatedAt DateTime
   ipAddress String?
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime
+  updatedAt DateTime
 
   @@unique([token])
   @@map("session")
@@ -153,4 +155,18 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Comment {
+  id            String        @id
+  text          String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  experiment    Experiment?   @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+  experimentId  String?
+  parent        Comment?      @relation("CommentToComment", fields: [parentId], references: [id], onDelete: SetNull)
+  parentId      String?
+  children      Comment[]     @relation("CommentToComment")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
