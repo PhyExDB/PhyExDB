@@ -7,20 +7,18 @@ const user = await useUser()
 <template>
   <DropdownMenu v-if="user">
     <DropdownMenuTrigger>
-      <NuxtLink href="/user">
-        <Avatar>
-          <AvatarFallback>{{ getInitials(user.username) }}</AvatarFallback>
-        </Avatar>
-      </NuxtLink>
+      <Avatar>
+        <AvatarFallback>{{ getInitials(user.username) }}</AvatarFallback>
+      </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
       <DropdownMenuItem>
-        <NuxtLink href="/user">
+        <NuxtLink href="/profile">
           <span>Profil</span>
         </NuxtLink>
       </DropdownMenuItem>
       <DropdownMenuItem @click="authClient.signOut()">
-        <span>Ausloggen</span>
+        <span>Abmelden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
@@ -28,7 +26,7 @@ const user = await useUser()
     <NuxtLink
       href="/login"
     >
-      Einloggen
+      Anmelden
     </NuxtLink>
   </Button>
 </template>

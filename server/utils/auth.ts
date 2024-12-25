@@ -11,7 +11,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }, _) => {
+      const devUrl = url.replace("http://localhost", "http://localhost:3000")
+      authLogger.alert("signupEmail", { user, devUrl, token })
+    },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+  },
   user: {
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailVerification: async ({ user, newEmail, url, token }, _) => {
+        const devUrl = url.replace("http://localhost", "http://localhost:3000")
+        authLogger.alert("changeEmail", { user, newEmail, devUrl, token })
+      },
+    },
     additionalFields: {
       role: {
         type: "string",
