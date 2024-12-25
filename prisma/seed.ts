@@ -139,6 +139,11 @@ async function experimentMigrations() {
       name: "Einführung des Fahrraddynamos",
       slug: "einfuehrung-des-fahrraddynamos",
       duration: 20,
+      user: {
+        connect: {
+          id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
+        },
+      },
       sections: {
         createMany: {
           data: [
@@ -207,6 +212,11 @@ async function experimentMigrations() {
       name: "Öffnen des Fahrraddynamos",
       slug: "oeffnen-des-fahrraddynamos",
       duration: 20,
+      user: {
+        connect: {
+          id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
+        },
+      },
       sections: {
         createMany: {
           data: [
@@ -275,6 +285,11 @@ async function experimentMigrations() {
       name: "Weinglasschwingung",
       slug: "weinglasschwingung",
       duration: 20,
+      user: {
+        connect: {
+          id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
+        },
+      },
       sections: {
         createMany: {
           data: [
@@ -343,6 +358,11 @@ async function experimentMigrations() {
       name: "Versuch von Boyle-Mariotte",
       slug: "versuch-von-boyle-mariotte",
       duration: 20,
+      user: {
+        connect: {
+          id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
+        },
+      },
       sections: {
         createMany: {
           data: [

@@ -3,7 +3,7 @@ import { z } from "zod"
 import { canCreateExperiment } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
-  const user = await useUser(event)
+  const user = await getUser(event)
   await authorize(event, canCreateExperiment)
   if (user == null) {
     throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
