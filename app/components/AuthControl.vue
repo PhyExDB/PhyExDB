@@ -1,25 +1,32 @@
 <script lang="ts" setup>
+import getInitials from "~~/shared/utils/initials"
+
 const user = await useUser()
 </script>
 
 <template>
   <DropdownMenu v-if="user">
-    <DropdownMenuTrigger>{{ user.username }}</DropdownMenuTrigger>
+    <DropdownMenuTrigger>
+      <Avatar>
+        <AvatarFallback>{{ getInitials(user.username) }}</AvatarFallback>
+      </Avatar>
+    </DropdownMenuTrigger>
     <DropdownMenuContent>
       <DropdownMenuItem>
-        <NuxtLink href="/user">
+        <NuxtLink href="/profile">
           <span>Profil</span>
         </NuxtLink>
       </DropdownMenuItem>
       <DropdownMenuItem @click="authClient.signOut()">
-        <span>Ausloggen</span>
+        <span>Abmelden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-  <NuxtLink
-    v-if="!user"
-    href="/login"
-  >
-    Einloggen
-  </NuxtLink>
+  <Button v-if="!user">
+    <NuxtLink
+      href="/login"
+    >
+      Anmelden
+    </NuxtLink>
+  </Button>
 </template>

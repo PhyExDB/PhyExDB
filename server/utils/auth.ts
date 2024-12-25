@@ -11,7 +11,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }, _) => {
+      const devUrl = url.replace("http://localhost", "http://localhost:3000")
+      authLogger.alert("signupEmail", { user, devUrl, token })
+    },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+  },
   user: {
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailVerification: async ({ user, newEmail, url, token }, _) => {
+        const devUrl = url.replace("http://localhost", "http://localhost:3000")
+        authLogger.alert("changeEmail", { user, newEmail, devUrl, token })
+      },
+    },
     additionalFields: {
       role: {
         type: "string",
@@ -24,11 +39,22 @@ export const auth = betterAuth({
 })
 
 /**
- * useUserDetail()
+ * getUserDetail()
  */
-export async function useUser(event: H3Event<EventHandlerRequest>) {
+export async function getUser(event: H3Event<EventHandlerRequest>): Promise<UserDetail | null> {
   const session = await auth.api.getSession({
     headers: event.headers,
   })
   return sessionToUserDetail(session)
+}
+
+/**
+ * getUserDetailOrThrowError()
+ */
+export async function getUserOrThrowError(event: H3Event<EventHandlerRequest>): Promise<UserDetail> {
+  const user = await getUser(event)
+  if (!user) {
+    throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+  }
+  return user
 }

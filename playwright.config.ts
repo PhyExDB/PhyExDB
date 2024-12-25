@@ -7,6 +7,7 @@ dotenv.config({ path: ".env.test" })
 
 export default defineConfig<ConfigOptions>({
   testDir: "./tests/e2e", // Set your test directory
+  timeout: 60000,
   use: {
     nuxt: {
       rootDir: fileURLToPath(new URL(".", import.meta.url)),

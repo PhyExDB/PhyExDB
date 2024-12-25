@@ -1,42 +1,10 @@
 <script setup lang="ts">
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { userLoginSchema } from "~~/shared/types/User.type"
 
 definePageMeta({
   title: "Login",
   description: "Login to your account",
   layout: "auth",
-})
-
-const loading = ref(false)
-
-const formSchema = toTypedSchema(userLoginSchema)
-const form = useForm({ validationSchema: formSchema })
-
-const onSubmit = form.handleSubmit(async (values) => {
-  if (loading.value) return
-  loading.value = true
-
-  console.log("signin: ", values)
-
-  const { error } = await authClient.signIn.email(values)
-  if (error) {
-    console.log(error)
-    // toast.add({
-    //   title: error.message,
-    //   color: 'red',
-    // })
-  } else {
-    await navigateTo("/user")
-    // toast.add({
-    //   title: `You have been signed in!`,
-    // })
-  }
-  loading.value = false
 })
 </script>
 
@@ -51,61 +19,11 @@ const onSubmit = form.handleSubmit(async (values) => {
       </CardDescription>
     </CardHeader>
     <CardContent class="grid gap-4">
-      <form
-        class="w-2/3 space-y-6"
-        @submit="onSubmit"
-      >
-        <FormField
-          v-slot="{ componentField }"
-          name="email"
-        >
-          <FormItem>
-            <FormLabel>E-mail</FormLabel>
-            <FormControl>
-              <Input
-                id="email"
-                v-bind="componentField"
-                type="email"
-                required
-              />
-            </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
-            <FormMessage />
-          </FormItem>
-        </FormField>
-        <FormField
-          v-slot="{ componentField }"
-          name="password"
-        >
-          <FormItem>
-            <FormLabel>Passwort</FormLabel>
-            <FormControl>
-              <Input
-                id="password"
-                v-bind="componentField"
-                type="password"
-                required
-              />
-            </FormControl>
-            <!-- <FormDescription>
-              This is your public display name.
-            </FormDescription> -->
-            <FormMessage />
-          </FormItem>
-        </FormField>
-        <Button
-          loading="{loading}"
-          type="submit"
-        >
-          Submit
-        </Button>
-      </form>
+      <UserLoginForm />
       <div class="text-center text-sm">
         Noch kein Account?
         <NuxtLink
-          href="/sign-up"
+          href="/register"
           class="underline"
         >
           Registrieren
