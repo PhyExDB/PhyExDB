@@ -17,7 +17,7 @@
     "test:unit": "prisma generate && vitest run ./tests/unit",
     "test:unit:coverage": "prisma generate && vitest run --coverage ./tests/unit",
     "test:integration": "prisma generate && dotenv -e .env.test vitest run ./tests/integration",
-    "test:e2e": "prisma generate && playwright test",
+    "test:e2e": "playwright test",
     "migrate": "dotenv -e .env.development prisma migrate dev",
     "migrate:seed": "dotenv -e .env.development prisma db seed"
   },
