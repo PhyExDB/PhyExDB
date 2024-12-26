@@ -240,7 +240,7 @@ test.describe("Profile Page", () => {
   })
 
   test("dialogs should be closable", async ({ page }) => {
-    await page.goto("http://localhost:3000/login")
+    await page.goto("http://localhost:3000/login", { waitUntil: "networkidle" })
     await page.locator("#email").click()
     await page.locator("#email").fill("user@test.test")
     await page.locator("#email").press("Tab")
