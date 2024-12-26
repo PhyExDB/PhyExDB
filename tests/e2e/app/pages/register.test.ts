@@ -12,6 +12,7 @@ test.describe("Register Page", () => {
     await page.goto("/register", { waitUntil: "networkidle" })
     await page.locator("#email").click()
     await page.locator("#email").fill("hallo")
+    await page.getByRole("button", { name: "Registrieren" }).click()
     await expect(page.locator("form")).toMatchAriaSnapshot(`
       - text: E-Mail
       - textbox: hallo
@@ -19,6 +20,7 @@ test.describe("Register Page", () => {
       `)
     await page.locator("#email").click()
     await page.locator("#email").fill("hallo@test.test")
+    await page.getByRole("button", { name: "Registrieren" }).click()
     await expect(page.locator("form")).toMatchAriaSnapshot(`
       - text: E-Mail
       - textbox: hallo@test.test
@@ -56,6 +58,7 @@ test.describe("Register Page", () => {
       `)
     await page.locator("#confirmPassword").click()
     await page.locator("#confirmPassword").fill("password")
+    await page.getByRole("button", { name: "Registrieren" }).click()
     await expect(page.locator("form")).toMatchAriaSnapshot(`
       - text: Passwort wiederholen
       - textbox: password

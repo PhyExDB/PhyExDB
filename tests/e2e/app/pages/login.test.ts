@@ -12,6 +12,7 @@ test.describe("Login Page", () => {
     await page.goto("/login", { waitUntil: "networkidle" })
     await page.locator("#email").click()
     await page.locator("#email").fill("hallo")
+    await page.getByRole("button", { name: "Anmelden" }).click()
     await expect(page.locator("form")).toMatchAriaSnapshot(`
       - text: E-Mail
       - textbox: hallo
@@ -19,6 +20,7 @@ test.describe("Login Page", () => {
       `)
     await page.locator("#email").click()
     await page.locator("#email").fill("hallo@test.test")
+    await page.getByRole("button", { name: "Anmelden" }).click()
     await expect(page.locator("form")).toMatchAriaSnapshot(`
       - text: E-Mail
       - textbox: hallo@test.test

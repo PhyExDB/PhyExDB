@@ -87,10 +87,11 @@ test.describe("Profile Page", () => {
         - button "Close":
           - img
       `)
-    await page.locator("#username").dblclick()
+    await page.locator("#username").click()
     await page.locator("#username").fill("")
-    await page.locator("#email").dblclick()
+    await page.locator("#email").click()
     await page.locator("#email").fill("")
+    await page.getByRole("button", { name: "Speichern" }).click()
     await expect(page.getByLabel("Nutzername oder E-Mail ändern")).toMatchAriaSnapshot(`
       - dialog "Nutzername oder E-Mail ändern":
         - heading "Nutzername oder E-Mail ändern" [level=2]
@@ -109,6 +110,7 @@ test.describe("Profile Page", () => {
     await page.locator("#username").fill(username2)
     await page.locator("#username").press("Tab")
     await page.locator("#email").fill(username2)
+    await page.getByRole("button", { name: "Speichern" }).click()
     await expect(page.getByLabel("Nutzername oder E-Mail ändern")).toMatchAriaSnapshot(`
       - dialog "Nutzername oder E-Mail ändern":
         - heading "Nutzername oder E-Mail ändern" [level=2]
@@ -204,7 +206,6 @@ test.describe("Profile Page", () => {
       - alert: Passwort muss mindestens einen Grossbuchstaben enthalten
       `)
     await page.locator("#password").click()
-    await page.locator("#password").press("ControlOrMeta+ArrowLeft")
     await page.locator("#password").fill("Password")
     await expect(page.locator("form")).toMatchAriaSnapshot(`
       - text: Neues Passwort
@@ -219,6 +220,7 @@ test.describe("Profile Page", () => {
       `)
     await page.locator("#confirmPassword").click()
     await page.locator("#confirmPassword").fill("2Pass")
+    await page.getByRole("button", { name: "Speichern" }).click()
     await expect(page.locator("form")).toMatchAriaSnapshot(`
       - text: Neues Passwort wiederholen
       - textbox: 2Pass
@@ -235,5 +237,67 @@ test.describe("Profile Page", () => {
     await page.locator("#oldPassword").click()
     await page.locator("#oldPassword").fill("1Password")
     await page.getByRole("button", { name: "Speichern" }).click()
+  })
+
+  test("dialogs should be closable", async ({ page }) => {
+    await page.goto("http://localhost:3000/login")
+    await page.locator("#email").click()
+    await page.locator("#email").fill("user@test.test")
+    await page.locator("#email").press("Tab")
+    await page.locator("#password").fill("password")
+    await page.locator("#password").press("Enter")
+    await page.getByRole("button", { name: "Anmelden" }).click()
+    await expect(page.getByRole("main")).toMatchAriaSnapshot(`
+      - text: US
+      - paragraph: User
+      - paragraph: user@test.test
+      - button "Name oder E-Mail ändern"
+      - button "Passwort ändern"
+      `)
+    await page.getByRole("button", { name: "Name oder E-Mail ändern" }).click()
+    await expect(page.getByLabel("Nutzername oder E-Mail ändern")).toMatchAriaSnapshot(`
+      - dialog "Nutzername oder E-Mail ändern":
+        - heading "Nutzername oder E-Mail ändern" [level=2]
+        - paragraph: Ändere deinen Nutzernamen oder deine E-Mail Adresse.
+        - textbox: User
+        - textbox: user@test.test
+        - alert:
+          - heading "E-Mail Änderung" [level=5]
+          - text: "Die Änderung der E-Mail Adresse muss zunächst über die \
+            bisherige E-Mail Adresse bestätigt werden, bevor sie wirksam wird."
+        - button "Speichern"
+        - button "Close":
+          - img
+      `)
+    await page.getByRole("button", { name: "Close" }).click()
+    await expect(page.getByRole("main")).toMatchAriaSnapshot(`
+      - text: US
+      - paragraph: User
+      - paragraph: user@test.test
+      - button "Name oder E-Mail ändern"
+      - button "Passwort ändern"
+      `)
+    await page.getByRole("button", { name: "Passwort ändern" }).click()
+    await expect(page.getByLabel("Passwort ändern")).toMatchAriaSnapshot(`
+      - dialog "Passwort ändern":
+        - heading "Passwort ändern" [level=2]
+        - paragraph: Ändere dein Passwort.
+        - text: Aktuelles Passwort
+        - textbox
+        - textbox
+        - text: Neues Passwort wiederholen
+        - textbox
+        - button "Speichern"
+        - button "Close":
+          - img
+      `)
+    await page.getByRole("button", { name: "Close" }).click()
+    await expect(page.getByRole("main")).toMatchAriaSnapshot(`
+      - text: US
+      - paragraph: User
+      - paragraph: user@test.test
+      - button "Name oder E-Mail ändern"
+      - button "Passwort ändern"
+      `)
   })
 })
