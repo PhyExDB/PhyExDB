@@ -8,9 +8,9 @@ const knownMails: string[] = []
 
 const schema = userRegisterSchemaWithRepeatValidatePassword.and(
   z.object({
-    email: z.string().refine(
+    email: emailSchema.email.refine(
       value => !knownMails.includes(value),
-      { message: "Es existiert bereist ein Account mit dieser E-Mail." },
+      { message: "Es existiert bereits ein Account mit dieser E-Mail." },
     ),
   }),
 )
@@ -79,6 +79,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     <FormField
       v-slot="{ componentField }"
       name="password"
+      :validate-on-input="true"
     >
       <FormItem>
         <FormLabel>Passwort</FormLabel>

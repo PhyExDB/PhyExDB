@@ -41,6 +41,24 @@ async function userMigrations() {
       user: {
         create: {
           role: "USER",
+          name: "Unverified User",
+          email: "unverified@test.test",
+          emailVerified: false,
+        },
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  })
+  await prisma.account.create({
+    data: {
+      password: await hashPassword("password"),
+      providerId: "credential",
+      accountId: uuidv4(),
+      id: uuidv4(),
+      user: {
+        create: {
+          role: "USER",
           name: "User",
           email: "user@test.test",
           emailVerified: true,
