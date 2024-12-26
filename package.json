@@ -22,7 +22,7 @@
     "migrate:seed": "dotenv -e .env.development prisma db seed"
   },
   "dependencies": {
-    "@nuxt/icon": "^1.10.2",
+    "@nuxt/icon": "^1.10.3",
     "@nuxtjs/color-mode": "^3.5.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@vee-validate/zod": "^4.14.7",
@@ -32,7 +32,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "jsonwebtoken": "^9.0.2",
-    "lucide-vue-next": "^0.468.0",
+    "lucide-vue-next": "^0.469.0",
     "nuxt": "^3.14.159",
     "nuxt-authorization": "^0.3.2",
     "radix-vue": "^1.9.11",
@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@iconify-json/heroicons": "^1.2.2",
-    "@nuxt/eslint": "^0.7.3",
+    "@nuxt/eslint": "^0.7.4",
     "@nuxt/test-utils": "^3.14.4",
     "@nuxtjs/tailwindcss": "^6.12.2",
     "@playwright/test": "^1.49.1",
