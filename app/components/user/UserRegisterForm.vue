@@ -79,6 +79,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     <FormField
       v-slot="{ componentField }"
       name="password"
+      :validate-on-input="true"
     >
       <FormItem>
         <FormLabel>Passwort</FormLabel>
