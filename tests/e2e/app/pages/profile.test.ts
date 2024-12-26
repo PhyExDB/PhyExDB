@@ -19,8 +19,8 @@ test.describe("Profile Page", () => {
       `)
     await expect(page.locator("div").filter({ hasText: /^user@test\.test$/ }).locator("span")).toBeVisible()
     await page.locator("div").filter({ hasText: /^user@test\.test$/ }).locator("span").click()
-    await expect(page.locator("#radix-vue-popover-content-v-1-4-2")).toBeVisible()
-    await expect(page.locator("#radix-vue-popover-content-v-1-4-2")).toMatchAriaSnapshot(`
+    await expect(page.locator("[id^='radix-vue-popover-content']")).toBeVisible()
+    await expect(page.locator("[id^='radix-vue-popover-content']")).toMatchAriaSnapshot(`
       - dialog:
         - paragraph: E-Mail ist verifiziert
       `)
@@ -44,7 +44,8 @@ test.describe("Profile Page", () => {
       `)
     await expect(page.locator("div").filter({ hasText: /^unverified@test\.test$/ }).locator("span")).toBeVisible()
     await page.locator("div").filter({ hasText: /^unverified@test\.test$/ }).locator("span").click()
-    await expect(page.locator("#radix-vue-popover-content-v-1-4-2")).toMatchAriaSnapshot(`
+    await expect(page.locator("[id^='radix-vue-popover-content']")).toBeVisible()
+    await expect(page.locator("[id^='radix-vue-popover-content']")).toMatchAriaSnapshot(`
       - dialog:
         - paragraph: E-Mail ist nicht verifiziert
         - button "E-Mail verifizieren"
