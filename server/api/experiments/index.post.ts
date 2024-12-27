@@ -1,5 +1,5 @@
 import { readValidatedBody } from "h3"
-import { z } from "zod"
+import { getExperimentCreateSchema } from "~~/shared/types"
 import { canCreateExperiment } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
@@ -9,43 +9,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
   }
 
-  // Validate user data
-  const requiredNumSections = await prisma.experimentSection.count()
-  const requiredNumAttributes = await prisma.experimentAttribute.count()
+  const newValueContent = await readValidatedBody(event, async body => (await getExperimentCreateSchema()).parse(body))
 
-  const experimentSchema = z.object({
-    name: z.string(),
-    duration: z.number(),
-
-    sections: z.array(z.object({
-      experimentSectionId: z.string(),
-      text: z.string(),
-      files: z.array(z.object({
-        fileId: z.string(),
-      })),
-    })).refine((sections) => {
-      const sectionIds = sections.map(section => section.experimentSectionId)
-      return new Set(sectionIds).size == sectionIds.length
-    }, {
-      message: "Sections must be unique",
-    }).refine((sections) => {
-      return sections.length == requiredNumSections
-    }, {
-      message: "Not enough sections defined",
-    }),
-
-    attributes: z.array(z.object({
-      valueId: z.string(),
-      attributeId: z.string(),
-    })).refine((attributes) => {
-      const attributeIds = attributes.map(attribute => attribute.attributeId)
-      return attributeIds.length == requiredNumAttributes
-    }, {
-      message: "Not enough attributes specified",
-    }),
-  })
-
-  const newValueContent = await readValidatedBody(event, body => experimentSchema.parse(body))
   const newExperiment = await prisma.experiment.create({
     data: {
       name: newValueContent.name,
@@ -53,13 +18,23 @@ export default defineEventHandler(async (event) => {
       duration: newValueContent.duration,
       userId: user.id,
       sections: {
-        create: newValueContent.sections.map(section => ({
+        create: await Promise.all(newValueContent.sections.map(async section => ({
           text: section.text,
-          experimentSection: { connect: { id: section.experimentSectionId } },
+          experimentSection: {
+            connect: {
+              id: (
+                await prisma.experimentSection.findFirst({
+                  where: {
+                    order: section.experimentSectionPositionInOrder,
+                  },
+                })
+              )!.id,
+            },
+          },
           connect: section.files.map(file => ({
             id: file.fileId,
           })),
-        })),
+        }))),
       },
       attributes: {
         connect: newValueContent.attributes.map(attribute => ({
@@ -69,7 +44,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return newExperiment
+  return newExperiment.toDetail()
 })
 
 defineRouteMeta({
@@ -91,7 +66,7 @@ defineRouteMeta({
                 items: {
                   type: "object",
                   properties: {
-                    experimentSectionId: { type: "string" },
+                    experimentSectionPositionInOrder: { type: "number" },
                     text: { type: "string" },
                     files: {
                       type: "array",
@@ -138,7 +113,7 @@ defineRouteMeta({
                   items: {
                     type: "object",
                     properties: {
-                      experimentSectionId: { type: "string" },
+                      experimentSectionPositionInOrder: { type: "number" },
                       text: { type: "string" },
                       files: {
                         type: "array",

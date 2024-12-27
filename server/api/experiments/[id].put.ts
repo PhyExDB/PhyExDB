@@ -1,29 +1,68 @@
 import { readValidatedBody } from "h3"
+import { validate as uuidValidate } from "uuid"
+import { getExperimentUpdateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  /*
-  const id = getRouterParam(event, "id")
-  if (!id) {
-    throw createError({ status: 400, message: "invalid id" })
+  const slugOrId = getRouterParam(event, "slug")
+  if (!slugOrId) {
+    throw createError({ status: 400, message: "Invalid slug" })
   }
 
-  const experiment = await Experiments.findOne({
-    where: { id: id },
+  const isId = uuidValidate(slugOrId)
+  const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
+  const experiment = await prisma.experiment.findFirst({
+    where: whereClause,
   })
 
   if (!experiment) {
-    throw createError({ status: 404, message: "Attribute not found" })
+    throw createError({ status: 404, message: "Experiment not found!" })
   }
 
-  const experimentSchema = v.object({
-    title: v.pipe(v.string(), v.nonEmpty("Please enter a title")),
-    experimentStatus: v.pipe(v.string()),
-    duration: v.pipe(v.number(), v.minValue(1, "The Duration must at least be one minute")),
+  const user = await getUser(event)
+  if (user == null) {
+    throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
+  }
+  await authorize(event, canEditExperiment, experiment.toList())
+
+  const updatedExperimentData = await readValidatedBody(event, async body => (await getExperimentUpdateSchema()).parse(body))
+
+  const updatedExperiment = await prisma.experiment.update({
+    where: { id: updatedExperimentData.id },
+    data: {
+      name: updatedExperimentData.name,
+      slug: slugify(updatedExperimentData.name),
+      duration: updatedExperimentData.duration,
+      sections: {
+        updateMany: {
+          where: {
+            experimentId: updatedExperimentData.id,
+          },
+          data: updatedExperimentData.sections.map(section => ({
+            where: {
+              order: section.experimentSectionPositionInOrder,
+            },
+            data: {
+              text: section.text,
+              files: {
+                set: [], // now there might be files that are not used in any experiment
+                connect: section.files.map(file => ({
+                  id: file.fileId,
+                })),
+              },
+            },
+          })),
+        },
+      },
+      attributes: {
+        set: [],
+        connect: updatedExperimentData.attributes.map(attribute => ({
+          id: attribute.valueId,
+        })),
+      },
+    },
   })
 
-  const updateExperimentContent = await readValidatedBody(event, body => v.parse(experimentSchema, body))
-
-  return (await experiment.update(updateExperimentContent)).toExperimentDetail*/
+  return updatedExperiment.toDetail()
 })
 
 defineRouteMeta({

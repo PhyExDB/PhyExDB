@@ -8,14 +8,16 @@ export default defineEventHandler(async (event) => {
 
   const isId = uuidValidate(slugOrId)
   const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
-
   const experiment = await prisma.experiment.findFirst({
     where: whereClause,
   })
 
   if (!experiment) {
-    throw createError({ status: 404, message: "Experiment not found" })
+    throw createError({ status: 404, message: "Experiment not found!" })
   }
+
+  await authorize(event, canSeeExperiment, experiment.toList())
+
   return experiment.toDetail()
 })
 
