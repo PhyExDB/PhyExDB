@@ -1,7 +1,5 @@
 import type { ExperimentAttributeValue } from "@prisma/client"
-
-//Für list: id,name,slug,user,values (joined with attributes(name))
-//Für detail: id,name,slug,user,values (joined with attributes(name)),sections(text,files,(order aus ExperimentSection))
+import type { ExperimentSectionContentList } from "~~/shared/types/ExperimentSectionContent.type"
 
 /**
  * An object containing methods to transform experiment results into different formats.
@@ -19,7 +17,6 @@ export const experimentResultExtensions = {
       name: true,
       slug: true,
       userId: true,
-      attributes: true,
     },
 
     /**
@@ -28,14 +25,13 @@ export const experimentResultExtensions = {
      * @param experiment - The experiment to transform.
      * @returns A function that returns the transformed experiment.
      */
-    compute(experiment: { id: string, name: string, slug: string, userId: string, attributes: ExperimentAttributeValue[] }) {
+    compute(experiment: { id: string, name: string, slug: string, userId: string }) {
       return () => {
         return {
           id: experiment.id,
           name: experiment.name,
           slug: experiment.slug,
-          user: experiment.userId,
-          attributes: experiment.attributes,
+          userId: experiment.userId,
         }
       }
     },
@@ -54,6 +50,7 @@ export const experimentResultExtensions = {
       slug: true,
       user: true,
       attributes: true,
+      sections: true,
     },
 
     /**
@@ -62,7 +59,7 @@ export const experimentResultExtensions = {
      * @param experiment - The experiment to transform.
      * @returns A function that returns the transformed experiment.
      */
-    compute(experiment: { id: string, name: string, slug: string, user: string, attributes: ExperimentAttributeValue }) {
+    compute(experiment: { id: string, name: string, slug: string, user: string, attributes: ExperimentAttributeValue[], sections: ExperimentSectionContentList[] }) {
       return () => {
         return {
           id: experiment.id,
@@ -70,6 +67,7 @@ export const experimentResultExtensions = {
           slug: experiment.slug,
           user: experiment.user,
           attributes: experiment.attributes,
+          sections: experiment.sections,
         }
       }
     },
