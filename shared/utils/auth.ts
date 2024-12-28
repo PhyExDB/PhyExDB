@@ -1,15 +1,4 @@
-import type { UserRole } from "~~/shared/types/User.type"
 import type { authClient } from "~~/app/utils/authClient"
-
-/**
- * Checks if a given role is at least a moderator.
- *
- * @param role the role to check
- * @returns true if the role is Moderator or Administrator, false otherwise
- */
-export function minModerator(role: UserRole): boolean {
-  return role === "MODERATOR" || role === "ADMIN"
-}
 
 /**
  * Utillity function to convert a session to a user detail
