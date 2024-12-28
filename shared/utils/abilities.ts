@@ -23,6 +23,10 @@ export const onlySignedInAbillity = defineAbility(_ => true)
 export const canEditExperiment = defineAbility((user: UserDetail, experiment: ExperimentList) => {
   return user.role === "ADMIN" || user.id === experiment.userId
 })
+
+export const canCreateFile = defineAbility((user: UserDetail) => {
+  return user.emailVerified
+})
 /**
  * Ability to see experiment
  */

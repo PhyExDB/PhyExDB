@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
     "@nuxt/icon",
+    "nuxt-file-storage",
   ],
 
   devtools: { enabled: true },
@@ -21,12 +22,6 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     logLevel: "debug",
-    databaseUser: "nuxt",
-    databasePassword: "nuxt_password",
-    databaseName: "phyexdb",
-    databaseHost: "localhost",
-    databasePort: 5432,
-    betterAuthSecret: "set in env",
   },
 
   future: {
@@ -58,6 +53,10 @@ export default defineNuxtConfig({
         semi: false,
       },
     },
+  },
+
+  fileStorage: {
+    mount: process.env.FILE_MOUNT,
   },
 
   shadcn: {
