@@ -1,17 +1,16 @@
-import { describe, expect, vi, it } from "vitest"
+import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event } from "h3"
 import updateAttributeValue from "~~/server/api/experiments/attributes/values/[id].put"
+import { experimentAttributeValueResultExtensions } from "~~/server/db/models/experimentAttributeValue"
 
 describe("API Route PUT /api/experiments/attributes/{id}", () => {
   it("should update an attribute value name successfully", async () => {
     const mockAttributeValue = {
       id: uuidv4(),
       name: "OldName",
-      toDetail: () => ({
-        id: mockAttributeValue.id,
-        name: mockAttributeValue.name,
-      }),
+      toList: () =>
+        experimentAttributeValueResultExtensions.toList.compute(mockAttributeValue)(),
     }
 
     prisma.experimentAttributeValue.findFirst = vi.fn().mockImplementation(({ where }) => {
@@ -26,10 +25,8 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
     prisma.experimentAttributeValue.update = vi.fn().mockResolvedValue({
       id: mockAttributeValue.id,
       name: updateContent.name,
-      toDetail: () => ({
-        id: mockAttributeValue.id,
-        name: updateContent.name,
-      }),
+      toList: () =>
+        experimentAttributeValueResultExtensions.toList.compute(mockAttributeValue)(),
     })
     const event = {
       context: {
@@ -41,11 +38,11 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
     } as unknown as H3Event
 
     const response = await updateAttributeValue(event)
-
-    expect(response).toStrictEqual({
-      id: mockAttributeValue.id,
-      name: updateContent.name,
-    })
+    expectTypeOf(response).toEqualTypeOf<ExperimentAttributeValueList>()
+    const { toList, ...rest } = mockAttributeValue
+    console.log(response)
+    console.log({ ...rest })
+    expect(response).toStrictEqual({ ...rest })
   })
   it("should return a 400 error if no id is provided", async () => {
     const event = {

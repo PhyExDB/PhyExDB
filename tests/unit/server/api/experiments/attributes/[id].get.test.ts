@@ -1,22 +1,32 @@
-import { describe, expect, vi, it } from "vitest"
+import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event, EventHandlerRequest } from "h3"
 import getAttribute from "~~/server/api/experiments/attributes/[id].get"
+import { experimentAttributeResultExtensions } from "~~/server/db/models/experimentAttribute"
+import { experimentAttributeValueResultExtensions } from "~~/server/db/models/experimentAttributeValue"
 
 describe("Api Route GET /api/experiments/attributes/{id}", () => {
   it("should get an Attribute by id", async () => {
+    const mockValue1 = {
+      id: uuidv4(),
+      name: "Value1",
+      toList: () =>
+        experimentAttributeValueResultExtensions.toList.compute(mockValue1)(),
+    }
+    const mockValue2 = {
+      id: uuidv4(),
+      name: "Value2",
+      toList: () =>
+        experimentAttributeValueResultExtensions.toList.compute(mockValue2)(),
+    }
+
     const mockAttribute = {
       id: uuidv4(),
       name: "Test Attribute",
-      values: [
-        { id: uuidv4(), value: "Value 1", toList: () => "Value 1" },
-        { id: uuidv4(), value: "Value 2", toList: () => "Value 2" },
-      ],
-      toDetail: (valueList: string[]) => ({
-        id: mockAttribute.id,
-        name: mockAttribute.name,
-        valueList,
-      }),
+      slug: "slug",
+      values: [mockValue1, mockValue2],
+      toDetail: (values: [ExperimentAttributeList]) =>
+        experimentAttributeResultExtensions.toDetail.compute(mockAttribute)(values),
     }
 
     // Mocking Prisma
@@ -37,13 +47,14 @@ describe("Api Route GET /api/experiments/attributes/{id}", () => {
 
     const response = await getAttribute(event)
 
-    expect(response).toStrictEqual({
-      id: mockAttribute.id,
-      name: mockAttribute.name,
-      valueList: ["Value 1", "Value 2"],
+    expectTypeOf(response).toEqualTypeOf<ExperimentAttributeDetail>()
+    const { toDetail, values, ...rest } = mockAttribute
+    const finalValues = [...values].map((value) => {
+      const { toList, ...rest } = value
+      return rest
     })
+    expect(response).toStrictEqual({ ...rest, values: finalValues })
   })
-
   it("should return a 400 error if no id is provided", async () => {
     const event = {
       context: {

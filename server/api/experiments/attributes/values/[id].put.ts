@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     data: { name: updateName.name },
   })
 
-  return updatedValue.toDetail()
+  return updatedValue.toList()
 })
 
 defineRouteMeta({
