@@ -40,8 +40,6 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
     const response = await updateAttributeValue(event)
     expectTypeOf(response).toEqualTypeOf<ExperimentAttributeValueList>()
     const { toList, ...rest } = mockAttributeValue
-    console.log(response)
-    console.log({ ...rest })
     expect(response).toStrictEqual({ ...rest })
   })
   it("should return a 400 error if no id is provided", async () => {

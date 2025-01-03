@@ -46,8 +46,6 @@ describe("API Route POST /api/experiments/attributes/{id}", () => {
       const { toList, ...rest } = value
       return rest
     })
-    // console.log(response)
-    // console.log({ ...rest, values: finalValues })
     expect(response).toStrictEqual({ ...rest, values: finalValues })
   })
 

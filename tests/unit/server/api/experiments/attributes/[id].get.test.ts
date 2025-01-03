@@ -25,7 +25,7 @@ describe("Api Route GET /api/experiments/attributes/{id}", () => {
       name: "Test Attribute",
       slug: "slug",
       values: [mockValue1, mockValue2],
-      toDetail: (values: [ExperimentAttributeList]) =>
+      toDetail: (values: [ExperimentAttributeValueList]) =>
         experimentAttributeResultExtensions.toDetail.compute(mockAttribute)(values),
     }
 
