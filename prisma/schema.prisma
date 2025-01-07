@@ -21,6 +21,8 @@ model User {
   image         String?
   sessions      Session[]
   accounts      Account[]
+  files         File[]
+  userFile      UserFile?
 
   @@unique([email])
   @@map("user")
@@ -75,7 +77,7 @@ model ExperimentSectionContent {
   experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String
   text                String
-  files               File[]
+  files               ExperimentFile[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 }
@@ -100,14 +102,34 @@ model ExperimentAttributeValue {
 }
 
 model File {
+  id             String          @id @default(uuid())
+  path           String
+  mimeType       String
+  ExperimentFile ExperimentFile?
+  UserFile       UserFile?
+  createdBy      User            @relation(fields: [createdById], references: [id])
+  createdById    String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model ExperimentFile {
   id                  String                    @id @default(uuid())
-  path                String
-  mimeType            String
+  file                File                      @relation(fields: [fileId], references: [id])
+  fileId              String                    @unique
   description         String?
   experimentSection   ExperimentSectionContent? @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String?
   createdAt           DateTime                  @default(now())
   updatedAt           DateTime                  @updatedAt
+}
+
+model UserFile {
+  id     String  @id @default(uuid())
+  file   File    @relation(fields: [fileId], references: [id])
+  fileId String  @unique
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String? @unique
 }
 
 model Session {

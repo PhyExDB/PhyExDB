@@ -3,6 +3,7 @@ import { legalDocumentResultExtensions } from "../db/models/legalDocument"
 import { experimentAttributeValueResultExtensions } from "../db/models/experimentAttributeValue"
 import { experimentAttributeResultExtensions } from "../db/models/experimentAttribute"
 import { userResultExtensions } from "../db/models/user"
+import { fileResultExtensions } from "../db/models/file"
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
@@ -52,6 +53,7 @@ const prismaClientSingleton = () => {
     user: userResultExtensions,
     experimentAttribute: experimentAttributeResultExtensions,
     experimentAttributeValue: experimentAttributeValueResultExtensions,
+    file: fileResultExtensions,
   }
 
   const extendedPrisma = prisma.$extends({
