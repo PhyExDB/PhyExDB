@@ -60,7 +60,7 @@
     "@vitest/coverage-istanbul": "^2.1.8",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.20",
-    "dotenv-cli": "^7.4.4",
+    "dotenv-cli": "^8.0.0",
     "happy-dom": "^15.11.7",
     "playwright-core": "^1.49.1",
     "postcss": "^8.4.49",
