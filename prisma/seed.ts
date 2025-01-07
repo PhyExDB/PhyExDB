@@ -6,61 +6,60 @@ const passwordHash = "7909e84c2f533030cd283e700834f355:9308a253a95c78259448d9909
 
 const prisma = new PrismaClient()
 
+async function createUser(user: UserDetail) {
+  await prisma.account.create({
+    data: {
+      password: passwordHash,
+      providerId: "credential",
+      accountId: uuidv4(),
+      id: uuidv4(),
+      user: {
+        create: {
+          id: user.id,
+          role: user.role,
+          name: user.username,
+          email: user.email,
+          emailVerified: user.emailVerified,
+        },
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  })
+}
+
 async function userMigrations() {
-  await prisma.account.create({
-    data: {
-      password: passwordHash,
-      providerId: "credential",
-      accountId: uuidv4(),
+  const users: UserDetail[] = [
+    {
       id: uuidv4(),
-      user: {
-        create: {
-          role: "USER",
-          name: "User",
-          email: "user@test.test",
-          emailVerified: true,
-        },
-      },
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      username: "User",
+      role: "USER",
+      email: "user@test.test",
+      emailVerified: true,
     },
-  })
-  await prisma.account.create({
-    data: {
-      password: passwordHash,
-      providerId: "credential",
-      accountId: uuidv4(),
+    {
       id: uuidv4(),
-      user: {
-        create: {
-          role: "MODERATOR",
-          name: "Moderator",
-          email: "moderator@test.test",
-          emailVerified: true,
-        },
-      },
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      username: "Moderator",
+      role: "MODERATOR",
+      email: "moderator@test.test",
+      emailVerified: true,
     },
-  })
-  await prisma.account.create({
-    data: {
-      password: passwordHash,
-      providerId: "credential",
-      accountId: uuidv4(),
+    {
       id: uuidv4(),
-      user: {
-        create: {
-          role: "ADMIN",
-          name: "Admin",
-          email: "admin@test.test",
-          emailVerified: true,
-        },
-      },
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      username: "Admin",
+      role: "ADMIN",
+      email: "admin@test.test",
+      emailVerified: true,
     },
-  })
+    {
+      id: uuidv4(),
+      username: "unverified",
+      role: "USER",
+      email: "unverified@test.test",
+      emailVerified: false,
+    },
+  ]
+  users.forEach(async user => createUser(user))
 }
 
 async function legalMigrations() {
