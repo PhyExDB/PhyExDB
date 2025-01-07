@@ -1,40 +1,15 @@
 import { PrismaClient } from "@prisma/client"
 import { v4 as uuidv4 } from "uuid"
-import { encodeHex } from "oslo/encoding"
-import { scryptAsync } from "@noble/hashes/scrypt"
-import { getRandomValues } from "uncrypto"
 
-// hashPassword function from better-aut
-// https://github.com/better-auth/better-auth/blob/main/packages/better-auth/src/crypto/password.ts
-const config = {
-  N: 16384,
-  r: 16,
-  p: 1,
-  dkLen: 64,
-}
-
-async function generateKey(password: string, salt: string) {
-  return await scryptAsync(password.normalize("NFKC"), salt, {
-    N: config.N,
-    p: config.p,
-    r: config.r,
-    dkLen: config.dkLen,
-    maxmem: 128 * config.N * config.r * 2,
-  })
-}
-
-const hashPassword = async (password: string) => {
-  const salt = encodeHex(getRandomValues(new Uint8Array(16)))
-  const key = await generateKey(password, salt)
-  return `${salt}:${encodeHex(key)}`
-}
+// password: password
+const passwordHash = "7909e84c2f533030cd283e700834f355:9308a253a95c78259448d990960c41738fb5c89519febce3863347be087ce636bcf0815ae312b65b66c5f3f4a3605d1418cdecbef6f982e3f65e317220789220"
 
 const prisma = new PrismaClient()
 
 async function userMigrations() {
   await prisma.account.create({
     data: {
-      password: await hashPassword("password"),
+      password: passwordHash,
       providerId: "credential",
       accountId: uuidv4(),
       id: uuidv4(),
@@ -52,7 +27,7 @@ async function userMigrations() {
   })
   await prisma.account.create({
     data: {
-      password: await hashPassword("password"),
+      password: passwordHash,
       providerId: "credential",
       accountId: uuidv4(),
       id: uuidv4(),
@@ -70,7 +45,7 @@ async function userMigrations() {
   })
   await prisma.account.create({
     data: {
-      password: await hashPassword("password"),
+      password: passwordHash,
       providerId: "credential",
       accountId: uuidv4(),
       id: uuidv4(),
