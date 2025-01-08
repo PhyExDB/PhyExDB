@@ -1,6 +1,3 @@
-import type { ExperimentAttributeValue } from "@prisma/client"
-import type { ExperimentSectionContentList } from "~~/shared/types/ExperimentSectionContent.type"
-
 /**
  * An object containing methods to transform experiment results into different formats.
  */
@@ -17,6 +14,8 @@ export const experimentResultExtensions = {
       name: true,
       slug: true,
       userId: true,
+      status: true,
+      duration: true,
     },
 
     /**
@@ -25,13 +24,24 @@ export const experimentResultExtensions = {
      * @param experiment - The experiment to transform.
      * @returns A function that returns the transformed experiment.
      */
-    compute(experiment: { id: string, name: string, slug: string, userId: string }) {
-      return () => {
+    compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
+      return async () => {
         return {
           id: experiment.id,
           name: experiment.name,
           slug: experiment.slug,
           userId: experiment.userId,
+          status: experiment.status,
+          duration: experiment.duration,
+          attributes: await prisma.experimentAttributeValue.findMany({
+            where: {
+              experiments: {
+                some: {
+                  id: experiment.id,
+                },
+              },
+            },
+          }),
         }
       }
     },
@@ -48,9 +58,9 @@ export const experimentResultExtensions = {
       id: true,
       name: true,
       slug: true,
-      user: true,
-      attributes: true,
-      sections: true,
+      userId: true,
+      status: true,
+      duration: true,
     },
 
     /**
@@ -59,15 +69,29 @@ export const experimentResultExtensions = {
      * @param experiment - The experiment to transform.
      * @returns A function that returns the transformed experiment.
      */
-    compute(experiment: { id: string, name: string, slug: string, user: string, attributes: ExperimentAttributeValue[], sections: ExperimentSectionContentList[] }) {
-      return () => {
+    compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
+      return async () => {
         return {
           id: experiment.id,
           name: experiment.name,
           slug: experiment.slug,
-          user: experiment.user,
-          attributes: experiment.attributes,
-          sections: experiment.sections,
+          userId: experiment.userId,
+          status: experiment.status,
+          duration: experiment.duration,
+          attributes: await prisma.experimentAttributeValue.findMany({
+            where: {
+              experiments: {
+                some: {
+                  id: experiment.id,
+                },
+              },
+            },
+          }),
+          sections: await prisma.experimentSectionContent.findMany({
+            where: {
+              experimentId: experiment.id,
+            },
+          }),
         }
       }
     },

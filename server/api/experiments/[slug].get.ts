@@ -16,9 +16,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Experiment not found!" })
   }
 
-  await authorize(event, canSeeExperiment, experiment.toList())
+  await authorize(event, canSeeExperiment, await experiment.toList())
 
-  return experiment.toDetail()
+  return await experiment.toDetail()
 })
 
 defineRouteMeta({

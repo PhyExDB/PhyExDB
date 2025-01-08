@@ -1,5 +1,5 @@
 import { readValidatedBody } from "h3"
-import { getExperimentCreateSchema } from "~~/shared/types"
+import { getExperimentSchema } from "~~/shared/types"
 import { canCreateExperiment } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
   }
 
-  const newValueContent = await readValidatedBody(event, async body => (await getExperimentCreateSchema()).parse(body))
+  const newValueContent = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
 
   const newExperiment = await prisma.experiment.create({
     data: {
@@ -31,9 +31,11 @@ export default defineEventHandler(async (event) => {
               )!.id,
             },
           },
-          connect: section.files.map(file => ({
-            id: file.fileId,
-          })),
+          ...(section.files.length > 0 && {
+            connect: section.files.map(file => ({
+              id: file.fileId,
+            })),
+          }),
         }))),
       },
       attributes: {
@@ -44,7 +46,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return newExperiment.toDetail()
+  return await newExperiment.toList()
 })
 
 defineRouteMeta({

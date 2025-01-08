@@ -8,18 +8,15 @@ export interface ExperimentList extends BaseList {
   name: string
   slug: string
   userId: string
+  status: string
 }
 
-export interface ExperimentDetail extends BaseList {
-  name: string
-  slug: string
-  userId: string
+export interface ExperimentDetail extends ExperimentList {
   attributes: ExperimentAttributeValue[]
   sections: ExperimentSectionContent[]
 }
 
-export async function getExperimentCreateSchema() {
-  //TODO: improve error messages
+export async function getExperimentSchema() {
   const requiredNumSections = await prisma.experimentSection.count()
   const requiredNumAttributes = await prisma.experimentAttribute.count()
 
@@ -46,13 +43,12 @@ export async function getExperimentCreateSchema() {
 
     attributes: z.array(z.object({
       valueId: z.string(),
-      attributeId: z.string(),
     })).refine(async (attributes) => {
       const attributeIds = await Promise.all(
         attributes.map(async (attribute) => {
           const attributeValue = await prisma.experimentAttributeValue.findFirst({
             where: {
-              attributeId: attribute.attributeId,
+              id: attribute.valueId,
             },
           })
           return attributeValue!.id
@@ -64,14 +60,4 @@ export async function getExperimentCreateSchema() {
     }),
   })
   return experimentSchema
-}
-
-export async function getExperimentUpdateSchema() {
-  const baseSchema = await getExperimentCreateSchema()
-
-  const extendedSchema = baseSchema.extend({
-    id: z.string(),
-  })
-
-  return extendedSchema
 }

@@ -1,3 +1,6 @@
+import { minModerator } from "#imports"
+import exp from "constants"
+
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
   const query = getQuery(event)
@@ -5,18 +8,17 @@ export default defineEventHandler(async (event) => {
   const pageSize = parseInt(query.pageSize as string) || 10
   const skip = (page - 1) * pageSize
 
-  const onlyPublished = user == null || user.role === "USER"
-  const ownExperiments = user?.role === "USER"
-
+  const ownExperiments = user != null
+  const modOrAdmin = user != null && minModerator(user?.role)
   // Cannot use abilities here, since filtering the results of the query would not align with the pagination
   const experiments = await prisma.experiment.findMany({
     skip,
     take: pageSize,
     where: {
       OR: [
-        onlyPublished ? { status: "PUBLISHED" } : {},
+        { status: "PUBLISHED" },
         ownExperiments ? { userId: user!.id } : {},
-        (!onlyPublished && !ownExperiments) ? { duration: { gt: 0 } } : {}, // no filter
+        modOrAdmin ? { status: "IN_REVIEW" } : {},
       ],
     },
     include: {
@@ -38,15 +40,15 @@ export default defineEventHandler(async (event) => {
   const totalExperiments = await prisma.experiment.count({
     where: {
       OR: [
-        onlyPublished ? { status: "PUBLISHED" } : {},
+        { status: "PUBLISHED" },
         ownExperiments ? { userId: user!.id } : {},
-        (!onlyPublished && !ownExperiments) ? { duration: { gt: 0 } } : {}, // no filter
+        modOrAdmin ? { status: "IN_REVIEW" } : {},
       ],
     },
   })
 
   return {
-    data: experiments.map(experiment => experiment.toList()),
+    data: await Promise.all(experiments.map(async experiment => await experiment.toList())),
     pagination: {
       total: totalExperiments,
       page,

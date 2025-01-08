@@ -1,6 +1,6 @@
 import { readValidatedBody } from "h3"
 import { validate as uuidValidate } from "uuid"
-import { getExperimentUpdateSchema } from "~~/shared/types"
+import { getExperimentSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
   const slugOrId = getRouterParam(event, "slug")
@@ -22,24 +22,28 @@ export default defineEventHandler(async (event) => {
   if (user == null) {
     throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
   }
-  await authorize(event, canEditExperiment, experiment.toList())
+  await authorize(event, canEditExperiment, await experiment.toList())
 
-  const updatedExperimentData = await readValidatedBody(event, async body => (await getExperimentUpdateSchema()).parse(body))
+  const updatedExperimentData = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
 
   const updatedExperiment = await prisma.experiment.update({
-    where: { id: updatedExperimentData.id },
+    where: { id: experiment.id },
     data: {
       name: updatedExperimentData.name,
       slug: slugify(updatedExperimentData.name),
       duration: updatedExperimentData.duration,
       sections: {
-        updateMany: {
-          where: {
-            experimentId: updatedExperimentData.id,
-          },
-          data: updatedExperimentData.sections.map(section => ({
+        update: await Promise.all(
+          updatedExperimentData.sections.map(async section => ({
             where: {
-              order: section.experimentSectionPositionInOrder,
+              id: (await prisma.experimentSectionContent.findFirst({
+                where: {
+                  experimentId: experiment.id,
+                  experimentSection: {
+                    order: section.experimentSectionPositionInOrder,
+                  },
+                },
+              }))!.id,
             },
             data: {
               text: section.text,
@@ -51,7 +55,7 @@ export default defineEventHandler(async (event) => {
               },
             },
           })),
-        },
+        ),
       },
       attributes: {
         set: [],
@@ -62,7 +66,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return updatedExperiment.toDetail()
+  return await updatedExperiment.toDetail()
 })
 
 defineRouteMeta({
