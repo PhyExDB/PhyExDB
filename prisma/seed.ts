@@ -139,6 +139,7 @@ async function experimentMigrations() {
       name: "Einführung des Fahrraddynamos",
       slug: "einfuehrung-des-fahrraddynamos",
       duration: 20,
+      status: "PUBLISHED",
       user: {
         connect: {
           id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
@@ -212,6 +213,7 @@ async function experimentMigrations() {
       name: "Öffnen des Fahrraddynamos",
       slug: "oeffnen-des-fahrraddynamos",
       duration: 20,
+      status: "PUBLISHED",
       user: {
         connect: {
           id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
@@ -285,6 +287,7 @@ async function experimentMigrations() {
       name: "Weinglasschwingung",
       slug: "weinglasschwingung",
       duration: 20,
+      status: "PUBLISHED",
       user: {
         connect: {
           id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
@@ -449,7 +452,6 @@ async function experimentAttributeMigrations() {
       { name: "Arbeitsform", slug: "arbeitsform" },
       { name: "Messwerterfassung", slug: "messwerterfassung" },
       { name: "Vorbereitunsgzeit", slug: "vorbereitungszeit" },
-      { name: "Durchführungszeit", slug: "durchfuehrungszeit" },
     ],
   })
 }
