@@ -1,20 +1,21 @@
-import type { authClient } from "~~/app/utils/authClient"
-
 /**
  * Utillity function to convert a session to a user detail
  */
-export function sessionToUserDetail(session: typeof authClient.$Infer.Session | null | undefined): UserDetail | null {
+export function sessionToUserDetail(session: typeof auth.$Infer.Session | null | undefined): UserDetail | null {
   if (!session) {
     return null
   }
   if (!(session.user.role === "ADMIN" || session.user.role === "MODERATOR" || session.user.role === "USER")) {
     return null
   }
+
+  const role: UserRole = UserRole[session.user.role as keyof typeof UserRole]
+
   const user: UserDetail = {
     id: session.user.id,
     username: session.user.name,
     email: session.user.email,
-    role: session.user.role,
+    role: role,
     emailVerified: session.user.emailVerified,
   }
   return user

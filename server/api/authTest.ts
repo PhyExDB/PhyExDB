@@ -1,4 +1,4 @@
 export default defineEventHandler(async (event) => {
-  await authorize(event, forbiddenAbillity)
+  await authorize(event, editLegalDocumentAbillity)
   return "Authorized"
 })

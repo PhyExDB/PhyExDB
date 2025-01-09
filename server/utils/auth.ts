@@ -43,3 +43,21 @@ export async function getUserOrThrowError(event: H3Event<EventHandlerRequest>): 
   }
   return user
 }
+
+/**
+ * executes authorize(ability, ...args) and returns the user
+ */
+export async function requireUserWithAbility(
+  event: H3Event<EventHandlerRequest>,
+  ability: Parameters<typeof authorize>[1],
+  ...args: Parameters<typeof authorize>[2]
+): Promise<UserDetail> {
+  const user = await getUser(event)
+  if (!user) {
+    throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+  }
+
+  authorize(event, ability, args)
+
+  return user
+}
