@@ -4,7 +4,11 @@ import type { BaseList } from "./Base.type"
 /**
  * Type for the role of a user
  */
-export type UserRole = "USER" | "MODERATOR" | "ADMIN"
+export enum UserRole {
+  User = 0,
+  Moderator = 1,
+  Admin = 2,
+}
 
 /**
  * Represents a list of users with their ids, usernames, roles, and verification statuses.
