@@ -81,35 +81,105 @@ defineRouteMeta({
           schema: {
             type: "object",
             properties: {
-              title: { type: "string" },
-              experimentStatus: { type: "string", enum: ["Draft", "Submitted", "Accepted"] },
+              name: { type: "string" },
               duration: { type: "number" },
+              sections: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    experimentSectionPositionInOrder: { type: "number" },
+                    text: { type: "string" },
+                    files: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          fileId: { type: "string" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              attributes: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    valueId: { type: "string" },
+                  },
+                },
+              },
             },
-            required: ["username", "email"],
+            required: ["name", "duration", "sections", "attributes"],
           },
         },
       },
     },
     responses: {
       200: {
-        description: "Experiment updated sucessfully",
+        description: "Experiment updated successfully",
         content: {
           "application/json": {
             schema: {
               type: "object",
               properties: {
                 id: { type: "string", format: "uuid" },
-                createdBy: { type: "string", format: "uuid" },
-                title: { type: "string" },
-                experimentStatus: { type: "string", enum: ["Draft", "Submitted", "Accepted"] },
+                name: { type: "string" },
+                slug: { type: "string" },
+                userId: { type: "string", format: "uuid" },
+                status: {
+                  type: "string",
+                  enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"],
+                },
                 duration: { type: "number" },
+                sections: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      experimentId: { type: "string", format: "uuid" },
+                      experimentSectionId: { type: "string", format: "uuid" },
+                      text: { type: "string" },
+                      createdAt: { type: "string", format: "date-time" },
+                      updatedAt: { type: "string", format: "date-time" },
+                      files: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            fileId: { type: "string" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+                attributes: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      attributeId: { type: "string", format: "uuid" },
+                      name: { type: "string" },
+                      createdAt: { type: "string", format: "date-time" },
+                      updatedAt: { type: "string", format: "date-time" },
+                    },
+                  },
+                },
               },
             },
           },
         },
       },
       400: {
-        description: "Invalid user data",
+        description: "Invalid experiment data",
+      },
+      401: {
+        description: "No user is logged in",
       },
       404: {
         description: "Experiment not found",

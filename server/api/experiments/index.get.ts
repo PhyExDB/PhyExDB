@@ -1,5 +1,4 @@
 import { minModerator } from "#imports"
-import exp from "constants"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
@@ -60,7 +59,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Get a list of experiments",
+    description: "Get a list of experiments with their associated attributes.",
     tags: ["Experiment"],
     responses: {
       200: {
@@ -79,6 +78,11 @@ defineRouteMeta({
                       name: { type: "string" },
                       slug: { type: "string" },
                       userId: { type: "string" },
+                      status: {
+                        type: "string",
+                        enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"],
+                      },
+                      duration: { type: "number" },
                       attributes: {
                         type: "array",
                         items: {
@@ -86,13 +90,9 @@ defineRouteMeta({
                           properties: {
                             name: { type: "string" },
                             id: { type: "string", format: "uuid" },
-                            attribute: {
-                              type: "object",
-                              properties: {
-                                name: { type: "string" },
-                                id: { type: "string", format: "uuid" },
-                              },
-                            },
+                            attributeId: { type: "string", format: "uuid" },
+                            createdAt: { type: "string", format: "date-time" },
+                            updatedAt: { type: "string", format: "date-time" },
                           },
                         },
                       },
@@ -108,6 +108,19 @@ defineRouteMeta({
                     totalPages: { type: "integer" },
                   },
                 },
+              },
+            },
+          },
+        },
+      },
+      400: {
+        description: "Bad Request",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                message: { type: "string" },
               },
             },
           },

@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Creates a new experiment",
+    description: "Creates a new experiment. The experiment must contain sections with position 0 until 6 (included) and at least one attribute value for each attribute. Only logged in users can create experiments",
     tags: ["Experiment"],
     requestBody: {
       description: "Experiment data",
@@ -88,7 +88,6 @@ defineRouteMeta({
                   type: "object",
                   properties: {
                     valueId: { type: "string" },
-                    attributeId: { type: "string" },
                   },
                 },
               },
@@ -107,35 +106,24 @@ defineRouteMeta({
               type: "object",
               properties: {
                 id: { type: "string", format: "uuid" },
-                createdBy: { type: "string", format: "uuid" },
                 name: { type: "string" },
-                duration: { type: "number" },
-                sections: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      experimentSectionPositionInOrder: { type: "number" },
-                      text: { type: "string" },
-                      files: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          properties: {
-                            fileId: { type: "string" },
-                          },
-                        },
-                      },
-                    },
-                  },
+                slug: { type: "string" },
+                userId: { type: "string" },
+                status: {
+                  type: "string",
+                  enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"],
                 },
+                duration: { type: "number" },
                 attributes: {
                   type: "array",
                   items: {
                     type: "object",
                     properties: {
-                      valueId: { type: "string" },
-                      attributeId: { type: "string" },
+                      name: { type: "string" },
+                      id: { type: "string", format: "uuid" },
+                      attributeId: { type: "string", format: "uuid" },
+                      createdAt: { type: "string", format: "date-time" },
+                      updatedAt: { type: "string", format: "date-time" },
                     },
                   },
                 },
@@ -146,6 +134,9 @@ defineRouteMeta({
       },
       400: {
         description: "Invalid experiment data",
+      },
+      401: {
+        description: "Unauthorized",
       },
     },
   },

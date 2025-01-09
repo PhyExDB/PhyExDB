@@ -23,39 +23,82 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Returns details for an experiment",
+    description: "Fetches an experiment by slug or ID",
     tags: ["Experiment"],
+    parameters: [
+      {
+        name: "slug",
+        in: "path",
+        required: true,
+        description: "The slug or ID of the experiment",
+        schema: {
+          type: "string",
+        },
+      },
+    ],
     responses: {
       200: {
-        description: "Experiment found and details returned",
+        description: "Experiment fetched successfully",
         content: {
           "application/json": {
             schema: {
               type: "object",
               properties: {
                 id: { type: "string", format: "uuid" },
-                createdBy: { type: "string", format: "uuid" },
-                title: { type: "string" },
-                experimentStatus: { type: "string", enum: ["Draft", "Submitted", "Accepted"] },
+                name: { type: "string" },
+                slug: { type: "string" },
+                userId: { type: "string", format: "uuid" },
+                status: {
+                  type: "string",
+                  enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"],
+                },
                 duration: { type: "number" },
+                sections: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      experimentId: { type: "string", format: "uuid" },
+                      experimentSectionId: { type: "string", format: "uuid" },
+                      text: { type: "string" },
+                      createdAt: { type: "string", format: "date-time" },
+                      updatedAt: { type: "string", format: "date-time" },
+                      files: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            fileId: { type: "string" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+                attributes: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      attributeId: { type: "string", format: "uuid" },
+                      name: { type: "string" },
+                      createdAt: { type: "string", format: "date-time" },
+                      updatedAt: { type: "string", format: "date-time" },
+                    },
+                  },
+                },
               },
             },
           },
         },
       },
       400: {
-        description: "Invalid experiment id",
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                statusCode: { type: "number" },
-                message: { type: "string" },
-              },
-            },
-          },
-        },
+        description: "Invalid slug or ID",
+      },
+      401: {
+        description: "No user is logged in",
       },
       404: {
         description: "Experiment not found",
