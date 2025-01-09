@@ -51,7 +51,9 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Creates a new experiment. The experiment must contain sections with position 0 until 6 (included) and at least one attribute value for each attribute. Only logged in users can create experiments",
+    description: `Creates a new experiment.
+                  The experiment must contain sections with position 0 until 6 (included) and at least one attribute value for each attribute.
+                  Only logged in users can create experiments.`,
     tags: ["Experiment"],
     requestBody: {
       description: "Experiment data",

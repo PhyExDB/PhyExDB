@@ -71,11 +71,11 @@ export async function getExperimentSchema() {
       })),
     })).refine((sections) => {
       const sectionIds = sections.map(section => section.experimentSectionPositionInOrder)
-      return new Set(sectionIds).size == sectionIds.length
+      return new Set(sectionIds).size === sectionIds.length
     }, {
       message: "Sections must be unique",
     }).refine((sections) => {
-      return sections.length == requiredNumSections
+      return sections.length === requiredNumSections
     }, {
       message: "Not enough sections defined",
     }),
@@ -93,7 +93,7 @@ export async function getExperimentSchema() {
           return attributeValue!.id
         }),
       )
-      return attributeIds.length == requiredNumAttributes
+      return attributeIds.length === requiredNumAttributes
     }, {
       message: "Not enough attributes specified",
     }),

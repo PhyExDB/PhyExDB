@@ -24,7 +24,10 @@ export default defineEventHandler(async (event) => {
   }
   await authorize(event, canEditExperiment, await experiment.toList())
 
-  const updatedExperimentData = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
+  const updatedExperimentData = await readValidatedBody(
+    event,
+    async body => (await getExperimentSchema()).parseAsync(body),
+  )
 
   const updatedExperiment = await prisma.experiment.update({
     where: { id: experiment.id },
