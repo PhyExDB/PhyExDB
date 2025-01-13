@@ -53,7 +53,7 @@ async function userMigrations() {
     },
     {
       id: uuidv4(),
-      username: "unverified",
+      username: "Unverified",
       role: "USER",
       email: "unverified@test.test",
       emailVerified: false,

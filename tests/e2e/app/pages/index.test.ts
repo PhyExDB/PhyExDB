@@ -1,10 +1,10 @@
-import { test } from "@nuxt/test-utils/playwright"
+import { test } from "@playwright/test"
 import { validateFooter } from "~~/tests/helpers/validateFooter"
 
 test.describe("Homepage", () => {
-  test("should render the footer with correct content", async ({ page, goto }) => {
+  test("should render the footer with correct content", async ({ page }) => {
     // Navigate to the homepage
-    await goto("/", { waitUntil: "hydration" })
+    await page.goto("/", { waitUntil: "networkidle" })
     // Validate the footer
     await validateFooter(page)
   })
