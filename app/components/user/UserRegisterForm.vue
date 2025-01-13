@@ -114,10 +114,9 @@ const onSubmit = form.handleSubmit(async (values) => {
       type="checkbox"
       name="acceptedTermsOfService"
     >
-      <FormItem>
+      <FormItem class="flex flex-row items-start gap-x-3 space-y-0">
         <FormControl>
           <Checkbox
-            id="acceptedTermsOfService"
             :checked="value"
             @update:checked="handleChange"
           />
@@ -127,11 +126,9 @@ const onSubmit = form.handleSubmit(async (values) => {
             Ich akzeptiere die
             <NuxtLink
               to="/legal/terms-of-service"
-            >
-              Nutzungsbedingungen
-            </NuxtLink>.
+              class="underline"
+            >Nutzungsbedingungen</NuxtLink>.
           </FormLabel>
-          <FormMessage />
         </div>
       </FormItem>
     </FormField>
