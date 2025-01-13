@@ -1,4 +1,5 @@
 import { readValidatedBody } from "h3"
+import { getUniqueExperimentSlug } from "~~/server/utils/experiment"
 import { getExperimentSchema } from "~~/shared/types"
 import { canCreateExperiment } from "~~/shared/utils/abilities"
 
@@ -11,10 +12,12 @@ export default defineEventHandler(async (event) => {
 
   const newValueContent = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
 
+  const slug = await getUniqueExperimentSlug(newValueContent.name)
+
   const newExperiment = await prisma.experiment.create({
     data: {
       name: newValueContent.name,
-      slug: slugify(newValueContent.name),
+      slug: slug,
       duration: newValueContent.duration,
       userId: user.id,
       sections: {

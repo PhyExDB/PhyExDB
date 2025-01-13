@@ -1,5 +1,6 @@
 import { readValidatedBody } from "h3"
 import { validate as uuidValidate } from "uuid"
+import { getUniqueSlugForExperiment } from "~~/server/utils/experiment"
 import { getExperimentSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
@@ -29,11 +30,13 @@ export default defineEventHandler(async (event) => {
     async body => (await getExperimentSchema()).parseAsync(body),
   )
 
+  const slug = await getUniqueSlugForExperiment(updatedExperimentData.name, experiment.id)
+
   const updatedExperiment = await prisma.experiment.update({
     where: { id: experiment.id },
     data: {
       name: updatedExperimentData.name,
-      slug: slugify(updatedExperimentData.name),
+      slug: slug,
       duration: updatedExperimentData.duration,
       sections: {
         update: await Promise.all(
