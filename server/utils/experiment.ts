@@ -18,7 +18,8 @@ async function getDuplicateSlugExperiments(slug: string) {
 /**
  * Generates a unique slug for an experiment by checking for potential duplicate slugs.
  * If a duplicate is found, a numerical suffix is appended to the slug.
- * If the name of the with `experimentId` associated experiment is equal to `experimentName`, the returned slug remains the same.
+ * If the name of the with `experimentId` associated experiment is equal to `experimentName`,
+ * the returned slug remains the same.
  *
  * @param experimentName - The experiment name which the slug should contain
  * @param experimentId - The ID of the experiment for which the slug is being generated.
