@@ -75,7 +75,6 @@ model ExperimentSectionContent {
   experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String
   text                String
-  order               Int
   files               File[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt

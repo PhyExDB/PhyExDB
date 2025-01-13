@@ -3,7 +3,7 @@ import { experimentAttributeValueCreateSchema } from "~~/shared/types"
 export default defineEventHandler(async (event) => {
   const attributeId = getRouterParam(event, "id")
   if (!attributeId) {
-    throw createError({ status: 400, message: "Invalid attribute id" })
+    throw createError({ status: 400, message: "Invalid id" })
   }
   const attribute = await prisma.experimentAttribute.findFirst({
     where: { id: attributeId },

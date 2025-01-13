@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     data: { name: updateName.name },
   })
 
-  return updatedValue.toDetail()
+  return updatedValue.toList()
 })
 
 defineRouteMeta({
@@ -58,7 +58,7 @@ defineRouteMeta({
         },
       },
       400: {
-        description: "Invalid body",
+        description: "Invalid id",
       },
       404: {
         description: "Value not found",
