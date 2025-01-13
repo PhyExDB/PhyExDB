@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "prisma": "^6.1.0",
+    "prisma": "^6.2.1",
     "tsx": "^4.19.2",
     "@prisma/client": "^6.2.1"
   }
