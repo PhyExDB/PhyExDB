@@ -67,6 +67,7 @@ test.describe("Profile Page", () => {
     await page.locator("#password").fill("1Password")
     await page.locator("#password").press("Tab")
     await page.locator("#confirmPassword").fill("1Password")
+    await page.getByLabel("Ich akzeptiere die").click()
     await page.getByRole("button", { name: "Registrieren" }).click()
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - text: CH
@@ -149,6 +150,7 @@ test.describe("Profile Page", () => {
     await page.locator("#password").fill("1Password")
     await page.locator("#password").press("Tab")
     await page.locator("#confirmPassword").fill("1Password")
+    await page.getByLabel("Ich akzeptiere die").click()
     await page.getByRole("button", { name: "Registrieren" }).click()
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - text: CH
