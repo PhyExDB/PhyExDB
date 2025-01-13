@@ -36,8 +36,8 @@ test.describe("Profile Page", () => {
     await page.locator("#password").press("Tab")
     await page.getByRole("button", { name: "Anmelden" }).press("Enter")
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
-      - text: UU
-      - paragraph: Unverified User
+      - text: UN
+      - paragraph: Unverified
       - paragraph: unverified@test.test
       - button "Name oder E-Mail ändern"
       - button "Passwort ändern"
