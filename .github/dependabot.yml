@@ -10,6 +10,11 @@ updates:
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: "daily"
+    groups:
+      npm-dependencies:
+        dependency-type: production
+      npm-dev-dependencies:
+        dependency-type: development
 
   # Enable version updates for npm in prisma directory
   - package-ecosystem: "npm"
@@ -18,6 +23,11 @@ updates:
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: "daily"
+    groups:
+      npm-prisma-dependencies:
+        dependency-type: production
+      npm-prisma-dev-dependencies:
+        dependency-type: development
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -26,6 +36,10 @@ updates:
     # Check for updates once a week
     schedule:
       interval: "weekly"
+    groups:
+      github-actions-updates:
+        patterns:
+          - "*"
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"
@@ -34,3 +48,7 @@ updates:
     # Check for updates once a week
     schedule:
       interval: "weekly"
+    groups:
+      docker-dependencies:
+        patterns:
+          - "*"
