@@ -1,4 +1,3 @@
-import type { File } from "@prisma/client"
 import { fileResultExtensions } from "./file"
 
 /**
@@ -21,7 +20,7 @@ export const experimentSectionContentResultExtensions = {
     * @returns A function that returns an object with id and name.
     */
     compute(value: { id: string, text: string }) {
-      return (files: File[]) => {
+      return (files: Parameters<typeof fileResultExtensions.toList.compute>[0][]) => {
         return {
           id: value.id,
           text: value.text,

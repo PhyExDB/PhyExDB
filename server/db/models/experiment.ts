@@ -1,4 +1,3 @@
-import type { ExperimentAttributeValue } from "@prisma/client"
 import { experimentAttributeValueResultExtensions } from "./experimentAttributeValue"
 
 /**
@@ -28,7 +27,7 @@ export const experimentResultExtensions = {
      * @returns A function that returns the transformed experiment.
      */
     compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
-      return (attributes: ExperimentAttributeValue[]) => {
+      return (attributes: Parameters<typeof experimentAttributeValueResultExtensions.toList.compute>[0][]) => {
         return {
           id: experiment.id,
           name: experiment.name,
@@ -65,7 +64,10 @@ export const experimentResultExtensions = {
      * @returns A function that returns the transformed experiment.
      */
     compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
-      return (attributes: ExperimentAttributeValue[], sections: ExperimentSectionContentList[]) => {
+      return (
+        attributes: Parameters<typeof experimentAttributeValueResultExtensions.toList.compute>[0][],
+        sections: ExperimentSectionContentList[],
+      ) => {
         return {
           id: experiment.id,
           name: experiment.name,

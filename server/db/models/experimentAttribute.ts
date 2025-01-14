@@ -1,4 +1,3 @@
-import type { ExperimentAttributeValue } from "@prisma/client"
 import { experimentAttributeValueResultExtensions } from "./experimentAttributeValue"
 
 /**
@@ -47,7 +46,7 @@ export const experimentAttributeResultExtensions = {
      * @returns A function that takes a list of experiment attribute values and returns the transformed attribute.
      */
     compute(attribute: { id: string, name: string, slug: string }) {
-      return (values: ExperimentAttributeValue[]) => {
+      return (values: Parameters<typeof experimentAttributeValueResultExtensions.toList.compute>[0][]) => {
         return {
           id: attribute.id,
           name: attribute.name,
