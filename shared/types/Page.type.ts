@@ -1,21 +1,30 @@
-/*
- * Represents a paginated response.
- *
- * @template T - The type of items contained in the page.
- *
- * @property {T[]} items - The list of items on the current page.
- * @property {Object} pagination - The pagination details.
- * @property {number} pagination.total - The total number of items.
- * @property {number} pagination.totalPages - The total number of pages.
- * @property {number} pagination.page - The current page number.
- * @property {number} pagination.pageSize - The number of items per page.
+/**
+ * Represents a paginated response of items of type `T`.
  */
 export interface Page<T> {
+  /**
+   * The list of items on the current page.
+   */
   items: T[]
+  /**
+   * The pagination details.
+   */
   pagination: {
+    /**
+     * The total number of items.
+     */
     total: number
+    /**
+     * The total number of pages.
+     */
     totalPages: number
+    /**
+     * The current page number.
+     */
     page: number
+    /**
+     * The number of items per page.
+     */
     pageSize: number
   }
 }
