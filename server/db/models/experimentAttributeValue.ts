@@ -9,7 +9,7 @@ export const experimentAttributeValueResultExtensions = {
     /**
      * Specifies the required fields for the list format.
      */
-    needs: { id: true, name: true },
+    needs: { id: true, value: true },
 
     /**
      * Computes the list format of the experiment attribute value.
@@ -17,37 +17,12 @@ export const experimentAttributeValueResultExtensions = {
      * @param value - The experiment attribute value containing id and name.
      * @returns A function that returns an object with id and name.
      */
-    compute(value: { id: string, name: string }) {
+    compute(value: { id: string, value: string }) {
       return () => {
         return {
           id: value.id,
-          name: value.name,
-        }
-      }
-    },
-  },
-
-  /**
-   * Extension to convert experiment attribute value to a detailed format.
-   */
-  toDetail: {
-    /**
-     * Specifies the required fields for the detailed format.
-     */
-    needs: { id: true, name: true },
-
-    /**
-     * Computes the detailed format of the experiment attribute value.
-     *
-     * @param value - The experiment attribute value containing id and name.
-     * @returns A function that returns an object with id and name.
-     */
-    compute(value: { id: string, name: string }) {
-      return () => {
-        return {
-          id: value.id,
-          name: value.name,
-        }
+          value: value.value,
+        } satisfies ExperimentAttributeValueList
       }
     },
   },

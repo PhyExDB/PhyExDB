@@ -1,3 +1,6 @@
+import type { ExperimentAttributeValue } from "@prisma/client"
+import { experimentAttributeValueResultExtensions } from "./experimentAttributeValue"
+
 /**
  * An object containing methods to transform experiment results into different formats.
  */
@@ -25,7 +28,7 @@ export const experimentResultExtensions = {
      * @returns A function that returns the transformed experiment.
      */
     compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
-      return async () => {
+      return (attributes: ExperimentAttributeValue[]) => {
         return {
           id: experiment.id,
           name: experiment.name,
@@ -33,16 +36,8 @@ export const experimentResultExtensions = {
           userId: experiment.userId,
           status: experiment.status,
           duration: experiment.duration,
-          attributes: (await prisma.experimentAttributeValue.findMany({
-            where: {
-              experiments: {
-                some: {
-                  id: experiment.id,
-                },
-              },
-            },
-          })).map(experimentAttributeValue => experimentAttributeValue.toList()),
-        }
+          attributes: attributes.map(value => experimentAttributeValueResultExtensions.toList.compute(value)()),
+        } satisfies ExperimentList
       }
     },
   },
@@ -70,7 +65,7 @@ export const experimentResultExtensions = {
      * @returns A function that returns the transformed experiment.
      */
     compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
-      return async () => {
+      return (attributes: ExperimentAttributeValue[], sections: ExperimentSectionContentList[]) => {
         return {
           id: experiment.id,
           name: experiment.name,
@@ -78,23 +73,9 @@ export const experimentResultExtensions = {
           userId: experiment.userId,
           status: experiment.status,
           duration: experiment.duration,
-          attributes: (await prisma.experimentAttributeValue.findMany({
-            where: {
-              experiments: {
-                some: {
-                  id: experiment.id,
-                },
-              },
-            },
-          })).map(experimentAttributeValue => experimentAttributeValue.toList()),
-          sections: await Promise.all(
-            (await prisma.experimentSectionContent.findMany({
-              where: {
-                experimentId: experiment.id,
-              },
-            })).map(async section => await section.toList()),
-          ),
-        }
+          attributes: attributes.map(value => experimentAttributeValueResultExtensions.toList.compute(value)()),
+          sections: sections,
+        } satisfies ExperimentDetail
       }
     },
   },

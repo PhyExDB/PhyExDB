@@ -11,7 +11,7 @@ export interface ExperimentAttributeValueList extends BaseList {
   /**
    * The value of the attribute
    */
-  name: string
+  value: string
 }
 
 /**
@@ -22,8 +22,7 @@ export interface ExperimentAttributeValueList extends BaseList {
  * - `name`: A string representing the value of the attribute.
  */
 export const experimentAttributeValueCreateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+  value: z.string(),
 })
 
 /**
@@ -33,5 +32,5 @@ export const experimentAttributeValueCreateSchema = z.object({
  * - `name`: A string representing the value of the attribute.
  */
 export const experimentAttributeValueUpdateSchema = z.object({
-  name: z.string(),
+  value: z.string(),
 })

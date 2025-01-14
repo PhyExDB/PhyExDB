@@ -1,3 +1,6 @@
+import type { File } from "@prisma/client"
+import { fileResultExtensions } from "./file"
+
 /**
  * An object containing methods to transform experiment section contents into different formats.
  */
@@ -18,24 +21,12 @@ export const experimentSectionContentResultExtensions = {
     * @returns A function that returns an object with id and name.
     */
     compute(value: { id: string, text: string }) {
-      return async () => {
+      return (files: File[]) => {
         return {
           id: value.id,
           text: value.text,
-          order: (await prisma.experimentSectionContent.findFirst({
-            where: {
-              id: value.id,
-            },
-            include: {
-              experimentSection: true,
-            },
-          }))!.experimentSection.order,
-          files: await prisma.file.findMany({
-            where: {
-              experimentSectionId: value.id,
-            },
-          }),
-        }
+          files: files.map(file => fileResultExtensions.toList.compute(file)()),
+        } satisfies ExperimentSectionContentList
       }
     },
   },
