@@ -1,24 +1,14 @@
-import { minModerator } from "#imports"
-
 export default defineEventHandler(async (event) => {
-  const user = await getUser(event)
   const query = getQuery(event)
   const page = parseInt(query.page as string) || 1
   const pageSize = parseInt(query.pageSize as string) || 10
   const skip = (page - 1) * pageSize
 
-  const ownExperiments = user != null
-  const modOrAdmin = user != null && minModerator(user?.role)
-  // Cannot use abilities here, since filtering the results of the query would not align with the pagination
   const experiments = await prisma.experiment.findMany({
     skip,
     take: pageSize,
     where: {
-      OR: [
-        { status: "PUBLISHED" },
-        ownExperiments ? { userId: user!.id } : {},
-        modOrAdmin ? { status: "IN_REVIEW" } : {},
-      ],
+      status: "PUBLISHED",
     },
     include: {
       attributes: {
@@ -38,11 +28,7 @@ export default defineEventHandler(async (event) => {
 
   const totalExperiments = await prisma.experiment.count({
     where: {
-      OR: [
-        { status: "PUBLISHED" },
-        ownExperiments ? { userId: user!.id } : {},
-        modOrAdmin ? { status: "IN_REVIEW" } : {},
-      ],
+      status: "PUBLISHED",
     },
   })
 
