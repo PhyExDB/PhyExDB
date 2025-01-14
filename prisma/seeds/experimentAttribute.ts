@@ -48,12 +48,12 @@ export async function experimentAttributeMigrations() {
     data: attributes.map(attribute => ({
       name: attribute.name,
       slug: slugify(attribute.name),
-      values: {
-        create: attribute.values.map(value => ({
+      values: attribute.values.map(value => ({
+        create: {
           value: value,
           slug: slugify(value),
-        })),
-      },
+        },
+      })),
     })),
   })
 }
