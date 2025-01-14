@@ -28,9 +28,27 @@ export interface File {
   lastModified: string
 }
 
+/**
+ * Represents the details of a file.
+ */
 export interface FileDetail {
+  /**
+   * The unique identifier of the file.
+   */
   id: string
+
+  /**
+   * The path to the file.
+   */
   path: string
+
+  /**
+   * The MIME type of the file.
+   */
   mimeType: string
+
+  /**
+   * The user who created the file.
+   */
   createdBy: UserList
 }
