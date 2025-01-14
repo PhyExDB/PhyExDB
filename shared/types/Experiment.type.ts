@@ -55,8 +55,14 @@ export interface ExperimentDetail extends ExperimentList {
  * @returns {Promise<z.ZodObject>} A promise that resolves to the experiment schema.
  */
 export async function getExperimentSchema() {
-  const requiredNumSections = await prisma.experimentSection.count()
-  const requiredNumAttributes = await prisma.experimentAttribute.count()
+  const attributeEndpointResponse = await $fetch("/api/experiments/attributes")
+  const attributeValueSets = attributeEndpointResponse.map((attribute) => {
+    const attributeValues = attribute.values.map(attributeValue => attributeValue.id)
+    return new Set(attributeValues)
+  })
+  const requiredNumAttributes = attributeEndpointResponse.length
+
+  const requiredNumSections = await $fetch("/api/experiments/requiredNumSections")
 
   const experimentSchema = z.object({
     name: z.string(),
@@ -82,17 +88,14 @@ export async function getExperimentSchema() {
     attributes: z.array(z.object({
       valueId: z.string(),
     })).refine(async (attributes) => {
-      const attributeIds = await Promise.all(
-        attributes.map(async (attribute) => {
-          const attributeValue = await prisma.experimentAttributeValue.findFirst({
-            where: {
-              id: attribute.valueId,
-            },
-          })
-          return attributeValue!.id
-        }),
-      )
-      return attributeIds.length === requiredNumAttributes
+      const attributesContained = new Set()
+      attributes.forEach((attribute) => {
+        for (let i = 0; i < attributeValueSets.length; i++) {
+          if (attributeValueSets[i]?.has(attribute.valueId))
+            attributesContained.add(i)
+        }
+      })
+      return attributesContained.size === requiredNumAttributes
     }, {
       message: "Not enough attributes specified",
     }),
