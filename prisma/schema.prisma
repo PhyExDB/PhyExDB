@@ -21,6 +21,7 @@ model User {
   image         String?
   sessions      Session[]
   accounts      Account[]
+  experiments   Experiment[]
 
   @@unique([email])
   @@map("user")
@@ -45,6 +46,8 @@ model Experiment {
   id         String                     @id @default(uuid())
   name       String
   slug       String                     @unique
+  user       User                       @relation(fields: [userId], references: [id])
+  userId     String
   status     ExperimentStatus           @default(DRAFT)
   duration   Int
   sections   ExperimentSectionContent[]
@@ -62,7 +65,7 @@ enum ExperimentStatus {
 model ExperimentSection {
   id          String                     @id @default(uuid())
   name        String
-  order       Int
+  order       Int                        @unique
   experiments ExperimentSectionContent[]
   createdAt   DateTime                   @default(now())
   updatedAt   DateTime                   @updatedAt
