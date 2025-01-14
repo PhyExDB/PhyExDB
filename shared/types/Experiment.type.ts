@@ -91,8 +91,9 @@ export async function getExperimentSchema() {
       const attributesContained = new Set()
       attributes.forEach((attribute) => {
         for (let i = 0; i < attributeValueSets.length; i++) {
-          if (attributeValueSets[i]?.has(attribute.valueId))
+          if (attributeValueSets[i]?.has(attribute.valueId)) {
             attributesContained.add(i)
+          }
         }
       })
       return attributesContained.size === requiredNumAttributes
