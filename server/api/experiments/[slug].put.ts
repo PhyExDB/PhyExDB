@@ -1,18 +1,10 @@
 import { readValidatedBody } from "h3"
-import { validate as uuidValidate } from "uuid"
 import { getUniqueSlugForExperiment } from "~~/server/utils/experiment"
 import { getExperimentSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  const slugOrId = getRouterParam(event, "slug")
-  if (!slugOrId) {
-    throw createError({ status: 400, message: "Invalid slug" })
-  }
-
-  const isId = uuidValidate(slugOrId)
-  const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
   const experiment = await prisma.experiment.findFirst({
-    where: whereClause,
+    where: getSlugOrIdPrismaWhereClause(event),
   })
 
   if (!experiment) {

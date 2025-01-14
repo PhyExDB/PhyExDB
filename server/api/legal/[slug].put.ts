@@ -1,14 +1,7 @@
-import { validate as uuidValidate } from "uuid"
 import { legalDocumentUpdateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  const slugOrId = getRouterParam(event, "slug")
-  if (!slugOrId) {
-    throw createError({ status: 400, message: "Invalid slug" })
-  }
-
-  const isId = uuidValidate(slugOrId)
-  const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
+  const whereClause = getSlugOrIdPrismaWhereClause(event)
   const document = await prisma.legalDocument.findFirst({
     where: whereClause,
   })
