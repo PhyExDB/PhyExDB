@@ -25,6 +25,9 @@ export function getSlugOrIdPrismaWhereClause(event: H3Event<EventHandlerRequest>
   return whereClause
 }
 
+/**
+ * Generates a Prisma where clause based on an ID parameter from the event.
+ */
 export function getIdPrismaWhereClause(event: H3Event<EventHandlerRequest>) {
   const id = getRouterParam(event, "slug")
   if (!id) {
