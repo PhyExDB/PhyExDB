@@ -4,7 +4,8 @@
  */
 export interface ExperimentSectionContentList extends BaseList {
   /**
-   * The position of this experiment section within the entire experiment description made up of multiple experiment sections.
+   * The position of this experiment section within the entire
+   * experiment description made up of multiple experiment sections.
    */
   order: number
   /**
