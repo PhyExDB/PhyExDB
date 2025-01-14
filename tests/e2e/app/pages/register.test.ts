@@ -86,6 +86,10 @@ test.describe("Register Page", () => {
         - textbox
         - text: Passwort wiederholen
         - textbox
+        - checkbox "Ich akzeptiere die Nutzungsbedingungen."
+        - text: Ich akzeptiere die
+        - link "Nutzungsbedingungen"
+        - text: .
         - button "Registrieren"
         - text: Bereits registriert?
         - link "Anmelden"
@@ -107,6 +111,10 @@ test.describe("Register Page", () => {
         - text: Passwort wiederholen
         - textbox
         - alert: Passwort muss wiederholt werden
+        - checkbox "Ich akzeptiere die Nutzungsbedingungen."
+        - text: Ich akzeptiere die
+        - link "Nutzungsbedingungen"
+        - text: .
         - button "Registrieren"
         - text: Bereits registriert?
         - link "Anmelden"
@@ -122,6 +130,7 @@ test.describe("Register Page", () => {
     await page.locator("#password").fill("1Password")
     await page.locator("#password").press("Tab")
     await page.locator("#confirmPassword").fill("1Password")
+    await page.getByLabel("Ich akzeptiere die").click()
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - main:
         - heading "Registrieren" [level=3]
@@ -134,6 +143,10 @@ test.describe("Register Page", () => {
         - textbox: 1Password
         - text: Passwort wiederholen
         - textbox: 1Password
+        - checkbox "Ich akzeptiere die Nutzungsbedingungen."
+        - text: Ich akzeptiere die
+        - link "Nutzungsbedingungen"
+        - text: .
         - button "Registrieren"
         - text: Bereits registriert?
         - link "Anmelden"
