@@ -1,4 +1,4 @@
-import type { File } from "~~/shared/types"
+import type { File, FileDetail } from "~~/shared/types"
 import { canCreateFile } from "~~/shared/utils/abilities"
 
 const relativeFileUploadDirectory = "/uploads"
@@ -40,27 +40,10 @@ defineRouteMeta({
     tags: ["Files"],
     requestBody: {
       content: {
-        // TODO: I think this is wrong, since the file is not a JSON object
-        "application/json": {
+        "": {
           schema: {
-            type: "object",
-            properties: {
-              files: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    name: { type: "string" },
-                    content: { type: "string" },
-                    size: { type: "string" },
-                    type: { type: "string" },
-                    lastModified: { type: "string" },
-                  },
-                  required: ["name", "content", "size", "type", "lastModified"],
-                },
-              },
-            },
-            required: ["files"],
+            type: "string",
+            format: "binary",
           },
         },
       },
@@ -68,6 +51,9 @@ defineRouteMeta({
     responses: {
       200: {
         description: "The file has been uploaded",
+      },
+      401: {
+        description: "Unauthorized",
       },
     },
   },
