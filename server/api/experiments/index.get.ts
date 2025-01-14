@@ -1,3 +1,5 @@
+import type { Page } from "~~/shared/types"
+
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const page = parseInt(query.page as string) || 1
@@ -32,8 +34,8 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return {
-    data: await Promise.all(experiments.map(async experiment => await experiment.toList())),
+  const result: Page<ExperimentList> = {
+    items: await Promise.all(experiments.map(async experiment => await experiment.toList())),
     pagination: {
       total: totalExperiments,
       page,
@@ -41,6 +43,8 @@ export default defineEventHandler(async (event) => {
       totalPages: Math.ceil(totalExperiments / pageSize),
     },
   }
+
+  return result
 })
 
 defineRouteMeta({
