@@ -22,6 +22,7 @@ export interface ExperimentAttributeValueList extends BaseList {
  * - `name`: A string representing the value of the attribute.
  */
 export const experimentAttributeValueCreateSchema = z.object({
+  attribute: z.string(),
   value: z.string(),
 })
 

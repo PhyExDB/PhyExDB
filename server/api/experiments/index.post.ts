@@ -47,9 +47,23 @@ export default defineEventHandler(async (event) => {
         })),
       },
     },
+    include: {
+      attributes: {
+        select: {
+          value: true,
+          id: true,
+          attribute: {
+            select: {
+              name: true,
+              id: true,
+            },
+          },
+        },
+      },
+    },
   })
 
-  return await newExperiment.toList()
+  return await newExperiment.toList(newExperiment.attributes)
 })
 
 defineRouteMeta({

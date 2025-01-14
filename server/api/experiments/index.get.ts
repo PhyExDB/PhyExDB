@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     include: {
       attributes: {
         select: {
-          name: true,
+          value: true,
           id: true,
           attribute: {
             select: {
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
   })
 
   const result: Page<ExperimentList> = {
-    items: await Promise.all(experiments.map(async experiment => await experiment.toList())),
+    items: experiments.map(experiment => experiment.toList(experiment.attributes)),
     pagination: pageMeta,
   }
 

@@ -20,9 +20,10 @@ export default defineEventHandler(async (event) => {
   const updatedAttribute = await prisma.experimentAttribute.update({
     where: { id: id },
     data: { name: updateName.name },
+    include: { values: true },
   })
 
-  return updatedAttribute.toDetail(attribute.values.map(value => value.toList()))
+  return updatedAttribute.toDetail(attribute.values)
 })
 
 defineRouteMeta({

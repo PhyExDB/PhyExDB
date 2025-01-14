@@ -1,5 +1,43 @@
 /**
- * Retrieves a list of experiments from the database that have slugs with the format `slug[number > 0]`.
+ * Configuration object for selecting specific attributes and their nested properties
+ * in an experiment list query.
+ */
+export const experimentIncludeForToList = {
+  attributes: {
+    select: {
+      value: true,
+      id: true,
+      attribute: {
+        select: {
+          name: true,
+          id: true,
+        },
+      },
+    },
+  },
+}
+/**
+ * Configuration object for selecting specific attributes and their nested properties
+ * in an experiment detail query.
+ */
+export const experimentIncludeForToDetail = {
+  ...experimentIncludeForToList,
+  sections: {
+    select: {
+      id: true,
+      text: true,
+      files: {
+        select: {
+          id: true,
+          mimeType: true,
+        },
+      },
+    },
+  },
+}
+
+/**
+* Retrieves a list of experiments from the database that have slugs with the format `slug[number > 0]`.
  *
  * @param {string} slug - The slug to search for duplicates.
  * @returns {Promise<Experiment[]>} A promise that resolves to an array of experiments with slugs starting with the format "slug[number > 0]".

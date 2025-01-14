@@ -1,27 +1,24 @@
 import { experimentAttributeValueUpdateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id")
-  if (!id) {
-    throw createError({ status: 400, message: "Invalid id" })
-  }
+  const whereClause = getIdPrismaWhereClause(event)
 
-  const document = await prisma.experimentAttributeValue.findFirst({
-    where: { id: id },
+  const attributeValue = await prisma.experimentAttributeValue.findFirst({
+    where: whereClause,
   })
 
-  if (!document) {
+  if (!attributeValue) {
     throw createError({ status: 404, message: "Value not found" })
   }
 
   const updateName = await readValidatedBody(event, body => experimentAttributeValueUpdateSchema.parse(body))
 
   const updatedValue = await prisma.experimentAttributeValue.update({
-    where: { id: id },
-    data: { name: updateName.name },
+    where: whereClause,
+    data: { value: updateName.value },
   })
 
-  return updatedValue.toDetail()
+  return updatedValue.toList()
 })
 
 defineRouteMeta({

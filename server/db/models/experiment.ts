@@ -64,9 +64,8 @@ export const experimentResultExtensions = {
      * @returns A function that returns the transformed experiment.
      */
     compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
-      return (
+      return async (
         attributes: Parameters<typeof experimentAttributeValueResultExtensions.toList.compute>[0][],
-        sections: ExperimentSectionContentList[],
       ) => {
         return {
           id: experiment.id,
@@ -76,7 +75,21 @@ export const experimentResultExtensions = {
           status: experiment.status,
           duration: experiment.duration,
           attributes: attributes.map(value => experimentAttributeValueResultExtensions.toList.compute(value)()),
-          sections: sections,
+          sections: await Promise.all(
+            (await prisma.experimentSectionContent.findMany({
+              where: {
+                experimentId: experiment.id,
+              },
+              include: {
+                files: {
+                  select: {
+                    id: true,
+                    mimeType: true,
+                  },
+                },
+              },
+            })).map(async section => await section.toList(section.files)),
+          ),
         } satisfies ExperimentDetail
       }
     },

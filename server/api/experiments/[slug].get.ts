@@ -1,15 +1,16 @@
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
+    include: experimentIncludeForToList,
   })
 
   if (!experiment) {
     throw createError({ status: 404, message: "Experiment not found!" })
   }
 
-  await authorize(event, canSeeExperiment, await experiment.toList())
+  await authorize(event, canSeeExperiment, await experiment.toList(experiment.attributes))
 
-  return await experiment.toDetail()
+  return await experiment.toDetail(experiment.attributes)
 })
 
 defineRouteMeta({

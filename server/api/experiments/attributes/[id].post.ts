@@ -1,31 +1,21 @@
-import { experimentAttributeValueCreateSchema } from "~~/shared/types"
-
 export default defineEventHandler(async (event) => {
-  const attributeId = getRouterParam(event, "id")
-  if (!attributeId) {
-    throw createError({ status: 400, message: "Invalid attribute id" })
-  }
-  const attribute = await prisma.experimentAttribute.findFirst({
-    where: { id: attributeId },
+  const newAttributeContent = await readValidatedBody(event, body => experimentAttributeCreateSchema.parse(body))
+
+  const attribute = await prisma.experimentAttribute.create({
+    data: {
+      name: newAttributeContent.name,
+      slug: slugify(newAttributeContent.name),
+      values: {
+        create: newAttributeContent.values.map(value => ({
+          value: value,
+          slug: slugify(value),
+        })),
+      },
+    },
     include: { values: true },
   })
 
-  if (!attribute) {
-    throw createError({ status: 404, message: "Attribute not found" })
-  }
-
-  const newValueContent = await readValidatedBody(event, body => experimentAttributeValueCreateSchema.parse(body))
-
-  const attributeValue = await prisma.experimentAttributeValue.create({
-    data: {
-      name: newValueContent.name,
-      attribute: { connect: { id: attributeId } },
-    },
-  })
-
-  const attributeValues = [...attribute.values.map(value => value.toList()), attributeValue.toList()]
-
-  return attribute.toDetail(attributeValues)
+  return attribute.toDetail(attribute.values)
 })
 
 defineRouteMeta({

@@ -5,6 +5,7 @@ import { getExperimentSchema } from "~~/shared/types"
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
+    include: experimentIncludeForToList,
   })
 
   if (!experiment) {
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
   if (user == null) {
     throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
   }
-  await authorize(event, canEditExperiment, await experiment.toList())
+  await authorize(event, canEditExperiment, await experiment.toList(experiment.attributes))
 
   const updatedExperimentData = await readValidatedBody(
     event,
@@ -62,9 +63,10 @@ export default defineEventHandler(async (event) => {
         })),
       },
     },
+    include: experimentIncludeForToList,
   })
 
-  return await updatedExperiment.toDetail()
+  return await updatedExperiment.toDetail(updatedExperiment.attributes)
 })
 
 defineRouteMeta({

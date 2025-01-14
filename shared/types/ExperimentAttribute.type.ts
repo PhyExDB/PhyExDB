@@ -38,3 +38,14 @@ export interface ExperimentAttributeDetail extends ExperimentAttributeList {
 export const experimentAttributeUpdateSchema = z.object({
   name: z.string(),
 })
+
+/**
+ * Schema for updating an ExperimentAttribute.
+ *
+ * This schema validates that the object has the following property:
+ * - `name`: A string representing the value of the attribute.
+ */
+export const experimentAttributeCreateSchema = z.object({
+  name: z.string(),
+  values: z.array(experimentAttributeValueCreateSchema.shape.value),
+})
