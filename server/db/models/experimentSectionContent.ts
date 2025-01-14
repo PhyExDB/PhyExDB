@@ -23,6 +23,9 @@ export const experimentSectionContentResultExtensions = {
           id: value.id,
           text: value.text,
           order: (await prisma.experimentSectionContent.findFirst({
+            where: {
+              id: value.id,
+            },
             include: {
               experimentSection: true,
             },

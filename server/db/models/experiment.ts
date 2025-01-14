@@ -41,7 +41,7 @@ export const experimentResultExtensions = {
                 },
               },
             },
-          })).forEach(experimentAttributeValue => experimentAttributeValue.toList()),
+          })).map(experimentAttributeValue => experimentAttributeValue.toList()),
         }
       }
     },
@@ -86,12 +86,14 @@ export const experimentResultExtensions = {
                 },
               },
             },
-          })).forEach(experimentAttributeValue => experimentAttributeValue.toList()),
-          sections: (await prisma.experimentSectionContent.findMany({
-            where: {
-              experimentId: experiment.id,
-            },
-          })).forEach(section => section.toList()),
+          })).map(experimentAttributeValue => experimentAttributeValue.toList()),
+          sections: await Promise.all(
+            (await prisma.experimentSectionContent.findMany({
+              where: {
+                experimentId: experiment.id,
+              },
+            })).map(async section => await section.toList()),
+          ),
         }
       }
     },
