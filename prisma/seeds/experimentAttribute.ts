@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client"
+import slugify from "~~/server/utils/slugify"
 
 const prisma = new PrismaClient()
 
