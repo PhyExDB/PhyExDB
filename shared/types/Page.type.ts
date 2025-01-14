@@ -9,22 +9,27 @@ export interface Page<T> {
   /**
    * The pagination details.
    */
-  pagination: {
-    /**
-     * The total number of items.
-     */
-    total: number
-    /**
-     * The total number of pages.
-     */
-    totalPages: number
-    /**
-     * The current page number.
-     */
-    page: number
-    /**
-     * The number of items per page.
-     */
-    pageSize: number
-  }
+  pagination: PageMeta
+}
+
+/**
+ * Represents metadata of a paginated response.
+ */
+export interface PageMeta {
+  /**
+   * The total number of items.
+   */
+  total: number
+  /**
+   * The total number of pages.
+   */
+  totalPages: number
+  /**
+   * The current page number.
+   */
+  page: number
+  /**
+   * The number of items per page.
+   */
+  pageSize: number
 }
