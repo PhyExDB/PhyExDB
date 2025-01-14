@@ -10,9 +10,9 @@ const prisma = new PrismaClient()
 async function main() {
   await userMigrations()
   await legalMigrations()
-  await experimentMigrations()
   await experimentAttributeMigrations()
   await experimentSectionMigrations()
+  await experimentMigrations()
 }
 
 main()
