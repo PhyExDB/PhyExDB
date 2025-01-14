@@ -59,11 +59,8 @@ defineRouteMeta({
                     type: "object",
                     properties: {
                       id: { type: "string", format: "uuid" },
-                      experimentId: { type: "string", format: "uuid" },
-                      experimentSectionId: { type: "string", format: "uuid" },
                       text: { type: "string" },
-                      createdAt: { type: "string", format: "date-time" },
-                      updatedAt: { type: "string", format: "date-time" },
+                      order: { type: "number" },
                       files: {
                         type: "array",
                         items: {
@@ -82,10 +79,7 @@ defineRouteMeta({
                     type: "object",
                     properties: {
                       id: { type: "string", format: "uuid" },
-                      attributeId: { type: "string", format: "uuid" },
                       name: { type: "string" },
-                      createdAt: { type: "string", format: "date-time" },
-                      updatedAt: { type: "string", format: "date-time" },
                     },
                   },
                 },

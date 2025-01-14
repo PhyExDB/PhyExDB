@@ -127,9 +127,6 @@ defineRouteMeta({
                     properties: {
                       name: { type: "string" },
                       id: { type: "string", format: "uuid" },
-                      attributeId: { type: "string", format: "uuid" },
-                      createdAt: { type: "string", format: "date-time" },
-                      updatedAt: { type: "string", format: "date-time" },
                     },
                   },
                 },
