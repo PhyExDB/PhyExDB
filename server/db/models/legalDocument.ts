@@ -26,7 +26,7 @@ export const legalDocumentResultExtensions = {
           id: legal.id,
           name: legal.name,
           slug: legal.slug,
-        }
+        } satisfies LegalDocumentList
       }
     },
   },
@@ -56,7 +56,7 @@ export const legalDocumentResultExtensions = {
           name: legal.name,
           slug: legal.slug,
           text: legal.text,
-        }
+        } satisfies LegalDocumentDetail
       }
     },
   },
