@@ -36,6 +36,12 @@ export default defineNuxtConfig({
     },
   },
 
+  vite: {
+    resolve: {
+      preserveSymlinks: true,
+    },
+  },
+
   postcss: {
     plugins: {
       tailwindcss: {},

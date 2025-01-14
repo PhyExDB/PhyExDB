@@ -31,7 +31,11 @@ export const canCreateFile = defineAbility((user: UserDetail) => {
  * Ability to see experiment
  */
 export const canSeeExperiment = defineAbility({ allowGuest: true }, (user: UserDetail, experiment: ExperimentList) => {
-  return experiment.status === "Accepted"
+  return experiment.status === "PUBLISHED"
     || user.id === experiment.userId
-    || (minModerator(user.role) && experiment.status === "Submitted")
+    || (minModerator(user.role) && experiment.status === "IN_REVIEW")
 })
+/**
+ * Ability to create an experiment
+ */
+export const canCreateExperiment = onlySignedInAbillity
