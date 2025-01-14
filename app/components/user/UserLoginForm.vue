@@ -40,7 +40,6 @@ const onSubmit = form.handleSubmit(async (values) => {
           <Input
             id="email"
             v-bind="componentField"
-            type="email"
           />
         </FormControl>
         <FormMessage />
@@ -64,7 +63,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     </FormField>
     <div
       v-if="lastWrong"
-      class="text-destructive text-sm"
+      class="text-destructive text-sm font-medium"
     >
       E-Mail oder Passwort falsch
     </div>

@@ -6,6 +6,11 @@ definePageMeta({
   description: "Sign up for a new account",
   layout: "auth",
 })
+
+const user = await useUser()
+if (user.value) {
+  await navigateTo("/profile")
+}
 </script>
 
 <template>
