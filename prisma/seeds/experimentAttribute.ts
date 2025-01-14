@@ -44,16 +44,18 @@ export async function experimentAttributeMigrations() {
     },
   ]
 
-  await prisma.experimentAttribute.createMany({
-    data: attributes.map(attribute => ({
-      name: attribute.name,
-      slug: slugify(attribute.name),
-      values: attribute.values.map(value => ({
-        create: {
-          value: value,
-          slug: slugify(value),
+  attributes.forEach(async (attribute) => {
+    await prisma.experimentAttribute.create({
+      data: {
+        name: attribute.name,
+        slug: slugify(attribute.name),
+        values: {
+          create: attribute.values.map(value => ({
+            value: value,
+            slug: slugify(value),
+          })),
         },
-      })),
-    })),
+      },
+    })
   })
 }
