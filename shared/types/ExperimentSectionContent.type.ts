@@ -1,12 +1,10 @@
-import type { File } from "@prisma/client"
-
 /**
  * Represents a list of content for an experiment section.
  * Extends the BaseList interface.
  */
 export interface ExperimentSectionContentList extends BaseList {
   /**
-   * The order of the content in the list.
+   * The position of this experiment section within the entire experiment description made up of multiple experiment sections.
    */
   order: number
   /**
@@ -16,5 +14,5 @@ export interface ExperimentSectionContentList extends BaseList {
   /**
    * The list of files associated with the experiment section.
    */
-  files: File[]
+  files: FileList[]
 }

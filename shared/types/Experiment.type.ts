@@ -1,4 +1,3 @@
-import type { ExperimentAttributeValue, ExperimentSectionContent } from "@prisma/client"
 import { z } from "zod"
 
 /**
@@ -21,6 +20,10 @@ export interface ExperimentList extends BaseList {
    * The status of the experiment.
    */
   status: string
+  /**
+   * The attributes associated with the experiment.
+   */
+  attributes: ExperimentAttributeValueList[]
 }
 
 /**
@@ -28,13 +31,9 @@ export interface ExperimentList extends BaseList {
  */
 export interface ExperimentDetail extends ExperimentList {
   /**
-   * The attributes associated with the experiment.
-   */
-  attributes: ExperimentAttributeValue[]
-  /**
    * The sections of the experiment.
    */
-  sections: ExperimentSectionContent[]
+  sections: ExperimentSectionContentList[]
 }
 
 /**

@@ -33,7 +33,7 @@ export const experimentResultExtensions = {
           userId: experiment.userId,
           status: experiment.status,
           duration: experiment.duration,
-          attributes: await prisma.experimentAttributeValue.findMany({
+          attributes: (await prisma.experimentAttributeValue.findMany({
             where: {
               experiments: {
                 some: {
@@ -41,7 +41,7 @@ export const experimentResultExtensions = {
                 },
               },
             },
-          }),
+          })).forEach(experimentAttributeValue => experimentAttributeValue.toList()),
         }
       }
     },
@@ -78,7 +78,7 @@ export const experimentResultExtensions = {
           userId: experiment.userId,
           status: experiment.status,
           duration: experiment.duration,
-          attributes: await prisma.experimentAttributeValue.findMany({
+          attributes: (await prisma.experimentAttributeValue.findMany({
             where: {
               experiments: {
                 some: {
@@ -86,12 +86,12 @@ export const experimentResultExtensions = {
                 },
               },
             },
-          }),
-          sections: await prisma.experimentSectionContent.findMany({
+          })).forEach(experimentAttributeValue => experimentAttributeValue.toList()),
+          sections: (await prisma.experimentSectionContent.findMany({
             where: {
               experimentId: experiment.id,
             },
-          }),
+          })).forEach(section => section.toList()),
         }
       }
     },
