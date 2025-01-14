@@ -108,6 +108,10 @@ export const userRegisterSchema = z.object({
 const userRegisterSchemaWithRepeatPassword = z.object({
   ...userRegisterSchema.shape,
   ...confirmPasswordSchema,
+  acceptedTermsOfService: z.literal(
+    true,
+    { message: "Die Nutzungsbedingungen müssen akzeptiert werden." },
+  ),
 })
 
 /**

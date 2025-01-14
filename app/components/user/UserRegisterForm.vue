@@ -19,6 +19,7 @@ const formSchema = toTypedSchema(schema)
 const form = useForm({ validationSchema: formSchema })
 
 const onSubmit = form.handleSubmit(async (values) => {
+  console.log(values)
   if (loading.value) return
   loading.value = true
   const data = {
@@ -107,6 +108,29 @@ const onSubmit = form.handleSubmit(async (values) => {
           />
         </FormControl>
         <FormMessage />
+      </FormItem>
+    </FormField>
+    <FormField
+      v-slot="{ value, handleChange }"
+      type="checkbox"
+      name="acceptedTermsOfService"
+    >
+      <FormItem class="flex flex-row items-start gap-x-3 space-y-0">
+        <FormControl>
+          <Checkbox
+            :checked="value"
+            @update:checked="handleChange"
+          />
+        </FormControl>
+        <div class="space-y-1 leading-none">
+          <FormLabel>
+            Ich akzeptiere die
+            <NuxtLink
+              to="/legal/terms-of-service"
+              class="underline"
+            >Nutzungsbedingungen</NuxtLink>.
+          </FormLabel>
+        </div>
       </FormItem>
     </FormField>
     <Button
