@@ -1,6 +1,6 @@
 // https://github.com/Barbapapazes/nuxt-authorization
 
-import type { Experiment, File } from "@prisma/client"
+import type { Experiment, File, UserFile } from "@prisma/client"
 
 /**
  * Test ability to try it out
@@ -69,4 +69,11 @@ export const canSeeExperimentFile = canSeeExperiment
  */
 export const canCreateUserFile = defineAbility((user: UserDetail, file: File) => {
   return user.id === file.createdById
+})
+
+/**
+ * Ability to delete a user file
+ */
+export const canDeleteUserFile = defineAbility((user: UserDetail, userFile: UserFile) => {
+  return user.id === userFile.userId
 })
