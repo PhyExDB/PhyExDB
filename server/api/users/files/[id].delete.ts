@@ -27,13 +27,10 @@ export default defineEventHandler(async (event) => {
     where: {
       id: userFileId,
     },
-    include: {
-      file: true,
-    },
   })
 
   // Using event.$fetch forwards headers like Authorization
-  return await event.$fetch(`/api/files/${deletedUserFile.file.id}`, {
+  return await event.$fetch("/api/files/" + deletedUserFile.fileId, {
     method: "DELETE",
   })
 })
