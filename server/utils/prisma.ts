@@ -7,6 +7,7 @@ import { userResultExtensions } from "../db/models/user"
 import { fileResultExtensions } from "../db/models/file"
 import { experimentSectionContentResultExtensions } from "../db/models/experimentSectionContent"
 import { experimentFileResultExtensions } from "../db/models/experimentFile"
+import { userFileResultExtensions } from "../db/models/userFile"
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
@@ -59,6 +60,7 @@ const prismaClientSingleton = () => {
     experimentAttributeValue: experimentAttributeValueResultExtensions,
     file: fileResultExtensions,
     experimentFile: experimentFileResultExtensions,
+    userFile: userFileResultExtensions,
     experimentSectionContent: experimentSectionContentResultExtensions,
   }
 
