@@ -4,6 +4,11 @@ import { canUpdateExperimentFile } from "~~/shared/utils/abilities"
 export default defineEventHandler(async (event) => {
   const experimentFileId = getRouterParam(event, "id")
 
+  const user = await getUser(event)
+  if (!user) {
+    throw createError({ status: 401, message: "Unauthorized" })
+  }
+
   const experimentFile = await prisma.experimentFile.findFirst({
     where: {
       id: experimentFileId,
@@ -16,11 +21,6 @@ export default defineEventHandler(async (event) => {
       },
     },
   })
-
-  const user = await getUser(event)
-  if (!user) {
-    throw createError({ status: 401, message: "Unauthorized" })
-  }
 
   if (!experimentFile) {
     throw createError({ status: 404, message: "Experiment file not found" })
