@@ -1,6 +1,5 @@
 import { fileResultExtensions } from "./file"
-import type { UserList } from "~~/shared/types"
-import type { ExperimentFileDetail } from "~~/shared/types/ExperimentFile.type"
+import type { UserList, ExperimentFileDetail } from "~~/shared/types"
 
 type FileType = Parameters<typeof fileResultExtensions.toDetail.compute>[0]
 

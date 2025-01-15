@@ -1,4 +1,4 @@
-import { experimentFileCreateSchema } from "~~/shared/types/ExperimentFile.type"
+import { experimentFileCreateSchema } from "~~/shared/types"
 import { canCreateExperimentFile } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
