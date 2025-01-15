@@ -93,8 +93,9 @@ defineRouteMeta({
                   type: "object",
                   properties: {
                     id: { type: "string", format: "uuid" },
-                    description: { type: "string" },
-                    file: { type: "object" },
+                    path: { type: "string" },
+                    mimeType: { type: "string" },
+                    createdBy: { type: "object" },
                   },
                 },
               },

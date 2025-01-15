@@ -2,6 +2,11 @@ import { experimentFileCreateSchema } from "~~/shared/types"
 import { canCreateExperimentFile } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
+  const user = await getUser(event)
+  if (!user) {
+    throw createError({ status: 401, message: "Unauthorized" })
+  }
+
   const newExperimentFileContent = await readValidatedBody(event, body => experimentFileCreateSchema.parse(body))
 
   const experimentSectionContent = await prisma.experimentSectionContent.findFirst({
@@ -13,13 +18,18 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  const user = await getUser(event)
-  if (!user) {
-    throw createError({ status: 401, message: "Unauthorized" })
-  }
-
   if (!experimentSectionContent) {
     throw createError({ status: 404, message: "Experiment section not found" })
+  }
+
+  const file = await prisma.file.findFirst({
+    where: {
+      id: newExperimentFileContent.fileId,
+    },
+  })
+
+  if (!file) {
+    throw createError({ status: 404, message: "File not found" })
   }
 
   await authorize(event, canCreateExperimentFile, experimentSectionContent.experiment)
@@ -86,8 +96,9 @@ defineRouteMeta({
                   type: "object",
                   properties: {
                     id: { type: "string", format: "uuid" },
-                    description: { type: "string" },
-                    file: { type: "object" },
+                    path: { type: "string" },
+                    mimeType: { type: "string" },
+                    createdBy: { type: "object" },
                   },
                 },
               },
