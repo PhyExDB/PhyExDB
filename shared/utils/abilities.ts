@@ -49,6 +49,14 @@ export const canCreateExperiment = onlySignedInAbillity
 export const canCreateFile = defineAbility((user: UserDetail) => {
   return user.emailVerified
 })
+
+/**
+ * Ability to delete a file
+ */
+export const canDeleteFile = defineAbility((user: UserDetail, file: File) => {
+  return user.id === file.createdById
+})
+
 /**
  * Ability to create an experiment file
  */

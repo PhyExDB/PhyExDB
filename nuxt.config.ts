@@ -22,6 +22,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     logLevel: "debug",
+    fileMount: "./public",
   },
 
   future: {
@@ -62,7 +63,7 @@ export default defineNuxtConfig({
   },
 
   fileStorage: {
-    mount: process.env.FILE_MOUNT,
+    mount: process.env.NUXT_FILE_MOUNT,
   },
 
   shadcn: {

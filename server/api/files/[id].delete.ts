@@ -1,41 +1,46 @@
-import { canDeleteUserFile } from "~~/shared/utils/abilities"
+import fs from "fs"
+import { canDeleteFile } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
-  const userFileId = getRouterParam(event, "id")
+  const fileId = getRouterParam(event, "id")
 
   const user = await getUser(event)
   if (!user) {
     throw createError({ status: 401, message: "Unauthorized" })
   }
 
-  const userFile = await prisma.userFile.findFirst({
+  const file = await prisma.file.findFirst({
     where: {
-      id: userFileId,
+      id: fileId,
     },
     include: {
-      user: true,
+      createdBy: true,
     },
   })
 
-  if (!userFile) {
-    throw createError({ status: 404, message: "User file not found" })
+  if (!file) {
+    throw createError({ status: 404, message: "File not found" })
   }
 
-  await authorize(event, canDeleteUserFile, userFile)
+  await authorize(event, canDeleteFile, file)
 
-  const deletedUserFile = await prisma.userFile.delete({
+  const runtimeConfig = useRuntimeConfig()
+  const filePath = `${runtimeConfig.fileMount}/${file.path}`
+
+  try {
+    fs.unlinkSync(filePath)
+  } catch (error) {
+    logger.error("Failed to delete file from filesystem", { error })
+    throw createError({ status: 500, message: "Failed to delete file from filesystem" })
+  }
+
+  await prisma.file.delete({
     where: {
-      id: userFileId,
-    },
-    include: {
-      file: true,
+      id: fileId,
     },
   })
 
-  // Using event.$fetch forwards headers like Authorization
-  return await event.$fetch(`/api/files/${deletedUserFile.file.id}`, {
-    method: "DELETE",
-  })
+  return setResponseStatus(event, 204)
 })
 
 defineRouteMeta({
@@ -63,7 +68,7 @@ defineRouteMeta({
         description: "Unauthorized",
       },
       404: {
-        description: "User file not found",
+        description: "File not found",
       },
     },
   },
