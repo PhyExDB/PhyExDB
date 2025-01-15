@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
 defineRouteMeta({
   openAPI: {
     description: "Create a new experiment file",
-    tags: ["Experiment Files"],
+    tags: ["User Files"],
     requestBody: {
       content: {
         "application/json": {

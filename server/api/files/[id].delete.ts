@@ -45,24 +45,11 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Create a new experiment file",
-    tags: ["Experiment Files"],
-    requestBody: {
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              fileId: { type: "string", format: "uuid" },
-            },
-            required: ["fileId"],
-          },
-        },
-      },
-    },
+    description: "Delete a file",
+    tags: ["Files"],
     responses: {
       204: {
-        description: "The user file has been deleted.",
+        description: "The file has been deleted.",
       },
       401: {
         description: "Unauthorized",
