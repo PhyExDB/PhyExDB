@@ -1,0 +1,57 @@
+export default defineEventHandler(async (event) => {
+  const c = await readValidatedBody(event, body => experimentAttributeValueCreateSchema.parse(body))
+
+  const r = await untilSlugUnique(
+    (slug: string) => {
+      return prisma.experimentAttributeValue.create({
+        data: {
+          value: c.value,
+          slug: slug,
+          attribute: {
+            connect: { id: c.attribute },
+          },
+        },
+      })
+    },
+    slugify(c.value),
+  )
+
+  return r.toList()
+})
+
+defineRouteMeta({
+  openAPI: {
+    description: "Create new Value to an existing attribute",
+    tags: ["ExperimentAttributeValues"],
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              value: { type: "string" },
+              attribute: { type: "string", format: "uuid" },
+            },
+            required: ["value", "attribute"],
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "The created value",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                value: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+})

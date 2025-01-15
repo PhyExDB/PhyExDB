@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 defineRouteMeta({
   openAPI: {
     description: "Update an Experiment Value",
-    tags: ["ExperimentAttribute"],
+    tags: ["ExperimentAttributeValues"],
     requestBody: {
       content: {
         "application/json": {
