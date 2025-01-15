@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@nuxt/icon",
     "nuxt-file-storage",
+    "@nuxt/image",
   ],
 
   devtools: { enabled: true },
