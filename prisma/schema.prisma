@@ -121,8 +121,8 @@ model ExperimentFile {
   file                File                      @relation(fields: [fileId], references: [id])
   fileId              String                    @unique
   description         String?
-  experimentSection   ExperimentSectionContent? @relation(fields: [experimentSectionId], references: [id])
-  experimentSectionId String?
+  experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id])
+  experimentSectionId String
   createdAt           DateTime                  @default(now())
   updatedAt           DateTime                  @updatedAt
 }
