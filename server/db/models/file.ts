@@ -3,11 +3,11 @@ import type { FileDetail, FileList } from "~~/shared/types"
 /**
  * Represents the list of a file.
  */
-export type FileListType = Parameters<typeof fileResultExtensions.toList.compute>[0]
+export type FileListType = { id: string, path: string, mimeType: string }
 /**
  * Represents the details of a file.
  */
-export type FileDetailType = Parameters<typeof fileResultExtensions.toDetail.compute>[0]
+export type FileDetailType = { id: string, path: string, mimeType: string }
 
 /**
  * Extensions for transforming file results.
@@ -31,13 +31,9 @@ export const fileResultExtensions = {
      * @param file - The file object.
      * @returns A function that returns the transformed file.
      */
-    compute(file: { id: string, path: string, mimeType: string }) {
+    compute(file: FileListType) {
       return () => {
-        return {
-          id: file.id,
-          path: file.path,
-          mimeType: file.mimeType,
-        } satisfies FileList
+        return file satisfies FileList
       }
     },
   },
@@ -59,7 +55,7 @@ export const fileResultExtensions = {
      * @param file - The file object.
      * @returns A function that returns the transformed file.
      */
-    compute(file: { id: string, path: string, mimeType: string }) {
+    compute(file: FileDetailType) {
       return (createdBy: UserList) => {
         return {
           id: file.id,
