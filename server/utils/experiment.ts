@@ -31,8 +31,14 @@ export const experimentIncludeForToDetail = {
       files: {
         select: {
           id: true,
-          mimeType: true,
-          path: true,
+          description: true,
+          file: {
+            select: {
+              id: true,
+              mimeType: true,
+              path: true,
+            },
+          },
         },
       },
     },

@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
     slugify(updatedExperimentData.name),
   )
 
-  return await updatedExperiment.toDetail(updatedExperiment.attributes, updatedExperiment.sections)
+  return updatedExperiment.toDetail(updatedExperiment.attributes, updatedExperiment.sections)
 })
 
 defineRouteMeta({

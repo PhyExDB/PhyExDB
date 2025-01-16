@@ -1,5 +1,23 @@
 import { z } from "zod"
+import type { FileDetail, FileList } from "./File.type"
 
+/**
+ * The ExperimentFile model.
+ */
+export interface ExperimentFileList {
+  /**
+   * The unique identifier of the file.
+   */
+  id: string
+  /**
+   * The description of the file.
+   */
+  description: string | null
+  /**
+   * The file itself.
+   */
+  file: FileList
+}
 /**
  * The ExperimentFile model.
  */
@@ -11,7 +29,7 @@ export interface ExperimentFileDetail {
   /**
    * The description of the file.
    */
-  description: string
+  description: string | null
   /**
    * The file itself.
    */

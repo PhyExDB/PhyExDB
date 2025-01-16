@@ -66,7 +66,7 @@ export const experimentResultExtensions = {
      * @returns A function that returns the transformed experiment.
      */
     compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
-      return async (
+      return (
         attributes: Parameters<typeof experimentAttributeValueResultExtensions.toList.compute>[0][],
         sections: SectionsListType[],
       ) => {

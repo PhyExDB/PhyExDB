@@ -1,5 +1,3 @@
-import type { FileList } from "~~/shared/types/File.type"
-
 /**
  * Represents a list of content for an experiment section.
  * Extends the BaseList interface.
@@ -12,5 +10,5 @@ export interface ExperimentSectionContentList extends BaseList {
   /**
    * The list of files associated with the experiment section.
    */
-  files: FileList[]
+  files: ExperimentFileList[]
 }
