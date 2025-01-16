@@ -4,7 +4,10 @@ import { experimentResultExtensions } from "../db/models/experiment"
 import { experimentAttributeValueResultExtensions } from "../db/models/experimentAttributeValue"
 import { experimentAttributeResultExtensions } from "../db/models/experimentAttribute"
 import { userResultExtensions } from "../db/models/user"
+import { fileResultExtensions } from "../db/models/file"
 import { experimentSectionContentResultExtensions } from "../db/models/experimentSectionContent"
+import { experimentFileResultExtensions } from "../db/models/experimentFile"
+import { userFileResultExtensions } from "../db/models/userFile"
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
@@ -55,6 +58,9 @@ const prismaClientSingleton = () => {
     experiment: experimentResultExtensions,
     experimentAttribute: experimentAttributeResultExtensions,
     experimentAttributeValue: experimentAttributeValueResultExtensions,
+    file: fileResultExtensions,
+    experimentFile: experimentFileResultExtensions,
+    userFile: userFileResultExtensions,
     experimentSectionContent: experimentSectionContentResultExtensions,
   }
 

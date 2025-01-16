@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Experiment not found!" })
   }
 
-  await authorize(event, canSeeExperiment, await experiment.toList())
+  await authorize(event, canSeeExperiment, experiment)
 
   return await experiment.toDetail()
 })

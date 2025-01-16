@@ -38,3 +38,6 @@ test-results
 
 # Code Coverage
 **/coverage/
+
+# Uploaded Files
+public/uploads
