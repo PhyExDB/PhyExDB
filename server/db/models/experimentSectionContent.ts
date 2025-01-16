@@ -1,4 +1,11 @@
-import { fileResultExtensions } from "./file"
+import { fileResultExtensions, type FileListType } from "./file"
+
+/**
+ * Represents the list of an section.
+ */
+export type SectionsListType = Parameters<typeof experimentSectionContentResultExtensions.toList.compute>[0] & {
+  files: FileListType[]
+}
 
 /**
  * An object containing methods to transform experiment section contents into different formats.

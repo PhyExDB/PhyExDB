@@ -1,8 +1,6 @@
 import { experimentAttributeValueResultExtensions } from "./experimentAttributeValue"
 import { experimentSectionContentResultExtensions } from "./experimentSectionContent"
-import type { FileListType } from "./file"
-
-export type SectionsType = Parameters<typeof experimentSectionContentResultExtensions.toList.compute>[0] & { files: FileListType[] }
+import type { SectionsListType } from "./experimentSectionContent"
 
 /**
  * An object containing methods to transform experiment results into different formats.
@@ -70,7 +68,7 @@ export const experimentResultExtensions = {
     compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
       return async (
         attributes: Parameters<typeof experimentAttributeValueResultExtensions.toList.compute>[0][],
-        sections: SectionsType[],
+        sections: SectionsListType[],
       ) => {
         return {
           id: experiment.id,
