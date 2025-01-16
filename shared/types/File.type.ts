@@ -29,14 +29,9 @@ export interface File {
 }
 
 /**
- * Represents the details of a file.
+ * Represents the list of a file.
  */
-export interface FileDetail {
-  /**
-   * The unique identifier of the file.
-   */
-  id: string
-
+export interface FileList extends BaseList {
   /**
    * The path to the file.
    */
@@ -46,7 +41,12 @@ export interface FileDetail {
    * The MIME type of the file.
    */
   mimeType: string
+}
 
+/**
+ * Represents the details of a file.
+ */
+export interface FileDetail extends FileList {
   /**
    * The user who created the file.
    */

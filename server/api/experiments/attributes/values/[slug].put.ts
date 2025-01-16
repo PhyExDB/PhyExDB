@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   )
 
   if (!result) {
-    throw createError({ status: 404, message: "Attribute not found" })
+    throw createError({ status: 404, message: "Value not found" })
   }
 
   return result.toList()

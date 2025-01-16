@@ -65,8 +65,6 @@ describe("API Route PUT /api/experiments/attributes/{slug}", () => {
   })
 
   it("should return a 404 error if the attribute is not found", async () => {
-    prisma.experimentAttribute.findFirst = vi.fn().mockResolvedValue(null)
-
     const event = {
       context: {
         params: {

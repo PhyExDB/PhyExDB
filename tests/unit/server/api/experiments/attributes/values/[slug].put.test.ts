@@ -59,15 +59,20 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
   })
 
   it("should return a 404 error if the value is not found", async () => {
-    prisma.experimentAttributeValue.findFirst = vi.fn().mockResolvedValue(null)
-
     const event = {
       context: {
         params: {
           slug: uuidv4(),
         },
       },
+      body: {
+        value: "newValue",
+      },
     } as unknown as H3Event
+
+    prisma.experimentAttributeValue.update = vi.fn().mockResolvedValue(
+      null,
+    )
 
     await expect(updateAttributeValue(event)).rejects.toThrowError(
       expect.objectContaining({

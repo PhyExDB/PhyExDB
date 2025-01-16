@@ -1,4 +1,8 @@
 import { experimentAttributeValueResultExtensions } from "./experimentAttributeValue"
+import { experimentSectionContentResultExtensions } from "./experimentSectionContent"
+import type { FileListType } from "./file"
+
+export type SectionsType = Parameters<typeof experimentSectionContentResultExtensions.toList.compute>[0] & { files: FileListType[] }
 
 /**
  * An object containing methods to transform experiment results into different formats.
@@ -66,6 +70,7 @@ export const experimentResultExtensions = {
     compute(experiment: { id: string, name: string, slug: string, userId: string, status: string, duration: number }) {
       return async (
         attributes: Parameters<typeof experimentAttributeValueResultExtensions.toList.compute>[0][],
+        sections: SectionsType[],
       ) => {
         return {
           id: experiment.id,
@@ -75,21 +80,7 @@ export const experimentResultExtensions = {
           status: experiment.status,
           duration: experiment.duration,
           attributes: attributes.map(value => experimentAttributeValueResultExtensions.toList.compute(value)()),
-          sections: await Promise.all(
-            (await prisma.experimentSectionContent.findMany({
-              where: {
-                experimentId: experiment.id,
-              },
-              include: {
-                files: {
-                  select: {
-                    id: true,
-                    mimeType: true,
-                  },
-                },
-              },
-            })).map(async section => await section.toList(section.files)),
-          ),
+          sections: sections.map(value => experimentSectionContentResultExtensions.toList.compute(value)(value.files)),
         } satisfies ExperimentDetail
       }
     },

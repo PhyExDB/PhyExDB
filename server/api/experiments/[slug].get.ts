@@ -3,7 +3,7 @@ import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
-    include: experimentIncludeForToList,
+    include: experimentIncludeForToDetail,
   })
 
   if (!experiment) {
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, canSeeExperiment, experiment)
 
-  return await experiment.toDetail(experiment.attributes)
+  return await experiment.toDetail(experiment.attributes, experiment.sections)
 })
 
 defineRouteMeta({

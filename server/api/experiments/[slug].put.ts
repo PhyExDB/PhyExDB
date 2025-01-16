@@ -64,13 +64,13 @@ export default defineEventHandler(async (event) => {
             })),
           },
         },
-        include: experimentIncludeForToList,
+        include: experimentIncludeForToDetail,
       })
     },
     slugify(updatedExperimentData.name),
   )
 
-  return await updatedExperiment.toDetail(updatedExperiment.attributes)
+  return await updatedExperiment.toDetail(updatedExperiment.attributes, updatedExperiment.sections)
 })
 
 defineRouteMeta({
