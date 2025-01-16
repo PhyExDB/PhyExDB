@@ -5,24 +5,24 @@ import slugify from "~~/server/utils/slugify"
 export default defineEventHandler(async (event) => {
   const whereClause = getSlugOrIdPrismaWhereClause(event)
 
-  const c = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))
+  const content = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))
 
-  const r = await untilSlugUnique(
+  const result = await untilSlugUnique(
     (slug: string) => {
       return prisma.experimentAttribute.update({
         where: whereClause,
-        data: { name: c.name, slug: slug },
+        data: { name: content.name, slug: slug },
         include: { values: true },
       })
     },
-    slugify(c.name),
+    slugify(content.name),
   )
 
-  if (!r) {
+  if (!result) {
     throw createError({ status: 404, message: "Attribute not found" })
   }
 
-  return r.toDetail(r.values)
+  return result.toDetail(result.values)
 })
 
 defineRouteMeta({

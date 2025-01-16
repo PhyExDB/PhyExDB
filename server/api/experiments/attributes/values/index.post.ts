@@ -2,24 +2,24 @@ import { untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
 
 export default defineEventHandler(async (event) => {
-  const c = await readValidatedBody(event, body => experimentAttributeValueCreateSchema.parse(body))
+  const content = await readValidatedBody(event, body => experimentAttributeValueCreateSchema.parse(body))
 
-  const r = await untilSlugUnique(
+  const result = await untilSlugUnique(
     (slug: string) => {
       return prisma.experimentAttributeValue.create({
         data: {
-          value: c.value,
+          value: content.value,
           slug: slug,
           attribute: {
-            connect: { id: c.attribute },
+            connect: { id: content.attribute },
           },
         },
       })
     },
-    slugify(c.value),
+    slugify(content.value),
   )
 
-  return r.toList()
+  return result.toList()
 })
 
 defineRouteMeta({
