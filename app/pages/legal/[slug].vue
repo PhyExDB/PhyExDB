@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import Button from "~/components/ui/button/Button.vue"
 import type { LegalDocumentDetail } from "~~/shared/types"
 
 definePageMeta({
@@ -19,5 +20,12 @@ const { data: legal } = await useAPI<LegalDocumentDetail>(`/api/legal/${slug}`)
       {{ legal!.name }}
     </h1>
     <p>{{ legal!.text }}</p>
+    <Can
+      :ability="onlyAdminAbillity"
+    >
+      <Button>
+        edit
+      </button>
+    </Can>
   </div>
 </template>
