@@ -5,7 +5,7 @@ import type { ExperimentAttributeValueList } from "./ExperimentAttributeValue.ty
  * Represents a list of attributes with their ids, names, and slugs.
  * Extends the BaseList interface.
  */
-export interface ExperimentAttributeList extends BaseList {
+export interface ExperimentAttributeList extends SlugList {
   /**
   * The id of the Attribute
   */
@@ -14,10 +14,6 @@ export interface ExperimentAttributeList extends BaseList {
    * The name of the Attribute
    */
   name: string
-  /**
-   * The slug of the Attribute
-   */
-  slug: string
 }
 /**
  * Represents an AttributeDetail with id, name, slug, and valueList

@@ -3,15 +3,11 @@ import { z } from "zod"
 /**
  * ExperimentList
  */
-export interface ExperimentList extends BaseList {
+export interface ExperimentList extends SlugList {
   /**
    * The name of the experiment.
    */
   name: string
-  /**
-   * The slug of the experiment.
-   */
-  slug: string
   /**
    * The creator of the experiment.
    */

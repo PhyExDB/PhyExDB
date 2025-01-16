@@ -1,5 +1,4 @@
 import { readValidatedBody } from "h3"
-import { getUniqueSlugForExperiment } from "~~/server/utils/experiment"
 import { getExperimentSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
@@ -23,48 +22,51 @@ export default defineEventHandler(async (event) => {
     async body => (await getExperimentSchema()).parseAsync(body),
   )
 
-  const slug = await getUniqueSlugForExperiment(updatedExperimentData.name, experiment.id)
-
-  const updatedExperiment = await prisma.experiment.update({
-    where: { id: experiment.id },
-    data: {
-      name: updatedExperimentData.name,
-      slug: slug,
-      duration: updatedExperimentData.duration,
-      sections: {
-        update: await Promise.all(
-          updatedExperimentData.sections.map(async section => ({
-            where: {
-              id: (await prisma.experimentSectionContent.findFirst({
+  const updatedExperiment = await untilSlugUnique(
+    async (slug: string) => {
+      return prisma.experiment.update({
+        where: { id: experiment.id },
+        data: {
+          name: updatedExperimentData.name,
+          slug: slug,
+          duration: updatedExperimentData.duration,
+          sections: {
+            update: await Promise.all(
+              updatedExperimentData.sections.map(async section => ({
                 where: {
-                  experimentId: experiment.id,
-                  experimentSection: {
-                    order: section.experimentSectionPositionInOrder,
+                  id: (await prisma.experimentSectionContent.findFirst({
+                    where: {
+                      experimentId: experiment.id,
+                      experimentSection: {
+                        order: section.experimentSectionPositionInOrder,
+                      },
+                    },
+                  }))!.id,
+                },
+                data: {
+                  text: section.text,
+                  files: {
+                    set: [], // now there might be files that are not used in any experiment
+                    connect: section.files.map(file => ({
+                      id: file.fileId,
+                    })),
                   },
                 },
-              }))!.id,
-            },
-            data: {
-              text: section.text,
-              files: {
-                set: [], // now there might be files that are not used in any experiment
-                connect: section.files.map(file => ({
-                  id: file.fileId,
-                })),
-              },
-            },
-          })),
-        ),
-      },
-      attributes: {
-        set: [],
-        connect: updatedExperimentData.attributes.map(attribute => ({
-          id: attribute.valueId,
-        })),
-      },
+              })),
+            ),
+          },
+          attributes: {
+            set: [],
+            connect: updatedExperimentData.attributes.map(attribute => ({
+              id: attribute.valueId,
+            })),
+          },
+        },
+        include: experimentIncludeForToList,
+      })
     },
-    include: experimentIncludeForToList,
-  })
+    slugify(updatedExperimentData.name),
+  )
 
   return await updatedExperiment.toDetail(updatedExperiment.attributes)
 })

@@ -1,7 +1,7 @@
 import { experimentAttributeValueUpdateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  const whereClause = getIdPrismaWhereClause(event)
+  const whereClause = getSlugOrIdPrismaWhereClause(event)
 
   const attributeValue = await prisma.experimentAttributeValue.findFirst({
     where: whereClause,
@@ -11,14 +11,19 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Value not found" })
   }
 
-  const updateName = await readValidatedBody(event, body => experimentAttributeValueUpdateSchema.parse(body))
+  const c = await readValidatedBody(event, body => experimentAttributeValueUpdateSchema.parse(body))
 
-  const updatedValue = await prisma.experimentAttributeValue.update({
-    where: whereClause,
-    data: { value: updateName.value },
-  })
+  const r = await untilSlugUnique(
+    (slug: string) => {
+      return prisma.experimentAttributeValue.update({
+        where: whereClause,
+        data: { value: c.value, slug: slug },
+      })
+    },
+    slugify(c.value),
+  )
 
-  return updatedValue.toList()
+  return r.toList()
 })
 
 defineRouteMeta({

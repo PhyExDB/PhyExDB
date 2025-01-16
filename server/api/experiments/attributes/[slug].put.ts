@@ -1,13 +1,10 @@
 import { experimentAttributeUpdateSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id")
-  if (!id) {
-    throw createError({ status: 400, message: "invalid id" })
-  }
+  const whereClause = getSlugOrIdPrismaWhereClause(event)
 
   const attribute = await prisma.experimentAttribute.findFirst({
-    where: { id: id },
+    where: whereClause,
     include: { values: true },
   })
 
@@ -15,15 +12,20 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Attribute not found" })
   }
 
-  const updateName = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))
+  const c = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))
 
-  const updatedAttribute = await prisma.experimentAttribute.update({
-    where: { id: id },
-    data: { name: updateName.name },
-    include: { values: true },
-  })
+  const r = await untilSlugUnique(
+    (slug: string) => {
+      return prisma.experimentAttribute.update({
+        where: whereClause,
+        data: { name: c.name, slug: slug },
+        include: { values: true },
+      })
+    },
+    slugify(c.name),
+  )
 
-  return updatedAttribute.toDetail(attribute.values)
+  return r.toDetail(r.values)
 })
 
 defineRouteMeta({

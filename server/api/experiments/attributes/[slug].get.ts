@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const attribute = await prisma.experimentAttribute.findFirst({
-    where: getIdPrismaWhereClause(event),
+    where: getSlugOrIdPrismaWhereClause(event),
     include: { values: true },
   })
 

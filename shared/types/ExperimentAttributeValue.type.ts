@@ -3,7 +3,7 @@ import { z } from "zod"
 /**
  * Represents an AttributeValue List with id and name
  */
-export interface ExperimentAttributeValueList extends BaseList {
+export interface ExperimentAttributeValueList extends SlugList {
   /**
    * The id of the value
    */

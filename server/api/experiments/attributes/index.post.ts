@@ -1,21 +1,26 @@
 export default defineEventHandler(async (event) => {
-  const newAttributeContent = await readValidatedBody(event, body => experimentAttributeCreateSchema.parse(body))
+  const c = await readValidatedBody(event, body => experimentAttributeCreateSchema.parse(body))
 
-  const attribute = await prisma.experimentAttribute.create({
-    data: {
-      name: newAttributeContent.name,
-      slug: slugify(newAttributeContent.name),
-      values: {
-        create: newAttributeContent.values.map(value => ({
-          value: value,
-          slug: slugify(value),
-        })),
-      },
+  const r = await untilSlugUnique(
+    (slug: string) => {
+      return prisma.experimentAttribute.create({
+        data: {
+          name: c.name,
+          slug: slugify(cachedEventHandler.name),
+          values: {
+            create: c.values.map(value => ({
+              value: value,
+              slug: slug,
+            })),
+          },
+        },
+        include: { values: true },
+      })
     },
-    include: { values: true },
-  })
+    slugify(c.name),
+  )
 
-  return attribute.toDetail(attribute.values)
+  return r.toDetail(r.values)
 })
 
 defineRouteMeta({
