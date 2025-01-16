@@ -1,10 +1,10 @@
-import { fileResultExtensions, type FileListType } from "./file"
+import { experimentFileResultExtensions, type ExperimentFileListType } from "./experimentFile"
 
 /**
  * Represents the list of an section.
  */
 export type SectionsListType = Parameters<typeof experimentSectionContentResultExtensions.toList.compute>[0] & {
-  files: FileListType[]
+  files: ExperimentFileListType[]
 }
 
 /**
@@ -27,11 +27,11 @@ export const experimentSectionContentResultExtensions = {
     * @returns A function that returns an object with id and name.
     */
     compute(value: { id: string, text: string }) {
-      return (files: Parameters<typeof fileResultExtensions.toList.compute>[0][]) => {
+      return (files: ExperimentFileListType[]) => {
         return {
           id: value.id,
           text: value.text,
-          files: files.map(file => fileResultExtensions.toList.compute(file)()),
+          files: files.map(file => experimentFileResultExtensions.toList.compute(file)(file.file)),
         } satisfies ExperimentSectionContentList
       }
     },
