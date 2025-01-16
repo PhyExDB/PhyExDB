@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@nuxt/icon": "^1.10.3",
+    "@nuxt/image": "^1.9.0",
     "@nuxtjs/color-mode": "^3.5.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@vee-validate/zod": "^4.15.0",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@iconify-json/heroicons": "^1.2.2",
+    "@iconify-json/uil": "^1.2.3",
     "@nuxt/eslint": "^0.7.5",
     "@nuxt/test-utils": "^3.15.4",
     "@nuxtjs/tailwindcss": "^6.13.1",
@@ -62,6 +64,7 @@
     "autoprefixer": "^10.4.20",
     "dotenv-cli": "^8.0.0",
     "happy-dom": "^16.5.3",
+    "nuxt-file-storage": "^0.2.9",
     "playwright-core": "^1.49.1",
     "postcss": "^8.5.0",
     "prisma": "^6.2.1",

@@ -133,6 +133,13 @@ test.describe("Profile Page", () => {
       - button "Name oder E-Mail ändern"
       - button "Passwort ändern"
       `)
+    // Expect the toast to show
+    await expect(page.getByRole("status", { name: "Account aktualisiert" })).toMatchAriaSnapshot(`
+      - status "Account aktualisiert":
+        - text: Account aktualisiert Dein Account wurde erfolgreich aktualisiert.
+        - button:
+          - img
+      `)
   })
 
   test("change password flow should work", async ({ page }) => {
@@ -239,6 +246,13 @@ test.describe("Profile Page", () => {
     await page.locator("#oldPassword").click()
     await page.locator("#oldPassword").fill("1Password")
     await page.getByRole("button", { name: "Speichern" }).click()
+    // Expect the toast to show
+    await expect(page.getByRole("status", { name: "Passwort geändert" })).toMatchAriaSnapshot(`
+    - status "Passwort geändert":
+      - text: Passwort geändert Dein Passwort wurde erfolgreich geändert.
+      - button:
+        - img
+    `)
   })
 
   test("dialogs should be closable", async ({ page }) => {

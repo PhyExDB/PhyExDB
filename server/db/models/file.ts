@@ -1,30 +1,33 @@
-import type { FileList } from "~~/shared/types/File.type"
-
 /**
- * An object containing methods to transform file contents into different formats.
+ * Extensions for transforming file results.
  */
 export const fileResultExtensions = {
-  toList: {
+  /**
+   * Extension for transforming a file to a detailed format.
+   */
+  toDetail: {
     /**
-      * Specifies the required fields for the list format.
-      */
+     * Specifies the required fields for the transformation.
+     */
     needs: {
       id: true,
+      path: true,
       mimeType: true,
     },
-
     /**
-      * Computes the list format of the experiment section content.
-      *
-      * @param value - The experiment attribute section content containing id, order and text
-      * @returns A function that returns an object with id and name.
-      */
-    compute(value: { id: string, mimeType: string }) {
-      return () => {
+     * Computes the detailed format of a file.
+     *
+     * @param file - The file object.
+     * @returns A function that returns the transformed file.
+     */
+    compute(file: { id: string, path: string, mimeType: string }) {
+      return (createdBy: UserList) => {
         return {
-          id: value.id,
-          mimeType: value.mimeType,
-        } satisfies FileList
+          id: file.id,
+          path: file.path,
+          mimeType: file.mimeType,
+          createdBy: createdBy,
+        }
       }
     },
   },

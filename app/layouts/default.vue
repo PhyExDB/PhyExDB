@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import Toaster from "@/components/ui/toast/Toaster.vue"
+</script>
+
 <template>
   <div class="min-h-screen flex flex-col">
     <div class="border-b">
@@ -12,8 +16,6 @@
     </main>
 
     <WebsiteFooter />
+    <Toaster />
   </div>
 </template>
-
-<script setup>
-</script>

@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   if (user == null) {
     throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
   }
-  await authorize(event, canEditExperiment, await experiment.toList(experiment.attributes))
+  await authorize(event, canEditExperiment, experiment)
 
   const updatedExperimentData = await readValidatedBody(
     event,

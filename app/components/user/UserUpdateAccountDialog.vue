@@ -2,6 +2,7 @@
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { z } from "zod"
+import { useToast } from "@/components/ui/toast/use-toast"
 
 const { user } = defineProps({
   user: {
@@ -46,6 +47,7 @@ watch(() => user, (newUser) => {
   }
 })
 
+const { toast } = useToast()
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
@@ -69,6 +71,14 @@ const onSubmit = form.handleSubmit(async (values) => {
       knownMails.push(values.email)
       form.validate()
     }
+  }
+
+  if (!hasError) {
+    toast({
+      title: "Account aktualisiert",
+      description: "Dein Account wurde erfolgreich aktualisiert.",
+      variant: "success",
+    })
   }
 
   open.value = hasError
