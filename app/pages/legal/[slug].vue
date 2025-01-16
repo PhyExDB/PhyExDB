@@ -24,7 +24,14 @@ const { data: legal } = await useAPI<LegalDocumentDetail>(`/api/legal/${slug}`)
       :ability="onlyAdminAbillity"
     >
       <Button>
-        edit
+        <div>
+          <NuxtLink
+            to="EditLegal"
+            class="text-black"
+          >
+            edit
+          </NuxtLink>
+        </div>
       </button>
     </Can>
   </div>
