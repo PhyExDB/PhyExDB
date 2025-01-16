@@ -30,7 +30,7 @@ export const userResultExtensions = {
           username: user.name,
           role: user.role,
           emailVerified: user.emailVerified,
-        }
+        } satisfies UserList
       }
     },
   },
@@ -62,7 +62,7 @@ export const userResultExtensions = {
           username: user.name,
           role: user.role,
           emailVerified: user.emailVerified,
-        }
+        } satisfies UserDetail
       }
     },
   },

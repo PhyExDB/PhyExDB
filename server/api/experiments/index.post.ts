@@ -1,7 +1,7 @@
 import { readValidatedBody } from "h3"
-import { getUniqueExperimentSlug } from "~~/server/utils/experiment"
 import { getExperimentSchema } from "~~/shared/types"
 import { canCreateExperiment } from "~~/shared/utils/abilities"
+import { untilSlugUnique } from "~~/server/utils/utils"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
@@ -12,44 +12,48 @@ export default defineEventHandler(async (event) => {
 
   const newValueContent = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
 
-  const slug = await getUniqueExperimentSlug(newValueContent.name)
-
-  const newExperiment = await prisma.experiment.create({
-    data: {
-      name: newValueContent.name,
-      slug: slug,
-      duration: newValueContent.duration,
-      userId: user.id,
-      sections: {
-        create: await Promise.all(newValueContent.sections.map(async section => ({
-          text: section.text,
-          experimentSection: {
-            connect: {
-              id: (
-                await prisma.experimentSection.findFirst({
-                  where: {
-                    order: section.experimentSectionPositionInOrder,
-                  },
-                })
-              )!.id,
-            },
+  const newExperiment = await untilSlugUnique(
+    async (slug: string) => {
+      return prisma.experiment.create({
+        data: {
+          name: newValueContent.name,
+          slug: slug,
+          duration: newValueContent.duration,
+          userId: user.id,
+          sections: {
+            create: await Promise.all(newValueContent.sections.map(async section => ({
+              text: section.text,
+              experimentSection: {
+                connect: {
+                  id: (
+                    await prisma.experimentSection.findFirst({
+                      where: {
+                        order: section.experimentSectionPositionInOrder,
+                      },
+                    })
+                  )!.id,
+                },
+              },
+              ...(section.files.length > 0 && {
+                connect: section.files.map(file => ({
+                  id: file.fileId,
+                })),
+              }),
+            }))),
           },
-          ...(section.files.length > 0 && {
-            connect: section.files.map(file => ({
-              id: file.fileId,
+          attributes: {
+            connect: newValueContent.attributes.map(attribute => ({
+              id: attribute.valueId,
             })),
-          }),
-        }))),
-      },
-      attributes: {
-        connect: newValueContent.attributes.map(attribute => ({
-          id: attribute.valueId,
-        })),
-      },
+          },
+        },
+        include: experimentIncludeForToList,
+      })
     },
-  })
+    slugify(newValueContent.name),
+  )
 
-  return await newExperiment.toList()
+  return newExperiment.toList(newExperiment.attributes)
 })
 
 defineRouteMeta({

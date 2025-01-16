@@ -1,3 +1,12 @@
+import { fileResultExtensions, type FileListType } from "./file"
+
+/**
+ * Represents the list of an section.
+ */
+export type SectionsListType = Parameters<typeof experimentSectionContentResultExtensions.toList.compute>[0] & {
+  files: FileListType[]
+}
+
 /**
  * An object containing methods to transform experiment section contents into different formats.
  */
@@ -18,24 +27,12 @@ export const experimentSectionContentResultExtensions = {
     * @returns A function that returns an object with id and name.
     */
     compute(value: { id: string, text: string }) {
-      return async () => {
+      return (files: Parameters<typeof fileResultExtensions.toList.compute>[0][]) => {
         return {
           id: value.id,
           text: value.text,
-          order: (await prisma.experimentSectionContent.findFirst({
-            where: {
-              id: value.id,
-            },
-            include: {
-              experimentSection: true,
-            },
-          }))!.experimentSection.order,
-          files: await prisma.file.findMany({
-            where: {
-              experimentSectionId: value.id,
-            },
-          }),
-        }
+          files: files.map(file => fileResultExtensions.toList.compute(file)()),
+        } satisfies ExperimentSectionContentList
       }
     },
   },

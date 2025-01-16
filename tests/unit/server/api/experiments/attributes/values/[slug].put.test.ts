@@ -1,14 +1,15 @@
 import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event } from "h3"
-import updateAttributeValue from "~~/server/api/experiments/attributes/values/[id].put"
+import updateAttributeValue from "~~/server/api/experiments/attributes/values/[slug].put"
 import { experimentAttributeValueResultExtensions } from "~~/server/db/models/experimentAttributeValue"
 
 describe("API Route PUT /api/experiments/attributes/{id}", () => {
   it("should update an attribute value name successfully", async () => {
     const mockAttributeValue = {
       id: uuidv4(),
-      name: "OldName",
+      value: "OldName",
+      slug: "oldname",
       toList: () =>
         experimentAttributeValueResultExtensions.toList.compute(mockAttributeValue)(),
     }
@@ -20,18 +21,18 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
       return Promise.resolve(null)
     })
     const updateContent = {
-      name: "NewName",
+      value: "NewName",
     }
     prisma.experimentAttributeValue.update = vi.fn().mockResolvedValue({
       id: mockAttributeValue.id,
-      name: updateContent.name,
+      value: updateContent.value,
       toList: () =>
         experimentAttributeValueResultExtensions.toList.compute(mockAttributeValue)(),
     })
     const event = {
       context: {
         params: {
-          id: mockAttributeValue.id,
+          slug: mockAttributeValue.id,
         },
       },
       body: updateContent,
@@ -52,21 +53,26 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
     await expect(updateAttributeValue(event)).rejects.toThrowError(
       expect.objectContaining({
         statusCode: 400,
-        message: "Invalid id",
+        message: "Invalid slug",
       }),
     )
   })
 
   it("should return a 404 error if the value is not found", async () => {
-    prisma.experimentAttributeValue.findFirst = vi.fn().mockResolvedValue(null)
-
     const event = {
       context: {
         params: {
-          id: uuidv4(),
+          slug: uuidv4(),
         },
       },
+      body: {
+        value: "newValue",
+      },
     } as unknown as H3Event
+
+    prisma.experimentAttributeValue.update = vi.fn().mockResolvedValue(
+      null,
+    )
 
     await expect(updateAttributeValue(event)).rejects.toThrowError(
       expect.objectContaining({

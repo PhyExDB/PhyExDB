@@ -1,47 +1,25 @@
 import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-  const page = parseInt(query.page as string) || 1
-  const pageSize = parseInt(query.pageSize as string) || 10
-  const skip = (page - 1) * pageSize
-
-  const experiments = await prisma.experiment.findMany({
-    skip,
-    take: pageSize,
-    where: {
-      status: "PUBLISHED",
-    },
-    include: {
-      attributes: {
-        select: {
-          name: true,
-          id: true,
-          attribute: {
-            select: {
-              name: true,
-              id: true,
-            },
-          },
-        },
-      },
-    },
-  })
-
   const totalExperiments = await prisma.experiment.count({
     where: {
       status: "PUBLISHED",
     },
   })
 
-  const result: Page<ExperimentList> = {
-    items: await Promise.all(experiments.map(async experiment => await experiment.toList())),
-    pagination: {
-      total: totalExperiments,
-      page,
-      pageSize,
-      totalPages: Math.ceil(totalExperiments / pageSize),
+  const pageMeta = getPageMeta(event, totalExperiments)
+
+  const experiments = await prisma.experiment.findMany({
+    ...getPaginationPrismaParam(pageMeta),
+    where: {
+      status: "PUBLISHED",
     },
+    include: experimentIncludeForToList,
+  })
+
+  const result: Page<ExperimentList> = {
+    items: experiments.map(experiment => experiment.toList(experiment.attributes)),
+    pagination: pageMeta,
   }
 
   return result
@@ -59,7 +37,7 @@ defineRouteMeta({
             schema: {
               type: "object",
               properties: {
-                data: {
+                items: {
                   type: "array",
                   items: {
                     type: "object",

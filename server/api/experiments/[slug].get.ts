@@ -1,15 +1,9 @@
-import { validate as uuidValidate } from "uuid"
+import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
 
 export default defineEventHandler(async (event) => {
-  const slugOrId = getRouterParam(event, "slug")
-  if (!slugOrId) {
-    throw createError({ status: 400, message: "Invalid slug" })
-  }
-
-  const isId = uuidValidate(slugOrId)
-  const whereClause = isId ? { id: slugOrId } : { slug: slugOrId }
   const experiment = await prisma.experiment.findFirst({
-    where: whereClause,
+    where: getSlugOrIdPrismaWhereClause(event),
+    include: experimentIncludeForToDetail,
   })
 
   if (!experiment) {
@@ -18,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, canSeeExperiment, experiment)
 
-  return await experiment.toDetail()
+  return await experiment.toDetail(experiment.attributes, experiment.sections)
 })
 
 defineRouteMeta({

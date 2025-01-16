@@ -1,7 +1,6 @@
 import { fileResultExtensions } from "./file"
+import type { FileDetailType } from "./file"
 import type { UserList, ExperimentFileDetail } from "~~/shared/types"
-
-type FileType = Parameters<typeof fileResultExtensions.toDetail.compute>[0]
 
 /**
  * Extensions for transforming experiment file results.
@@ -28,7 +27,7 @@ export const experimentFileResultExtensions = {
       id: string
       description: string
     }) {
-      return (file: FileType, createdBy: UserList) => {
+      return (file: FileDetailType, createdBy: UserList) => {
         return {
           id: experimentFile.id,
           description: experimentFile.description,

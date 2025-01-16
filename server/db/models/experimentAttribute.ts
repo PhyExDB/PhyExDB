@@ -1,3 +1,5 @@
+import { experimentAttributeValueResultExtensions } from "./experimentAttributeValue"
+
 /**
  * An object containing methods to transform experiment attribute results into different formats.
  */
@@ -23,7 +25,7 @@ export const experimentAttributeResultExtensions = {
           id: attribute.id,
           name: attribute.name,
           slug: attribute.slug,
-        }
+        } satisfies ExperimentAttributeList
       }
     },
   },
@@ -44,13 +46,13 @@ export const experimentAttributeResultExtensions = {
      * @returns A function that takes a list of experiment attribute values and returns the transformed attribute.
      */
     compute(attribute: { id: string, name: string, slug: string }) {
-      return (values: ExperimentAttributeValueList[]) => {
+      return (values: Parameters<typeof experimentAttributeValueResultExtensions.toList.compute>[0][]) => {
         return {
           id: attribute.id,
           name: attribute.name,
           slug: attribute.slug,
-          values: values,
-        }
+          values: values.map(value => experimentAttributeValueResultExtensions.toList.compute(value)()),
+        } satisfies ExperimentAttributeDetail
       }
     },
   },

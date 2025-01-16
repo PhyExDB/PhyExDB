@@ -67,6 +67,7 @@ enum ExperimentStatus {
 model ExperimentSection {
   id          String                     @id @default(uuid())
   name        String
+  slug        String                     @unique
   order       Int                        @unique
   experiments ExperimentSectionContent[]
   createdAt   DateTime                   @default(now())
@@ -99,7 +100,8 @@ model ExperimentAttributeValue {
   experiments Experiment[] // implicit many to many, pivot managed by Prisma
   attribute   ExperimentAttribute @relation(fields: [attributeId], references: [id])
   attributeId String
-  name        String
+  value       String
+  slug        String              @unique
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 }
