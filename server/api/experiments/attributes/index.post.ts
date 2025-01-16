@@ -1,3 +1,6 @@
+import { untilSlugUnique } from "~~/server/utils/utils"
+import slugify from "~~/server/utils/slugify"
+
 export default defineEventHandler(async (event) => {
   const c = await readValidatedBody(event, body => experimentAttributeCreateSchema.parse(body))
 
@@ -6,7 +9,7 @@ export default defineEventHandler(async (event) => {
       return prisma.experimentAttribute.create({
         data: {
           name: c.name,
-          slug: slugify(cachedEventHandler.name),
+          slug: slugify(c.name),
           values: {
             create: c.values.map(value => ({
               value: value,

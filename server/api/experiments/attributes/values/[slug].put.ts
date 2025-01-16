@@ -1,4 +1,6 @@
 import { experimentAttributeValueUpdateSchema } from "~~/shared/types"
+import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
+import slugify from "~~/server/utils/slugify"
 
 export default defineEventHandler(async (event) => {
   const whereClause = getSlugOrIdPrismaWhereClause(event)

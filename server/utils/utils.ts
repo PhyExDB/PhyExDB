@@ -32,7 +32,7 @@ export function getSlugOrIdPrismaWhereClause(event: H3Event<EventHandlerRequest>
 export function getIdPrismaWhereClause(event: H3Event<EventHandlerRequest>) {
   const id = getRouterParam(event, "slug")
   if (!id) {
-    throw createError({ status: 400, message: "Invalid slug" })
+    throw createError({ status: 400, message: "Invalid id" })
   }
 
   const whereClause = { id: id }

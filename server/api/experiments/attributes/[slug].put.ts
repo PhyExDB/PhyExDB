@@ -1,16 +1,9 @@
 import { experimentAttributeUpdateSchema } from "~~/shared/types"
+import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
+import slugify from "~~/server/utils/slugify"
 
 export default defineEventHandler(async (event) => {
   const whereClause = getSlugOrIdPrismaWhereClause(event)
-
-  const attribute = await prisma.experimentAttribute.findFirst({
-    where: whereClause,
-    include: { values: true },
-  })
-
-  if (!attribute) {
-    throw createError({ status: 404, message: "Attribute not found" })
-  }
 
   const c = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))
 
@@ -24,6 +17,10 @@ export default defineEventHandler(async (event) => {
     },
     slugify(c.name),
   )
+
+  if (!r) {
+    throw createError({ status: 404, message: "Attribute not found" })
+  }
 
   return r.toDetail(r.values)
 })

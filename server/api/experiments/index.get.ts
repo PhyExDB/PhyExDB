@@ -14,20 +14,7 @@ export default defineEventHandler(async (event) => {
     where: {
       status: "PUBLISHED",
     },
-    include: {
-      attributes: {
-        select: {
-          value: true,
-          id: true,
-          attribute: {
-            select: {
-              name: true,
-              id: true,
-            },
-          },
-        },
-      },
-    },
+    include: experimentIncludeForToList,
   })
 
   const result: Page<ExperimentList> = {

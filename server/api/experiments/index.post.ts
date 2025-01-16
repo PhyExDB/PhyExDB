@@ -1,6 +1,7 @@
 import { readValidatedBody } from "h3"
 import { getExperimentSchema } from "~~/shared/types"
 import { canCreateExperiment } from "~~/shared/utils/abilities"
+import { untilSlugUnique } from "~~/server/utils/utils"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)

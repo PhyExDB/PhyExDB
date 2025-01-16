@@ -1,32 +1,32 @@
 import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event, EventHandlerRequest } from "h3"
-import getAttribute from "~~/server/api/experiments/attributes/[id].get"
+import getAttribute from "~~/server/api/experiments/attributes/[slug].get"
 import { experimentAttributeResultExtensions } from "~~/server/db/models/experimentAttribute"
-import { experimentAttributeValueResultExtensions } from "~~/server/db/models/experimentAttributeValue"
 
-describe("Api Route GET /api/experiments/attributes/{id}", () => {
+describe("Api Route GET /api/experiments/attributes/{slug}", () => {
   it("should get an Attribute by id", async () => {
-    const mockValue1 = {
+    const value_1 = {
       id: uuidv4(),
-      name: "Value1",
-      toList: () =>
-        experimentAttributeValueResultExtensions.toList.compute(mockValue1)(),
+      value: "value_one",
+      slug: "value_one",
     }
-    const mockValue2 = {
+    const value_2 = {
       id: uuidv4(),
-      name: "Value2",
-      toList: () =>
-        experimentAttributeValueResultExtensions.toList.compute(mockValue2)(),
+      value: "value_two",
+      slug: "value_two",
+    }
+    const attribute = {
+      id: uuidv4(),
+      name: "attribute_one",
+      slug: "test",
+      values: [value_1, value_2],
     }
 
+    const expected = attribute
     const mockAttribute = {
-      id: uuidv4(),
-      name: "Test Attribute",
-      slug: "slug",
-      values: [mockValue1, mockValue2],
-      toDetail: (values: [ExperimentAttributeValueList]) =>
-        experimentAttributeResultExtensions.toDetail.compute(mockAttribute)(values),
+      ...attribute,
+      toDetail: () => experimentAttributeResultExtensions.toDetail.compute(mockAttribute)([value_1, value_2]),
     }
 
     // Mocking Prisma
@@ -40,7 +40,7 @@ describe("Api Route GET /api/experiments/attributes/{id}", () => {
     const event = {
       context: {
         params: {
-          id: mockAttribute.id,
+          slug: mockAttribute.id,
         },
       },
     } as unknown as H3Event<EventHandlerRequest>
@@ -48,12 +48,7 @@ describe("Api Route GET /api/experiments/attributes/{id}", () => {
     const response = await getAttribute(event)
 
     expectTypeOf(response).toEqualTypeOf<ExperimentAttributeDetail>()
-    const { toDetail, values, ...rest } = mockAttribute
-    const finalValues = [...values].map((value) => {
-      const { toList, ...rest } = value
-      return rest
-    })
-    expect(response).toStrictEqual({ ...rest, values: finalValues })
+    expect(response).toStrictEqual(expected)
   })
   it("should return a 400 error if no id is provided", async () => {
     const event = {
@@ -65,7 +60,7 @@ describe("Api Route GET /api/experiments/attributes/{id}", () => {
     await expect(getAttribute(event)).rejects.toThrowError(
       expect.objectContaining({
         statusCode: 400,
-        message: "invalid id",
+        message: "Invalid slug",
       }),
     )
   })
@@ -77,7 +72,7 @@ describe("Api Route GET /api/experiments/attributes/{id}", () => {
     const event = {
       context: {
         params: {
-          id: uuidv4(),
+          slug: uuidv4(),
         },
       },
     } as unknown as H3Event
