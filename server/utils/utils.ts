@@ -71,11 +71,11 @@ export async function catchPrismaUniqueError<T>(
 export async function untilSlugUnique<T>(
   call: (slug: string) => Promise<T>,
   slugBase: string,
-  slugSuffix: number = 0,
+  slugSuffix: number = 1,
 ): Promise<T> {
   let result: T | undefined | "NOTUNIQUE" = "NOTUNIQUE"
   while (result === "NOTUNIQUE") {
-    result = await catchPrismaUniqueError(() => call(slugBase + slugSuffix), "slug")
+    result = await catchPrismaUniqueError(() => call(slugBase + (slugSuffix === 1 ? "" : slugSuffix)), "slug")
     slugSuffix++
   }
   return result
