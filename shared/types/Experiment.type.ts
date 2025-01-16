@@ -21,6 +21,10 @@ export interface ExperimentList extends BaseList {
    */
   status: string
   /**
+   * The duration the execution of the experiment takes in minutes.
+   */
+  duration: number
+  /**
    * The attributes associated with the experiment.
    */
   attributes: ExperimentAttributeValueList[]
