@@ -56,14 +56,14 @@ test.describe("Profile Page", () => {
     await page.goto("/register", { waitUntil: "networkidle" })
 
     const id = uuidv4()
-    const username = `changeme-${id}`
-    const email = `${username}@test.test`
+    const name = `changeme-${id}`
+    const email = `${name}@test.test`
 
     await page.locator("#email").click()
     await page.locator("#email").fill(email)
     await page.locator("#email").press("Tab")
-    await page.locator("#username").fill(username)
-    await page.locator("#username").press("Tab")
+    await page.locator("#name").fill(name)
+    await page.locator("#name").press("Tab")
     await page.locator("#password").fill("1Password")
     await page.locator("#password").press("Tab")
     await page.locator("#confirmPassword").fill("1Password")
@@ -71,7 +71,7 @@ test.describe("Profile Page", () => {
     await page.getByRole("button", { name: "Registrieren" }).click()
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - text: CH
-      - paragraph: ${username}
+      - paragraph: ${name}
       - paragraph: ${email}
       - button "Name oder E-Mail ändern"
       - button "Passwort ändern"
@@ -82,14 +82,14 @@ test.describe("Profile Page", () => {
       - dialog "Nutzername oder E-Mail ändern":
         - heading "Nutzername oder E-Mail ändern" [level=2]
         - paragraph: Ändere deinen Nutzernamen oder deine E-Mail Adresse.
-        - textbox: ${username}
+        - textbox: ${name}
         - textbox: ${email}
         - button "Speichern"
         - button "Close":
           - img
       `)
-    await page.locator("#username").click()
-    await page.locator("#username").fill("")
+    await page.locator("#name").click()
+    await page.locator("#name").fill("")
     await page.locator("#email").click()
     await page.locator("#email").fill("")
     await page.getByRole("button", { name: "Speichern" }).click()
@@ -105,19 +105,19 @@ test.describe("Profile Page", () => {
         - button "Close":
           - img
       `)
-    await page.locator("#username").click()
-    const username2 = `changeme2-${id}`
-    const email2 = `${username2}@test.test`
-    await page.locator("#username").fill(username2)
-    await page.locator("#username").press("Tab")
-    await page.locator("#email").fill(username2)
+    await page.locator("#name").click()
+    const name2 = `changeme2-${id}`
+    const email2 = `${name2}@test.test`
+    await page.locator("#name").fill(name2)
+    await page.locator("#name").press("Tab")
+    await page.locator("#email").fill(name2)
     await page.getByRole("button", { name: "Speichern" }).click()
     await expect(page.getByLabel("Nutzername oder E-Mail ändern")).toMatchAriaSnapshot(`
       - dialog "Nutzername oder E-Mail ändern":
         - heading "Nutzername oder E-Mail ändern" [level=2]
         - paragraph: Ändere deinen Nutzernamen oder deine E-Mail Adresse.
-        - textbox: ${username2}
-        - textbox: ${username2}
+        - textbox: ${name2}
+        - textbox: ${name2}
         - alert: Invalide E-Mail-Adresse
         - button "Speichern"
         - button "Close":
@@ -128,7 +128,7 @@ test.describe("Profile Page", () => {
     await page.getByRole("button", { name: "Speichern" }).click()
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - text: CH
-      - paragraph: ${username2}
+      - paragraph: ${name2}
       - paragraph: ${email2}
       - button "Name oder E-Mail ändern"
       - button "Passwort ändern"
@@ -146,14 +146,14 @@ test.describe("Profile Page", () => {
     await page.goto("/register", { waitUntil: "networkidle" })
 
     const id = uuidv4()
-    const username = `changeme-${id}`
-    const email = `${username}@test.test`
+    const name = `changeme-${id}`
+    const email = `${name}@test.test`
 
     await page.locator("#email").click()
     await page.locator("#email").fill(email)
     await page.locator("#email").press("Tab")
-    await page.locator("#username").fill(username)
-    await page.locator("#username").press("Tab")
+    await page.locator("#name").fill(name)
+    await page.locator("#name").press("Tab")
     await page.locator("#password").fill("1Password")
     await page.locator("#password").press("Tab")
     await page.locator("#confirmPassword").fill("1Password")
@@ -161,7 +161,7 @@ test.describe("Profile Page", () => {
     await page.getByRole("button", { name: "Registrieren" }).click()
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - text: CH
-      - paragraph: ${username}
+      - paragraph: ${name}
       - paragraph: ${email}
       - button "Name oder E-Mail ändern"
       - button "Passwort ändern"

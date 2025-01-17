@@ -58,7 +58,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   // email is changed directly because the current email was
   // not verified.
   await authClient.updateUser({
-    name: values.username,
+    name: values.name,
   })
 
   if (values.email !== user.email) {
@@ -107,14 +107,14 @@ const onSubmit = form.handleSubmit(async (values) => {
       >
         <FormField
           v-slot="{ componentField }"
-          name="username"
+          name="name"
         >
           <FormItem>
             <FormLabel>Nutzername</FormLabel>
             <FormControl>
               <Input
-                id="username"
-                :default-value="user.username"
+                id="name"
+                :default-value="user.name"
                 v-bind="componentField"
               />
             </FormControl>

@@ -11,10 +11,10 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id            String       @id @default(uuid())
+  role          UserRole     @default(USER)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   name          String
   email         String
   emailVerified Boolean
@@ -45,17 +45,19 @@ model LegalDocument {
 }
 
 model Experiment {
-  id         String                     @id @default(uuid())
-  name       String
-  slug       String                     @unique
-  user       User                       @relation(fields: [userId], references: [id])
-  userId     String
-  status     ExperimentStatus           @default(DRAFT)
-  duration   Int
-  sections   ExperimentSectionContent[]
-  attributes ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
-  createdAt  DateTime                   @default(now())
-  updatedAt  DateTime                   @updatedAt
+  id             String                     @id @default(uuid())
+  name           String
+  slug           String                     @unique
+  user           User                       @relation(fields: [userId], references: [id])
+  userId         String
+  status         ExperimentStatus           @default(DRAFT)
+  duration       Int
+  previewImage   File?                      @relation(fields: [previewImageId], references: [id])
+  previewImageId String?                    @unique
+  sections       ExperimentSectionContent[]
+  attributes     ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
 }
 
 enum ExperimentStatus {
@@ -107,26 +109,27 @@ model ExperimentAttributeValue {
 }
 
 model File {
-  id             String          @id @default(uuid())
-  path           String
-  mimeType       String
-  ExperimentFile ExperimentFile?
-  UserFile       UserFile?
-  createdBy      User            @relation(fields: [createdById], references: [id])
-  createdById    String
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id                    String          @id @default(uuid())
+  path                  String
+  mimeType              String
+  experimentFile        ExperimentFile?
+  experimentPreviewFile Experiment?
+  userFile              UserFile?
+  createdBy             User            @relation(fields: [createdById], references: [id])
+  createdById           String
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 }
 
 model ExperimentFile {
-  id                  String                    @id @default(uuid())
-  file                File                      @relation(fields: [fileId], references: [id])
-  fileId              String                    @unique
+  id                  String                   @id @default(uuid())
+  file                File                     @relation(fields: [fileId], references: [id])
+  fileId              String                   @unique
   description         String?
   experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String
-  createdAt           DateTime                  @default(now())
-  updatedAt           DateTime                  @updatedAt
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
 }
 
 model UserFile {

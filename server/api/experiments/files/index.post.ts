@@ -58,10 +58,7 @@ export default defineEventHandler(async (event) => {
   })
 
   setResponseStatus(event, 201)
-  return newExperimentFile.toDetail(
-    newExperimentFile.file,
-    newExperimentFile.file.createdBy.toDetail(),
-  )
+  return newExperimentFile as ExperimentFileDetail
 })
 
 defineRouteMeta({

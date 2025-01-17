@@ -1,7 +1,7 @@
 export default defineEventHandler(async () => {
   const users = await prisma.user.findMany()
 
-  return users.map(user => user.toList())
+  return users as UserList[]
 })
 
 defineRouteMeta({
@@ -19,7 +19,7 @@ defineRouteMeta({
                 type: "object",
                 properties: {
                   id: { type: "string", format: "uuid" },
-                  username: { type: "string" },
+                  name: { type: "string" },
                   role: { type: "string" },
                   verified: { type: "string", enum: ["User", "Moderator", "Administrator"] },
                   email: { type: "string", format: "email" },

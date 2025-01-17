@@ -1,3 +1,4 @@
+import type { ExperimentFileDetail } from "~~/shared/types"
 import { experimentFileCreateSchema } from "~~/shared/types"
 import { canUpdateExperimentFile } from "~~/shared/utils/abilities"
 
@@ -56,10 +57,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return newExperimentFile.toDetail(
-    newExperimentFile.file,
-    newExperimentFile.file.createdBy.toDetail(),
-  )
+  return newExperimentFile as ExperimentFileDetail
 })
 
 defineRouteMeta({

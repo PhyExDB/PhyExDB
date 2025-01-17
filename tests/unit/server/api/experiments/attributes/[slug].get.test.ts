@@ -2,7 +2,6 @@ import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event, EventHandlerRequest } from "h3"
 import getAttribute from "~~/server/api/experiments/attributes/[slug].get"
-import { experimentAttributeResultExtensions } from "~~/server/db/models/experimentAttribute"
 
 describe("Api Route GET /api/experiments/attributes/{slug}", () => {
   it("should get an Attribute by id", async () => {
@@ -23,16 +22,10 @@ describe("Api Route GET /api/experiments/attributes/{slug}", () => {
       values: [value_1, value_2],
     }
 
-    const expected = attribute
-    const mockAttribute = {
-      ...attribute,
-      toDetail: () => experimentAttributeResultExtensions.toDetail.compute(mockAttribute)([value_1, value_2]),
-    }
-
     // Mocking Prisma
     prisma.experimentAttribute.findFirst = vi.fn().mockImplementation(({ where }) => {
-      if (where.id === mockAttribute.id) {
-        return Promise.resolve(mockAttribute)
+      if (where.id === attribute.id) {
+        return Promise.resolve(attribute)
       }
       return Promise.resolve(null)
     })
@@ -40,7 +33,7 @@ describe("Api Route GET /api/experiments/attributes/{slug}", () => {
     const event = {
       context: {
         params: {
-          slug: mockAttribute.id,
+          slug: attribute.id,
         },
       },
     } as unknown as H3Event<EventHandlerRequest>
@@ -48,7 +41,7 @@ describe("Api Route GET /api/experiments/attributes/{slug}", () => {
     const response = await getAttribute(event)
 
     expectTypeOf(response).toEqualTypeOf<ExperimentAttributeDetail>()
-    expect(response).toStrictEqual(expected)
+    expect(response).toStrictEqual(attribute)
   })
   it("should return a 400 error if no id is provided", async () => {
     const event = {

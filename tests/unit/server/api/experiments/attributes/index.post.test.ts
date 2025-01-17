@@ -2,7 +2,6 @@ import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event } from "h3"
 import addValue from "~~/server/api/experiments/attributes/index.post"
-import { experimentAttributeResultExtensions } from "~~/server/db/models/experimentAttribute"
 
 describe("API Route POST /api/experiments/attributes", () => {
   it("should add an value successfully", async () => {
@@ -16,7 +15,6 @@ describe("API Route POST /api/experiments/attributes", () => {
       name: "name",
       slug: "name",
       values: [mockAttributeValue],
-      toDetail: (values: [ExperimentAttributeValueList]) => experimentAttributeResultExtensions.toDetail.compute(mockAttribute)(values),
     }
     const addContent = {
       name: "New Value",
@@ -33,7 +31,6 @@ describe("API Route POST /api/experiments/attributes", () => {
     const response = await addValue(event)
 
     expectTypeOf(response).toEqualTypeOf<ExperimentAttributeDetail>()
-    const { toDetail, ...expected } = mockAttribute
-    expect(response).toStrictEqual(expected)
+    expect(response).toStrictEqual(mockAttribute)
   })
 })

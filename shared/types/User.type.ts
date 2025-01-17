@@ -7,7 +7,7 @@ import type { BaseList } from "./Base.type"
 export type UserRole = "USER" | "MODERATOR" | "ADMIN"
 
 /**
- * Represents a list of users with their ids, usernames, roles, and verification statuses.
+ * Represents a list of users with their ids, names, roles, and verification statuses.
  * Extends the BaseList interface.
  */
 export interface UserList extends BaseList {
@@ -16,9 +16,9 @@ export interface UserList extends BaseList {
    */
   id: string
   /**
-   * The username of the user.
+   * The name of the user.
    */
-  username: string
+  name: string
   /**
    * The role of the user.
    */
@@ -30,7 +30,7 @@ export interface UserList extends BaseList {
 }
 
 /**
- * Represents a user with their id, username, role, email, and verification status.
+ * Represents a user with their id, name, role, email, and verification status.
  */
 export interface UserDetail extends UserList {
   /**
@@ -40,10 +40,10 @@ export interface UserDetail extends UserList {
 }
 
 /**
- * Schema to verify username
+ * Schema to verify the user name
  */
-export const usernameSchema = {
-  username:
+export const nameSchema = {
+  name:
     z.string({ required_error: "Nutzername muss angegeben werden" })
       .trim()
       .nonempty("Nutzername muss angegeben werden")
@@ -90,10 +90,10 @@ const confirmPasswordSchema = {
 
 /**
  * Schema for user registration.
- * Combines the username, email, and password schemas into a single object schema.
+ * Combines the name, email, and password schemas into a single object schema.
  */
 export const userRegisterSchema = z.object({
-  ...usernameSchema,
+  ...nameSchema,
   ...emailSchema,
   ...passwordSchema,
 })
@@ -160,7 +160,7 @@ export const userRegisterSchemaWithRepeatValidatePassword
 
 /**
  * Schema for user login.
- * Combines the username or email and password schemas into a single object schema.
+ * Combines the name or email and password schemas into a single object schema.
  */
 export const userLoginSchema = z.object({
   ...emailSchema,
@@ -170,10 +170,10 @@ export const userLoginSchema = z.object({
 
 /**
  * Schema for updating a user.
- * Combines the username and email schemas into a single object schema.
+ * Combines the name and email schemas into a single object schema.
  */
 export const userUpdateSchema = z.object({
-  ...usernameSchema,
+  ...nameSchema,
   ...emailSchema,
 })
 
