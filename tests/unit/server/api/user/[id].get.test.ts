@@ -2,18 +2,16 @@ import { describe, expect, expectTypeOf, vi, it } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import { UserRole } from "@prisma/client"
 import type { H3Event, EventHandlerRequest } from "h3"
-import { userResultExtensions } from "~~/server/db/models/user"
 import getUser from "~~/server/api/users/[id].get"
 
 describe("Api Route GET /api/user/{id}", async () => {
-  it.each(["username", "id"])("should get a user by %s", async (param) => {
+  it.each(["name", "id"])("should get a user by %s", async (param) => {
     const user = {
       id: uuidv4(),
       name: "John Doe",
       email: "john.doe@test.test",
       role: UserRole.USER,
       emailVerified: false,
-      toDetail: () => userResultExtensions.toDetail.compute(user)(),
     }
 
     prisma.user.findFirst = vi.fn().mockImplementation(({ where }) => {
@@ -26,7 +24,7 @@ describe("Api Route GET /api/user/{id}", async () => {
     const event = {
       context: {
         params: {
-          id: param === "username" ? user.name : user.id,
+          id: param === "name" ? user.name : user.id,
         },
       },
     } as unknown as H3Event<EventHandlerRequest>
@@ -34,8 +32,7 @@ describe("Api Route GET /api/user/{id}", async () => {
     const response = await getUser(event)
 
     expectTypeOf(response).toEqualTypeOf<UserDetail>()
-    const { toDetail, name: username, ...rest } = user
-    expect(response).toStrictEqual({ username, ...rest })
+    expect(response).toStrictEqual(user)
   })
 
   it("should return an error when an unknown id is passed", async () => {
@@ -64,7 +61,7 @@ describe("Api Route GET /api/user/{id}", async () => {
 
     await expect(getUser(event)).rejects.toThrowError(
       expect.objectContaining({
-        message: "Invalid username or id",
+        message: "Invalid name or id",
         statusCode: 400,
       }),
     )

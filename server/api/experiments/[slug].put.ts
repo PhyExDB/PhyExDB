@@ -1,4 +1,5 @@
 import { readValidatedBody } from "h3"
+import type { ExperimentDetail } from "~~/shared/types"
 import { getExperimentSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
@@ -70,7 +71,7 @@ export default defineEventHandler(async (event) => {
     slugify(updatedExperimentData.name),
   )
 
-  return updatedExperiment.toDetail(updatedExperiment.attributes, updatedExperiment.sections)
+  return updatedExperiment as ExperimentDetail
 })
 
 defineRouteMeta({

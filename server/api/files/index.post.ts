@@ -26,9 +26,12 @@ export default defineEventHandler(async (event) => {
         mimeType: file.type,
         createdBy: { connect: { id: user.id } },
       },
+      include: {
+        createdBy: true,
+      },
     })
 
-    newFiles.push(dbFile.toDetail(user))
+    newFiles.push(dbFile as FileDetail)
   }
 
   return newFiles

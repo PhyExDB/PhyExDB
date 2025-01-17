@@ -47,13 +47,13 @@ export default defineEventHandler(async (event) => {
             })),
           },
         },
-        include: experimentIncludeForToList,
+        include: experimentIncludeForToDetail,
       })
     },
     slugify(newValueContent.name),
   )
 
-  return newExperiment.toList(newExperiment.attributes)
+  return newExperiment as ExperimentDetail
 })
 
 defineRouteMeta({

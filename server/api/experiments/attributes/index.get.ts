@@ -3,7 +3,7 @@ export default defineEventHandler(async () => {
     include: { values: true },
   })
 
-  return attributes.map(attribute => attribute.toDetail(attribute.values))
+  return attributes as ExperimentAttributeDetail[]
 })
 
 defineRouteMeta({

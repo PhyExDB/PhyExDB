@@ -8,7 +8,7 @@ const user = await useUser()
   <DropdownMenu v-if="user">
     <DropdownMenuTrigger>
       <Avatar>
-        <AvatarFallback>{{ getInitials(user.username) }}</AvatarFallback>
+        <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
       </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent>

@@ -24,7 +24,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   loading.value = true
   const data = {
     email: values.email,
-    name: values.username,
+    name: values.name,
     password: values.password,
   }
 
@@ -63,13 +63,13 @@ const onSubmit = form.handleSubmit(async (values) => {
     </FormField>
     <FormField
       v-slot="{ componentField }"
-      name="username"
+      name="name"
     >
       <FormItem>
         <FormLabel>Nutzername</FormLabel>
         <FormControl>
           <Input
-            id="username"
+            id="name"
             v-bind="componentField"
             type="text"
           />

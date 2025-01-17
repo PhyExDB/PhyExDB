@@ -57,10 +57,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return newExperimentFile.toDetail(
-    newExperimentFile.file,
-    newExperimentFile.file.createdBy.toDetail(),
-  )
+  return newExperimentFile as ExperimentFileDetail
 })
 
 defineRouteMeta({
