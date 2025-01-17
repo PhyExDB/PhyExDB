@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
     newFiles.push(dbFile as FileDetail)
   }
-  
+
   setResponseStatus(event, 201)
   return newFiles
 })
