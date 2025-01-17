@@ -19,7 +19,7 @@ defineRouteMeta({
                 type: "object",
                 properties: {
                   id: { type: "string", format: "uuid" },
-                  username: { type: "string" },
+                  name: { type: "string" },
                   role: { type: "string" },
                   verified: { type: "string", enum: ["User", "Moderator", "Administrator"] },
                   email: { type: "string", format: "email" },

@@ -5,7 +5,7 @@ import type { H3Event, EventHandlerRequest } from "h3"
 import getUser from "~~/server/api/users/[id].get"
 
 describe("Api Route GET /api/user/{id}", async () => {
-  it.each(["username", "id"])("should get a user by %s", async (param) => {
+  it.each(["name", "id"])("should get a user by %s", async (param) => {
     const user = {
       id: uuidv4(),
       name: "John Doe",
@@ -24,7 +24,7 @@ describe("Api Route GET /api/user/{id}", async () => {
     const event = {
       context: {
         params: {
-          id: param === "username" ? user.name : user.id,
+          id: param === "name" ? user.name : user.id,
         },
       },
     } as unknown as H3Event<EventHandlerRequest>
@@ -61,7 +61,7 @@ describe("Api Route GET /api/user/{id}", async () => {
 
     await expect(getUser(event)).rejects.toThrowError(
       expect.objectContaining({
-        message: "Invalid username or id",
+        message: "Invalid name or id",
         statusCode: 400,
       }),
     )

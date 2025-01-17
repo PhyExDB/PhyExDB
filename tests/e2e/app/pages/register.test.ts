@@ -121,12 +121,12 @@ test.describe("Register Page", () => {
     `)
     await page.locator("#email").click()
     const id = uuidv4()
-    const username = `user-${id}`
-    const email = `${username}@test.test`
+    const name = `user-${id}`
+    const email = `${name}@test.test`
     await page.locator("#email").fill(email)
     await page.locator("#email").press("Tab")
-    await page.locator("#username").fill(username)
-    await page.locator("#username").press("Tab")
+    await page.locator("#name").fill(name)
+    await page.locator("#name").press("Tab")
     await page.locator("#password").fill("1Password")
     await page.locator("#password").press("Tab")
     await page.locator("#confirmPassword").fill("1Password")
@@ -138,7 +138,7 @@ test.describe("Register Page", () => {
         - text: E-Mail
         - textbox: ${email}
         - text: Nutzername
-        - textbox: ${username}
+        - textbox: ${name}
         - text: Passwort
         - textbox: 1Password
         - text: Passwort wiederholen

@@ -17,7 +17,7 @@ async function createUser(user: UserDetail) {
         create: {
           id: user.id,
           role: user.role,
-          name: user.username,
+          name: user.name,
           email: user.email,
           emailVerified: user.emailVerified,
         },
@@ -35,28 +35,28 @@ export async function userMigrations() {
   const users: UserDetail[] = [
     {
       id: uuidv4(),
-      username: "User",
+      name: "User",
       role: "USER",
       email: "user@test.test",
       emailVerified: true,
     },
     {
       id: uuidv4(),
-      username: "Moderator",
+      name: "Moderator",
       role: "MODERATOR",
       email: "moderator@test.test",
       emailVerified: true,
     },
     {
       id: uuidv4(),
-      username: "Admin",
+      name: "Admin",
       role: "ADMIN",
       email: "admin@test.test",
       emailVerified: true,
     },
     {
       id: uuidv4(),
-      username: "Unverified",
+      name: "Unverified",
       role: "USER",
       email: "unverified@test.test",
       emailVerified: false,
