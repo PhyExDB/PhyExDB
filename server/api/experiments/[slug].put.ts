@@ -13,10 +13,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Experiment not found!" })
   }
 
-  const user = await getUser(event)
-  if (user == null) {
-    throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
-  }
   await authorize(event, canEditExperiment, experiment)
 
   const updatedExperimentData = await readValidatedBody(

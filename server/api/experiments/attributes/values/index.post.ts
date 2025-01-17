@@ -1,7 +1,10 @@
 import { untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
+import { canEditExperimentAttributes } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
+  authorize(event, canEditExperimentAttributes)
+
   const content = await readValidatedBody(event, body => experimentAttributeValueCreateSchema.parse(body))
 
   const result = await untilSlugUnique(

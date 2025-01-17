@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "File not found" })
   }
 
-  await authorize(event, canDeleteFile, file)
+  await authorize(event, canDeleteFile, file.toDetail(file.createdBy))
 
   const runtimeConfig = useRuntimeConfig()
   const filePath = `${runtimeConfig.fileMount}/${file.path}`

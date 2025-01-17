@@ -1,4 +1,4 @@
-import type { FileList } from "~~/shared/types"
+import type { FileDetail } from "~~/shared/types"
 
 const isAdmin = (user: UserDetail) => user.role === "ADMIN"
 const minModerator = (user: UserDetail) => user.role === "MODERATOR" || user.role === "ADMIN"
@@ -31,7 +31,7 @@ export const canCreateExperiment = noGuestsAbility
 
 // experimentAttributes
 /** Ability to edit Attributes */
-export const canEditAttributes = onlyAdminAbility
+export const canEditExperimentAttributes = onlyAdminAbility
 
 // files
 /** Ability to create file */
@@ -40,8 +40,8 @@ export const canCreateFile = defineAbility(false, (user: UserDetail) => {
 })
 
 /** Ability to delete a file */
-export const canDeleteFile = defineAbility(false, (user: UserDetail, file: FileList) => {
-  return user.id === file.createdById
+export const canDeleteFile = defineAbility(false, (user: UserDetail, file: FileDetail) => {
+  return user.id === file.createdBy.id
 })
 
 // experimentFiles
@@ -51,13 +51,10 @@ export const canCreateExperimentFile = canEditExperiment
 /** Ability to update an experiment file */
 export const canUpdateExperimentFile = canEditExperiment
 
-/** Ability to see an experiment file */
-export const canSeeExperimentFile = canSeeExperiment
-
 // userFiles
 /** Ability to create a user file */
-export const canCreateUserFile = defineAbility(false, (user: UserDetail, file: FileList) => {
-  return user.id === file.createdById
+export const canCreateUserFile = defineAbility(false, (user: UserDetail, file: FileDetail) => {
+  return user.id === file.createdBy.id
 })
 
 /** Ability to delete a user file */

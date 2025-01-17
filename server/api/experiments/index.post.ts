@@ -4,11 +4,7 @@ import { canCreateExperiment } from "~~/shared/utils/abilities"
 import { untilSlugUnique } from "~~/server/utils/utils"
 
 export default defineEventHandler(async (event) => {
-  const user = await getUser(event)
-  await authorize(event, canCreateExperiment)
-  if (user == null) {
-    throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
-  }
+  const user = await authorizeUser(event, canCreateExperiment)
 
   const newValueContent = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
 

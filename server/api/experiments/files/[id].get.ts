@@ -13,7 +13,17 @@ export default defineEventHandler(async (event) => {
     include: {
       experimentSection: {
         include: {
-          experiment: true,
+          experiment: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              userId: true,
+              status: true,
+              duration: true,
+              ...experimentIncludeForToList,
+            },
+          },
         },
       },
       file: {

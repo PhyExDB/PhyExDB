@@ -4,6 +4,8 @@ import { canCreateFile } from "~~/shared/utils/abilities"
 const relativeFileUploadDirectory = "/uploads"
 
 export default defineEventHandler(async (event) => {
+  authorize(event, canCreateFile)
+
   const { files } = await readBody<{ files: File[] }>(event)
   const user = await getUser(event)
   if (!user) {

@@ -1,8 +1,11 @@
 import { experimentAttributeValueUpdateSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
+import { canEditExperimentAttributes } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
+  authorize(event, canEditExperimentAttributes)
+
   const whereClause = getSlugOrIdPrismaWhereClause(event)
 
   const content = await readValidatedBody(event, body => experimentAttributeValueUpdateSchema.parse(body))
