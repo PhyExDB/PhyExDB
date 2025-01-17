@@ -30,7 +30,8 @@ export default defineEventHandler(async (event) => {
 
     newFiles.push(dbFile.toDetail(user))
   }
-
+  
+  setResponseStatus(event, 201)
   return newFiles
 })
 

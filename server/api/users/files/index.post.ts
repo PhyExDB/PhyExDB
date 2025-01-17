@@ -43,6 +43,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
+  setResponseStatus(event, 201)
   return newUserFile.toDetail(
     newUserFile.file,
     newUserFile.file.createdBy.toDetail(),

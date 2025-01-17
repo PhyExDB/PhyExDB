@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
     slugify(content.name),
   )
 
+  setResponseStatus(event, 201)
   return result.toDetail(result.values)
 })
 

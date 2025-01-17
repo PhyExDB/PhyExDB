@@ -53,6 +53,7 @@ export default defineEventHandler(async (event) => {
     slugify(newValueContent.name),
   )
 
+  setResponseStatus(event, 201)
   return newExperiment.toList(newExperiment.attributes)
 })
 
