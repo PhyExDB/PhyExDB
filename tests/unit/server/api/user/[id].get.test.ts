@@ -2,7 +2,6 @@ import { describe, expect, expectTypeOf, vi, it } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import { UserRole } from "@prisma/client"
 import type { H3Event, EventHandlerRequest } from "h3"
-import { userResultExtensions } from "~~/server/db/models/user"
 import getUser from "~~/server/api/users/[id].get"
 
 describe("Api Route GET /api/user/{id}", async () => {
@@ -13,7 +12,6 @@ describe("Api Route GET /api/user/{id}", async () => {
       email: "john.doe@test.test",
       role: UserRole.USER,
       emailVerified: false,
-      toDetail: () => userResultExtensions.toDetail.compute(user)(),
     }
 
     prisma.user.findFirst = vi.fn().mockImplementation(({ where }) => {
@@ -34,8 +32,7 @@ describe("Api Route GET /api/user/{id}", async () => {
     const response = await getUser(event)
 
     expectTypeOf(response).toEqualTypeOf<UserDetail>()
-    const { toDetail, name: username, ...rest } = user
-    expect(response).toStrictEqual({ username, ...rest })
+    expect(response).toStrictEqual(user)
   })
 
   it("should return an error when an unknown id is passed", async () => {

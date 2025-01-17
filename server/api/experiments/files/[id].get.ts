@@ -1,3 +1,5 @@
+import type { ExperimentFileDetail } from "~~/shared/types"
+
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
   if (!user) {
@@ -30,10 +32,7 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, canSeeExperiment, experimentFile.experimentSection.experiment)
 
-  return experimentFile.toDetail(
-    experimentFile.file,
-    experimentFile.file.createdBy.toDetail(),
-  )
+  return experimentFile as ExperimentFileDetail
 })
 
 defineRouteMeta({

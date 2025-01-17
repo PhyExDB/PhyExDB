@@ -1,5 +1,9 @@
+import type { ExperimentAttributeDetail } from "~~/shared/types"
 import { experimentAttributeUpdateSchema } from "~~/shared/types"
-import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
+import {
+  getSlugOrIdPrismaWhereClause,
+  untilSlugUnique,
+} from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
 
 export default defineEventHandler(async (event) => {
@@ -22,7 +26,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Attribute not found" })
   }
 
-  return result.toDetail(result.values)
+  return result as ExperimentAttributeDetail
 })
 
 defineRouteMeta({

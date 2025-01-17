@@ -1,3 +1,4 @@
+import type { UserFileDetail } from "~~/shared/types"
 import { userFileCreateSchema } from "~~/shared/types"
 import { canCreateUserFile } from "~~/shared/utils/abilities"
 
@@ -43,10 +44,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return newUserFile.toDetail(
-    newUserFile.file,
-    newUserFile.file.createdBy.toDetail(),
-  )
+  return newUserFile as UserFileDetail
 })
 
 defineRouteMeta({

@@ -1,5 +1,9 @@
+import type { ExperimentAttributeValueList } from "~~/shared/types"
 import { experimentAttributeValueUpdateSchema } from "~~/shared/types"
-import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
+import {
+  getSlugOrIdPrismaWhereClause,
+  untilSlugUnique,
+} from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
 
 export default defineEventHandler(async (event) => {
@@ -21,7 +25,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Value not found" })
   }
 
-  return result.toList()
+  return result as ExperimentAttributeValueList
 })
 
 defineRouteMeta({

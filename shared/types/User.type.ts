@@ -16,9 +16,9 @@ export interface UserList extends BaseList {
    */
   id: string
   /**
-   * The username of the user.
+   * The name of the user.
    */
-  username: string
+  name: string
   /**
    * The role of the user.
    */

@@ -1,3 +1,4 @@
+import type { LegalDocumentDetail } from "~~/shared/types"
 import { legalDocumentUpdateSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
 
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
     data: updateContent,
   })
 
-  return updatedDocument.toDetail()
+  return updatedDocument as LegalDocumentDetail
 })
 
 defineRouteMeta({

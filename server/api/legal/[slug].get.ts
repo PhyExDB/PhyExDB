@@ -1,4 +1,5 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import type { LegalDocumentDetail } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
   const document = await prisma.legalDocument.findFirst({
@@ -9,7 +10,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Document not found" })
   }
 
-  return document.toDetail()
+  return document as LegalDocumentDetail
 })
 
 defineRouteMeta({

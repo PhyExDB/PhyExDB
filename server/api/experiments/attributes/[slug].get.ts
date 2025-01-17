@@ -1,4 +1,5 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import type { ExperimentAttributeDetail } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
   const attribute = await prisma.experimentAttribute.findFirst({
@@ -10,7 +11,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Attribute not found" })
   }
 
-  return attribute.toDetail(attribute.values)
+  return attribute as ExperimentAttributeDetail
 })
 
 defineRouteMeta({
