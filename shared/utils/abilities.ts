@@ -1,87 +1,66 @@
-// https://github.com/Barbapapazes/nuxt-authorization
+import type { FileList } from "~~/shared/types"
 
-import type { Experiment, File, UserFile } from "@prisma/client"
+const isAdmin = (user: UserDetail) => user.role === "ADMIN"
+const minModerator = (user: UserDetail) => user.role === "MODERATOR" || user.role === "ADMIN"
+const onlyAdminAbility = defineAbility(false, isAdmin)
+const noGuestsAbility = defineAbility(false, _ => true)
 
-/**
- * Test ability to try it out
- */
-export const forbiddenAbillity = defineAbility(_ => false)
+// legal
 
-/**
- * Test ability to try it out
- */
-export const allowedAbillity = defineAbility({ allowGuest: true }, _ => true)
+/** Ability to edit legal */
+export const canEditLegal = onlyAdminAbility
 
-/**
- * Ability only by admin
- */
-export const onlyAdminAbillity = defineAbility((user: UserDetail) => user.role === "ADMIN")
+// experiment
+/** Ability to edit experiment */
+export const canEditExperiment = defineAbility(
+  false,
+  (user, experiment: ExperimentList) => {
+    return user.role === "ADMIN" || user.id === experiment.userId
+  },
+)
 
-/**
- * Ability only signed in
- */
-export const onlySignedInAbillity = defineAbility(_ => true)
-
-/**
- * Ability to edit experiment
- */
-export const canEditExperiment = defineAbility((user: UserDetail, experiment: Experiment) => {
-  return user.role === "ADMIN" || user.id === experiment.userId
-})
-
-/**
- * Ability to see experiment
- */
-export const canSeeExperiment = defineAbility({ allowGuest: true }, (user: UserDetail, experiment: Experiment) => {
+/** Ability to see experiment */
+export const canSeeExperiment = defineAbility(true, (user: UserDetail, experiment: ExperimentList) => {
   return experiment.status === "PUBLISHED"
     || user.id === experiment.userId
-    || (minModerator(user.role) && experiment.status === "IN_REVIEW")
+    || (minModerator(user) && experiment.status === "IN_REVIEW")
 })
 
-/**
- * Ability to create an experiment
- */
-export const canCreateExperiment = onlySignedInAbillity
+/** Ability to create an experiment */
+export const canCreateExperiment = noGuestsAbility
 
-/**
- * Ability to create file
- */
-export const canCreateFile = defineAbility((user: UserDetail) => {
+// experimentAttributes
+/** Ability to edit Attributes */
+export const canEditAttributes = onlyAdminAbility
+
+// files
+/** Ability to create file */
+export const canCreateFile = defineAbility(false, (user: UserDetail) => {
   return user.emailVerified
 })
 
-/**
- * Ability to delete a file
- */
-export const canDeleteFile = defineAbility((user: UserDetail, file: File) => {
+/** Ability to delete a file */
+export const canDeleteFile = defineAbility(false, (user: UserDetail, file: FileList) => {
   return user.id === file.createdById
 })
 
-/**
- * Ability to create an experiment file
- */
+// experimentFiles
+/** Ability to create an experiment file */
 export const canCreateExperimentFile = canEditExperiment
 
-/**
- * Ability to update an experiment file
- */
+/** Ability to update an experiment file */
 export const canUpdateExperimentFile = canEditExperiment
 
-/**
- * Ability to see an experiment file
- */
+/** Ability to see an experiment file */
 export const canSeeExperimentFile = canSeeExperiment
 
-/**
- * Ability to create a user file
- */
-export const canCreateUserFile = defineAbility((user: UserDetail, file: File) => {
+// userFiles
+/** Ability to create a user file */
+export const canCreateUserFile = defineAbility(false, (user: UserDetail, file: FileList) => {
   return user.id === file.createdById
 })
 
-/**
- * Ability to delete a user file
- */
-export const canDeleteUserFile = defineAbility((user: UserDetail, userFile: UserFile) => {
+/** Ability to delete a user file */
+export const canDeleteUserFile = defineAbility(false, (user: UserDetail, userFile: UserFileDetail) => {
   return user.id === userFile.userId
 })
