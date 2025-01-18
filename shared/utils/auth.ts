@@ -50,7 +50,7 @@ export type AbilityFunc<T extends any[]> = (user: UserDetail, ...param: T) => bo
 /**
  * Type of an abillity.
  */
-export type Ability<T extends any[]> = { func: AbilityFunc<T>, allowGuests: boolean }
+export type Ability<T extends any[]> = { func: AbilityFunc<T>, allowGuests: boolean | false }
 /**
  * Type of an abillity not allowingGuests.
  */
@@ -73,4 +73,13 @@ export function defineAbilityNoGuests<T extends any[]>(func: AbilityFunc<T>): Us
  */
 export function defineAbilityAllowingGuests<T extends any[]>(func: AbilityFunc<T>): Ability<T> {
   return { func, allowGuests: true }
+}
+/**
+ * Maps the function of an ability.
+ */
+export function abilityMapFunction<T extends any[], S extends any[]>(
+  ability: Ability<T>,
+  f: (f: AbilityFunc<T>) => AbilityFunc<S>,
+) {
+  return { ...ability, func: f(ability.func) } satisfies Ability<S>
 }
