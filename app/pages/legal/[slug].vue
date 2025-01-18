@@ -36,73 +36,75 @@ const onSubmit = form.handleSubmit(async (values) => {
       </h1>
       <p>{{ legal!.text }}</p>
     </div>
-    <Dialog
-      :open="open"
-      @update:open="open=$eve"
-    >
-      <DialogTrigger as-child>
-        <Button
-          variant="outline"
-          class="m-1 px-5 justify-center"
-          @click="open=true"
-        >
-          edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            Ändern des Dokuments
-          </DialogTitle>
-        </DialogHeader>
-        <form
-          class="grid gap-4"
-          @submit="onSubmit"
-        >
-          <FormField
-            v-slot="{ componentField }"
-            name="name"
-          >
-            <FormItem>
-              <FormLabel>Text</FormLabel>
-              <FormControl>
-                <Input
-                  id="name"
-                  :default-value="legal?.name"
-                  v-bind="componentField"
-                  type="text"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-          <FormField
-            v-slot="{ componentField }"
-            name="text"
-          >
-            <FormItem>
-              <FormLabel>Text</FormLabel>
-              <FormControl>
-                <Input
-                  id="text"
-                  :default-value="legal?.text"
-                  v-bind="componentField"
-                  type="text"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-        </form>
-        <DialogFooter>
+    <Can :ability="onlyAdminAbillity">
+      <Dialog
+        :open="open"
+        @update:open="open=$eve"
+      >
+        <DialogTrigger as-child>
           <Button
-            type="submit"
-            @click="onSubmit"
+            variant="outline"
+            class="m-1 px-5 justify-center"
+            @click="open=true"
           >
-            Speichern
+            edit
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Ändern des Dokuments
+            </DialogTitle>
+          </DialogHeader>
+          <form
+            class="grid gap-4"
+            @submit="onSubmit"
+          >
+            <FormField
+              v-slot="{ componentField }"
+              name="name"
+            >
+              <FormItem>
+                <FormLabel>Text</FormLabel>
+                <FormControl>
+                  <Input
+                    id="name"
+                    :default-value="legal?.name"
+                    v-bind="componentField"
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+            <FormField
+              v-slot="{ componentField }"
+              name="text"
+            >
+              <FormItem>
+                <FormLabel>Text</FormLabel>
+                <FormControl>
+                  <Input
+                    id="text"
+                    :default-value="legal?.text"
+                    v-bind="componentField"
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+          </form>
+          <DialogFooter>
+            <Button
+              type="submit"
+              @click="onSubmit"
+            >
+              Speichern
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Can>
   </div>
 </template>
