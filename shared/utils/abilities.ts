@@ -1,9 +1,9 @@
-import type { ExperimentList, FileDetail, UserDetail } from "~~/shared/types"
+import type { ExperimentList, UserDetail } from "~~/shared/types"
 
 // selects the fields that should be able to influence the authorization
 type User = Pick<UserDetail, "id" | "role" | "emailVerified">
 type Experiment = Pick<ExperimentList, "userId" | "status">
-type File = Pick<FileDetail, "createdById">
+type File = { createdById: string }
 type ExperimentFile = { experimentSection: { experiment: Experiment } }
 type UserFile = { userId: string | null }
 

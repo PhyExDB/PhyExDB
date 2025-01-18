@@ -44,11 +44,7 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, experimentFileAbilities.get, result)
 
-  return experimentFile as ExperimentFileDetail
-  return result.toDetail(
-    result.file,
-    result.file.createdBy.toDetail(),
-  )
+  return result as ExperimentFileDetail
 })
 
 defineRouteMeta({
