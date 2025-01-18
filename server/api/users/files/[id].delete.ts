@@ -1,4 +1,4 @@
-import { canDeleteUserFile } from "~~/shared/utils/abilities"
+import { userFileAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
   const userFileId = getRouterParam(event, "id")
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "User file not found" })
   }
 
-  await authorize(event, canDeleteUserFile, userFile)
+  await authorize(event, userFileAbilities.delete, userFile)
 
   const deletedUserFile = await prisma.userFile.delete({
     where: {

@@ -1,17 +1,12 @@
 import type { File, FileDetail } from "~~/shared/types"
-import { canCreateFile } from "~~/shared/utils/abilities"
+import { fileAbilities } from "~~/shared/utils/abilities"
 
 const relativeFileUploadDirectory = "/uploads"
 
 export default defineEventHandler(async (event) => {
-  authorize(event, canCreateFile)
+  const user = await authorizeUser(event, fileAbilities.post)
 
   const { files } = await readBody<{ files: File[] }>(event)
-  const user = await getUser(event)
-  if (!user) {
-    throw createError({ status: 401, message: "Unauthorized" })
-  }
-  await authorize(event, canCreateFile)
 
   const newFiles: FileDetail[] = []
 

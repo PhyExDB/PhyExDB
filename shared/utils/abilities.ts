@@ -5,7 +5,7 @@ type User = Pick<UserDetail, "id" | "role" | "emailVerified">
 type Experiment = Pick<ExperimentList, "userId" | "status">
 type File = Pick<FileDetail, "createdById">
 type ExperimentFile = { experimentSection: { experiment: Experiment } }
-type UserFile = { userId: string }
+type UserFile = { userId: string | null }
 
 type CRUD<T> = {
   getAll?: Ability<[]> // warning: logic often is in db request instead
@@ -36,7 +36,10 @@ const everyoneSeeAdminEditCRUD = {
 export const legalAbilities = everyoneSeeAdminEditCRUD
 
 /** Abilities for experimentAttributes */
-export const experimentAttributesAbilities = everyoneSeeAdminEditCRUD
+export const experimentAttributeAbilities = everyoneSeeAdminEditCRUD
+
+/** Abilities for experimentAttributes */
+export const experimentAttributeValueAbilities = everyoneSeeAdminEditCRUD
 
 /** Abilities for experiments */
 export const experimentAbilities = {
@@ -58,7 +61,7 @@ export const experimentAbilities = {
 export const fileAbilities = {
   post: {
     func: user => user.emailVerified,
-    allowGuests: true,
+    allowGuests: false,
   },
   delete: {
     func: (user, file) => user.id === file.createdById,
@@ -82,5 +85,8 @@ export const experimentFileAbilities = {
 /** Abilities for userFiles */
 export const userFileAbilities = {
   post: abillityRequiringUserId(file => file.createdById) satisfies Ability<[File]>,
-  delete: abillityRequiringUserId(userFile => userFile.userId) satisfies Ability<[UserFile]>,
+  delete: {
+    func: (user, userFile) => userFile.userId != null && user.id === userFile.userId,
+    allowGuests: false,
+  } satisfies Ability<[UserFile]>,
 }

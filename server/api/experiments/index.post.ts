@@ -1,10 +1,10 @@
 import { readValidatedBody } from "h3"
 import { getExperimentSchema } from "~~/shared/types"
-import { canCreateExperiment } from "~~/shared/utils/abilities"
+import { experimentAbilities } from "~~/shared/utils/abilities"
 import { untilSlugUnique } from "~~/server/utils/utils"
 
 export default defineEventHandler(async (event) => {
-  const user = await authorizeUser(event, canCreateExperiment)
+  const user = await authorizeUser(event, experimentAbilities.post)
 
   const newValueContent = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
 

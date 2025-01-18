@@ -2,6 +2,7 @@ import { readValidatedBody } from "h3"
 import { getExperimentSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
+import { experimentAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Experiment not found!" })
   }
 
-  await authorize(event, canEditExperiment, experiment)
+  await authorize(event, experimentAbilities.put, experiment)
 
   const updatedExperimentData = await readValidatedBody(
     event,

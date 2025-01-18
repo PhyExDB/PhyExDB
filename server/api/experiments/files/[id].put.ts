@@ -1,8 +1,8 @@
 import { experimentFileCreateSchema } from "~~/shared/types"
-import { canUpdateExperimentFile } from "~~/shared/utils/abilities"
+import { experimentFileAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
-  const experimentFileId = getRouterParam(event, "id")
+  const whereClause = getIdPrismaWhereClause(event)
 
   const user = await getUser(event)
   if (!user) {
@@ -10,9 +10,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const experimentFile = await prisma.experimentFile.findFirst({
-    where: {
-      id: experimentFileId,
-    },
+    where: whereClause,
     include: {
       experimentSection: {
         include: {
@@ -26,14 +24,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Experiment file not found" })
   }
 
-  await authorize(event, canUpdateExperimentFile, experimentFile.experimentSection.experiment)
+  await authorize(event, experimentFileAbilities.put, experimentFile)
 
   const newExperimentFileContent = await readValidatedBody(event, body => experimentFileCreateSchema.parse(body))
 
   const newExperimentFile = await prisma.experimentFile.update({
-    where: {
-      id: experimentFileId,
-    },
+    where: whereClause,
     include: {
       file: {
         include: {

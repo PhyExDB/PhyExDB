@@ -41,6 +41,11 @@ export interface FileList extends BaseList {
    * The MIME type of the file.
    */
   mimeType: string
+
+  /**
+   * The id of the user who updated the file.
+   */
+  createdById: string
 }
 
 /**

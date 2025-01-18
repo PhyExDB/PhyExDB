@@ -1,9 +1,9 @@
 import { legalDocumentUpdateSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
-import { canEditLegal } from "~~/shared/utils/abilities"
+import { legalAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
-  authorize(event, canEditLegal)
+  await authorize(event, legalAbilities.put)
 
   const whereClause = getSlugOrIdPrismaWhereClause(event)
   const document = await prisma.legalDocument.findFirst({

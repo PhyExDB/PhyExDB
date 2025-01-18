@@ -1,4 +1,8 @@
-export default defineEventHandler(async () => {
+import { legalAbilities } from "~~/shared/utils/abilities"
+
+export default defineEventHandler(async (event) => {
+  await authorize(event, legalAbilities.getAll)
+
   const documents = await prisma.legalDocument.findMany()
 
   return documents.map(document => document.toList())

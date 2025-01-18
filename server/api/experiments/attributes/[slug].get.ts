@@ -1,6 +1,9 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import { experimentAttributeAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
+  await authorize(event, experimentAttributeAbilities.get)
+
   const attribute = await prisma.experimentAttribute.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
     include: { values: true },

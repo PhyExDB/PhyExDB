@@ -1,5 +1,5 @@
 import { userFileCreateSchema } from "~~/shared/types"
-import { canCreateUserFile } from "~~/shared/utils/abilities"
+import { userFileAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
   const newUserFileContent = await readValidatedBody(event, body => userFileCreateSchema.parse(body))
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "File not found" })
   }
 
-  await authorize(event, canCreateUserFile, file)
+  await authorize(event, userFileAbilities.post, file)
 
   const newUserFile = await prisma.userFile.create({
     include: {

@@ -1,6 +1,9 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import { legalAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
+  await authorize(event, legalAbilities.get)
+
   const document = await prisma.legalDocument.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
   })

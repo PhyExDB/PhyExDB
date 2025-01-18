@@ -1,13 +1,8 @@
 import fs from "fs"
-import { canDeleteFile } from "~~/shared/utils/abilities"
+import { fileAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
   const fileId = getRouterParam(event, "id")
-
-  const user = await getUser(event)
-  if (!user) {
-    throw createError({ status: 401, message: "Unauthorized" })
-  }
 
   const file = await prisma.file.findFirst({
     where: {
@@ -22,7 +17,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "File not found" })
   }
 
-  await authorize(event, canDeleteFile, file.toDetail(file.createdBy))
+  await authorize(event, fileAbilities.delete, file)
 
   const runtimeConfig = useRuntimeConfig()
   const filePath = `${runtimeConfig.fileMount}/${file.path}`
