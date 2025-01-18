@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, experimentAbilities.get, experiment)
 
-  return experiment.toDetail(experiment.attributes, experiment.sections) satisfies ExperimentDetail
+  return experiment as ExperimentDetail
 })
 
 defineRouteMeta({

@@ -1,4 +1,5 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import type { LegalDocumentDetail } from "~~/shared/types"
 import { legalAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
@@ -12,7 +13,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Document not found" })
   }
 
-  return document.toDetail()
+  return document as LegalDocumentDetail
 })
 
 defineRouteMeta({

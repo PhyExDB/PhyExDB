@@ -1,5 +1,6 @@
 import { untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
+import type { ExperimentAttributeValueList } from "~~/shared/types"
 import { experimentAttributeValueAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
     slugify(content.value),
   )
 
-  return result.toList()
+  return result as ExperimentAttributeValueList
 })
 
 defineRouteMeta({

@@ -2,7 +2,6 @@ import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event } from "h3"
 import updateAttributeValue from "~~/server/api/experiments/attributes/values/[slug].put"
-import { experimentAttributeValueResultExtensions } from "~~/server/db/models/experimentAttributeValue"
 
 describe("API Route PUT /api/experiments/attributes/{id}", () => {
   it("should update an attribute value name successfully", async () => {
@@ -10,8 +9,6 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
       id: uuidv4(),
       value: "OldName",
       slug: "oldname",
-      toList: () =>
-        experimentAttributeValueResultExtensions.toList.compute(mockAttributeValue)(),
     }
 
     prisma.experimentAttributeValue.findFirst = vi.fn().mockImplementation(({ where }) => {
@@ -26,8 +23,6 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
     prisma.experimentAttributeValue.update = vi.fn().mockResolvedValue({
       id: mockAttributeValue.id,
       value: updateContent.value,
-      toList: () =>
-        experimentAttributeValueResultExtensions.toList.compute(mockAttributeValue)(),
     })
     const event = {
       context: {
@@ -40,8 +35,10 @@ describe("API Route PUT /api/experiments/attributes/{id}", () => {
 
     const response = await updateAttributeValue(event)
     expectTypeOf(response).toEqualTypeOf<ExperimentAttributeValueList>()
-    const { toList, ...rest } = mockAttributeValue
-    expect(response).toStrictEqual({ ...rest })
+    expect(response).toStrictEqual({
+      id: mockAttributeValue.id,
+      value: updateContent.value,
+    })
   })
   it("should return a 400 error if no id is provided", async () => {
     const event = {

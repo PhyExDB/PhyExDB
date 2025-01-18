@@ -3,6 +3,7 @@
  * in an experiment list query.
  */
 export const experimentIncludeForToList = {
+  previewImage: true,
   attributes: {
     select: {
       id: true,

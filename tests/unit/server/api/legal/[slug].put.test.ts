@@ -2,7 +2,6 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest"
 import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import updateLegalDocument from "~~/server/api/legal/[slug].put"
-import { legalDocumentResultExtensions } from "~~/server/db/models/legalDocument"
 
 describe("Api Route PUT /api/legal/{slug}", () => {
   ["slug", "id of"].forEach((param) => {
@@ -21,7 +20,6 @@ describe("Api Route PUT /api/legal/{slug}", () => {
         slug: slug,
         name: "Legal Document name",
         text: "This is the legal document text",
-        toDetail: () => legalDocumentResultExtensions.toDetail.compute(document)(),
       }
 
       const getter = vi.fn().mockImplementation(({ where }) => {
@@ -48,8 +46,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       const response = await updateLegalDocument(event)
 
       expectTypeOf(response).toEqualTypeOf<LegalDocumentDetail>()
-      const { toDetail, ...rest } = document
-      expect(response).toStrictEqual({ ...rest })
+      expect(response).toStrictEqual(document)
     })
   })
 
@@ -81,7 +78,6 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       slug: "privacy-policy",
       name: "Legal Document name",
       text: "This is the legal document text",
-      toDetail: () => legalDocumentResultExtensions.toDetail.compute(document)(),
     }
 
     const getter = vi.fn().mockImplementation(({ where }) => {

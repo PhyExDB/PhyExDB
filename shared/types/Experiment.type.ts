@@ -1,4 +1,5 @@
 import { z } from "zod"
+import type { FileList } from "./File.type"
 
 /**
  * ExperimentList
@@ -24,6 +25,10 @@ export interface ExperimentList extends SlugList {
    * The attributes associated with the experiment.
    */
   attributes: ExperimentAttributeValueList[]
+  /**
+   * The preview image of the experiment.
+   */
+  previewImage: FileList
 }
 
 /**
@@ -67,6 +72,7 @@ export async function getExperimentSchema() {
   const experimentSchema = z.object({
     name: z.string(),
     duration: z.number(),
+    previewImageId: z.string().uuid(),
 
     sections: z.array(z.object({
       experimentSectionPositionInOrder: z.number(),

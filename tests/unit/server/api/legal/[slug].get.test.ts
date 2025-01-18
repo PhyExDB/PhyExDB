@@ -2,7 +2,6 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest"
 import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import getLegalDocument from "~~/server/api/legal/[slug].get"
-import { legalDocumentResultExtensions } from "~~/server/db/models/legalDocument"
 
 describe("Api Route GET /api/legal/{slug}", () => {
   ["slug", "id of"].forEach((param) => {
@@ -16,7 +15,6 @@ describe("Api Route GET /api/legal/{slug}", () => {
         slug: slug,
         name: "Legal Document name",
         text: "This is the legal document text",
-        toDetail: () => legalDocumentResultExtensions.toDetail.compute(document)(),
       }
       prisma.legalDocument.findFirst = vi.fn().mockImplementation(({ where }) => {
         if (where.id === document.id || where.slug === document.slug) {
@@ -37,8 +35,7 @@ describe("Api Route GET /api/legal/{slug}", () => {
       const response = await getLegalDocument(event)
 
       expectTypeOf(response).toEqualTypeOf<LegalDocumentDetail>()
-      const { toDetail, ...rest } = document
-      expect(response).toStrictEqual({ ...rest })
+      expect(response).toStrictEqual(document)
     })
   })
 

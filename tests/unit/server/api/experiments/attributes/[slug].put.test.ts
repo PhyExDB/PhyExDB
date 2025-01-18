@@ -2,7 +2,6 @@ import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event } from "h3"
 import updateAttribute from "~~/server/api/experiments/attributes/[slug].put"
-import { experimentAttributeResultExtensions } from "~~/server/db/models/experimentAttribute"
 
 describe("API Route PUT /api/experiments/attributes/{slug}", () => {
   it("should update an Attribute name successfully", async () => {
@@ -26,19 +25,13 @@ describe("API Route PUT /api/experiments/attributes/{slug}", () => {
       name: "Newname",
     }
 
-    const expected = { ...attribute }
-    const mockAttribute = {
-      ...attribute,
-      toDetail: experimentAttributeResultExtensions.toDetail.compute(attribute),
-    }
-
     prisma.experimentAttribute.update = vi.fn().mockResolvedValue(
-      mockAttribute,
+      attribute,
     )
     const event = {
       context: {
         params: {
-          slug: mockAttribute.id,
+          slug: attribute.id,
         },
       },
       body: updateContent,
@@ -46,7 +39,7 @@ describe("API Route PUT /api/experiments/attributes/{slug}", () => {
 
     const response = await updateAttribute(event)
     expectTypeOf(response).toEqualTypeOf<ExperimentAttributeDetail>()
-    expect(response).toStrictEqual(expected)
+    expect(response).toStrictEqual(attribute)
   })
 
   it("should return a 400 error if no id is provided", async () => {

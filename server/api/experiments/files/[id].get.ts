@@ -1,3 +1,5 @@
+import type { ExperimentFileDetail } from "~~/shared/types"
+
 import { experimentFileAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
@@ -42,6 +44,7 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, experimentFileAbilities.get, result)
 
+  return experimentFile as ExperimentFileDetail
   return result.toDetail(
     result.file,
     result.file.createdBy.toDetail(),

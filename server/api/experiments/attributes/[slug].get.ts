@@ -1,4 +1,5 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import type { ExperimentAttributeDetail } from "~~/shared/types"
 import { experimentAttributeAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Attribute not found" })
   }
 
-  return attribute.toDetail(attribute.values)
+  return attribute as ExperimentAttributeDetail
 })
 
 defineRouteMeta({

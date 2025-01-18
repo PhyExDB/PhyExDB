@@ -1,5 +1,6 @@
 import { untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
+import type { ExperimentAttributeDetail } from "~~/shared/types"
 import { experimentAttributeAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
     slugify(content.name),
   )
 
-  return result.toDetail(result.values)
+  return result as ExperimentAttributeDetail
 })
 
 defineRouteMeta({

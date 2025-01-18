@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
   })
 
   // Using event.$fetch forwards headers like Authorization
+  // @ts-expect-error: Excessive stack depth
   return await event.$fetch("/api/files/" + deletedUserFile.fileId, {
     method: "DELETE",
   })

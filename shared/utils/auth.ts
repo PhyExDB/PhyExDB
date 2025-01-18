@@ -23,7 +23,7 @@ export function sessionToUserDetail(session: typeof authClient.$Infer.Session | 
   }
   const user: UserDetail = {
     id: session.user.id,
-    username: session.user.name,
+    name: session.user.name,
     email: session.user.email,
     role: session.user.role,
     emailVerified: session.user.emailVerified,

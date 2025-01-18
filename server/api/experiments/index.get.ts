@@ -17,12 +17,10 @@ export default defineEventHandler(async (event) => {
     include: experimentIncludeForToList,
   })
 
-  const result: Page<ExperimentList> = {
-    items: experiments.map(experiment => experiment.toList(experiment.attributes)),
+  return {
+    items: experiments as ExperimentList[],
     pagination: pageMeta,
-  }
-
-  return result
+  } as Page<ExperimentList>
 })
 
 defineRouteMeta({

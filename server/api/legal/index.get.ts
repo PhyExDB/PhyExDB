@@ -1,3 +1,4 @@
+import type { LegalDocumentList } from "~~/shared/types"
 import { legalAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
@@ -5,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const documents = await prisma.legalDocument.findMany()
 
-  return documents.map(document => document.toList())
+  return documents as LegalDocumentList[]
 })
 
 defineRouteMeta({
