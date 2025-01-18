@@ -1,8 +1,4 @@
 import { PrismaClient } from "@prisma/client"
-import { legalDocumentResultExtensions } from "../db/models/legalDocument"
-import { experimentAttributeValueResultExtensions } from "../db/models/experimentAttributeValue"
-import { experimentAttributeResultExtensions } from "../db/models/experimentAttribute"
-import { userResultExtensions } from "../db/models/user"
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
@@ -47,18 +43,7 @@ const prismaClientSingleton = () => {
     }
   })
 
-  const resultExtensions = {
-    legalDocument: legalDocumentResultExtensions,
-    user: userResultExtensions,
-    experimentAttribute: experimentAttributeResultExtensions,
-    experimentAttributeValue: experimentAttributeValueResultExtensions,
-  }
-
-  const extendedPrisma = prisma.$extends({
-    result: resultExtensions,
-  })
-
-  return extendedPrisma
+  return prisma
 }
 
 declare const globalThis: {

@@ -3,7 +3,7 @@ import { z } from "zod"
 /**
  * Represents an AttributeValue List with id and name
  */
-export interface ExperimentAttributeValueList extends BaseList {
+export interface ExperimentAttributeValueList extends SlugList {
   /**
    * The id of the value
    */
@@ -11,7 +11,7 @@ export interface ExperimentAttributeValueList extends BaseList {
   /**
    * The value of the attribute
    */
-  name: string
+  value: string
 }
 
 /**
@@ -22,8 +22,8 @@ export interface ExperimentAttributeValueList extends BaseList {
  * - `name`: A string representing the value of the attribute.
  */
 export const experimentAttributeValueCreateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+  attribute: z.string(),
+  value: z.string(),
 })
 
 /**
@@ -33,5 +33,5 @@ export const experimentAttributeValueCreateSchema = z.object({
  * - `name`: A string representing the value of the attribute.
  */
 export const experimentAttributeValueUpdateSchema = z.object({
-  name: z.string(),
+  value: z.string(),
 })

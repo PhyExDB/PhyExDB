@@ -5,7 +5,7 @@ import type { ExperimentAttributeValueList } from "./ExperimentAttributeValue.ty
  * Represents a list of attributes with their ids, names, and slugs.
  * Extends the BaseList interface.
  */
-export interface ExperimentAttributeList extends BaseList {
+export interface ExperimentAttributeList extends SlugList {
   /**
   * The id of the Attribute
   */
@@ -14,10 +14,6 @@ export interface ExperimentAttributeList extends BaseList {
    * The name of the Attribute
    */
   name: string
-  /**
-   * The slug of the Attribute
-   */
-  slug: string
 }
 /**
  * Represents an AttributeDetail with id, name, slug, and valueList
@@ -26,7 +22,7 @@ export interface ExperimentAttributeDetail extends ExperimentAttributeList {
   /**
    * The values of the attribute
    */
-  valueList: ExperimentAttributeValueList[]
+  values: ExperimentAttributeValueList[]
 }
 
 /**
@@ -37,4 +33,15 @@ export interface ExperimentAttributeDetail extends ExperimentAttributeList {
  */
 export const experimentAttributeUpdateSchema = z.object({
   name: z.string(),
+})
+
+/**
+ * Schema for updating an ExperimentAttribute.
+ *
+ * This schema validates that the object has the following property:
+ * - `name`: A string representing the value of the attribute.
+ */
+export const experimentAttributeCreateSchema = z.object({
+  name: z.string(),
+  values: z.array(experimentAttributeValueCreateSchema.shape.value),
 })

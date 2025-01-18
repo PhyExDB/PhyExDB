@@ -8,6 +8,8 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
     "@nuxt/icon",
+    "nuxt-file-storage",
+    "@nuxt/image",
   ],
 
   devtools: { enabled: true },
@@ -21,12 +23,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     logLevel: "debug",
-    databaseUser: "nuxt",
-    databasePassword: "nuxt_password",
-    databaseName: "phyexdb",
-    databaseHost: "localhost",
-    databasePort: 5432,
-    betterAuthSecret: "set in env",
+    fileMount: "./public",
   },
 
   future: {
@@ -38,6 +35,12 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       openAPI: true,
+    },
+  },
+
+  vite: {
+    resolve: {
+      preserveSymlinks: true,
     },
   },
 
@@ -58,6 +61,10 @@ export default defineNuxtConfig({
         semi: false,
       },
     },
+  },
+
+  fileStorage: {
+    mount: process.env.NUXT_FILE_MOUNT,
   },
 
   shadcn: {

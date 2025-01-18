@@ -17,7 +17,8 @@ logs
 .DS_Store
 .fleet
 .idea
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 # Local env files
 .env
@@ -34,3 +35,9 @@ test-results
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Code Coverage
+**/coverage/
+
+# Uploaded Files
+public/uploads

@@ -1,5 +1,4 @@
-import { test, expect } from "@nuxt/test-utils/playwright"
-import { $fetch } from "@nuxt/test-utils/e2e"
+import { test, expect } from "@playwright/test"
 
 test.describe("Homepage", () => {
   [
@@ -7,11 +6,14 @@ test.describe("Homepage", () => {
     "terms-of-service",
     "imprint",
   ].forEach((slug) => {
-    test(`should render the legal document with slug ${slug}`, async ({ page, goto }) => {
+    test(`should render the legal document with slug ${slug}`, async ({ page, request }) => {
       // Navigate to the homepage
-      await goto(`/legal/${slug}`, { waitUntil: "hydration" })
+      await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
 
-      const legalDocument = await $fetch(`/api/legal/${slug}`)
+      const apiResponse = await request.get(`/api/legal/${slug}`)
+      expect(apiResponse.ok()).toBeTruthy()
+
+      const legalDocument = await apiResponse.json() as LegalDocumentDetail
 
       const proseContent = page.locator("div[class=\"prose dark:prose-invert\"]")
       await expect(proseContent).toBeVisible()

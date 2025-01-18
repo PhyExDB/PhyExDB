@@ -21,6 +21,7 @@ jobs:
       DATABASE_URL: postgresql://nuxt:nuxt_password@localhost:5432/phyexdb
       # For API Base URL
       NUXT_PUBLIC_API_BASE: http://db:3000/api/
+      BETTER_AUTH_SECRET: better_auth_secret
 
     services:
       db:
@@ -49,5 +50,20 @@ jobs:
       - name: Run db migrations and seeds
         run: npm run migrate && npm run migrate:seed
 
-      - name: Run tests
+      - name: Run integration tests
         run: npm run test:integration
+
+      - name: Run unit tests with coverage
+        run: npm run test:unit:coverage
+
+      - name: Upload coverage to Teamscale
+        uses: cqse/teamscale-upload-action@v2.9.5
+        with:
+          server: https://teamscale.niklhut.de
+          project: phyexdb
+          user: ci
+          partition: Github Action > Vitest
+          accesskey: ${{ secrets.TEAMSCALE_ACCESS_KEY }}
+          revision: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          format: LCOV
+          files: coverage/lcov.info
