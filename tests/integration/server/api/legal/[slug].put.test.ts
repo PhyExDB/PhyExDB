@@ -2,6 +2,9 @@ import { describe, expect, expectTypeOf, it } from "vitest"
 import { setup, $fetch, url } from "@nuxt/test-utils/e2e"
 import { v4 as uuidv4 } from "uuid"
 import prisma from "../../../../../server/utils/prisma"
+import { mockUser, user } from "~~/tests/helpers/auth"
+
+mockUser(user.admin)
 
 describe("Api Route PUT /api/legal/{slug}", async () => {
   await setup()
