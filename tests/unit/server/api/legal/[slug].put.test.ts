@@ -2,6 +2,9 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest"
 import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import updateLegalDocument from "~~/server/api/legal/[slug].put"
+import { mockUser, user } from "~~/tests/helpers/auth"
+
+mockUser(user.admin)
 
 describe("Api Route PUT /api/legal/{slug}", () => {
   ["slug", "id of"].forEach((param) => {

@@ -6,6 +6,15 @@ import { mockDeep } from "vitest-mock-extended"
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
 
+vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    getUser: vitest.fn(),
+    getUserOrThrowError: vitest.fn(),
+  }
+})
+
 vitest.stubGlobal("defineEventHandler", (func: unknown) => func)
 vitest.stubGlobal("defineRouteMeta", (func: unknown) => func)
 vitest.stubGlobal("defineNitroPlugin", (e: unknown) => e)

@@ -5,8 +5,12 @@ import {
   untilSlugUnique,
 } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
+import { experimentAttributeAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
+  await authorize(event, experimentAttributeAbilities.put)
+
   const whereClause = getSlugOrIdPrismaWhereClause(event)
 
   const content = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))

@@ -1,14 +1,11 @@
 import { readValidatedBody } from "h3"
 import { getExperimentSchema } from "~~/shared/types"
-import { canCreateExperiment } from "~~/shared/utils/abilities"
+import { experimentAbilities } from "~~/shared/utils/abilities"
 import { untilSlugUnique } from "~~/server/utils/utils"
+import { authorizeUser } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
-  const user = await getUser(event)
-  await authorize(event, canCreateExperiment)
-  if (user == null) {
-    throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
-  }
+  const user = await authorizeUser(event, experimentAbilities.post)
 
   const newValueContent = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
 
