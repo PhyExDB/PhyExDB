@@ -3,7 +3,6 @@ import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { getUser } from "~~/server/utils/auth"
 import { mockUser } from "~~/tests/helpers/auth"
-// import { mockUser } from "~~/tests/helpers/auth"
 
 describe("Test mocking of signed in user", async () => {
   it("Test mocking of signed in user", async () => {
@@ -22,7 +21,6 @@ describe("Test mocking of signed in user", async () => {
         params: {
         },
       },
-      // headers: {},
       body: {},
     } as unknown as H3Event<EventHandlerRequest>
     const res = await getUser(event)
