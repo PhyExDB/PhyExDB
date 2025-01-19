@@ -38,8 +38,11 @@ export const legalAbilities = everyoneSeeAdminEditCRUD
 /** Abilities for experimentAttributes */
 export const experimentAttributeAbilities = everyoneSeeAdminEditCRUD
 
-/** Abilities for experimentAttributes */
+/** Abilities for experimentAttributeValues */
 export const experimentAttributeValueAbilities = everyoneSeeAdminEditCRUD
+
+/** Abilities for experimentSections */
+export const experimentSectionAbilities = everyoneSeeAdminEditCRUD
 
 /** Abilities for experiments */
 export const experimentAbilities = {

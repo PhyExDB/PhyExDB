@@ -6,6 +6,7 @@ import {
 } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
 import { experimentAttributeValueAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
   await authorize(event, experimentAttributeValueAbilities.put)

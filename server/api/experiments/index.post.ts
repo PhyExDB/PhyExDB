@@ -2,6 +2,7 @@ import { readValidatedBody } from "h3"
 import { getExperimentSchema } from "~~/shared/types"
 import { experimentAbilities } from "~~/shared/utils/abilities"
 import { untilSlugUnique } from "~~/server/utils/utils"
+import { authorizeUser } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
   const user = await authorizeUser(event, experimentAbilities.post)

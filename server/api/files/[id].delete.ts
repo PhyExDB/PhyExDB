@@ -1,5 +1,6 @@
 import fs from "fs"
 import { fileAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
   const fileId = getRouterParam(event, "id")

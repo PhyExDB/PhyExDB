@@ -1,5 +1,6 @@
 import { experimentFileCreateSchema } from "~~/shared/types"
 import { experimentFileAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
   const newExperimentFileContent = await readValidatedBody(event, body => experimentFileCreateSchema.parse(body))

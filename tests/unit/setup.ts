@@ -1,10 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PrismaClient } from "@prisma/client"
-import { vitest } from "vitest"
+import { vitest, vi } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
 
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
+
+vi.mock(import("~~/server/utils/auth"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    getUser: vi.fn(),
+    getUserOrThrowError: vi.fn(),
+  }
+})
 
 vitest.stubGlobal("defineEventHandler", (func: unknown) => func)
 vitest.stubGlobal("defineRouteMeta", (func: unknown) => func)

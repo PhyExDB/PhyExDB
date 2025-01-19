@@ -1,4 +1,5 @@
 import type { H3Event, EventHandlerRequest } from "h3"
+import { getUser, getUserOrThrowError } from "./auth"
 import type { Ability, UserAbility } from "~~/shared/utils/auth"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

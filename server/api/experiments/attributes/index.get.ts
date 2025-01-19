@@ -1,4 +1,5 @@
 import { experimentAttributeAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
   await authorize(event, experimentAttributeAbilities.getAll)
