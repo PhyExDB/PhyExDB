@@ -33,7 +33,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "jsonwebtoken": "^9.0.2",
-    "lucide-vue-next": "^0.471.0",
+    "lucide-vue-next": "^0.473.0",
     "nuxt": "^3.15.2",
     "nuxt-authorization": "^0.3.2",
     "radix-vue": "^1.9.12",
