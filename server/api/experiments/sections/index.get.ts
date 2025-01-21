@@ -1,7 +1,11 @@
 import type { ExperimentSectionList } from "~~/shared/types/ExperimentSection.type"
 
 export default defineEventHandler(async () => {
-  return await prisma.experimentSection.findMany() as ExperimentSectionList[]
+  return await prisma.experimentSection.findMany({
+    orderBy: {
+      order: "asc",
+    },
+  }) as ExperimentSectionList[]
 })
 
 defineRouteMeta({
