@@ -1,6 +1,7 @@
 import { inferAdditionalFields } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/vue"
 import { toRef } from "vue"
+import type { auth } from "~~/server/utils/auth"
 
 /**
  * Auth client instance configured with plugins.
@@ -22,4 +23,12 @@ export async function useUser(): Promise<Ref<UserDetail | null>> {
     return sessionToUserDetail(session?.value)
   })
   return user
+}
+
+/**
+ * Hook to get the current user session.
+ */
+export async function getUser(): Promise<UserDetail | null> {
+  const { data: session } = await authClient.useSession(useFetch)
+  return sessionToUserDetail(session?.value)
 }

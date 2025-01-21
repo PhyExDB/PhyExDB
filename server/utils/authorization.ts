@@ -1,6 +1,7 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { getUser, getUserOrThrowError } from "./auth"
 import type { Ability, UserAbility } from "~~/shared/utils/auth"
+import { evaluateAbility, evaluateUserAbility } from "~~/shared/utils/auth"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -12,19 +13,13 @@ export async function authorize<T extends any[]>(
   ability: Ability<T>,
   ...param: T
 ): Promise<UserDetail | null> {
-  const user = await getUser(event)
-  if (!user) {
-    if (ability.allowGuests) {
-      return null
-    } else {
-      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
-    }
-  }
-  const isAuthorized = ability.func(user, ...param)
-  if (!isAuthorized) {
+  const result = evaluateAbility(await getUser(event), ability, ...param)
+  if (result === "Not logged in") {
+    throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+  } else if (result === "Not authorized") {
     throw createError({ statusCode: 403, statusMessage: "Not authorized" })
   }
-  return user
+  return result
 }
 /**
  * Authorizes a user based on the provided UserAbility and parameters.
@@ -35,10 +30,9 @@ export async function authorizeUser<T extends any[]>(
   ability: UserAbility<T>,
   ...param: T
 ): Promise<UserDetail> {
-  const user = await getUserOrThrowError(event)
-  const isAuthorized = ability.func(user, ...param)
-  if (!isAuthorized) {
+  const result = evaluateUserAbility(await getUserOrThrowError(event), ability, ...param)
+  if (result === "Not authorized") {
     throw createError({ statusCode: 403, statusMessage: "Not authorized" })
   }
-  return user
+  return result
 }

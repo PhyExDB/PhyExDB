@@ -44,6 +44,43 @@ export type Ability<T extends any[]> = { func: AbilityFunc<T>, allowGuests: bool
 export type UserAbility<T extends any[]> = { func: AbilityFunc<T>, allowGuests: false }
 
 /**
+ * Evaluates the ability of a user to perform a certain action.
+ */
+export function evaluateAbility<T extends any[]>(
+  user: UserDetail | null,
+  ability: Ability<T>,
+  ...param: T
+): UserDetail | null | "Not authorized" | "Not logged in" {
+  if (!user) {
+    if (ability.allowGuests) {
+      return null
+    } else {
+      return "Not logged in"
+    }
+  }
+  const isAuthorized = ability.func(user, ...param)
+  if (!isAuthorized) {
+    return "Not authorized"
+  }
+  return user
+}
+
+/**
+ * Evaluates the ability of a user to perform a certain action.
+ */
+export function evaluateUserAbility<T extends any[]>(
+  user: UserDetail,
+  ability: UserAbility<T>,
+  ...param: T
+): UserDetail | "Not authorized" {
+  const isAuthorized = ability.func(user, ...param)
+  if (!isAuthorized) {
+    return "Not authorized"
+  }
+  return user
+}
+
+/**
  * Defines an ability.
  */
 export function defineAbility<T extends any[], B extends boolean>(allowGuests: B, func: AbilityFunc<T>) {

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
+import { allows } from "~/utils/authorization"
 import type { LegalDocumentDetail } from "~~/shared/types"
 
 definePageMeta({
@@ -8,6 +9,8 @@ definePageMeta({
     return params.slug === "imprint" || params.slug === "privacy-policy" || params.slug === "terms-of-service"
   },
 })
+const allowed = await allows(legalAbilities.put)
+
 const loading = ref(false)
 const open = ref(false)
 const formSchema = toTypedSchema(legalDocumentUpdateSchema)
@@ -36,7 +39,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       </h1>
       <p>{{ legal!.text }}</p>
     </div>
-    <Can :ability="onlyAdminAbillity">
+    <div v-if="allowed">
       <Dialog
         :open="open"
         @update:open="open=$eve"
@@ -105,6 +108,6 @@ const onSubmit = form.handleSubmit(async (values) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Can>
+    </div>
   </div>
 </template>
