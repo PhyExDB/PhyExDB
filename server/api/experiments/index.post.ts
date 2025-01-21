@@ -10,7 +10,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
   }
 
-  const newValueContent = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
+  const sections = await $fetch("/api/experiments/sections")
+  const attributes = await $fetch("/api/experiments/attributes")
+
+  const newValueContent = await readValidatedBody(
+    event,
+    async body => (getExperimentSchema(sections, attributes)).parseAsync(body),
+  )
 
   const newExperiment = await untilSlugUnique(
     async (slug: string) => {

@@ -42,32 +42,37 @@ export interface ExperimentDetail extends ExperimentList {
 }
 
 /**
- * Asynchronously retrieves the experiment schema.
+ * Generates a schema for an experiment using the provided sections and attributes.
  *
- * The schema includes the following properties:
+ * @param sections - An array of `ExperimentSectionList` objects representing the sections of the experiment.
+ * @param attributes - An array of `ExperimentAttributeDetail` objects representing the attributes of the experiment.
+ * @returns A Zod schema object for validating the experiment data.
+ *
+ * The schema includes the following fields:
  * - `name`: A string representing the name of the experiment.
  * - `duration`: A number representing the duration of the experiment.
- * - `sections`: An array of section objects, each containing:
+ * - `previewImageId`: A UUID string representing the ID of the preview image.
+ * - `sections`: An array of objects representing the sections of the experiment. Each section object includes:
  *   - `experimentSectionPositionInOrder`: A number representing the position of the section in order.
- *   - `text`: A string representing the text of the section.
- *   - `files`: An array of file objects, each containing:
+ *   - `text`: A string representing the text content of the section.
+ *   - `files`: An array of objects representing the files associated with the section. Each file object includes:
  *     - `fileId`: A string representing the ID of the file.
- * The sections array is validated to ensure:
- * - Each section has a unique `experimentSectionPositionInOrder`.
- * - The number of sections matches the required number of sections.
- * The attributes array is validated to ensure:
- * - The number of attributes matches the required number of attributes.
- * @returns {Promise<z.ZodObject>} A promise that resolves to the experiment schema.
+ * - `attributes`: An array of objects representing the attributes of the experiment. Each attribute object includes:
+ *   - `valueId`: A string representing the ID of the attribute value.
+ *
+ * The schema also includes the following refinements:
+ * - Sections must be unique based on their `experimentSectionPositionInOrder`.
+ * - The number of sections must match the required number of sections.
+ * - The number of attributes specified must match the required number of attributes.
  */
-export async function getExperimentSchema() {
-  const attributeEndpointResponse = await $fetch("/api/experiments/attributes")
-  const attributeValueSets = attributeEndpointResponse.map((attribute) => {
+export function getExperimentSchema(sections: ExperimentSectionList[], attributes: ExperimentAttributeDetail[]) {
+  const attributeValueSets = attributes.map((attribute) => {
     const attributeValues = attribute.values.map(attributeValue => attributeValue.id)
     return new Set(attributeValues)
   })
-  const requiredNumAttributes = attributeEndpointResponse.length
+  const requiredNumAttributes = attributes.length
 
-  const requiredNumSections = await $fetch("/api/experiments/requiredNumSections")
+  const requiredNumSections = sections.length
 
   const experimentSchema = z.object({
     name: z.string(),

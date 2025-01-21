@@ -20,9 +20,12 @@ export default defineEventHandler(async (event) => {
   }
   await authorize(event, canEditExperiment, experiment)
 
+  const sections = await $fetch("/api/experiments/sections")
+  const attributes = await $fetch("/api/experiments/attributes")
+
   const updatedExperimentData = await readValidatedBody(
     event,
-    async body => (await getExperimentSchema()).parseAsync(body),
+    async body => (getExperimentSchema(sections, attributes)).parseAsync(body),
   )
 
   const updatedExperiment = await untilSlugUnique(
