@@ -2,7 +2,6 @@ import type { H3Event, EventHandlerRequest } from "h3"
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import prisma from "../../server/utils/prisma"
-import { sendVerificationEmail } from "better-auth/api"
 
 /**
  * betterAuth config
@@ -14,11 +13,15 @@ export const auth = betterAuth({
     requireEmailVerification: true,
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }, request) => {
-      await 
-    },
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url, token }, _) => {
+      await useNodeMailer().sendMail({
+        subject: "Verifying PHYEXDB email-address",
+        text: `Please click the following link to verify your email address: ${url} or enter the token ${token} on the verification page.`,
+        to: user.email,
+      })
+    },
   },
   user: {
     changeEmail: {

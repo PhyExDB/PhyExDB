@@ -68,6 +68,18 @@ export default defineNuxtConfig({
     mount: process.env.NUXT_FILE_MOUNT,
   },
 
+  // In order for mails from nodemailer to be visible in mailpit a username and password in the auth field must be set
+  nodemailer: {
+    from: "email@email.com",
+    host: "localhost",
+    port: 1025,
+    secure: false,
+    auth: {
+      user: "test@gmail.com",
+      pass: "null",
+    },
+  },
+
   shadcn: {
     componentDir: "./app/components/ui",
   },
