@@ -14,9 +14,9 @@ export async function authorize<T extends any[]>(
   const result = evaluateAbility(await getUser(), ability, ...param)
   if (result === "Not logged in") {
     await navigateTo("/login")
-    throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+    throw showError({ statusCode: 401, statusMessage: "Not logged in" })
   } else if (result === "Not authorized") {
-    throw createError({ statusCode: 403, statusMessage: "Not authorized" })
+    throw showError({ statusCode: 403, statusMessage: "Not authorized" })
   }
   return result
 }
@@ -31,11 +31,11 @@ export async function authorizeUser<T extends any[]>(
   const user = await getUser()
   if (!user) {
     await navigateTo("/login")
-    throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+    throw showError({ statusCode: 401, statusMessage: "Not logged in" })
   }
   const result = evaluateUserAbility(user, ability, ...param)
   if (result === "Not authorized") {
-    throw createError({ statusCode: 403, statusMessage: "Not authorized" })
+    throw showError({ statusCode: 403, statusMessage: "Not authorized" })
   }
   return result
 }
