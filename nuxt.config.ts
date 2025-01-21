@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "nuxt-file-storage",
     "@nuxt/image",
+    "nuxt-nodemailer",
   ],
 
   devtools: { enabled: true },

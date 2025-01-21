@@ -2,6 +2,7 @@ import type { H3Event, EventHandlerRequest } from "h3"
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import prisma from "../../server/utils/prisma"
+import { sendVerificationEmail } from "better-auth/api"
 
 /**
  * betterAuth config
@@ -10,11 +11,11 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }, _) => {
-      const devUrl = url.replace("http://localhost", "http://localhost:3000")
-      authLogger.alert("signupEmail", { user, devUrl, token })
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      await 
     },
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
