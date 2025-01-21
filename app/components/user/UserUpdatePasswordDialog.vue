@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
+import { useToast } from "@/components/ui/toast/use-toast"
 
 const loading = ref(false)
 const open = ref(false)
@@ -8,6 +9,7 @@ const open = ref(false)
 const formSchema = toTypedSchema(userUpdatePasswordValidateSchema)
 const form = useForm({ validationSchema: formSchema })
 
+const { toast } = useToast()
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
@@ -22,6 +24,15 @@ const onSubmit = form.handleSubmit(async (values) => {
   if (error?.code === "INVALID_PASSWORD") {
     hasError = true
     form.setFieldError("oldPassword", "Das Passwort ist falsch")
+  }
+
+  if (!hasError) {
+    toast({
+      title: "Passwort geändert",
+      description: "Dein Passwort wurde erfolgreich geändert.",
+      variant: "success",
+    })
+    open.value = false
   }
 
   open.value = hasError

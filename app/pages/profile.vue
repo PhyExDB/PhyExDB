@@ -33,14 +33,14 @@ const sendVerificationEmail = async () => {
         <div class="flex items-center flex-col sm:flex-row">
           <Avatar class="w-24 h-24 mb-4 sm:mb-0 sm:mr-4 mx-auto">
             <AvatarFallback class="text-xl font-bold">
-              {{ getInitials(user.username) }}
+              {{ getInitials(user.name) }}
             </AvatarFallback>
           </Avatar>
           <div class="flex-1">
             <div class="text-center sm:text-left">
               <div class="flex items-center justify-center sm:justify-start space-x-2">
                 <p class="font-medium">
-                  {{ user.username }}
+                  {{ user.name }}
                 </p>
                 <Badge
                   v-if="user.role !== 'USER'"

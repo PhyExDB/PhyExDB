@@ -1,28 +1,32 @@
+import type { ExperimentAttributeDetail } from "~~/shared/types"
 import { experimentAttributeUpdateSchema } from "~~/shared/types"
+import {
+  getSlugOrIdPrismaWhereClause,
+  untilSlugUnique,
+} from "~~/server/utils/utils"
+import slugify from "~~/server/utils/slugify"
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id")
-  if (!id) {
-    throw createError({ status: 400, message: "invalid id" })
-  }
+  const whereClause = getSlugOrIdPrismaWhereClause(event)
 
-  const attribute = await prisma.experimentAttribute.findFirst({
-    where: { id: id },
-    include: { values: true },
-  })
+  const content = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))
 
-  if (!attribute) {
+  const result = await untilSlugUnique(
+    (slug: string) => {
+      return prisma.experimentAttribute.update({
+        where: whereClause,
+        data: { name: content.name, slug: slug },
+        include: { values: true },
+      })
+    },
+    slugify(content.name),
+  )
+
+  if (!result) {
     throw createError({ status: 404, message: "Attribute not found" })
   }
 
-  const updateName = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))
-
-  const updatedAttribute = await prisma.experimentAttribute.update({
-    where: { id: id },
-    data: { name: updateName.name },
-  })
-
-  return updatedAttribute.toDetail(attribute.values.map(value => value.toList()))
+  return result as ExperimentAttributeDetail
 })
 
 defineRouteMeta({

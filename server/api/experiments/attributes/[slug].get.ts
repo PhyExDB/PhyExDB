@@ -1,11 +1,9 @@
-export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id")
-  if (!id) {
-    throw createError({ status: 400, message: "invalid id" })
-  }
+import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import type { ExperimentAttributeDetail } from "~~/shared/types"
 
+export default defineEventHandler(async (event) => {
   const attribute = await prisma.experimentAttribute.findFirst({
-    where: { id: id },
+    where: getSlugOrIdPrismaWhereClause(event),
     include: { values: true },
   })
 
@@ -13,7 +11,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Attribute not found" })
   }
 
-  return attribute.toDetail(attribute.values.map(value => value.toList()))
+  return attribute as ExperimentAttributeDetail
 })
 
 defineRouteMeta({

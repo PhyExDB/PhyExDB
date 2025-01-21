@@ -1,6 +1,6 @@
-export default function getInitials(username: string): string {
-  // Split the username into parts by spaces
-  const nameParts = username.trim().split(/\s+/)
+export default function getInitials(name: string): string {
+  // Split the name into parts by spaces
+  const nameParts = name.trim().split(/\s+/)
 
   if (nameParts.length === 0) {
     // If there are no parts, return an empty string

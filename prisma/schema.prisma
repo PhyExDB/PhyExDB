@@ -11,16 +11,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id            String       @id @default(uuid())
+  role          UserRole     @default(USER)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   name          String
   email         String
   emailVerified Boolean
   image         String?
   sessions      Session[]
   accounts      Account[]
+  files         File[]
+  userFile      UserFile?
   experiments   Experiment[]
 
   @@unique([email])
@@ -43,17 +45,19 @@ model LegalDocument {
 }
 
 model Experiment {
-  id         String                     @id @default(uuid())
-  name       String
-  slug       String                     @unique
-  user       User                       @relation(fields: [userId], references: [id])
-  userId     String
-  status     ExperimentStatus           @default(DRAFT)
-  duration   Int
-  sections   ExperimentSectionContent[]
-  attributes ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
-  createdAt  DateTime                   @default(now())
-  updatedAt  DateTime                   @updatedAt
+  id             String                     @id @default(uuid())
+  name           String
+  slug           String                     @unique
+  user           User                       @relation(fields: [userId], references: [id])
+  userId         String
+  status         ExperimentStatus           @default(DRAFT)
+  duration       Int
+  previewImage   File?                      @relation(fields: [previewImageId], references: [id])
+  previewImageId String?                    @unique
+  sections       ExperimentSectionContent[]
+  attributes     ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
 }
 
 enum ExperimentStatus {
@@ -65,6 +69,7 @@ enum ExperimentStatus {
 model ExperimentSection {
   id          String                     @id @default(uuid())
   name        String
+  slug        String                     @unique
   order       Int                        @unique
   experiments ExperimentSectionContent[]
   createdAt   DateTime                   @default(now())
@@ -78,7 +83,7 @@ model ExperimentSectionContent {
   experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String
   text                String
-  files               File[]
+  files               ExperimentFile[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 }
@@ -97,20 +102,42 @@ model ExperimentAttributeValue {
   experiments Experiment[] // implicit many to many, pivot managed by Prisma
   attribute   ExperimentAttribute @relation(fields: [attributeId], references: [id])
   attributeId String
-  name        String
+  value       String
+  slug        String              @unique
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 }
 
 model File {
-  id                  String                    @id @default(uuid())
-  path                String
-  mimeType            String
+  id                    String          @id @default(uuid())
+  path                  String
+  mimeType              String
+  experimentFile        ExperimentFile?
+  experimentPreviewFile Experiment?
+  userFile              UserFile?
+  createdBy             User            @relation(fields: [createdById], references: [id])
+  createdById           String
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+}
+
+model ExperimentFile {
+  id                  String                   @id @default(uuid())
+  file                File                     @relation(fields: [fileId], references: [id])
+  fileId              String                   @unique
   description         String?
-  experimentSection   ExperimentSectionContent? @relation(fields: [experimentSectionId], references: [id])
-  experimentSectionId String?
-  createdAt           DateTime                  @default(now())
-  updatedAt           DateTime                  @updatedAt
+  experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id])
+  experimentSectionId String
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+}
+
+model UserFile {
+  id     String  @id @default(uuid())
+  file   File    @relation(fields: [fileId], references: [id])
+  fileId String  @unique
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String? @unique
 }
 
 model Session {
