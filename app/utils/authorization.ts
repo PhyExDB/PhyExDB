@@ -1,6 +1,6 @@
-import { getUser, useUser } from "./authClient"
+import { useUser } from "./authClient"
 import type { Ability, UserAbility } from "~~/shared/utils/auth"
-import { evaluateAbility, evaluateUserAbility } from "~~/shared/utils/auth"
+import { evaluateAbility } from "~~/shared/utils/auth"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -16,6 +16,7 @@ export async function authorize<T extends any[]>(
     const result = evaluateAbility(user?.value, ability, ...param)
     if (result === "Not logged in") {
       await navigateTo("/login")
+      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
     } else if (result === "Not authorized") {
       throw showError({ statusCode: 403, statusMessage: "Not authorized" })
     }
@@ -41,7 +42,7 @@ export async function authorizeUser<T extends any[]>(
   })
   return toRef(() => {
     if (user.value === null) {
-      throw showError({ statusCode: 401, statusMessage: "Not logged in" })
+      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
     }
     return user.value
   })
