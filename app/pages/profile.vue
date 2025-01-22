@@ -61,7 +61,7 @@ const sendVerificationEmail = async () => {
                     <Icon
                       v-if="user.emailVerified"
                       size="1.2em"
-                      class="text-success"
+                      class="text-success-foreground"
                       name="heroicons:check-badge"
                     />
                     <Icon
