@@ -24,6 +24,20 @@ export async function useUser(): Promise<Ref<UserDetail | null>> {
   })
   return user
 }
+/**
+ * Hook to get the current user session.
+ */
+export async function useUserOrThrowError(): Promise<Ref<UserDetail>> {
+  const { data: session } = await authClient.useSession(useFetch)
+  const user = toRef(() => {
+    const user = sessionToUserDetail(session?.value)
+    if (user === null) {
+      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+    }
+    return user
+  })
+  return user
+}
 
 /**
  * Hook to get the current user session.

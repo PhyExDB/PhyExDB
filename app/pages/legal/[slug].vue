@@ -8,6 +8,7 @@ definePageMeta({
     return params.slug === "imprint" || params.slug === "privacy-policy" || params.slug === "terms-of-service"
   },
 })
+authorize(legalAbilities.get)
 
 const loading = ref(false)
 const open = ref(false)

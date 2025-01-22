@@ -30,13 +30,8 @@ export async function authorizeUser<T extends any[]>(
   ability: UserAbility<T>,
   ...param: T
 ): Promise<Ref<UserDetail>> {
-  const user = await authorize(ability, ...param)
-  return toRef(() => {
-    if (user.value === null) {
-      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
-    }
-    return user.value
-  })
+  await authorize(ability, ...param)
+  return useUserOrThrowError()
 }
 
 /**
