@@ -7,13 +7,12 @@ import { evaluateAbility } from "~~/shared/utils/auth"
 /**
  * Redirect if not logged in or not authorized.
  */
-export async function authorize<T extends any[]>(
+export function authorize<T extends any[]>(
   ability: Ability<T>,
   ...param: T
 ): Promise<Ref<UserDetail | null>> {
-  const user = await useUser()
   watchEffect(async () => {
-    const result = evaluateAbility(user?.value, ability, ...param)
+    const result = evaluateAbility((await useUser()).value, ability, ...param)
     if (result === "Not logged in") {
       await navigateTo("/login")
       throw createError({ statusCode: 401, statusMessage: "Not logged in" })
@@ -21,7 +20,7 @@ export async function authorize<T extends any[]>(
       throw showError({ statusCode: 403, statusMessage: "Not authorized" })
     }
   })
-  return user
+  return useUser()
 }
 /**
  * Authorizes a user based on the provided UserAbility and parameters.
@@ -31,15 +30,7 @@ export async function authorizeUser<T extends any[]>(
   ability: UserAbility<T>,
   ...param: T
 ): Promise<Ref<UserDetail>> {
-  const user = await useUser()
-  watchEffect(async () => {
-    const result = evaluateAbility(user?.value, ability, ...param)
-    if (result === "Not logged in") {
-      await navigateTo("/login")
-    } else if (result === "Not authorized") {
-      throw showError({ statusCode: 403, statusMessage: "Not authorized" })
-    }
-  })
+  const user = await authorize(ability, ...param)
   return toRef(() => {
     if (user.value === null) {
       throw createError({ statusCode: 401, statusMessage: "Not logged in" })
