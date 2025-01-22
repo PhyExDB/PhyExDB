@@ -1,15 +1,15 @@
-import { inferAdditionalFields } from "better-auth/client/plugins"
+import { adminClient } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/vue"
 import { toRef } from "vue"
-import type { auth } from "~~/server/utils/auth"
+
+const url = { origin: "http://localhost:3000" } // useRequestURL()
 
 /**
  * Auth client instance configured with plugins.
- *
- * @type {ReturnType<typeof createAuthClient>}
  */
-export const authClient: ReturnType<typeof createAuthClient> = createAuthClient({
-  plugins: [inferAdditionalFields<typeof auth>()],
+export const authClient = createAuthClient({
+  plugins: [adminClient()],
+  baseURL: url.origin,
 })
 
 /**

@@ -26,6 +26,10 @@ model User {
   userFile      UserFile?
   experiments   Experiment[]
 
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+
   @@unique([email])
   @@map("user")
 }
@@ -153,6 +157,8 @@ model Session {
   createdAt DateTime
   updatedAt DateTime
 
+  impersonatedBy String?
+
   @@unique([token])
   @@map("session")
 }
@@ -188,15 +194,15 @@ model Verification {
 }
 
 model Comment {
-  id            String        @id
-  text          String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String
-  experiment    Experiment?   @relation(fields: [experimentId], references: [id], onDelete: SetNull)
-  experimentId  String?
-  parent        Comment?      @relation("CommentToComment", fields: [parentId], references: [id], onDelete: SetNull)
-  parentId      String?
-  children      Comment[]     @relation("CommentToComment")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id           String      @id
+  text         String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  experiment   Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+  experimentId String?
+  parent       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: SetNull)
+  parentId     String?
+  children     Comment[]   @relation("CommentToComment")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
