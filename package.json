@@ -28,6 +28,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@vee-validate/zod": "^4.15.0",
     "@vueuse/core": "^12.4.0",
+    "@vueuse/nuxt": "^12.4.0",
     "bcrypt": "^5.1.1",
     "better-auth": "^1.1.14",
     "class-variance-authority": "^0.7.1",
