@@ -24,19 +24,37 @@ export async function useUser(): Promise<Ref<UserDetail | null>> {
   })
   return user
 }
+
+async function useUserOrThrowErrorWithoutRedirect(): Promise<Ref<UserDetail>> {
+  const user = await useUser()
+  return toRef(() => {
+    if (user.value === null) {
+      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+    }
+    return user.value
+  })
+}
+async function redirectNotSignedIn() {
+  const user = await useUser()
+  if (user.value === null) {
+    await navigateTo("/login")
+  }
+}
+function redirectNotLoggedInUserWatcher() {
+  watchEffect(redirectNotSignedIn)
+}
+
 /**
  * Hook to get the current user session.
  */
 export async function useUserOrThrowError(): Promise<Ref<UserDetail>> {
-  const { data: session } = await authClient.useSession(useFetch)
-  const user = toRef(() => {
-    const user = sessionToUserDetail(session?.value)
-    if (user === null) {
-      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
-    }
-    return user
-  })
-  return user
+  const user = await getUser()
+  if (user === null) {
+    await navigateTo("/login")
+  }
+  redirectNotSignedIn()
+  redirectNotLoggedInUserWatcher()
+  return useUserOrThrowErrorWithoutRedirect()
 }
 
 /**

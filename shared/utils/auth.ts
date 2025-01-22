@@ -1,7 +1,7 @@
 /**
  * Utillity function to convert a session to a user detail
  */
-export function sessionToUserDetail(session: typeof auth.$Infer.Session | null | undefined): UserDetail | null {
+export function sessionToUserDetail(session: typeof authClient.$Infer.Session | null | undefined): UserDetail | null {
   if (!session) {
     return null
   }
