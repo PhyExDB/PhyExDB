@@ -1,5 +1,6 @@
 import { readValidatedBody } from "h3"
 import type { Prisma } from "@prisma/client"
+import { v4 as uuidv4 } from "uuid"
 import { getExperimentSchema } from "~~/shared/types"
 import { canCreateExperiment } from "~~/shared/utils/abilities"
 import { untilSlugUnique } from "~~/server/utils/utils"
@@ -16,10 +17,32 @@ export default defineEventHandler(async (event) => {
 
   const newValueContent = await readValidatedBody(
     event,
-    async body => (getExperimentSchema(sections, attributes)).parseAsync(body),
+    async body => (getExperimentSchema(sections, attributes)).optional().parseAsync(body),
   )
 
   function experimentData(slug: string) {
+    if (!newValueContent) {
+      return {
+        name: "",
+        slug: slug,
+        duration: 20,
+        user: {
+          connect: {
+            id: user!.id,
+          },
+        },
+        sections: {
+          create: sections.map(section => ({
+            text: "",
+            experimentSection: {
+              connect: {
+                id: section.id,
+              },
+            },
+          })),
+        },
+      }
+    }
     const data: Prisma.ExperimentCreateInput = {
       name: newValueContent.name,
       slug: slug,
@@ -62,6 +85,13 @@ export default defineEventHandler(async (event) => {
     return data
   }
 
+  let slug: string
+  if (newValueContent?.name && newValueContent.name.length > 0) {
+    slug = slugify(newValueContent.name)
+  } else {
+    slug = uuidv4()
+  }
+
   const newExperiment = await untilSlugUnique(
     async (slug: string) => {
       return prisma.experiment.create({
@@ -69,7 +99,7 @@ export default defineEventHandler(async (event) => {
         include: experimentIncludeForToDetail,
       })
     },
-    slugify(newValueContent.name),
+    slugify(slug),
   )
 
   setResponseStatus(event, 201)
@@ -78,10 +108,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: `Creates a new experiment.
-                  The experiment must contain sections with position 0 until 6 (included)
-                  and at least one attribute value for each attribute.
-                  Only logged in users can create experiments.`,
+    description: "Creates a new experiment.",
     tags: ["Experiment"],
     requestBody: {
       description: "Experiment data",
