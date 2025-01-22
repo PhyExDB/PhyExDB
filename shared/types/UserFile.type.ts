@@ -12,6 +12,10 @@ export interface UserFileDetail {
    * The file itself.
    */
   file: FileDetail
+  /**
+   * The user.
+   */
+  userId: string
 }
 
 /**

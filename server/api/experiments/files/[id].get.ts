@@ -1,5 +1,8 @@
 import type { ExperimentFileDetail } from "~~/shared/types"
 
+import { experimentFileAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
+
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
   if (!user) {
@@ -8,14 +11,24 @@ export default defineEventHandler(async (event) => {
 
   const experimentFileId = getRouterParam(event, "id")
 
-  const experimentFile = await prisma.experimentFile.findFirst({
+  const result = await prisma.experimentFile.findFirst({
     where: {
       id: experimentFileId,
     },
     include: {
       experimentSection: {
         include: {
-          experiment: true,
+          experiment: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              userId: true,
+              status: true,
+              duration: true,
+              ...experimentIncludeForToList,
+            },
+          },
         },
       },
       file: {
@@ -26,13 +39,13 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  if (!experimentFile) {
+  if (!result) {
     throw createError({ status: 404, message: "Experiment file not found" })
   }
 
-  await authorize(event, canSeeExperiment, experimentFile.experimentSection.experiment)
+  await authorize(event, experimentFileAbilities.get, result)
 
-  return experimentFile as ExperimentFileDetail
+  return result as ExperimentFileDetail
 })
 
 defineRouteMeta({

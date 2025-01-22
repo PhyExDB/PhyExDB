@@ -122,11 +122,10 @@ npm run test
 
 For the tests to run, a `.env.test` file must be present. For details see above. Also, the database must be running, since the integration and end-to-end tests require it.
 
-The Test Suite is divided into Unit, Integration, and End-to-End tests. You can run each of them separately with:
+The Test Suite is divided into Unit, and End-to-End tests. You can run each of them separately with:
 
 ```bash
 npm run test:unit
-npm run test:integration # Requires seeded and migrated database to be running
 npm run test:e2e # Requires seeded and migrated database to be running
 ```
 
