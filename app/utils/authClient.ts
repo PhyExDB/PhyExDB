@@ -25,7 +25,20 @@ export async function useUser(): Promise<Ref<UserDetail | null>> {
   return user
 }
 
-async function useUserOrThrowErrorWithoutRedirect(): Promise<Ref<UserDetail>> {
+function redirectNotLoggedInUserWatcher() {
+  watchEffect(async () => {
+    const user = await useUser()
+    if (user.value === null) {
+      await navigateTo("/login")
+    }
+  })
+}
+
+/**
+ * Hook to get the current user session.
+ */
+export async function useUserOrThrowError(): Promise<Ref<UserDetail>> {
+  redirectNotLoggedInUserWatcher()
   const user = await useUser()
   return toRef(() => {
     if (user.value === null) {
@@ -33,28 +46,6 @@ async function useUserOrThrowErrorWithoutRedirect(): Promise<Ref<UserDetail>> {
     }
     return user.value
   })
-}
-async function redirectNotSignedIn() {
-  const user = await useUser()
-  if (user.value === null) {
-    await navigateTo("/login")
-  }
-}
-function redirectNotLoggedInUserWatcher() {
-  watchEffect(redirectNotSignedIn)
-}
-
-/**
- * Hook to get the current user session.
- */
-export async function useUserOrThrowError(): Promise<Ref<UserDetail>> {
-  const user = await getUser()
-  if (user === null) {
-    await navigateTo("/login")
-  }
-  redirectNotSignedIn()
-  redirectNotLoggedInUserWatcher()
-  return useUserOrThrowErrorWithoutRedirect()
 }
 
 /**

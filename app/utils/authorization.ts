@@ -14,7 +14,6 @@ export function authorize<T extends any[]>(
   watchEffect(async () => {
     const result = evaluateAbility((await useUser()).value, ability, ...param)
     if (result === "Not logged in") {
-      await navigateTo("/login")
       throw createError({ statusCode: 401, statusMessage: "Not logged in" })
     } else if (result === "Not authorized") {
       throw showError({ statusCode: 403, statusMessage: "Not authorized" })
