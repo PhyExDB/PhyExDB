@@ -34,6 +34,21 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
+        mailpit:
+          image: axllent/mailpit
+          container_name: mailpit
+          restart: unless-stopped
+          volumes:
+            - ./data:/data
+          ports:
+            - 8025:8025
+            - 1025:1025
+          environment:
+            MP_MAX_MESSAGES: 5000
+            MP_DATABASE: /data/mailpit.db
+            MP_SMTP_AUTH_ACCEPT_ANY: true
+            MP_SMTP_AUTH_ALLOW_INSECURE: true
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
