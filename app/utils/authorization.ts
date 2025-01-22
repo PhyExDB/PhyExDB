@@ -10,15 +10,17 @@ import { evaluateAbility, evaluateUserAbility } from "~~/shared/utils/auth"
 export async function authorize<T extends any[]>(
   ability: Ability<T>,
   ...param: T
-): Promise<UserDetail | null> {
-  const result = evaluateAbility(await getUser(), ability, ...param)
-  if (result === "Not logged in") {
-    await navigateTo("/login")
-    throw showError({ statusCode: 401, statusMessage: "Not logged in" })
-  } else if (result === "Not authorized") {
-    throw showError({ statusCode: 403, statusMessage: "Not authorized" })
-  }
-  return result
+): Promise<Ref<UserDetail | null>> {
+  const user = await useUser()
+  watchEffect(async () => {
+    const result = evaluateAbility(user?.value, ability, ...param)
+    if (result === "Not logged in") {
+      await navigateTo("/login")
+    } else if (result === "Not authorized") {
+      throw showError({ statusCode: 403, statusMessage: "Not authorized" })
+    }
+  })
+  return user
 }
 /**
  * Authorizes a user based on the provided UserAbility and parameters.
@@ -27,17 +29,22 @@ export async function authorize<T extends any[]>(
 export async function authorizeUser<T extends any[]>(
   ability: UserAbility<T>,
   ...param: T
-): Promise<UserDetail> {
-  const user = await getUser()
-  if (!user) {
-    await navigateTo("/login")
-    throw showError({ statusCode: 401, statusMessage: "Not logged in" })
-  }
-  const result = evaluateUserAbility(user, ability, ...param)
-  if (result === "Not authorized") {
-    throw showError({ statusCode: 403, statusMessage: "Not authorized" })
-  }
-  return result
+): Promise<Ref<UserDetail>> {
+  const user = await useUser()
+  watchEffect(async () => {
+    const result = evaluateAbility(user?.value, ability, ...param)
+    if (result === "Not logged in") {
+      await navigateTo("/login")
+    } else if (result === "Not authorized") {
+      throw showError({ statusCode: 403, statusMessage: "Not authorized" })
+    }
+  })
+  return toRef(() => {
+    if (user.value === null) {
+      throw showError({ statusCode: 401, statusMessage: "Not logged in" })
+    }
+    return user.value
+  })
 }
 
 /**
