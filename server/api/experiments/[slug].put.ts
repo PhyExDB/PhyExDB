@@ -1,4 +1,5 @@
 import { readValidatedBody } from "h3"
+import type { Prisma } from "@prisma/client"
 import type { ExperimentDetail } from "~~/shared/types"
 import { getExperimentSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
@@ -28,46 +29,52 @@ export default defineEventHandler(async (event) => {
     async body => (getExperimentSchema(sections, attributes)).parseAsync(body),
   )
 
+  function experimentData(slug: string) {
+    const data: Prisma.ExperimentUpdateInput = {
+      name: updatedExperimentData.name,
+      slug: slug,
+      duration: updatedExperimentData.duration[0]!,
+      sections: {
+        update: updatedExperimentData.sections.map(section => ({
+          where: {
+            id: section.experimentSectionId,
+          },
+          data: {
+            text: section.text,
+            files: {
+              set: [], // now there might be files that are not used in any experiment
+              connect: section.files.map(file => ({
+                id: file.fileId,
+              })),
+            },
+          },
+        }),
+        ),
+      },
+      attributes: {
+        set: [],
+        connect: updatedExperimentData.attributes.map(attribute => ({
+          id: attribute.valueId,
+        })),
+      },
+    }
+
+    if (updatedExperimentData.previewImageId) {
+      data["previewImage"] = {
+        connect: {
+          id: updatedExperimentData.previewImageId,
+        },
+      }
+    }
+
+    return data
+  }
+
   const updatedExperiment = await untilSlugUnique(
     async (slug: string) => {
       return prisma.experiment.update({
         where: { id: experiment.id },
-        data: {
-          name: updatedExperimentData.name,
-          slug: slug,
-          duration: updatedExperimentData.duration,
-          sections: {
-            update: await Promise.all(
-              updatedExperimentData.sections.map(async section => ({
-                where: {
-                  id: (await prisma.experimentSectionContent.findFirst({
-                    where: {
-                      experimentId: experiment.id,
-                      experimentSection: {
-                        order: section.experimentSectionPositionInOrder,
-                      },
-                    },
-                  }))!.id,
-                },
-                data: {
-                  text: section.text,
-                  files: {
-                    set: [], // now there might be files that are not used in any experiment
-                    connect: section.files.map(file => ({
-                      id: file.fileId,
-                    })),
-                  },
-                },
-              })),
-            ),
-          },
-          attributes: {
-            set: [],
-            connect: updatedExperimentData.attributes.map(attribute => ({
-              id: attribute.valueId,
-            })),
-          },
-        },
+        data: experimentData(slug),
         include: experimentIncludeForToDetail,
       })
     },

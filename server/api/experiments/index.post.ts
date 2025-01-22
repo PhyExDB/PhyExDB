@@ -1,4 +1,5 @@
 import { readValidatedBody } from "h3"
+import type { Prisma } from "@prisma/client"
 import { getExperimentSchema } from "~~/shared/types"
 import { canCreateExperiment } from "~~/shared/utils/abilities"
 import { untilSlugUnique } from "~~/server/utils/utils"
@@ -18,41 +19,53 @@ export default defineEventHandler(async (event) => {
     async body => (getExperimentSchema(sections, attributes)).parseAsync(body),
   )
 
+  function experimentData(slug: string) {
+    const data: Prisma.ExperimentCreateInput = {
+      name: newValueContent.name,
+      slug: slug,
+      duration: newValueContent.duration[0]!,
+      user: {
+        connect: {
+          id: user!.id,
+        },
+      },
+      sections: {
+        create: newValueContent.sections.map(section => ({
+          text: section.text,
+          experimentSection: {
+            connect: {
+              id: section.experimentSectionId,
+            },
+          },
+          ...(section.files.length > 0 && {
+            connect: section.files.map(file => ({
+              id: file.fileId,
+            })),
+          }),
+        })),
+      },
+      attributes: {
+        connect: newValueContent.attributes.map(attribute => ({
+          id: attribute.valueId,
+        })),
+      },
+    }
+
+    if (newValueContent.previewImageId) {
+      data["previewImage"] = {
+        connect: {
+          id: newValueContent.previewImageId,
+        },
+      }
+    }
+
+    return data
+  }
+
   const newExperiment = await untilSlugUnique(
     async (slug: string) => {
       return prisma.experiment.create({
-        data: {
-          name: newValueContent.name,
-          slug: slug,
-          duration: newValueContent.duration,
-          userId: user.id,
-          sections: {
-            create: await Promise.all(newValueContent.sections.map(async section => ({
-              text: section.text,
-              experimentSection: {
-                connect: {
-                  id: (
-                    await prisma.experimentSection.findFirst({
-                      where: {
-                        order: section.experimentSectionPositionInOrder,
-                      },
-                    })
-                  )!.id,
-                },
-              },
-              ...(section.files.length > 0 && {
-                connect: section.files.map(file => ({
-                  id: file.fileId,
-                })),
-              }),
-            }))),
-          },
-          attributes: {
-            connect: newValueContent.attributes.map(attribute => ({
-              id: attribute.valueId,
-            })),
-          },
-        },
+        data: experimentData(slug),
         include: experimentIncludeForToDetail,
       })
     },

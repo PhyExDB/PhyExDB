@@ -71,22 +71,21 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
     return new Set(attributeValues)
   })
   const requiredNumAttributes = attributes.length
-
   const requiredNumSections = sections.length
 
   const experimentSchema = z.object({
     name: z.string(),
-    duration: z.number(),
-    previewImageId: z.string().uuid(),
+    duration: z.array(z.number()).length(1),
+    previewImageId: z.string().uuid().optional(),
 
     sections: z.array(z.object({
-      experimentSectionPositionInOrder: z.number(),
+      experimentSectionId: z.string().uuid(),
       text: z.string(),
       files: z.array(z.object({
         fileId: z.string(),
       })),
     })).refine((sections) => {
-      const sectionIds = sections.map(section => section.experimentSectionPositionInOrder)
+      const sectionIds = sections.map(section => section.experimentSectionId)
       return new Set(sectionIds).size === sectionIds.length
     }, {
       message: "Sections must be unique",
@@ -94,10 +93,15 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
       return sections.length === requiredNumSections
     }, {
       message: "Not enough sections defined",
+    }).refine((newSections) => {
+      const newSectionIds = newSections.map(section => section.experimentSectionId)
+      return sections.every(section => newSectionIds.includes(section.id))
+    }, {
+      message: "Section ids are incorrect",
     }),
 
     attributes: z.array(z.object({
-      valueId: z.string(),
+      valueId: z.string().uuid(),
     })).refine(async (attributes) => {
       const attributesContained = new Set()
       attributes.forEach((attribute) => {
@@ -107,9 +111,9 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
           }
         }
       })
-      return attributesContained.size === requiredNumAttributes
+      return attributesContained.size <= requiredNumAttributes
     }, {
-      message: "Not enough attributes specified",
+      message: "Too many attributes specified",
     }),
   })
   return experimentSchema
