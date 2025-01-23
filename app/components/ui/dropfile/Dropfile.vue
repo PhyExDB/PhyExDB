@@ -103,7 +103,7 @@ const handleDrop = (files: File[] | null) => {
   emits("dropped", files)
 }
 
-const { isOverDropZone } = useDropZone(dropZoneRef, { onDrop: handleDrop, dataTypes: props.accept })
+const { isOverDropZone } = useDropZone(dropZoneRef, { onDrop: handleDrop, dataTypes: props.accept, multiple: props.multiple })
 
 const styles = cva(
   "flex w-full cursor-pointer items-center justify-center rounded-md border border-dashed transition hover:border-primary",
