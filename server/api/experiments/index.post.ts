@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
           text: section.text,
           experimentSection: {
             connect: {
-              id: section.experimentSectionId,
+              id: section.experimentSectionContentId,
             },
           },
           ...(section.files.length > 0 && {
@@ -68,9 +68,11 @@ export default defineEventHandler(async (event) => {
         })),
       },
       attributes: {
-        connect: newValueContent.attributes.map(attribute => ({
-          id: attribute.valueId,
-        })),
+        connect: newValueContent.attributes
+          .filter(attribute => attribute.valueId !== undefined)
+          .map(attribute => ({
+            id: attribute.valueId,
+          })),
       },
     }
 

@@ -24,7 +24,7 @@ export interface ExperimentList extends SlugList {
   /**
    * The attributes associated with the experiment.
    */
-  attributes: ExperimentAttributeValueList[]
+  attributes: ExperimentAttributeValueDetail[]
   /**
    * The preview image of the experiment.
    */
@@ -38,7 +38,7 @@ export interface ExperimentDetail extends ExperimentList {
   /**
    * The sections of the experiment.
    */
-  sections: ExperimentSectionContentList[]
+  sections: ExperimentSectionContentDetail[]
 }
 
 /**
@@ -79,13 +79,13 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
     previewImageId: z.string().uuid().optional(),
 
     sections: z.array(z.object({
-      experimentSectionId: z.string().uuid(),
+      experimentSectionContentId: z.string().uuid(),
       text: z.string(),
       files: z.array(z.object({
         fileId: z.string(),
       })),
     })).refine((sections) => {
-      const sectionIds = sections.map(section => section.experimentSectionId)
+      const sectionIds = sections.map(section => section.experimentSectionContentId)
       return new Set(sectionIds).size === sectionIds.length
     }, {
       message: "Sections must be unique",
@@ -93,18 +93,16 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
       return sections.length === requiredNumSections
     }, {
       message: "Not enough sections defined",
-    }).refine((newSections) => {
-      const newSectionIds = newSections.map(section => section.experimentSectionId)
-      return sections.every(section => newSectionIds.includes(section.id))
-    }, {
-      message: "Section ids are incorrect",
     }),
 
     attributes: z.array(z.object({
-      valueId: z.string().uuid(),
+      valueId: z.string().uuid().optional(),
     })).refine(async (attributes) => {
       const attributesContained = new Set()
       attributes.forEach((attribute) => {
+        if (!attribute.valueId) {
+          return
+        }
         for (let i = 0; i < attributeValueSets.length; i++) {
           if (attributeValueSets[i]?.has(attribute.valueId)) {
             attributesContained.add(i)

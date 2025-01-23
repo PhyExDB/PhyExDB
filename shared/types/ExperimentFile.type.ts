@@ -4,15 +4,15 @@ import type { FileDetail, FileList } from "./File.type"
 /**
  * The ExperimentFile model.
  */
-export interface ExperimentFileList {
-  /**
-   * The unique identifier of the file.
-   */
-  id: string
+export interface ExperimentFileList extends BaseList {
   /**
    * The description of the file.
    */
   description: string | null
+  /**
+   * The position of the file.
+   */
+  order: number
   /**
    * The file itself.
    */
@@ -21,18 +21,7 @@ export interface ExperimentFileList {
 /**
  * The ExperimentFile model.
  */
-export interface ExperimentFileDetail {
-  /**
-   * The unique identifier of the file.
-   */
-  id: string
-  /**
-   * The description of the file.
-   */
-  description: string | null
-  /**
-   * The file itself.
-   */
+export interface ExperimentFileDetail extends ExperimentFileList {
   file: FileDetail
 }
 

@@ -20,6 +20,8 @@ const { data: legal } = await useAPI<LegalDocumentDetail>(`/api/legal/${slug}`)
 
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
+  loading.value = true
+
   legal.value = await $fetch(`/api/legal/${slug}`, {
     method: "PUT",
     body: values,

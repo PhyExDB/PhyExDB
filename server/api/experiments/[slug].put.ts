@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
       sections: {
         update: updatedExperimentData.sections.map(section => ({
           where: {
-            id: section.experimentSectionId,
+            id: section.experimentSectionContentId,
           },
           data: {
             text: section.text,
@@ -48,14 +48,15 @@ export default defineEventHandler(async (event) => {
               })),
             },
           },
-        }),
-        ),
+        })),
       },
       attributes: {
         set: [],
-        connect: updatedExperimentData.attributes.map(attribute => ({
-          id: attribute.valueId,
-        })),
+        connect: updatedExperimentData.attributes
+          .filter(attribute => attribute.valueId !== undefined)
+          .map(attribute => ({
+            id: attribute.valueId,
+          })),
       },
     }
 

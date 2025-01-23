@@ -8,6 +8,7 @@ definePageMeta({
 
 const emailVerifiedPopoverOpen = ref(false)
 const user = await useUser()
+const loadingNewExperiment = ref(false)
 
 if (!user.value) {
   await navigateTo("/")
@@ -17,12 +18,21 @@ const verifiedValue = user.value?.emailVerified
   ? "verifiziert"
   : "nicht verifiziert"
 
-const sendVerificationEmail = async () => {
+async function sendVerificationEmail() {
   await authClient.sendVerificationEmail({
     email: user.value!.email,
     callbackURL: "/profile",
   })
   emailVerifiedPopoverOpen.value = false
+}
+
+async function createExperiment() {
+  loadingNewExperiment.value = true
+  const experiment = await $fetch("/api/experiments", {
+    method: "POST",
+  })
+  await navigateTo(`/experiments/edit/${experiment.id}`)
+  loadingNewExperiment.value = false
 }
 </script>
 
@@ -107,6 +117,20 @@ const sendVerificationEmail = async () => {
             </UserUpdatePasswordDialog>
           </div>
         </div>
+      </CardContent>
+    </Card>
+    <Card class="mt-4">
+      <CardContent class="p-6">
+        <div class="text-xl">
+          Experimente
+        </div>
+        <Button
+          class="mt-4"
+          :loading="loadingNewExperiment"
+          @click="createExperiment"
+        >
+          Neues Experiment erstellen
+        </Button>
       </CardContent>
     </Card>
   </div>

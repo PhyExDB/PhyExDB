@@ -12,3 +12,13 @@ export interface ExperimentSectionContentList extends BaseList {
    */
   files: ExperimentFileList[]
 }
+
+/**
+ * Represents a detail object of an experiment section content.
+ */
+export interface ExperimentSectionContentDetail extends ExperimentSectionContentList {
+  /**
+   * The section of the experiment section content.
+   */
+  experimentSection: ExperimentSectionList
+}

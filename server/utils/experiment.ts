@@ -33,6 +33,7 @@ export const experimentIncludeForToDetail = {
         select: {
           id: true,
           description: true,
+          order: true,
           file: {
             select: {
               id: true,
@@ -40,6 +41,14 @@ export const experimentIncludeForToDetail = {
               path: true,
             },
           },
+        },
+      },
+      experimentSection: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          order: true,
         },
       },
     },
