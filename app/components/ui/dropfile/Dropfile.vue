@@ -62,7 +62,7 @@ const props = withDefaults(
     /* eslint-disable-next-line @typescript-eslint/no-unsafe-function-type */
     onDrop?: Function
     /**
-       * Whether or not to allow multiple files to be picked. Does not affect drag and drop.
+       * Whether or not to allow multiple files to be picked.
        */
     multiple?: boolean
     /**
