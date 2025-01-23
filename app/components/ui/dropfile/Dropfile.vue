@@ -66,9 +66,9 @@ const props = withDefaults(
        */
     multiple?: boolean
     /**
-       * The file types to accept. Does not affect drag and drop.
+       * The file types to accept.
        */
-    accept?: string
+    accept?: string[]
     class?: any
   }>(),
   {
@@ -76,13 +76,13 @@ const props = withDefaults(
     subtext: "All file types accepted",
     icon: "heroicons:cloud-arrow-up",
     multiple: true,
-    accept: "*",
+    accept: undefined,
   },
 )
 
 const { open, reset, onChange } = useFileDialog({
   multiple: props.multiple,
-  accept: props.accept,
+  accept: props.accept?.map(accept => `${accept}`).join(",") ?? "*",
 })
 
 onChange((files: FileList | null) => {
@@ -103,7 +103,7 @@ const handleDrop = (files: File[] | null) => {
   emits("dropped", files)
 }
 
-const { isOverDropZone } = useDropZone(dropZoneRef, handleDrop)
+const { isOverDropZone } = useDropZone(dropZoneRef, { onDrop: handleDrop, dataTypes: props.accept })
 
 const styles = cva(
   "flex w-full cursor-pointer items-center justify-center rounded-md border border-dashed transition hover:border-primary",
