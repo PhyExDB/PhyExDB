@@ -39,7 +39,7 @@ const form = useForm({
       experimentSectionContentId: section.id,
       files: section.files.map(file => ({
         fileId: file.id,
-        description: file.description ?? "",
+        description: file.description ?? undefined,
       })),
     })) ?? [],
   },

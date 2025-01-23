@@ -83,7 +83,7 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
       text: z.string(),
       files: z.array(z.object({
         fileId: z.string().uuid(),
-        description: z.string(),
+        description: z.string().optional(),
       })),
     })).refine((sections) => {
       const sectionIds = sections.map(section => section.experimentSectionContentId)
