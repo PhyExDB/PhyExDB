@@ -12,7 +12,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
 
-  const { error } = await authClient.signIn.email(values)
+  const { error } = await useAuth().signIn.email(values)
   if (error) {
     if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
       lastWrong.value = true
