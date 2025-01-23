@@ -22,6 +22,9 @@ export interface ExperimentFileList extends BaseList {
  * The ExperimentFile model.
  */
 export interface ExperimentFileDetail extends ExperimentFileList {
+  /**
+   * The file itself.
+   */
   file: FileDetail
 }
 
