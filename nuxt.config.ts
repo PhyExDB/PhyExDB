@@ -25,6 +25,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     logLevel: "debug",
     fileMount: "./public",
+    public: {
+      sectionFileAccepts: "image/*,video/*,application/pdf",
+    },
   },
 
   future: {
