@@ -42,10 +42,29 @@ export default defineEventHandler(async (event) => {
           data: {
             text: section.text,
             files: {
-              set: [], // now there might be files that are not used in any experiment
-              connect: section.files.map(file => ({
-                id: file.fileId,
+              upsert: section.files.map((file, index) => ({
+                where: {
+                  id: file.fileId,
+                },
+                update: {
+                  description: file.description,
+                  order: index,
+                },
+                create: {
+                  description: file.description,
+                  order: index,
+                  file: {
+                    connect: {
+                      id: file.fileId,
+                    },
+                  },
+                },
               })),
+              deleteMany: {
+                id: {
+                  notIn: section.files.map(file => file.fileId),
+                },
+              },
             },
           },
         })),
