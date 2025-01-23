@@ -17,7 +17,7 @@ const user = await useUser()
           <span>Profil</span>
         </NuxtLink>
       </DropdownMenuItem>
-      <DropdownMenuItem @click="useAuth().signOut()">
+      <DropdownMenuItem @click="useAuth().client.signOut()">
         <span>Abmelden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>

@@ -19,7 +19,7 @@ export function sessionToUserDetail(session: typeof auth.$Infer.Session | null |
 }
 
 /**
- * Type of errors thrown by betterAuthClient
+ * Type of errors thrown by betteruseAuth().client
  */
 export type ErrorType = {
   code?: string | undefined

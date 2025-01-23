@@ -14,7 +14,7 @@ const verifiedValue = user.value?.emailVerified
   : "nicht verifiziert"
 
 const sendVerificationEmail = async () => {
-  await authClient.sendVerificationEmail({
+  await useAuth().client.sendVerificationEmail({
     email: user.value!.email,
     callbackURL: "/profile",
   })

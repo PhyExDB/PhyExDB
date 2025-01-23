@@ -5,9 +5,13 @@ import { createAuthClient } from "better-auth/vue"
  * Auth client instance configured with plugins.
  */
 export const useAuth = () => {
-  // const url = useRequestURL()
-  return createAuthClient({
+  const url = useRequestURL()
+  const client = createAuthClient({
     plugins: [adminClient()],
-    // baseURL: url.origin,
+    baseURL: url.origin,
   })
+
+  const session = client.useSession(useFetch)
+
+  return { session, client }
 }
