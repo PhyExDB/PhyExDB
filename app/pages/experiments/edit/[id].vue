@@ -34,17 +34,14 @@ const form = useForm({
     attributes: attributes.value?.map(attribute => ({
       valueId: experiment.value?.attributes.find(a => a.attribute.id === attribute.id)?.id,
     })) ?? [],
-    sections: sections.value?.flatMap((section) => {
-      const experimentSection = experiment.value?.sections.find(s => s.experimentSection.id === section.id)
-      if (!experimentSection) return []
-      return {
-        text: experimentSection.text,
-        experimentSectionContentId: experimentSection.id,
-        files: experimentSection.files.map(file => ({
-          fileId: file.id,
-        })),
-      }
-    }),
+    sections: experiment.value?.sections.map(section => ({
+      text: section.text,
+      experimentSectionContentId: section.id,
+      files: section.files.map(file => ({
+        fileId: file.id,
+        description: file.description ?? "",
+      })),
+    })) ?? [],
   },
 })
 
