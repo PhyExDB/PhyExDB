@@ -2,7 +2,7 @@ import { h } from "vue"
 import type {
   ColumnDef,
 } from "@tanstack/vue-table"
-import { ArrowUpDown, ChevronDown } from "lucide-vue-next"
+import { ArrowUpDown } from "lucide-vue-next"
 import { Button } from "@/components/ui/button"
 
 /**
