@@ -42,11 +42,6 @@ export default defineEventHandler(async (event) => {
           data: {
             text: section.text,
             files: {
-              deleteMany: {
-                fileId: {
-                  notIn: section.files.map(file => file.fileId),
-                },
-              },
               upsert: section.files.map((file, index) => ({
                 where: {
                   fileId: file.fileId,
@@ -92,11 +87,23 @@ export default defineEventHandler(async (event) => {
 
   const updatedExperiment = await untilSlugUnique(
     async (slug: string) => {
-      return prisma.experiment.update({
-        where: { id: experiment.id },
-        data: experimentData(slug),
-        include: experimentIncludeForToDetail,
-      })
+      const [_, newExperiment] = await prisma.$transaction([
+        prisma.experimentFile.deleteMany({
+          where: {
+            experimentSection: {
+              experiment: {
+                id: experiment.id,
+              },
+            },
+          },
+        }),
+        prisma.experiment.update({
+          where: { id: experiment.id },
+          data: experimentData(slug),
+          include: experimentIncludeForToDetail,
+        }),
+      ])
+      return newExperiment
     },
     slugify(updatedExperimentData.name),
   )

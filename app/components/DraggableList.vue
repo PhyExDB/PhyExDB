@@ -1,10 +1,14 @@
 <script lang="ts" generic="T extends { id: string }" setup>
 import { useDragAndDrop } from "@formkit/drag-and-drop/vue"
 
-const { values } = defineProps({
+const { values, group } = defineProps({
   values: {
     type: Array<T>,
     required: true,
+  },
+  group: {
+    type: String,
+    default: undefined,
   },
 })
 
@@ -12,7 +16,7 @@ const emit = defineEmits<{
   (e: "update:values", value: T[]): void
 }>()
 
-const [parent, items] = useDragAndDrop(values)
+const [parent, items] = useDragAndDrop(values, { group: group })
 
 // Watch for changes in the `values` prop and update `items`
 watch(
@@ -36,7 +40,7 @@ watch(
 <template>
   <div
     ref="parent"
-    class="item-list"
+    class="grid gap-4"
   >
     <template
       v-for="item in items"
@@ -47,5 +51,12 @@ watch(
         :item="item"
       />
     </template>
+    <slot
+      v-if="items.length === 0"
+      name="empty-list"
+      :item="null"
+    >
+      <div>No items</div>
+    </slot>
   </div>
 </template>

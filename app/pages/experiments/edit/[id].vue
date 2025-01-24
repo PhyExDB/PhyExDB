@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { useDragAndDrop } from "@formkit/drag-and-drop/vue"
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const user = await useUser()
@@ -146,7 +145,8 @@ async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileLis
       return section
     }),
   })
-  await onSubmit()
+  console.log(form.values.sections)
+  // await onSubmit()
 }
 
 async function removeFile(sectionIndex: number, fileId: string) {
@@ -337,6 +337,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           />
           <DraggableList
             :values="experiment?.sections[section.order]?.files ?? []"
+            group="experiment-group"
             @update:values="newFileOrder => updateFiles(section.order, newFileOrder)"
           >
             <template #item="{ item }">
@@ -355,26 +356,20 @@ const onSubmit = form.handleSubmit(async (values) => {
                 </Button>
               </Card>
             </template>
+            <template #empty-list>
+              <Card class="text-center py-6">
+                <div class="flex flex-col items-center justify-center">
+                  <Icon
+                    name="heroicons:plus-circle"
+                    class="h-12 w-12 text-muted-foreground/60"
+                  />
+                  <p class="mt-4 mx-4 text-sm text-muted-foreground/60">
+                    Noch keine Dateien für {{ section.name }} vorhanden.
+                  </p>
+                </div>
+              </Card>
+            </template>
           </DraggableList>
-
-          <!--
-            <template
-          >
-            <Card class="flex justify-between items-center">
-              <NuxtImg
-                :src="file.file.path"
-                class="max-h-24 w-40 object-contain"
-              />
-              <Button
-                class="ml-2"
-                variant="outline"
-                @click="removeFile(section.order, fileIndex)"
-              >
-                <Icon name="heroicons:x-mark" />
-              </Button>
-            </Card>
-          </draggablelist>
-        </template> -->
         </template>
 
         <Button
