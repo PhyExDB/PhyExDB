@@ -1,44 +1,5 @@
 <script setup lang='ts'>
-import { ref, watch } from "vue"
-import { useRoute } from "vue-router"
-import type { DropdownMenuCheckboxItemProps } from "radix-vue"
 import { CaretSortIcon, TimerIcon, MixerHorizontalIcon } from "@radix-icons/vue"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Pagination,
-  PaginationEllipsis,
-  PaginationFirst,
-  PaginationLast,
-  PaginationList,
-  PaginationListItem,
-  PaginationNext,
-  PaginationPrev,
-} from "@/components/ui/pagination"
 
 /* Pagination */
 const route = useRoute()
@@ -49,7 +10,9 @@ const itemsPerPage = ref(parseInt(route.query.pageSize as string, 10) || 12)
 /* Experiments */
 const experiments = ref<globalThis.Page<globalThis.ExperimentList> | undefined>(undefined)
 const fetchExperiments = async () => {
-  const { data: newExperiments } = await useAPI<Page<ExperimentList>>(`/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`)
+  const { data: newExperiments } = await useAPI<Page<ExperimentList>>(
+    `/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
+  )
   experiments.value = newExperiments.value
 }
 fetchExperiments()
@@ -61,11 +24,20 @@ const initializeFilterChecklist = (list: boolean[][]) => {
     list.push(attribute.values.map(() => false))
   })
 }
-const { data: attributes } = await useAPI<ExperimentAttributeDetail[]>(`/api/experiments/attributes`)
+const { data: attributes } = await useAPI<ExperimentAttributeDetail[]>(
+  `/api/experiments/attributes`,
+)
 
 const checked = ref<boolean[][]>([])
 initializeFilterChecklist(checked.value)
-const attributeOrder = ["Themenbereich", "Versuchsart", "Einsatz", "Arbeitsform", "Messwerterfassung", "Vorbereitungszeit"]
+const attributeOrder = [
+  "Themenbereich",
+  "Versuchsart",
+  "Einsatz",
+  "Arbeitsform",
+  "Messwerterfassung",
+  "Vorbereitungszeit",
+]
 attributes.value!.sort((a, b) => {
   const indexA = attributeOrder.indexOf(a.name)
   const indexB = attributeOrder.indexOf(b.name)
@@ -179,11 +151,18 @@ watch(dialogOpen, () => {
       <Card
         v-for="experiment in experiments!.items"
         :key="experiment.id"
-        :style="{ backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : experiment.previewImage.path, backgroundSize: 'cover', backgroundPosition: 'center' }"
+        :style="{
+          backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : experiment.previewImage.path,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }"
         class="relative group"
       >
         <div class="flex flex-col h-full">
-          <CardContent class="grow flex flex-col justify-center items-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity p-0">
+          <CardContent
+            class="grow flex flex-col justify-center items-center bg-black
+            bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity p-0"
+          >
             <div
               v-for="attribute in attributes"
               :key="attribute.id"

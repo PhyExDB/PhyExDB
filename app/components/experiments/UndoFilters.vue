@@ -8,7 +8,6 @@
 
 <script lang="ts" setup>
 import { ResetIcon } from "@radix-icons/vue"
-import { Button } from "@/components/ui/button"
 
 const props = defineProps<{
   checked: boolean[][]

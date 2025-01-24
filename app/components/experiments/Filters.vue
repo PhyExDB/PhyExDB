@@ -23,7 +23,10 @@
           v-for="(attributeValue, valueIndex) in attribute.values"
           :key="attributeValue.id"
           v-model:checked="checked[attributeIndex]![valueIndex]"
-          :disabled="singleChoiceAttributes.includes(attribute.name) && checked[attributeIndex]!.some((isChecked, idx) => isChecked && idx !== valueIndex)"
+          :disabled="singleChoiceAttributes.includes(attribute.name)
+            && checked[attributeIndex]!.some(
+              (isChecked, idx) => isChecked && idx !== valueIndex,
+            )"
           @click.stop
         >
           {{ attributeValue.value }}
@@ -42,14 +45,6 @@
 
 <script lang="ts" setup>
 import { ChevronDownIcon } from "@radix-icons/vue"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 const props = defineProps<{
   checked: boolean[][]
