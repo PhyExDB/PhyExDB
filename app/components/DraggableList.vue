@@ -43,12 +43,13 @@ watch(
     class="grid gap-4"
   >
     <template
-      v-for="item in items"
+      v-for="(item, index) in items"
       :key="item.id"
     >
       <slot
         name="item"
         :item="item"
+        :index="index"
       />
     </template>
     <slot

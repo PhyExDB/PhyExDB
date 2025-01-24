@@ -113,6 +113,7 @@ async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
     ...(form.values.sections?.[sectionIndex]?.files ?? []),
     ...fileData.map(file => ({
       fileId: file.id,
+      description: undefined,
     })),
   ])
   await onSubmit()
@@ -340,20 +341,47 @@ const onSubmit = form.handleSubmit(async (values) => {
             group="experiment-group"
             @update:values="newFileOrder => updateFiles(section.order, newFileOrder)"
           >
-            <template #item="{ item }">
-              <Card class="flex justify-between items-center">
+            <template #item="{ item, index }">
+              <Card
+                class="flex items-center"
+              >
                 <NuxtImg
                   :src="item.file.path"
                   :alt="item.description ?? 'Datei'"
                   class="max-h-24 w-40 object-contain"
                 />
-                <Button
-                  class="ml-2"
-                  variant="outline"
-                  @click="removeFile(section.order, item.file.id)"
+                <Separator orientation="vertical" />
+                <FormField
+                  v-slot="{ componentField }"
+                  :name="`sections[${section.order}].files[${index}].description`"
                 >
-                  <Icon name="heroicons:x-mark" />
-                </Button>
+                  <FormItem class="flex-1 ml-4">
+                    <FormLabel>{{ item.file.path.split("/").pop() }}</FormLabel>
+                    <FormControl>
+                      <Input
+                        v-bind="componentField"
+                        type="text"
+                        placeholder="Beschreibung"
+                      />
+                    </FormControl>
+                  </FormItem>
+                </FormField>
+                <div class="m-2">
+                  <Icon
+                    name="heroicons:bars-3"
+                    class="hover:cursor-grab"
+                  />
+
+                  <Button
+                    variant="ghost"
+                    @click="removeFile(section.order, item.file.id)"
+                  >
+                    <Icon
+                      name="heroicons:trash"
+                      class="text-destructive"
+                    />
+                  </Button>
+                </div>
               </Card>
             </template>
             <template #empty-list>
