@@ -3,6 +3,7 @@ import type {
   ColumnDef,
 } from "@tanstack/vue-table"
 import { ArrowUpDown } from "lucide-vue-next"
+import RoleDropdown from "./role-dropdown.vue"
 import { Button } from "@/components/ui/button"
 
 /**
@@ -44,7 +45,7 @@ export const columns: ColumnDef<UserDetail>[] = [
     accessorKey: "role",
     header: () => "Role",
     cell: ({ row }) => {
-      return capitalizeFirstLetter(row.getValue("role"))
+      return h(RoleDropdown, row.original)
     },
   },
 ]
