@@ -1,20 +1,29 @@
 <script setup lang="ts">
-// const newUser = await useAuth().client.admin.createUser({
-//   name: "Test User",
-//   email: "test@example.com",
-//   password: "password123",
-//   role: "USER",
-// })
-const users = await useAuth().client.admin.listUsers({
-  query: {
-    limit: 10,
-  },
+import { onMounted, ref } from "vue"
+import { columns } from "~~/app/components/AdminUserTable/columns"
+
+const data = ref<UserDetail[]>([])
+
+async function getData(): Promise<UserDetail[]> {
+  // Fetch data from your API here.
+  const data = await useAuth().client.admin.listUsers({
+    query: {
+      limit: 10,
+    },
+  })
+  return (data.data?.users ?? []) as UserDetail[]
+}
+
+onMounted(async () => {
+  data.value = await getData()
 })
 </script>
 
 <template>
-  <div>
-    Users:
-    {{ users }}
+  <div class="container py-10 mx-auto">
+    <AdminUserTableDataTable
+      :columns="columns"
+      :data="data"
+    />
   </div>
 </template>
