@@ -10,7 +10,7 @@ export interface ExperimentSectionContentList extends BaseList {
   /**
    * The list of files associated with the experiment section.
    */
-  files: ExperimentFileList[]
+  files: ExperimentFileDetail[]
 }
 
 /**

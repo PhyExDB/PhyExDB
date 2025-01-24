@@ -50,6 +50,7 @@ export const experimentIncludeForToDetail = {
               id: true,
               mimeType: true,
               path: true,
+              originalName: true,
             },
           },
         },

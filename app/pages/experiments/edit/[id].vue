@@ -113,7 +113,6 @@ async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
     ...(form.values.sections?.[sectionIndex]?.files ?? []),
     ...fileData.map(file => ({
       fileId: file.id,
-      description: undefined,
     })),
   ])
   await onSubmit()
@@ -351,36 +350,38 @@ const onSubmit = form.handleSubmit(async (values) => {
                   class="max-h-24 w-40 object-contain"
                 />
                 <Separator orientation="vertical" />
-                <FormField
-                  v-slot="{ componentField }"
-                  :name="`sections[${section.order}].files[${index}].description`"
-                >
-                  <FormItem class="flex-1 ml-4">
-                    <FormLabel>{{ item.file.path.split("/").pop() }}</FormLabel>
-                    <FormControl>
-                      <Input
-                        v-bind="componentField"
-                        type="text"
-                        placeholder="Beschreibung"
-                      />
-                    </FormControl>
-                  </FormItem>
-                </FormField>
-                <div class="m-2">
-                  <Icon
-                    name="heroicons:bars-3"
-                    class="hover:cursor-grab"
-                  />
-
-                  <Button
-                    variant="ghost"
-                    @click="removeFile(section.order, item.file.id)"
+                <div class="flex flex-col flex-1 md:flex-row items-center">
+                  <FormField
+                    v-slot="{ componentField }"
+                    :name="`sections[${section.order}].files[${index}].description`"
                   >
+                    <FormItem class="flex-1 p-4 w-full">
+                      <FormLabel>{{ item.file.originalName }}</FormLabel>
+                      <FormControl>
+                        <Input
+                          v-bind="componentField"
+                          type="text"
+                          placeholder="Beschreibung"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  </FormField>
+                  <div class="m-2">
                     <Icon
-                      name="heroicons:trash"
-                      class="text-destructive"
+                      name="heroicons:bars-3"
+                      class="hover:cursor-grab"
                     />
-                  </Button>
+
+                    <Button
+                      variant="ghost"
+                      @click="removeFile(section.order, item.file.id)"
+                    >
+                      <Icon
+                        name="heroicons:trash"
+                        class="text-destructive"
+                      />
+                    </Button>
+                  </div>
                 </div>
               </Card>
             </template>

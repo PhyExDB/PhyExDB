@@ -114,6 +114,7 @@ model ExperimentAttributeValue {
 
 model File {
   id                    String          @id @default(uuid())
+  originalName          String
   path                  String
   mimeType              String
   experimentFile        ExperimentFile?

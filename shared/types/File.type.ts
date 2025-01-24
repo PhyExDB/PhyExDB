@@ -48,7 +48,7 @@ export interface FileList extends BaseList {
  */
 export interface FileDetail extends FileList {
   /**
-   * The user who created the file.
+   * The original name of the file.
    */
-  createdBy: UserList
+  originalName: string
 }
