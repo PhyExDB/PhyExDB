@@ -11,10 +11,10 @@ const props = defineProps<{
 
 const position = ref<UserRole>(props.role)
 watch(position, async (newVal) => {
-        await useAuth().client.admin.setRole({
+  await useAuth().client.admin.setRole({
     userId: props.id,
     role: newVal as UserRole,
-    })
+  })
   console.log(newVal)
 })
 </script>
@@ -22,25 +22,25 @@ watch(position, async (newVal) => {
 <template>
   <div class="flex flex-row">
     <DropdownMenu>
-        <DropdownMenuTrigger>
-            <div class="flex flex-nowrap">
-                <span>{{ capitalizeFirstLetter(props.role) }}</span>
-                <Pencil class="w-4 h-4 ml-2" />
-            </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent class="w-56">
+      <DropdownMenuTrigger>
+        <div class="flex flex-nowrap">
+          <span>{{ capitalizeFirstLetter(props.role) }}</span>
+          <Pencil class="w-4 h-4 ml-2" />
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent class="w-56">
         <DropdownMenuRadioGroup v-model="position">
-            <DropdownMenuRadioItem value="USER">
+          <DropdownMenuRadioItem value="USER">
             User
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="MODERATOR">
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="MODERATOR">
             Mod
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="ADMIN">
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="ADMIN">
             Admin
-            </DropdownMenuRadioItem>
+          </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
+      </DropdownMenuContent>
     </DropdownMenu>
   </div>
 </template>
