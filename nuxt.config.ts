@@ -26,7 +26,7 @@ export default defineNuxtConfig({
     logLevel: "debug",
     fileMount: "./public",
     public: {
-      sectionFileAccepts: "image/*,video/*,application/pdf",
+      sectionFileAccepts: "image/jpg,image/png,image/webp,video/*,application/pdf",
     },
   },
 

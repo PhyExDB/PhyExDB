@@ -42,9 +42,14 @@ export default defineEventHandler(async (event) => {
           data: {
             text: section.text,
             files: {
+              deleteMany: {
+                fileId: {
+                  notIn: section.files.map(file => file.fileId),
+                },
+              },
               upsert: section.files.map((file, index) => ({
                 where: {
-                  id: file.fileId,
+                  fileId: file.fileId,
                 },
                 update: {
                   description: file.description,
@@ -60,11 +65,6 @@ export default defineEventHandler(async (event) => {
                   },
                 },
               })),
-              deleteMany: {
-                id: {
-                  notIn: section.files.map(file => file.fileId),
-                },
-              },
             },
           },
         })),

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
+import { useDragAndDrop } from "@formkit/drag-and-drop/vue"
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const user = await useUser()
@@ -38,7 +39,7 @@ const form = useForm({
       text: section.text,
       experimentSectionContentId: section.id,
       files: section.files.map(file => ({
-        fileId: file.id,
+        fileId: file.file.id,
         description: file.description ?? undefined,
       })),
     })) ?? [],
@@ -55,14 +56,26 @@ const { handleFileInput, files } = useFileStorage()
 const { toast } = useToast()
 
 async function uploadFile(newFiles: [File]) {
-  const oldFileId = form.values.previewImageId
   await handleFileInput({ target: { files: newFiles } })
-  const fileData = await $fetch("/api/files", {
+  return await $fetch("/api/files", {
     method: "POST",
     body: {
       files: files.value,
     },
   })
+}
+
+async function deleteFiles(fileIds: string[]) {
+  return await Promise.all(fileIds.map(async (fileId) => {
+    await $fetch(`/api/files/${fileId}`, {
+      method: "DELETE",
+    })
+  }))
+}
+
+async function uploadPreviewImage(newFiles: [File]) {
+  const oldFileId = form.values.previewImageId
+  const fileData = await uploadFile(newFiles)
   if (!fileData[0]) {
     toast({
       title: "Fehler beim Hochladen",
@@ -81,9 +94,79 @@ async function uploadFile(newFiles: [File]) {
   })
 
   if (oldFileId) {
-    $fetch(`/api/files/${oldFileId}`, {
-      method: "DELETE",
+    deleteFiles([oldFileId])
+  }
+}
+
+async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
+  const oldFiles = form.values.sections?.[sectionIndex]?.files ?? []
+  const fileData = await uploadFile(newFiles)
+  if (fileData.length === 0) {
+    toast({
+      title: "Fehler beim Hochladen",
+      description: "Es ist ein Fehler beim Hochladen der Datei aufgetreten.",
+      variant: "error",
     })
+    return
+  }
+  console.log(fileData)
+  form.setFieldValue(`sections.${sectionIndex}.files`, [
+    ...(form.values.sections?.[sectionIndex]?.files ?? []),
+    ...fileData.map(file => ({
+      fileId: file.id,
+    })),
+  ])
+  await onSubmit()
+
+  toast({
+    title: `${fileData.length === 1 ? "Datei" : "Dateien"} hochgeladen`,
+    description: `Die ${fileData.length === 1 ? "Datei wurde" : "Dateien wurden"} erfolgreich hochgeladen.`,
+    variant: "success",
+  })
+
+  const oldFileIds = oldFiles
+    .map(file => file.fileId)
+    .filter(fileId => !form.values.sections?.[sectionIndex]?.files.some(file => file.fileId === fileId))
+  deleteFiles(oldFileIds)
+}
+
+async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileList[]) {
+  form.setValues({
+    ...form.values,
+    sections: form.values.sections?.map((section, i) => {
+      if (i === sectionIndex) {
+        return {
+          ...section,
+          files: newFileOrder.map(file => ({
+            fileId: file.file.id,
+            description: file.description ?? undefined,
+          })),
+        }
+      }
+      return section
+    }),
+  })
+  await onSubmit()
+}
+
+async function removeFile(sectionIndex: number, fileId: string) {
+  const file = form.values.sections?.[sectionIndex]?.files?.find(file => file.fileId === fileId)
+  form.setValues({
+    ...form.values,
+    sections: form.values.sections?.map((section, i) => {
+      if (i === sectionIndex) {
+        return {
+          ...section,
+          files: section.files.filter(file => file.fileId !== fileId),
+        }
+      }
+      return section
+    }),
+  })
+  await onSubmit()
+
+  if (file) {
+    await deleteFiles([file.fileId])
   }
 }
 
@@ -97,6 +180,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     body: values,
   })
   experiment.value = response
+  console.log(response)
 
   loading.value = false
 })
@@ -143,7 +227,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           icon="heroicons:cloud-arrow-up"
           :accept="previewImageAccepts"
           :multiple="false"
-          @dropped="uploadFile"
+          @dropped="uploadPreviewImage"
         >
           <template
             v-if="form.values.previewImageId"
@@ -248,10 +332,51 @@ const onSubmit = form.handleSubmit(async (values) => {
             :title="`Dateien für ${section.name}`"
             :subtext="`Ziehe Dateien hierher oder klicke, um Dateien hochzuladen.`"
             icon="heroicons:cloud-arrow-up"
-            :accept="sectionFileAccepts"
-            @dropped="console.log"
+            :accept="previewImageAccepts"
+            @dropped="event => uploadSectionFile(section.order, event)"
           />
+          <DraggableList
+            :values="experiment?.sections[section.order]?.files ?? []"
+            @update:values="newFileOrder => updateFiles(section.order, newFileOrder)"
+          >
+            <template #item="{ item }">
+              <Card class="flex justify-between items-center">
+                <NuxtImg
+                  :src="item.file.path"
+                  :alt="item.description ?? 'Datei'"
+                  class="max-h-24 w-40 object-contain"
+                />
+                <Button
+                  class="ml-2"
+                  variant="outline"
+                  @click="removeFile(section.order, item.file.id)"
+                >
+                  <Icon name="heroicons:x-mark" />
+                </Button>
+              </Card>
+            </template>
+          </DraggableList>
+
+          <!--
+            <template
+          >
+            <Card class="flex justify-between items-center">
+              <NuxtImg
+                :src="file.file.path"
+                class="max-h-24 w-40 object-contain"
+              />
+              <Button
+                class="ml-2"
+                variant="outline"
+                @click="removeFile(section.order, fileIndex)"
+              >
+                <Icon name="heroicons:x-mark" />
+              </Button>
+            </Card>
+          </draggablelist>
+        </template> -->
         </template>
+
         <Button
           type="submit"
         >
@@ -261,7 +386,3 @@ const onSubmit = form.handleSubmit(async (values) => {
     </div>
   </div>
 </template>
-
-<style>
-
-</style>
