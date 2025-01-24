@@ -2,7 +2,7 @@
 import { ref, watch } from "vue"
 import { useRoute } from "vue-router"
 import type { DropdownMenuCheckboxItemProps } from "radix-vue"
-import { CaretSortIcon, ResetIcon, TimerIcon } from "@radix-icons/vue"
+import { CaretSortIcon, TimerIcon, MixerHorizontalIcon } from "@radix-icons/vue"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -56,11 +56,15 @@ fetchExperiments()
 watch(currentPage, fetchExperiments)
 
 /* Attributes */
+const initializeFilterChecklist = (list: boolean[][]) => {
+  attributes.value!.forEach((attribute) => {
+    list.push(attribute.values.map(() => false))
+  })
+}
 const { data: attributes } = await useAPI<ExperimentAttributeDetail[]>(`/api/experiments/attributes`)
+
 const checked = ref<boolean[][]>([])
-attributes.value!.forEach((attribute) => {
-  checked.value.push(attribute.values.map(() => false))
-})
+initializeFilterChecklist(checked.value)
 const attributeOrder = ["Themenbereich", "Versuchsart", "Einsatz", "Arbeitsform", "Messwerterfassung", "Vorbereitungszeit"]
 attributes.value!.sort((a, b) => {
   const indexA = attributeOrder.indexOf(a.name)
@@ -68,13 +72,30 @@ attributes.value!.sort((a, b) => {
   return indexA - indexB
 })
 const singleChoiceAttributes = ["Themenbereich", "Versuchsart", "Vorbereitungszeit"]
+
+/* Filter Dialog */
 const dialogOpen = ref(false)
+
+const temporaryChecked = ref<boolean[][]>([])
+initializeFilterChecklist(temporaryChecked.value)
+
+const submitFilters = () => {
+  checked.value = temporaryChecked.value
+  dialogOpen.value = false
+}
+
+watch(dialogOpen, () => {
+  if (dialogOpen.value) {
+    temporaryChecked.value = checked.value
+  }
+})
 </script>
 
 <template>
   <div class="grid grid-cols-1 gap-3">
     <!-- Filter -->
-    <div class="flex flex-row gap-1 justify-between items-center hidden lg:flex">
+    <!-- Filter for Wide Screens -->
+    <div class="flex flex-row gap-1 justify-between items-center hidden xl:flex">
       <ExperimentsFilters
         :checked="checked"
         :attributes="attributes"
@@ -82,30 +103,45 @@ const dialogOpen = ref(false)
         :show-undo-button="true"
       />
     </div>
-    <div class="flex flex-row gap-1 justify-between items-center lg:hidden">
+    <div class="flex flex-row gap-1 justify-between items-center xl:hidden">
+      <!-- Filter Dialog for Small Screens -->
       <Dialog
         :open="dialogOpen"
+        @update:open="dialogOpen = $event"
       >
         <DialogTrigger as-child>
-          <Button variant="outline">
-            Filter
+          <Button
+            variant="outline"
+            class="flex-grow-8"
+            @click="dialogOpen = true"
+          >
+            Filter <MixerHorizontalIcon class="ml-2 h-4 w-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent class="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Filter Einstellungen</DialogTitle>
-          </DialogHeader>
-          <ExperimentsFilters
-            :checked="checked"
-            :attributes="attributes"
-            :single-choice-attributes="singleChoiceAttributes"
-            :show-undo-button="false"
-          />
-          <DialogFooter>
-            <Button type="submit">
-              Save changes
-            </Button>
-          </DialogFooter>
+        <DialogContent
+          class="sm:max-w-[425px]"
+        >
+          <div
+            class="flex flex-col gap-4 justify-items-stretch items-center content-center justify-self-stretch w-full"
+          >
+            <DialogHeader>
+              <DialogTitle>Filter Konfigurieren</DialogTitle>
+            </DialogHeader>
+            <ExperimentsFilters
+              :checked="temporaryChecked"
+              :attributes="attributes"
+              :single-choice-attributes="singleChoiceAttributes"
+              :show-undo-button="false"
+            />
+            <DialogFooter>
+              <Button
+                type="submit"
+                @click="submitFilters"
+              >
+                Änderungen speichern
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
       <ExperimentsUndoFilters
@@ -139,31 +175,34 @@ const dialogOpen = ref(false)
     </div>
 
     <!-- Experiments -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 min-h-96">
+    <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <Card
         v-for="experiment in experiments!.items"
         :key="experiment.id"
-        :style="{ backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.jpg)' : experiment.previewImage.path, backgroundSize: 'cover', backgroundPosition: 'center' }"
+        :style="{ backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : experiment.previewImage.path, backgroundSize: 'cover', backgroundPosition: 'center' }"
         class="relative group"
       >
         <div class="flex flex-col h-full">
-          <CardContent class="grow flex flex-col justify-center items-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+          <CardContent class="grow flex flex-col justify-center items-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity p-0">
             <div
               v-for="attribute in attributes"
               :key="attribute.id"
               class="grid grid-cols-2 gap-4 w-full p-1"
             >
-              <div class="grid grid-cols-2 gap-2">
+              <div
+                class="text-right"
+              >
                 {{ attribute.name }}
               </div>
-              <div>
+              <div
+                class="flex flex-row flex-wrap pd-1 text-left"
+              >
                 <div
                   v-for="attributeValue in experiment.attributes"
                   :key="attributeValue.id"
                 >
                   <Badge
                     v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
-                    class="bg-white text-black"
                   >
                     {{ attributeValue.value }}
                   </Badge>
@@ -172,7 +211,7 @@ const dialogOpen = ref(false)
             </div>
           </CardContent>
 
-          <CardHeader class="flex-none bottom-0 bg-black bg-opacity-50 text-white p-2">
+          <CardHeader class="flex-none bottom-0 bg-black bg-opacity-75 text-white p-2">
             <CardTitle>{{ experiment.name }}</CardTitle>
             <CardDescription>
               <Badge>
