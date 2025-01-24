@@ -25,6 +25,7 @@
     "@nuxt/icon": "^1.10.3",
     "@nuxt/image": "^1.9.0",
     "@nuxtjs/color-mode": "^3.5.2",
+    "@radix-icons/vue": "^1.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@vee-validate/zod": "^4.15.0",
     "@vueuse/core": "^12.4.0",
