@@ -332,7 +332,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             :title="`Dateien für ${section.name}`"
             :subtext="`Ziehe Dateien hierher oder klicke, um Dateien hochzuladen.`"
             icon="heroicons:cloud-arrow-up"
-            :accept="previewImageAccepts"
+            :accept="sectionFileAccepts"
             @dropped="event => uploadSectionFile(section.order, event)"
           />
           <DraggableList
@@ -345,18 +345,35 @@ const onSubmit = form.handleSubmit(async (values) => {
                 class="flex items-center"
               >
                 <NuxtImg
+                  v-if="item.file.mimeType.startsWith('image')"
                   :src="item.file.path"
                   :alt="item.description ?? 'Datei'"
                   class="max-h-24 w-40 object-contain"
                 />
-                <Separator orientation="vertical" />
+                <Separator
+                  v-if="item.file.mimeType.startsWith('image')"
+                  orientation="vertical"
+                />
                 <div class="flex flex-col flex-1 md:flex-row items-center">
                   <FormField
                     v-slot="{ componentField }"
                     :name="`sections[${section.order}].files[${index}].description`"
                   >
                     <FormItem class="flex-1 p-4 w-full">
-                      <FormLabel>{{ item.file.originalName }}</FormLabel>
+                      <FormLabel>
+                        <NuxtLink
+                          :to="item.file.path"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="hover:underline"
+                          external
+                        >
+                          {{ item.file.originalName }}
+                          <Icon
+                            name="heroicons:arrow-top-right-on-square"
+                          />
+                        </NuxtLink>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           v-bind="componentField"
