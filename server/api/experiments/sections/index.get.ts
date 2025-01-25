@@ -5,7 +5,6 @@ import { authorize } from "~~/server/utils/authorization"
 export default defineEventHandler(async (event) => {
   await authorize(event, experimentSectionAbilities.getAll)
 
-export default defineEventHandler(async () => {
   return await prisma.experimentSection.findMany({
     orderBy: {
       order: "asc",
