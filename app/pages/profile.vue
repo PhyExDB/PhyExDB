@@ -20,6 +20,17 @@ function nameOrPlaceholderForExperiment(experiment: ExperimentList) {
   return experiment.name || "Unbenanntes Experiment"
 }
 
+function badgeTitleForExperimentStatus(status: string) {
+  switch (status) {
+    case "DRAFT":
+      return "Entwurf"
+    case "IN_REVIEW":
+      return "In Überprüfung"
+    case "PUBLISHED":
+      return "Veröffentlicht"
+  }
+}
+
 async function sendVerificationEmail() {
   await authClient.sendVerificationEmail({
     email: user.value!.email,
@@ -138,7 +149,7 @@ async function createExperiment() {
                     {{ nameOrPlaceholderForExperiment(experiment) }}
                   </p>
                   <Badge variant="secondary">
-                    {{ experiment.status.charAt(0).toUpperCase() + experiment.status.slice(1).toLowerCase() }}
+                    {{ badgeTitleForExperimentStatus(experiment.status) }}
                   </Badge>
                 </div>
                 <Button
