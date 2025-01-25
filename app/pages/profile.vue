@@ -7,12 +7,18 @@ definePageMeta({
 })
 const user = await useUserOrThrowError()
 
+const { data: ownExperiments } = await useFetch("/api/experiments/mine")
+
 const emailVerifiedPopoverOpen = ref(false)
 const loadingNewExperiment = ref(false)
 
 const verifiedValue = user.value?.emailVerified
   ? "verifiziert"
   : "nicht verifiziert"
+
+function nameOrPlaceholderForExperiment(experiment: ExperimentList) {
+  return experiment.name || "Unbenanntes Experiment"
+}
 
 async function sendVerificationEmail() {
   await authClient.sendVerificationEmail({
@@ -118,8 +124,33 @@ async function createExperiment() {
     <Card class="mt-4">
       <CardContent class="p-6">
         <div class="text-xl">
-          Experimente
+          Meine Experimente
         </div>
+        <template
+          v-for="experiment in ownExperiments?.items ?? []"
+          :key="experiment.id"
+        >
+          <Card class="mt-4">
+            <CardContent class="p-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <p class="font-medium">
+                    {{ nameOrPlaceholderForExperiment(experiment) }}
+                  </p>
+                  <Badge variant="secondary">
+                    {{ experiment.status.charAt(0).toUpperCase() + experiment.status.slice(1).toLowerCase() }}
+                  </Badge>
+                </div>
+                <Button
+                  variant="outline"
+                  @click="navigateTo(`/experiments/edit/${experiment.id}`)"
+                >
+                  Bearbeiten
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </template>
         <Button
           class="mt-4"
           :loading="loadingNewExperiment"
