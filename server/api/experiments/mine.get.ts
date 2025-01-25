@@ -14,9 +14,13 @@ export default defineEventHandler(async (event) => {
     where: {
       userId: user.id,
     },
-    orderBy: {
-      status: "asc",
-    },
+    orderBy: [
+      {
+        status: "asc",
+      }, {
+        createdAt: "desc",
+      },
+    ],
     include: experimentIncludeForToList,
   })
 
