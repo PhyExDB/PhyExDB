@@ -142,6 +142,7 @@ async function createExperiment() {
                   </Badge>
                 </div>
                 <Button
+                  v-if="experiment.status === 'DRAFT'"
                   variant="outline"
                   @click="navigateTo(`/experiments/edit/${experiment.id}`)"
                 >
