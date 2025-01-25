@@ -1,8 +1,12 @@
 import { untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
 import type { ExperimentAttributeDetail } from "~~/shared/types"
+import { experimentAttributeAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
+  await authorize(event, experimentAttributeAbilities.post)
+
   const content = await readValidatedBody(event, body => experimentAttributeCreateSchema.parse(body))
 
   const result = await untilSlugUnique(

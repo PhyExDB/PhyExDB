@@ -1,13 +1,10 @@
 import { v4 as uuidv4 } from "uuid"
-import { canCreateExperiment } from "~~/shared/utils/abilities"
+import { experimentAbilities } from "~~/shared/utils/abilities"
 import { untilSlugUnique } from "~~/server/utils/utils"
+import { authorizeUser } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
-  const user = await getUser(event)
-  await authorize(event, canCreateExperiment)
-  if (user == null) {
-    throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
-  }
+  const user = await authorizeUser(event, experimentAbilities.post)
 
   const sections = await $fetch("/api/experiments/sections")
   const slug = uuidv4()

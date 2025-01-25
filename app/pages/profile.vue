@@ -5,14 +5,10 @@ definePageMeta({
   title: "Profile",
   description: "Change your information",
 })
+const user = await useUserOrThrowError()
 
 const emailVerifiedPopoverOpen = ref(false)
-const user = await useUser()
 const loadingNewExperiment = ref(false)
-
-if (!user.value) {
-  await navigateTo("/")
-}
 
 const verifiedValue = user.value?.emailVerified
   ? "verifiziert"

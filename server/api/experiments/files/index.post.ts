@@ -1,12 +1,8 @@
 import { experimentFileCreateSchema } from "~~/shared/types"
-import { canCreateExperimentFile } from "~~/shared/utils/abilities"
+import { experimentFileAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
-  const user = await getUser(event)
-  if (!user) {
-    throw createError({ status: 401, message: "Unauthorized" })
-  }
-
   const newExperimentFileContent = await readValidatedBody(event, body => experimentFileCreateSchema.parse(body))
 
   const experimentSectionContent = await prisma.experimentSectionContent.findFirst({
@@ -32,7 +28,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "File not found" })
   }
 
-  await authorize(event, canCreateExperimentFile, experimentSectionContent.experiment)
+  await authorize(event, experimentFileAbilities.post, experimentSectionContent.experiment)
 
   const newExperimentFile = await prisma.experimentFile.create({
     include: {

@@ -1,4 +1,9 @@
 import type { ExperimentSectionList } from "~~/shared/types/ExperimentSection.type"
+import { experimentSectionAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
+
+export default defineEventHandler(async (event) => {
+  await authorize(event, experimentSectionAbilities.getAll)
 
 export default defineEventHandler(async () => {
   return await prisma.experimentSection.findMany({

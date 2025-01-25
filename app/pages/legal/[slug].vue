@@ -8,6 +8,8 @@ definePageMeta({
     return params.slug === "imprint" || params.slug === "privacy-policy" || params.slug === "terms-of-service"
   },
 })
+authorize(legalAbilities.get)
+
 const loading = ref(false)
 const open = ref(false)
 const formSchema = toTypedSchema(legalDocumentUpdateSchema)
@@ -38,7 +40,10 @@ const onSubmit = form.handleSubmit(async (values) => {
       </h1>
       <p>{{ legal!.text }}</p>
     </div>
-    <Can :ability="onlyAdminAbillity">
+    <AuthCan
+      :ability="legalAbilities.put"
+      :param="[]"
+    >
       <Dialog
         :open="open"
         @update:open="open=$eve"
@@ -107,6 +112,6 @@ const onSubmit = form.handleSubmit(async (values) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Can>
+    </AuthCan>
   </div>
 </template>
