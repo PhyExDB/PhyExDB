@@ -168,6 +168,11 @@ async function removeFile(sectionIndex: number, fileId: string) {
   if (file) {
     await deleteFiles([file.fileId])
   }
+  toast({
+    title: "Datei gelöscht",
+    description: "Die Datei wurde erfolgreich gelöscht.",
+    variant: "success",
+  })
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -183,6 +188,12 @@ const onSubmit = form.handleSubmit(async (values) => {
   console.log(response)
 
   loading.value = false
+
+  toast({
+    title: "Experiment gespeichert",
+    description: "Das Experiment wurde erfolgreich gespeichert.",
+    variant: "success",
+  })
 })
 </script>
 
