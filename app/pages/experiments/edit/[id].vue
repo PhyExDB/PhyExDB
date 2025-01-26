@@ -195,6 +195,49 @@ const onSubmit = form.handleSubmit(async (values) => {
     variant: "success",
   })
 })
+
+async function submitForReview() {
+  if (!experiment.value || !sections.value || !attributes.value) return
+
+  await onSubmit()
+  // Without this timeout, the errors don't show up
+  await new Promise(resolve => setTimeout(resolve, 100))
+
+  const experimentForReview = transformExperimentToSchemaType(experiment.value, attributes.value)
+
+  const experimentReviewSchema = getExperimentReadyForReviewSchema(sections.value, attributes.value)
+  const errors = await experimentReviewSchema.safeParseAsync(experimentForReview)
+  if (!errors.success) {
+    const fieldErrors = errors.error.flatten().fieldErrors
+    form.setErrors({
+      name: fieldErrors.name,
+      previewImageId: fieldErrors.previewImageId,
+      duration: fieldErrors.duration,
+      ...(fieldErrors.attributes?.map((attribute, index) => ({
+        [`attributes.${index}.valueId`]: attribute,
+      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})),
+      ...(fieldErrors.sections?.map((section, index) => ({
+        [`sections.${index}.text`]: section,
+      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})),
+    })
+    toast({
+      title: "Fehler beim Überprüfen",
+      description: "Es sind noch nicht alle erforderlichen Felder ausgefüllt.",
+      variant: "error",
+    })
+    return
+  }
+
+  await $fetch<ExperimentDetail>(`/api/experiments/submit/${experimentId}`, {
+    method: "POST",
+  })
+
+  toast({
+    title: "Experiment zur Überprüfung eingereicht",
+    description: "Das Experiment wurde zur Überprüfung eingereicht.",
+    variant: "success",
+  })
+}
 </script>
 
 <template>
@@ -231,26 +274,35 @@ const onSubmit = form.handleSubmit(async (values) => {
           </FormItem>
         </FormField>
 
-        <Label>Vorschaubild</Label>
-        <Dropfile
-          title="Vorschaubild"
-          :subtext="`Ziehe ein Bild hierher oder klicke, um ein Bild hochzuladen.`"
-          icon="heroicons:cloud-arrow-up"
-          :accept="previewImageAccepts"
-          :multiple="false"
-          @dropped="uploadPreviewImage"
+        <FormField
+          name="previewImageId"
         >
-          <template
-            v-if="form.values.previewImageId"
-            #message
-          >
-            <NuxtImg
-              :src="experiment!.previewImage!.path"
-              alt="Vorschaubild"
-              class="max-h-80 object-contain"
-            />
-          </template>
-        </Dropfile>
+          <FormItem>
+            <FormLabel>Vorschaubild</FormLabel>
+            <FormControl>
+              <Dropfile
+                title="Vorschaubild"
+                :subtext="`Ziehe ein Bild hierher oder klicke, um ein Bild hochzuladen.`"
+                icon="heroicons:cloud-arrow-up"
+                :accept="previewImageAccepts"
+                :multiple="false"
+                @dropped="uploadPreviewImage"
+              >
+                <template
+                  v-if="form.values.previewImageId"
+                  #message
+                >
+                  <NuxtImg
+                    :src="experiment!.previewImage!.path"
+                    alt="Vorschaubild"
+                    class="max-h-80 object-contain"
+                  />
+                </template>
+              </Dropfile>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
 
         <h3 class="text-xl font-semibold mt-2">
           Kategorisierung
@@ -433,6 +485,12 @@ const onSubmit = form.handleSubmit(async (values) => {
           type="submit"
         >
           Speichern
+        </Button>
+        <Button
+          @click.prevent
+          @click="submitForReview"
+        >
+          Veröffentlichen
         </Button>
       </form>
     </div>

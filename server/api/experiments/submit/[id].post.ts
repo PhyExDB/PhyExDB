@@ -1,3 +1,6 @@
+import type { ExperimentDetail } from "~~/shared/types"
+import { getExperimentReadyForReviewSchema } from "~~/shared/types"
+
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
     where: getIdPrismaWhereClause(event),
@@ -10,7 +13,15 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, experimentAbilities.put, experiment)
 
-  prisma.experiment.update({
+  const sections = await $fetch("/api/experiments/sections")
+  const attributes = await $fetch("/api/experiments/attributes")
+
+  const experimentForReview = transformExperimentToSchemaType(experiment as ExperimentDetail, attributes)
+
+  const experimentReviewSchema = getExperimentReadyForReviewSchema(sections, attributes)
+  await experimentReviewSchema.parseAsync(experimentForReview)
+
+  await prisma.experiment.update({
     where: { id: experiment.id },
     data: {
       status: "IN_REVIEW",
