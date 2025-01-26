@@ -37,7 +37,7 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
     <!-- Preview Image -->
     <Card
       v-if="experiment.previewImage"
-      class="flex justify-center shadow-md max-h-screen"
+      class="flex justify-center shadow-md max-h-200"
     >
       <NuxtImg
         :src="experiment.previewImage.path"
@@ -64,7 +64,7 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
         <div
           v-for="attribute in attributesWithoutDuration"
           :key="attribute.id"
-          class="flex items-center justify-between border-b pb-2 last:border-none first:pt-2"
+          class="flex items-center justify-between border-b py-2 last:border-none"
         >
           <span class="font-semibold">{{ attribute.attribute.name }}:</span>
           <span class="text-muted-foreground">{{ attribute.value }}</span>
