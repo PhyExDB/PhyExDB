@@ -28,7 +28,7 @@ export interface ExperimentList extends SlugList {
   /**
    * The preview image of the experiment.
    */
-  previewImage: FileList
+  previewImage?: FileList
 }
 
 /**
@@ -113,6 +113,78 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
       return attributesContained.size <= requiredNumAttributes
     }, {
       message: "Too many attributes specified",
+    }),
+  })
+  return experimentSchema
+}
+
+export function transformExperimentToSchemaType(experiment: ExperimentDetail, attributes: ExperimentAttributeDetail[]) {
+  return {
+    name: experiment.name,
+    duration: [experiment.duration],
+    previewImageId: experiment.previewImage?.id,
+    sections: experiment.sections.map(section => ({
+      experimentSectionContentId: section.id,
+      text: section.text,
+      files: section.files.map(file => ({
+        fileId: file.file.id,
+        description: file.description ?? undefined,
+      })),
+    })),
+    attributes: attributes.map(attribute => ({
+      valueId: experiment.attributes.find(experimentAttribute => experimentAttribute.attribute.id === attribute.id)?.id,
+    })),
+  }
+}
+
+export function getExperimentReadyForReviewSchema(sections: ExperimentSectionList[], attributes: ExperimentAttributeDetail[]) {
+  const attributeValueSets = attributes.map((attribute) => {
+    const attributeValues = attribute.values.map(attributeValue => attributeValue.id)
+    return new Set(attributeValues)
+  })
+  const requiredNumAttributes = attributes.length
+  const requiredNumSections = sections.length
+
+  const experimentSchema = z.object({
+    name: z.string().trim().nonempty("Name wird benötigt"),
+    duration: z.array(z.number()).length(1),
+    previewImageId: z.string({ message: "Vorschaubild wird benötigt" }).uuid("Vorschaubild wird benötigt"),
+
+    sections: z.array(z.object({
+      experimentSectionContentId: z.string().uuid(),
+      text: z.string().trim().nonempty("Beschreibung wird benötigt"),
+      files: z.array(z.object({
+        fileId: z.string().uuid(),
+        description: z.string().optional(),
+      })),
+    })).refine((sections) => {
+      const sectionIds = sections.map(section => section.experimentSectionContentId)
+      return new Set(sectionIds).size === sectionIds.length
+    }, {
+      message: "Sections must be unique",
+    }).refine((sections) => {
+      return sections.length === requiredNumSections
+    }, {
+      message: "Not enough sections defined",
+    }),
+
+    attributes: z.array(z.object({
+      valueId: z.string({ message: "Attribut wird benötigt" }).uuid("Attribut wird benötigt"),
+    })).refine(async (attributes) => {
+      const attributesContained = new Set()
+      attributes.forEach((attribute) => {
+        if (!attribute.valueId) {
+          return
+        }
+        for (let i = 0; i < attributeValueSets.length; i++) {
+          if (attributeValueSets[i]?.has(attribute.valueId)) {
+            attributesContained.add(i)
+          }
+        }
+      })
+      return attributesContained.size == requiredNumAttributes
+    }, {
+      message: "Not all attributes specified",
     }),
   })
   return experimentSchema
