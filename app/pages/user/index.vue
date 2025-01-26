@@ -83,6 +83,5 @@ onMounted(async () => {
       :columns="columns"
       :data="data"
     />
-    <Button @click="updateRow(2, data[0]!)">Update Data</Button>
   </div>
 </template>
