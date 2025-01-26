@@ -18,7 +18,7 @@ export interface ExperimentList extends SlugList {
    */
   status: string
   /**
-   * The duration of the experiment
+   * The duration the execution of the experiment takes in minutes.
    */
   duration: number
   /**
