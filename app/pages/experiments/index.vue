@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { CaretSortIcon, TimerIcon, MixerHorizontalIcon } from "@radix-icons/vue"
+import { NuxtLink } from "#components"
 
 /* Pagination */
 const route = useRoute()
@@ -145,37 +146,35 @@ watch(dialogOpen, () => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-
     <!-- Experiments -->
     <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      <Card
+      <NuxtLink
         v-for="experiment in experiments!.items"
         :key="experiment.id"
-        :style="{
-          backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : experiment.previewImage.path,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }"
+        :to="`/experiments/${experiment.slug}`"
         class="relative group border-0"
       >
-        <div class="flex flex-col h-full">
+        <Card
+          :style="{
+            backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : experiment.previewImage.path,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }"
+          class="flex flex-col h-full"
+        >
           <CardContent
             class="grow flex flex-col justify-center items-center bg-black
-            bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity p-0 rounded-t-lg"
+          bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity p-0 rounded-t-lg"
           >
             <div
               v-for="attribute in attributes"
               :key="attribute.id"
               class="grid grid-cols-2 gap-4 w-full p-1"
             >
-              <div
-                class="text-right"
-              >
+              <div class="text-right">
                 {{ attribute.name }}
               </div>
-              <div
-                class="flex flex-row flex-wrap pd-1 text-left"
-              >
+              <div class="flex flex-row flex-wrap pd-1 text-left">
                 <div
                   v-for="attributeValue in experiment.attributes"
                   :key="attributeValue.id"
@@ -190,7 +189,9 @@ watch(dialogOpen, () => {
             </div>
           </CardContent>
 
-          <CardHeader class="flex-none bottom-0 bg-black bg-opacity-75 text-white p-2 rounded-b-lg">
+          <CardHeader
+            class="flex-none bottom-0 bg-black bg-opacity-75 text-white p-2 rounded-b-lg"
+          >
             <CardTitle>{{ experiment.name }}</CardTitle>
             <CardDescription>
               <Badge>
@@ -199,8 +200,8 @@ watch(dialogOpen, () => {
               </Badge>
             </CardDescription>
           </CardHeader>
-        </div>
-      </Card>
+        </Card>
+      </NuxtLink>
     </div>
 
     <!-- Pagination -->
