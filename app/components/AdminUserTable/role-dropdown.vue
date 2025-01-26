@@ -9,13 +9,15 @@ const props = defineProps<{
   role: UserRole
 }>()
 
+const emit = defineEmits(['role-changed'])
+
 const position = ref<UserRole>(props.role)
 watch(position, async (newVal) => {
   await useAuth().client.admin.setRole({
     userId: props.id,
     role: newVal as UserRole,
   })
-  console.log(newVal)
+  emit('role-changed', newVal)
 })
 </script>
 
