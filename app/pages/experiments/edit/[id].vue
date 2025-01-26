@@ -34,22 +34,20 @@ const form = useForm({
     attributes: attributes.value?.map(attribute => ({
       valueId: experiment.value?.attributes.find(a => a.attribute.id === attribute.id)?.id,
     })) ?? [],
-    sections: experiment.value?.sections.map(section => ({
-      text: section.text,
-      experimentSectionContentId: section.id,
-      files: section.files.map(file => ({
-        fileId: file.file.id,
-        description: file.description ?? undefined,
-      })),
-    })) ?? [],
+    sections: sections.value?.map((section) => {
+      const experimentSection = experiment.value?.sections.find(s => s.experimentSection.id === section.id)
+      console.log(experimentSection?.files)
+      return {
+        text: experimentSection?.text ?? "",
+        experimentSectionContentId: experimentSection?.id,
+        files: experimentSection?.files.map(file => ({
+          fileId: file.file.id,
+          description: file.description ?? undefined,
+        })) ?? [],
+      }
+    }) ?? [],
   },
 })
-
-function minutesToMinAndHourString(minutes: number): string {
-  const hours = Math.floor(minutes / 60)
-  const remainingMinutes = minutes % 60
-  return `${hours > 0 ? `${hours} h ` : ""}${remainingMinutes > 0 ? `${remainingMinutes} min` : ""}`
-}
 
 const { handleFileInput, files } = useFileStorage()
 const { toast } = useToast()
@@ -321,7 +319,7 @@ async function submitForReview() {
               />
               <FormDescription class="flex justify-between">
                 <span>Wie lange dauert die Durchführung des Experiments ungefähr?</span>
-                <span>ca. {{ minutesToMinAndHourString(value?.[0]) }}</span>
+                <span>ca. {{ durationToMinAndHourString(value?.[0]) }}</span>
               </FormDescription>
             </FormControl>
             <FormMessage />
@@ -479,8 +477,16 @@ async function submitForReview() {
 
         <Button
           type="submit"
+          @click="console.log(form.errors.value)"
         >
           Speichern
+        </Button>
+        <Button
+          variant="secondary"
+          @click.prevent
+          @click="navigateTo(`/experiments/${experimentId}`)"
+        >
+          Vorschau anzeigen
         </Button>
         <Button
           variant="secondary"
