@@ -141,27 +141,32 @@ async function createExperiment() {
           v-for="experiment in ownExperiments?.items ?? []"
           :key="experiment.id"
         >
-          <Card class="mt-4">
-            <CardContent class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                  <p class="font-medium">
-                    {{ nameOrPlaceholderForExperiment(experiment) }}
-                  </p>
-                  <Badge variant="secondary">
-                    {{ badgeTitleForExperimentStatus(experiment.status) }}
-                  </Badge>
+          <NuxtLink
+            :to="experiment.status === 'DRAFT' ? `/experiments/edit/${experiment.id}` : `/experiments/${experiment.id}`"
+            class="no-underline"
+          >
+            <Card class="mt-4">
+              <CardContent class="p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <p class="font-medium">
+                      {{ nameOrPlaceholderForExperiment(experiment) }}
+                    </p>
+                    <Badge variant="secondary">
+                      {{ badgeTitleForExperimentStatus(experiment.status) }}
+                    </Badge>
+                  </div>
+                  <Button
+                    v-if="experiment.status === 'DRAFT'"
+                    variant="outline"
+                    @click="navigateTo(`/experiments/edit/${experiment.slug}`)"
+                  >
+                    Bearbeiten
+                  </Button>
                 </div>
-                <Button
-                  v-if="experiment.status === 'DRAFT'"
-                  variant="outline"
-                  @click="navigateTo(`/experiments/edit/${experiment.id}`)"
-                >
-                  Bearbeiten
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </NuxtLink>
         </template>
         <Button
           class="mt-4"

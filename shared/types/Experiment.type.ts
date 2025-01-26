@@ -79,7 +79,7 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
     previewImageId: z.string().uuid().optional(),
 
     sections: z.array(z.object({
-      experimentSectionContentId: z.string().uuid(),
+      experimentSectionContentId: z.string().uuid().optional(),
       text: z.string(),
       files: z.array(z.object({
         fileId: z.string().uuid(),
