@@ -156,12 +156,12 @@ watch(dialogOpen, () => {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }"
-        class="relative group"
+        class="relative group border-0"
       >
         <div class="flex flex-col h-full">
           <CardContent
             class="grow flex flex-col justify-center items-center bg-black
-            bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity p-0"
+            bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity p-0 rounded-t-lg"
           >
             <div
               v-for="attribute in attributes"
@@ -190,7 +190,7 @@ watch(dialogOpen, () => {
             </div>
           </CardContent>
 
-          <CardHeader class="flex-none bottom-0 bg-black bg-opacity-75 text-white p-2">
+          <CardHeader class="flex-none bottom-0 bg-black bg-opacity-75 text-white p-2 rounded-b-lg">
             <CardTitle>{{ experiment.name }}</CardTitle>
             <CardDescription>
               <Badge>
