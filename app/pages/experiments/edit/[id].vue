@@ -108,7 +108,6 @@ async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
     })
     return
   }
-  console.log(fileData)
   form.setFieldValue(`sections.${sectionIndex}.files`, [
     ...(form.values.sections?.[sectionIndex]?.files ?? []),
     ...fileData.map(file => ({
@@ -145,8 +144,6 @@ async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileLis
       return section
     }),
   })
-  console.log(form.values.sections)
-  // await onSubmit()
 }
 
 async function removeFile(sectionIndex: number, fileId: string) {
@@ -185,7 +182,6 @@ const onSubmit = form.handleSubmit(async (values) => {
     body: values,
   })
   experiment.value = response
-  console.log(response)
 
   loading.value = false
 
