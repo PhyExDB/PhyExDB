@@ -483,6 +483,7 @@ async function submitForReview() {
           Speichern
         </Button>
         <Button
+          variant="secondary"
           @click.prevent
           @click="submitForReview"
         >
