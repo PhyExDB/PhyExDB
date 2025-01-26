@@ -60,13 +60,21 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
 
     <!-- Attributes Section -->
     <Card class="px-4 py-2 space-y-4 shadow-lg">
+      <div v-if="experiment.attributes.length">
+        <div
+          v-for="attribute in attributesWithoutDuration"
+          :key="attribute.id"
+          class="flex items-center justify-between border-b pb-2 last:border-none first:pt-2"
+        >
+          <span class="font-semibold">{{ attribute.attribute.name }}:</span>
+          <span class="text-muted-foreground">{{ attribute.value }}</span>
+        </div>
+      </div>
       <div
-        v-for="attribute in attributesWithoutDuration"
-        :key="attribute.id"
-        class="flex items-center justify-between border-b pb-2 last:border-none first:pt-2"
+        v-else
+        class="text-muted-foreground"
       >
-        <span class="font-semibold">{{ attribute.attribute.name }}:</span>
-        <span class="text-muted-foreground">{{ attribute.value }}</span>
+        Attribute noch nicht gesetzt
       </div>
     </Card>
 
