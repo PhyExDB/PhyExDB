@@ -14,15 +14,6 @@ const route = useRoute()
 const currentPage = ref(parseInt(route.query.page as string, 10) || 1)
 const itemsPerPage = ref(parseInt(route.query.pageSize as string, 10) || 12)
 
-// async function getData(): Promise<UserDetail[]> {
-//   // Fetch data from your API here.
-//   const data = await useAuth().client.admin.listUsers({
-//     query: {
-//       limit: 10,
-//     },
-//   })
-//   return (data.data?.users ?? []) as UserDetail[]
-// }
 const fetch = async () => {
   const { data: newData } = await useAPI<Page<UserDetail>>(
     `/api/users?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
@@ -43,24 +34,14 @@ async function updateRow(index: number, user: UserDetail){
 const columns: ColumnDef<UserDetail>[] = [
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return h(Button, {
-        variant: "ghost",
-        onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-      }, () => ["Name", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })])
-    },
+    header: "Name",
     cell: ({ row }) => {
       return row.getValue("name")
     },
   },
   {
     accessorKey: "email",
-    header: ({ column }) => {
-      return h(Button, {
-        variant: "ghost",
-        onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-      }, () => ["E-Mail", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })])
-    },
+    header: "E-Mail",
     cell: ({ row }) => {
       return row.getValue("email")
     },
