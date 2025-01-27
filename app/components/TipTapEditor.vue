@@ -69,7 +69,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div v-if="editor">
-    <div class="max-w-4xl mx-auto p-4">
+    <div class="max-w-4xl mx-auto">
       <div class="border rounded-lg shadow-md">
         <!-- Toolbar -->
         <div class="flex flex-wrap items-center gap-2 p-3 border-b">

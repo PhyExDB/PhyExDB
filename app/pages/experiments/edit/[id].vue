@@ -16,6 +16,10 @@ const route = useRoute()
 const experimentId = route.params.id as string
 const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${experimentId}`)
 
+if (!experiment.value) {
+  showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+}
+
 const { data: sections } = await useFetch("/api/experiments/sections")
 const { data: attributes } = await useFetch("/api/experiments/attributes")
 
@@ -374,9 +378,10 @@ async function submitForReview() {
             <FormItem>
               <FormLabel>Beschreibung</FormLabel>
               <FormControl>
-                <Textarea
+                <TipTapEditor
                   :id="`sections[${section.order}].text`"
                   v-bind="componentField"
+                  @click.prevent
                 />
               </FormControl>
               <FormMessage />

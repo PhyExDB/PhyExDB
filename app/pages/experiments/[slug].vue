@@ -91,8 +91,16 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
         <h3 class="text-xl font-bold">
           {{ section.experimentSection.name }}
         </h3>
-        <p class="text-muted-foreground">
-          {{ section.text || "Keine Beschreibung vorhanden" }}
+        <div
+          v-if="section.text && section.text.length && section.text != '<p></p>'"
+          class="prose dark:prose-invert"
+          v-html="section.text"
+        />
+        <p
+          v-else
+          class="text-muted-foreground"
+        >
+          Keine Beschreibung vorhanden
         </p>
 
         <CarouselWithPreview
