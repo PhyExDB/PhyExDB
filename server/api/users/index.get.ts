@@ -1,7 +1,23 @@
-export default defineEventHandler(async () => {
-  const users = await prisma.user.findMany()
+import { userAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
-  return users as UserList[]
+export default defineEventHandler(async (event) => {
+  await authorize(event, userAbilities.getAll)
+
+  const whereClause = {}
+
+  const total = await prisma.user.count({ where: whereClause,})
+  const pageMeta = getPageMeta(event, total)
+
+  const result = await prisma.user.findMany({
+    ...getPaginationPrismaParam(pageMeta),
+    where: whereClause,
+  })
+
+  return {
+    items: result as UserDetail[],
+    pagination: pageMeta,
+  } as Page<UserDetail>
 })
 
 defineRouteMeta({
