@@ -34,7 +34,7 @@
     "clsx": "^2.1.1",
     "jsonwebtoken": "^9.0.2",
     "lucide-vue-next": "^0.471.0",
-    "nuxt": "^3.15.2",
+    "nuxt": "^3.15.3",
     "radix-vue": "^1.9.12",
     "shadcn-nuxt": "^0.11.3",
     "tailwind-merge": "^2.6.0",
