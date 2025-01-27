@@ -2,6 +2,7 @@
 import type { PrismaClient } from "@prisma/client"
 import { vitest } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
+import createDOMPurify from "dompurify"
 
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
@@ -12,6 +13,20 @@ vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
     ...actual,
     getUser: vitest.fn(),
     getUserOrThrowError: vitest.fn(),
+  }
+})
+
+vitest.stubGlobal("useNitroApp", () => {
+  return {
+    domPurify: {
+      sanitize: (html: string) => {
+        const happyDomWindow = new Window()
+
+        // Cast Happy DOM's `Window` to the required `WindowLike` type
+        const domPurify = createDOMPurify(happyDomWindow as any)
+        return domPurify.sanitize(html)
+      },
+    },
   }
 })
 
