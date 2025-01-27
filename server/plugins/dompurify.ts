@@ -6,7 +6,7 @@ export default defineNitroPlugin((nitroApp) => {
   const happyDomWindow = new Window()
 
   // Cast Happy DOM's `Window` to the required `WindowLike` type
-  const DOMPurify = createDOMPurify(happyDomWindow)
+  const domPurify = createDOMPurify(happyDomWindow)
 
-  Object.assign(nitroApp, { DOMPurify })
+  Object.assign(nitroApp, { domPurify })
 })

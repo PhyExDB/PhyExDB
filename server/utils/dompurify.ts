@@ -11,7 +11,7 @@
 export function sanitizeHTML(html: string): string {
   const nitroApp = useNitroApp()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { DOMPurify } = nitroApp as any
+  const { domPurify } = nitroApp as any
   // Use the DOMPurify instance to sanitize the HTML
-  return DOMPurify.sanitize(html)
+  return domPurify.sanitize(html)
 }
