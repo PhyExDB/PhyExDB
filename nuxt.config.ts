@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "nuxt-file-storage",
     "@nuxt/image",
     "@vueuse/nuxt",
+    "nuxt-tiptap-editor",
   ],
 
   devtools: { enabled: true },
