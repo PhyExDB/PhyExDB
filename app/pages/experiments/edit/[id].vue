@@ -36,7 +36,6 @@ const form = useForm({
     })) ?? [],
     sections: sections.value?.map((section) => {
       const experimentSection = experiment.value?.sections.find(s => s.experimentSection.id === section.id)
-      console.log(experimentSection?.files)
       return {
         text: experimentSection?.text ?? "",
         experimentSectionContentId: experimentSection?.id,
