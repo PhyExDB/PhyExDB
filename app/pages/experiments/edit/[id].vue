@@ -481,7 +481,6 @@ async function submitForReview() {
 
         <Button
           type="submit"
-          @click="console.log(form.errors.value)"
         >
           Speichern
         </Button>
