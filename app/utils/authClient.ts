@@ -2,14 +2,14 @@ import { adminClient } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/vue"
 import { toRef } from "vue"
 
-const url = process.env.API_URL // { origin: "http://localhost:3000" } // useRequestURL().origin
+const url = { origin: "http://localhost:3000" } // useRequestURL()
 
 /**
  * Auth client instance configured with plugins.
  */
 export const authClient = createAuthClient({
   plugins: [adminClient()],
-  baseURL: url,
+  baseURL: url.origin,
 })
 
 /**
