@@ -53,7 +53,7 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
         class="w-6 h-6 text-muted-foreground"
       />
       <span class="text-lg font-medium">
-        Vorbereitung: {{ preparationDuration || "Unbestimmt" }},
+        {{ preparationDuration ? `Vorbereitung:  ${preparationDuration || "Unbestimmt"}, ` : "" }}
         Durchführung: ca. {{ durationToMinAndHourString(experiment.duration) }}
       </span>
     </div>
