@@ -65,7 +65,10 @@ export interface ExperimentDetail extends ExperimentList {
  * - The number of sections must match the required number of sections.
  * - The number of attributes specified must match the required number of attributes.
  */
-export function getExperimentSchema(sections: ExperimentSectionList[], attributes: ExperimentAttributeDetail[]) {
+export function getExperimentSchema(
+  sections: ExperimentSectionList[],
+  attributes: ExperimentAttributeDetail[],
+) {
   const attributeValueSets = attributes.map((attribute) => {
     const attributeValues = attribute.values.map(attributeValue => attributeValue.id)
     return new Set(attributeValues)
@@ -118,7 +121,16 @@ export function getExperimentSchema(sections: ExperimentSectionList[], attribute
   return experimentSchema
 }
 
-export function transformExperimentToSchemaType(experiment: ExperimentDetail, attributes: ExperimentAttributeDetail[]) {
+/**
+ * Transforms an experiment object to the schema type.
+ * @param experiment The experiment to transform
+ * @param attributes All attributes available
+ * @returns The experiment transformed to the schema type
+ */
+export function transformExperimentToSchemaType(
+  experiment: ExperimentDetail,
+  attributes: ExperimentAttributeDetail[],
+) {
   return {
     name: experiment.name,
     duration: [experiment.duration],
@@ -137,7 +149,16 @@ export function transformExperimentToSchemaType(experiment: ExperimentDetail, at
   }
 }
 
-export function getExperimentReadyForReviewSchema(sections: ExperimentSectionList[], attributes: ExperimentAttributeDetail[]) {
+/**
+ * Checks if the experiment is ready for review.
+ * @param sections All sections available
+ * @param attributes All attributes available
+ * @returns A schema for validating the experiment data
+ */
+export function getExperimentReadyForReviewSchema(
+  sections: ExperimentSectionList[],
+  attributes: ExperimentAttributeDetail[],
+) {
   const attributeValueSets = attributes.map((attribute) => {
     const attributeValues = attribute.values.map(attributeValue => attributeValue.id)
     return new Set(attributeValues)
@@ -182,7 +203,7 @@ export function getExperimentReadyForReviewSchema(sections: ExperimentSectionLis
           }
         }
       })
-      return attributesContained.size == requiredNumAttributes
+      return attributesContained.size === requiredNumAttributes
     }, {
       message: "Not all attributes specified",
     }),

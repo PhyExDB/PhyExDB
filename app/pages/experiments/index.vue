@@ -8,7 +8,9 @@ const currentPage = ref(parseInt(route.query.page as string, 10) || 1)
 const itemsPerPage = ref(parseInt(route.query.pageSize as string, 10) || 12)
 
 /* Experiments */
-const { data: experiments } = await useFetch(`/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`)
+const { data: experiments } = await useFetch(
+  `/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
+)
 const fetchExperiments = async () => {
   const newExperiments = await $fetch(
     `/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
