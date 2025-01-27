@@ -27,13 +27,22 @@ export default defineEventHandler(async (event) => {
     async body => (getExperimentSchema(sections, attributes)).parseAsync(body),
   )
 
+  const sanitizedExperimentData = {
+    ...updatedExperimentData,
+    sections: updatedExperimentData.sections.map(section => ({
+      ...section,
+      text: sanitizeHTML(section.text),
+      files: section.files,
+    })),
+  }
+
   function experimentData(slug: string) {
     const data: Prisma.ExperimentUpdateInput = {
-      name: updatedExperimentData.name,
+      name: sanitizedExperimentData.name,
       slug: slug,
-      duration: updatedExperimentData.duration[0]!,
+      duration: sanitizedExperimentData.duration[0]!,
       sections: {
-        update: updatedExperimentData.sections.map(section => ({
+        update: sanitizedExperimentData.sections.map(section => ({
           where: {
             id: section.experimentSectionContentId,
           },
@@ -64,7 +73,7 @@ export default defineEventHandler(async (event) => {
       },
       attributes: {
         set: [],
-        connect: updatedExperimentData.attributes
+        connect: sanitizedExperimentData.attributes
           .filter(attribute => attribute.valueId !== undefined)
           .map(attribute => ({
             id: attribute.valueId,
@@ -72,10 +81,10 @@ export default defineEventHandler(async (event) => {
       },
     }
 
-    if (updatedExperimentData.previewImageId) {
+    if (sanitizedExperimentData.previewImageId) {
       data["previewImage"] = {
         connect: {
-          id: updatedExperimentData.previewImageId,
+          id: sanitizedExperimentData.previewImageId,
         },
       }
     }
@@ -103,7 +112,7 @@ export default defineEventHandler(async (event) => {
       ])
       return newExperiment
     },
-    slugify(updatedExperimentData.name),
+    slugify(sanitizedExperimentData.name),
   )
 
   return updatedExperiment as ExperimentDetail
