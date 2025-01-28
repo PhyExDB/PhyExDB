@@ -17,7 +17,9 @@ const props = defineProps({
           <p>
             Fehler {{ props.error.statusCode }}
           </p>
-          <p>
+          <p
+            v-if="props.error.message != null && props.error.message.length > 0"
+          >
             : {{ props.error.message }}
           </p>
         </div>
