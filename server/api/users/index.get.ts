@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const whereClause = {}
 
-  const total = await prisma.user.count({ where: whereClause,})
+  const total = await prisma.user.count({ where: whereClause })
   const pageMeta = getPageMeta(event, total)
 
   const result = await prisma.user.findMany({

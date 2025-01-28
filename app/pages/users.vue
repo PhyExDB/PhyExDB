@@ -1,34 +1,37 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
 import type {
   ColumnDef,
 } from "@tanstack/vue-table"
-import { ArrowUpDown } from "lucide-vue-next"
-import { Button } from "@/components/ui/button"
 import RoleDropdown from "~/components/AdminUserTable/role-dropdown.vue"
 
 const data = ref<UserDetail[]>([])
-const pageMeta = ref<PageMeta | undefined>(undefined)
-
 const route = useRoute()
-const currentPage = ref(parseInt(route.query.page as string, 10) || 1)
-const itemsPerPage = ref(parseInt(route.query.pageSize as string, 10) || 12)
+const pageMeta = ref<PageMeta>({
+  page: parseInt(route.query.page as string, 10) || 1,
+  pageSize: parseInt(route.query.pageSize as string, 10) || 12,
+  total: 0,
+  totalPages: 0,
+})
 
 const fetch = async () => {
   const { data: newData } = await useAPI<Page<UserDetail>>(
-    `/api/users?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
+    `/api/users?page=${pageMeta.value.page}&pageSize=${pageMeta.value.pageSize}`,
   )
   if (!newData.value) return
   data.value = newData.value!.items
   pageMeta.value = newData.value!.pagination
 }
 fetch()
-watch(currentPage, fetch)
 
-async function updateRow(index: number, user: UserDetail){
-  const updatedData = [...data.value];
-  updatedData[index] = user;
-  data.value = updatedData;
+function handlePageChanged(newPage: number) {
+  pageMeta.value.page = newPage
+  fetch()
+}
+
+async function updateRow(index: number, user: UserDetail) {
+  const updatedData = [...data.value]
+  updatedData[index] = user
+  data.value = updatedData
 }
 
 const columns: ColumnDef<UserDetail>[] = [
@@ -57,12 +60,12 @@ const columns: ColumnDef<UserDetail>[] = [
     accessorKey: "role",
     header: () => "Role",
     cell: ({ row }) => {
-      return h(RoleDropdown, { 
-        ...row.original, 
+      return h(RoleDropdown, {
+        ...row.original,
         onRoleChanged: async (role: UserRole) => {
           row.original.role = role
           updateRow(row.index, row.original)
-        }
+        },
       })
     },
   },
@@ -75,53 +78,9 @@ const columns: ColumnDef<UserDetail>[] = [
       :columns="columns"
       :data="data"
     />
-    <!-- Pagination -->
-    <div
-      v-if="pageMeta?.total > itemsPerPage"
-      class="p-8"
-    >
-      <Pagination
-        v-slot="{ page }"
-        :items-per-page="itemsPerPage"
-        :total="pageMeta?.total"
-        :sibling-count="1"
-        show-edges
-        :default-page="currentPage"
-        class="flex flex-row grow gap-4 justify-center items-center"
-        @update:page="currentPage = $event"
-      >
-        <PaginationList
-          v-slot="{ items }"
-          class="flex items-center gap-1"
-        >
-          <PaginationFirst />
-          <PaginationPrev />
-
-          <template v-for="(item, index) in items">
-            <PaginationListItem
-              v-if="item.type === 'page'"
-              :key="index"
-              :value="item.value"
-              as-child
-            >
-              <Button
-                class="w-10 h-10 p-0"
-                :variant="item.value === page ? 'default' : 'outline'"
-              >
-                {{ item.value }}
-              </Button>
-            </PaginationListItem>
-            <PaginationEllipsis
-              v-else
-              :key="item.type"
-              :index="index"
-            />
-          </template>
-
-          <PaginationNext />
-          <PaginationLast />
-        </PaginationList>
-      </Pagination>
-    </div>
+    <MyPagination
+      :page-meta="pageMeta"
+      @page-changed="handlePageChanged"
+    />
   </div>
 </template>
