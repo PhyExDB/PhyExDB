@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const attributes = await prisma.experimentAttribute.findMany({
     include: { values: true },
+    orderBy: { order: "asc" },
   })
 
   return attributes as ExperimentAttributeDetail[]
