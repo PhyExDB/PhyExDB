@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Pencil } from "lucide-vue-next"
-
 const props = defineProps<{
   id: string
   role: UserRole
@@ -26,7 +24,11 @@ watch(position, async (newVal) => {
       <DropdownMenuTrigger>
         <div class="flex flex-nowrap">
           <span>{{ capitalizeFirstLetter(props.role) }}</span>
-          <Pencil class="w-4 h-4 ml-2" />
+          <Icon
+            size="1.2em"
+            class="m-0.5 ml-1"
+            name="heroicons:pencil"
+          />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent class="w-56">

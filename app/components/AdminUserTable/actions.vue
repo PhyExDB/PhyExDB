@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Trash2, Ban, UserCheck, ScanEye } from "lucide-vue-next"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,8 +50,9 @@ const isDialogOpen = ref(false)
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>
-          <ScanEye
+          <Icon
             class="ml-2 h-4 w-4"
+            name="heroicons:eye"
             @click="handleImpersonate"
           />
         </TooltipTrigger>
@@ -62,8 +62,9 @@ const isDialogOpen = ref(false)
       </Tooltip>
       <Tooltip v-if="user.banned">
         <TooltipTrigger>
-          <UserCheck
+          <Icon
             class="ml-2 h-4 w-4"
+            name="heroicons:check"
             @click="handleUnban"
           />
         </TooltipTrigger>
@@ -73,8 +74,9 @@ const isDialogOpen = ref(false)
       </Tooltip>
       <Tooltip v-if="!user.banned">
         <TooltipTrigger>
-          <Ban
+          <Icon
             class="ml-2 h-4 w-4"
+            name="heroicons:no-symbol"
             @click="handleBan"
           />
         </TooltipTrigger>
@@ -84,9 +86,10 @@ const isDialogOpen = ref(false)
       </Tooltip>
       <Tooltip>
         <TooltipTrigger>
-          <Trash2
+          <Icon
             class="ml-2 h-4 w-4"
-            @click="() => isDialogOpen = true"
+            name="heroicons:trash"
+            @click="isDialogOpen = true"
           />
         </TooltipTrigger>
         <TooltipContent>
