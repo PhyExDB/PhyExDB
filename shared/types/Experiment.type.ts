@@ -173,7 +173,9 @@ export function getExperimentReadyForReviewSchema(
 
     sections: z.array(z.object({
       experimentSectionContentId: z.string().uuid(),
-      text: z.string().trim().nonempty("Beschreibung wird benötigt").regex(/^(?!<p><\/p>$).*/, "Beschreibung wird benötigt"),
+      text: z.string().trim()
+        .nonempty("Beschreibung wird benötigt")
+        .regex(/^(?!<p><\/p>$).*/, "Beschreibung wird benötigt"),
       files: z.array(z.object({
         fileId: z.string().uuid(),
         description: z.string().optional(),
