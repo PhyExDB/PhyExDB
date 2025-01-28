@@ -26,8 +26,11 @@ async function stopImpersonating() {
       <DropdownMenuItem @click="useAuth().client.signOut()">
         <span>Abmelden</span>
       </DropdownMenuItem>
-      
-      <DropdownMenuItem v-if="data?.session.impersonatedBy" @click="stopImpersonating">
+
+      <DropdownMenuItem
+        v-if="data?.session.impersonatedBy"
+        @click="stopImpersonating"
+      >
         <span>Imitieren beenden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>

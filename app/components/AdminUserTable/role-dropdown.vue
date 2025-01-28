@@ -9,7 +9,7 @@ const props = defineProps<{
   role: UserRole
 }>()
 
-const emit = defineEmits<{ 
+const emit = defineEmits<{
   (e: "changed", updated: { role: UserRole }): void
 }>()
 

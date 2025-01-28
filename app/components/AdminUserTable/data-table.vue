@@ -96,7 +96,7 @@ const table = useVueTable({
               v-for="row in table.getRowModel().rows"
               :key="row.id"
               :data-state="row.getIsSelected() ? 'selected' : undefined"
-              :class="{'text-gray-500': row.getValue('banned')}"
+              :class="{ 'text-gray-500': row.getValue('banned') }"
             >
               <TableCell
                 v-for="cell in row.getVisibleCells()"

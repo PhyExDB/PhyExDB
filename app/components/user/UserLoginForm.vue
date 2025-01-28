@@ -18,7 +18,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
       lastWrong.value = true
       form.validate()
-    } else if (error.status === 401){
+    } else if (error.status === 401) {
       lastBanned.value = true
     } else {
       console.error(error)

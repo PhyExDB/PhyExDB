@@ -9,20 +9,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip"
 
 const { user } = defineProps<{
   user: Pick<UserDetailAdmin, "id" | "banned">
 }>()
 
-const emit = defineEmits<{ 
-  (e: "deleted"): void, 
+const emit = defineEmits<{
+  (e: "deleted"): void
   (e: "changed", updated: { banned: boolean }): void
 }>()
 
@@ -51,7 +51,10 @@ const isDialogOpen = ref(false)
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>
-          <ScanEye class="ml-2 h-4 w-4" @click="handleImpersonate"/>
+          <ScanEye
+            class="ml-2 h-4 w-4"
+            @click="handleImpersonate"
+          />
         </TooltipTrigger>
         <TooltipContent>
           <p>Imitieren</p>
@@ -59,7 +62,10 @@ const isDialogOpen = ref(false)
       </Tooltip>
       <Tooltip v-if="user.banned">
         <TooltipTrigger>
-          <UserCheck class="ml-2 h-4 w-4" @click="handleUnban"/>
+          <UserCheck
+            class="ml-2 h-4 w-4"
+            @click="handleUnban"
+          />
         </TooltipTrigger>
         <TooltipContent>
           <p>Ban aufheben</p>
@@ -67,7 +73,10 @@ const isDialogOpen = ref(false)
       </Tooltip>
       <Tooltip v-if="!user.banned">
         <TooltipTrigger>
-          <Ban class="ml-2 h-4 w-4" @click="handleBan"/>
+          <Ban
+            class="ml-2 h-4 w-4"
+            @click="handleBan"
+          />
         </TooltipTrigger>
         <TooltipContent>
           <p>Bannen</p>
@@ -75,7 +84,10 @@ const isDialogOpen = ref(false)
       </Tooltip>
       <Tooltip>
         <TooltipTrigger>
-          <Trash2 class="ml-2 h-4 w-4" @click="() => isDialogOpen = true"/>
+          <Trash2
+            class="ml-2 h-4 w-4"
+            @click="() => isDialogOpen = true"
+          />
         </TooltipTrigger>
         <TooltipContent>
           <p>Löschen</p>
@@ -85,17 +97,21 @@ const isDialogOpen = ref(false)
   </div>
 
   <AlertDialog :open="isDialogOpen">
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Sind Sie sich sicher?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Diese Aktion kann nicht rückgängig gemacht werden. Der Account wird dauerhaft gelöscht.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel @click="isDialogOpen = false">Abbrechen</AlertDialogCancel>
-          <AlertDialogAction @click="isDialogOpen = false; handleDelete()">Weiter</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Sind Sie sich sicher?</AlertDialogTitle>
+        <AlertDialogDescription>
+          Diese Aktion kann nicht rückgängig gemacht werden. Der Account wird dauerhaft gelöscht.
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel @click="isDialogOpen = false">
+          Abbrechen
+        </AlertDialogCancel>
+        <AlertDialogAction @click="isDialogOpen = false; handleDelete()">
+          Weiter
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>

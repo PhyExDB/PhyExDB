@@ -39,7 +39,8 @@ async function updateRow(index: number, user: UserDetailAdmin) {
 function handleChange(row: { index: number, original: UserDetailAdmin }) {
   return function (updated: Partial<UserDetailAdmin>) {
     updateRow(row.index, { ...row.original, ...updated })
-}}
+  }
+}
 
 const columns: ColumnDef<UserDetailAdmin>[] = [
   {
