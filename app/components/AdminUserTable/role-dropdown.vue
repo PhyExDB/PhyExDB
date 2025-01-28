@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// import { Button } from '@/components/ui/button'
-// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-// import { MoreHorizontal } from 'lucide-vue-next'
 import { Pencil } from "lucide-vue-next"
 
 const props = defineProps<{

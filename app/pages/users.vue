@@ -4,6 +4,7 @@ import type {
 } from "@tanstack/vue-table"
 import RoleDropdown from "~/components/AdminUserTable/role-dropdown.vue"
 import DropdownAction from "~/components/AdminUserTable/data-table-dropdown.vue"
+import Email from "~/components/user/Email.vue"
 
 authorize(userAbilities.getAll)
 
@@ -57,14 +58,7 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
     accessorKey: "email",
     header: "E-Mail",
     cell: ({ row }) => {
-      return row.getValue("email")
-    },
-  },
-  {
-    accessorKey: "emailVerified",
-    header: () => "Email Verifiziert",
-    cell: ({ row }) => {
-      return row.getValue("emailVerified") ? "verifiziert" : "unverifiziert"
+      return h(Email, row.original)
     },
   },
   {
