@@ -21,7 +21,7 @@ export async function useUserOrThrowError(): Promise<Ref<UserDetail>> {
   const user = await useUser()
   return computed(() => {
     if (user.value == null) {
-      navigateTo("/login")
+      navigateToWithRedirect("/login")
       throw createError({ statusCode: 401, statusMessage: "Not logged in" })
     }
     return user.value
