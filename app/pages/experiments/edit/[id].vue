@@ -2,6 +2,7 @@
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
+import FormControl from "~/components/ui/form/FormControl.vue"
 
 const user = await useUser()
 
@@ -35,9 +36,13 @@ const form = useForm({
     name: experiment.value?.name ?? "",
     duration: [experiment.value?.duration ?? 20],
     previewImageId: experiment.value?.previewImage?.id ?? undefined,
-    attributes: attributes.value?.map(attribute => ({
-      valueId: experiment.value?.attributes.find(a => a.attribute.id === attribute.id)?.id,
-    })) ?? [],
+    attributes: attributes.value?.map((attribute) => {
+      const experimentAttribute = experiment.value?.attributes.find(a => a.id === attribute.id)
+      return {
+        attributeId: attribute.id,
+        valueIds: experimentAttribute?.values.map(value => value.id) ?? [],
+      }
+    }) ?? [],
     sections: sections.value?.map((section) => {
       const experimentSection = experiment.value?.sections.find(s => s.experimentSection.id === section.id)
       return {
@@ -174,6 +179,7 @@ async function removeFile(sectionIndex: number, fileId: string) {
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
+  console.log(values)
   if (!emailVerified) return
   if (loading.value) return
   loading.value = true
@@ -335,7 +341,40 @@ async function submitForReview() {
         >
           <FormField
             v-slot="{ componentField }"
-            :name="`attributes[${index}].valueId`"
+            :name="`attributes[${index}].valueIds`"
+          >
+            <FormItem>
+              <FormLabel>
+                {{ attribute.name }}
+                <span class="text-muted-foreground">
+                  (Wähle {{ attribute.multipleSelection ? "mehrere" : "eins" }})
+                </span>
+              </FormLabel>
+              <FormControl>
+                <MultiSelect
+                  :options="attribute.values"
+                  :multiple="attribute.multipleSelection"
+                  search-placeholder="Suche..."
+                  :model-value="componentField.modelValue"
+                  :value-for-option="option => option.value"
+                  @update:model-value="value => componentField.onChange(value)"
+                >
+                  <template #empty>
+                    Keine Optionen gefunden.
+                  </template>
+                  <template #preview="{ selected }">
+                    {{ selected.length ? selected.map(id => attribute.values.find(value => value.id === id)?.value).join(", ") : "Auswählen" }}
+                  </template>
+                  <template #option="{ option }">
+                    {{ option.value }}
+                  </template>
+                </MultiSelect>
+              </FormControl>
+            </FormItem>
+          </FormField>
+          <!-- <FormField
+            v-slot="{ componentField }"
+            :name="`attributes[${index}].valueIds[0]`"
           >
             <FormItem>
               <FormLabel>{{ attribute.name }}</FormLabel>
@@ -360,7 +399,7 @@ async function submitForReview() {
               </Select>
               <FormMessage />
             </FormItem>
-          </FormField>
+          </FormField> -->
         </template>
 
         <template

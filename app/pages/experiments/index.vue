@@ -160,7 +160,7 @@ watch(dialogOpen, () => {
               </div>
               <div class="flex flex-row flex-wrap pd-1 text-left">
                 <div
-                  v-for="attributeValue in experiment.attributes"
+                  v-for="attributeValue in experiment.attributes.map((attr) => attr.values).flat()"
                   :key="attributeValue.id"
                 >
                   <Badge
