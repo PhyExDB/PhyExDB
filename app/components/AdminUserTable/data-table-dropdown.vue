@@ -1,7 +1,23 @@
 <script setup lang="ts">
 import { MoreHorizontal } from "lucide-vue-next"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 const { user } = defineProps<{
   user: Pick<UserDetailAdmin, "id" | "banned">
@@ -28,6 +44,8 @@ async function handleDelete() {
   await useAuth().client.admin.removeUser({ userId: user.id })
   emit("deleted")
 }
+
+const isDialogOpen = ref(false)
 </script>
 
 <template>
@@ -52,9 +70,24 @@ async function handleDelete() {
       <DropdownMenuItem v-if="user.banned" @click="handleUnban">
         Unbannen
       </DropdownMenuItem>
-      <DropdownMenuItem @click="handleDelete">
+      <DropdownMenuItem @click="() => isDialogOpen = true">
         Löschen
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
+
+  <AlertDialog :open="isDialogOpen">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Sind Sie sich sicher?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Diese Aktion kann nicht rückgängig gemacht werden. Der Account wird dauerhaft gelöscht.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel @click="isDialogOpen = false">Abbrechen</AlertDialogCancel>
+          <AlertDialogAction @click="isDialogOpen = false; handleDelete()">Weiter</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
 </template>
