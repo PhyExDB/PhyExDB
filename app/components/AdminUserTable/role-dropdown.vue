@@ -22,7 +22,7 @@ watch(position, async (newVal) => {
   emit("changed", { role: newVal })
   toast({
     title: "Rolle geändert",
-    description: `${props.name}'s Rolle wurde erfolgreich zu ${ capitalizeFirstLetter(newVal) } geändert.`,
+    description: `${props.name}'s Rolle wurde erfolgreich zu ${capitalizeFirstLetter(newVal)} geändert.`,
     variant: "success",
   })
 })

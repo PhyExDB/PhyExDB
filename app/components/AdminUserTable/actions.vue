@@ -33,7 +33,7 @@ async function handleImpersonate() {
   await navigateTo("/profile")
   toast({
     title: "Account imitiert",
-    description: `${ user.name} wird imitiert.`,
+    description: `${user.name} wird imitiert.`,
     variant: "success",
   })
 }
@@ -42,7 +42,7 @@ async function handleBan() {
   emit("changed", { banned: true })
   toast({
     title: "Account gesperrt",
-    description: `${ user.name}'s Account wurde erfolgreich gesperrt.`,
+    description: `${user.name}'s Account wurde erfolgreich gesperrt.`,
     variant: "success",
   })
 }
@@ -51,7 +51,7 @@ async function handleUnban() {
   emit("changed", { banned: false })
   toast({
     title: "Accountsperre aufgehoben",
-    description: `${ user.name}'s Accountsperre wurde erfolgreich aufgehoben.`,
+    description: `${user.name}'s Accountsperre wurde erfolgreich aufgehoben.`,
     variant: "success",
   })
 }
@@ -60,7 +60,7 @@ async function handleDelete() {
   emit("deleted")
   toast({
     title: "Account gelöscht",
-    description: `${ user.name}'s Account wurde erfolgreich gelöscht.`,
+    description: `${user.name}'s Account wurde erfolgreich gelöscht.`,
     variant: "success",
   })
 }
