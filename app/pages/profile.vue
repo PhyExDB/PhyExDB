@@ -144,7 +144,7 @@ async function createExperiment() {
           :key="experiment.id"
         >
           <NuxtLink
-            :to="experiment.status === 'DRAFT' ? `/experiments/edit/${experiment.id}` : `/experiments/${experiment.id}`"
+            :to="experiment.status === 'DRAFT' ? `/experiments/edit/${experiment.id}` : `/experiments/${experiment.slug}`"
             class="no-underline"
           >
             <Card class="mt-4">
@@ -161,7 +161,6 @@ async function createExperiment() {
                   <Button
                     v-if="experiment.status === 'DRAFT'"
                     variant="outline"
-                    @click="navigateTo(`/experiments/edit/${experiment.slug}`)"
                   >
                     Bearbeiten
                   </Button>
