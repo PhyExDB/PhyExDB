@@ -90,6 +90,9 @@ defineRouteMeta({
       401: {
         description: "No user is logged in",
       },
+      403: {
+        description: "Unauthorized",
+      },
       404: {
         description: "Experiment not found",
       },

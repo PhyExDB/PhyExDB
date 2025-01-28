@@ -2,6 +2,7 @@
 import type { PrismaClient } from "@prisma/client"
 import { vitest } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
+import { createDomPurify } from "~~/server/utils/dompurify"
 
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
@@ -12,6 +13,12 @@ vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
     ...actual,
     getUser: vitest.fn(),
     getUserOrThrowError: vitest.fn(),
+  }
+})
+
+vitest.stubGlobal("useNitroApp", () => {
+  return {
+    domPurify: createDomPurify(),
   }
 })
 

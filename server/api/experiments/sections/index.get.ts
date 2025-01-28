@@ -5,7 +5,11 @@ import { authorize } from "~~/server/utils/authorization"
 export default defineEventHandler(async (event) => {
   await authorize(event, experimentSectionAbilities.getAll)
 
-  return await prisma.experimentSection.findMany() as ExperimentSectionList[]
+  return await prisma.experimentSection.findMany({
+    orderBy: {
+      order: "asc",
+    },
+  }) as ExperimentSectionList[]
 })
 
 defineRouteMeta({

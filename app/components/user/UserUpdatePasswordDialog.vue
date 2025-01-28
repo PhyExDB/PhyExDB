@@ -15,7 +15,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   loading.value = true
   let hasError = false
 
-  const { error } = await authClient.changePassword({
+  const { error } = await useAuth().client.changePassword({
     newPassword: values.password,
     currentPassword: values.oldPassword,
     revokeOtherSessions: true,

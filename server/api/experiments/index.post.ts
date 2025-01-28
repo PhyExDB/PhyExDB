@@ -1,5 +1,4 @@
-import { readValidatedBody } from "h3"
-import { getExperimentSchema } from "~~/shared/types"
+import { v4 as uuidv4 } from "uuid"
 import { experimentAbilities } from "~~/shared/utils/abilities"
 import { untilSlugUnique } from "~~/server/utils/utils"
 import { authorizeUser } from "~~/server/utils/authorization"
@@ -7,47 +6,36 @@ import { authorizeUser } from "~~/server/utils/authorization"
 export default defineEventHandler(async (event) => {
   const user = await authorizeUser(event, experimentAbilities.post)
 
-  const newValueContent = await readValidatedBody(event, async body => (await getExperimentSchema()).parseAsync(body))
+  const sections = await $fetch("/api/experiments/sections")
+  const slug = uuidv4()
 
   const newExperiment = await untilSlugUnique(
     async (slug: string) => {
       return prisma.experiment.create({
         data: {
-          name: newValueContent.name,
+          name: "",
           slug: slug,
-          duration: newValueContent.duration,
-          userId: user.id,
+          duration: 20,
+          user: {
+            connect: {
+              id: user!.id,
+            },
+          },
           sections: {
-            create: await Promise.all(newValueContent.sections.map(async section => ({
-              text: section.text,
+            create: sections.map(section => ({
+              text: "",
               experimentSection: {
                 connect: {
-                  id: (
-                    await prisma.experimentSection.findFirst({
-                      where: {
-                        order: section.experimentSectionPositionInOrder,
-                      },
-                    })
-                  )!.id,
+                  id: section.id,
                 },
               },
-              ...(section.files.length > 0 && {
-                connect: section.files.map(file => ({
-                  id: file.fileId,
-                })),
-              }),
-            }))),
-          },
-          attributes: {
-            connect: newValueContent.attributes.map(attribute => ({
-              id: attribute.valueId,
             })),
           },
         },
         include: experimentIncludeForToDetail,
       })
     },
-    slugify(newValueContent.name),
+    slugify(slug),
   )
 
   setResponseStatus(event, 201)
@@ -56,55 +44,8 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: `Creates a new experiment.
-                  The experiment must contain sections with position 0 until 6 (included)
-                  and at least one attribute value for each attribute.
-                  Only logged in users can create experiments.`,
+    description: "Creates a new experiment.",
     tags: ["Experiment"],
-    requestBody: {
-      description: "Experiment data",
-      required: true,
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              duration: { type: "number" },
-              sections: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    experimentSectionPositionInOrder: { type: "number" },
-                    text: { type: "string" },
-                    files: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          fileId: { type: "string" },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-              attributes: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    valueId: { type: "string" },
-                  },
-                },
-              },
-            },
-            required: ["name", "duration", "sections", "attributes"],
-          },
-        },
-      },
-    },
     responses: {
       200: {
         description: "Experiment created successfully",

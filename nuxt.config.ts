@@ -9,6 +9,8 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "nuxt-file-storage",
     "@nuxt/image",
+    "@vueuse/nuxt",
+    "nuxt-tiptap-editor",
     "nuxt-nodemailer",
   ],
 
@@ -24,6 +26,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     logLevel: "debug",
     fileMount: "./public",
+    public: {
+      sectionFileAccepts: "image/jpeg,image/png,image/webp,application/pdf,video/mp4",
+    },
   },
 
   future: {

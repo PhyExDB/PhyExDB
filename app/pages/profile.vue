@@ -7,18 +7,47 @@ definePageMeta({
 })
 const user = await useUserOrThrowError()
 
+const { data: ownExperiments } = await useFetch("/api/experiments/mine")
+
 const emailVerifiedPopoverOpen = ref(false)
+const loadingNewExperiment = ref(false)
 
 const verifiedValue = user.value?.emailVerified
   ? "verifiziert"
   : "nicht verifiziert"
 
-const sendVerificationEmail = async () => {
-  await authClient.sendVerificationEmail({
+const canCreateExperiment = await allows(experimentAbilities.post)
+
+function nameOrPlaceholderForExperiment(experiment: ExperimentList) {
+  return experiment.name || "Unbenanntes Experiment"
+}
+
+function badgeTitleForExperimentStatus(status: string) {
+  switch (status) {
+    case "DRAFT":
+      return "Entwurf"
+    case "IN_REVIEW":
+      return "In Überprüfung"
+    case "PUBLISHED":
+      return "Veröffentlicht"
+  }
+}
+
+async function sendVerificationEmail() {
+  await useAuth().client.sendVerificationEmail({
     email: user.value!.email,
     callbackURL: "/profile",
   })
   emailVerifiedPopoverOpen.value = false
+}
+
+async function createExperiment() {
+  loadingNewExperiment.value = true
+  const experiment = await $fetch("/api/experiments", {
+    method: "POST",
+  })
+  await navigateTo(`/experiments/edit/${experiment.id}`)
+  loadingNewExperiment.value = false
 }
 </script>
 
@@ -57,7 +86,7 @@ const sendVerificationEmail = async () => {
                     <Icon
                       v-if="user.emailVerified"
                       size="1.2em"
-                      class="text-success"
+                      class="text-success-foreground"
                       name="heroicons:check-badge"
                     />
                     <Icon
@@ -103,6 +132,57 @@ const sendVerificationEmail = async () => {
             </UserUpdatePasswordDialog>
           </div>
         </div>
+      </CardContent>
+    </Card>
+    <Card class="mt-4">
+      <CardContent class="p-6">
+        <div class="text-xl">
+          Meine Experimente
+        </div>
+        <template
+          v-for="experiment in ownExperiments?.items ?? []"
+          :key="experiment.id"
+        >
+          <NuxtLink
+            :to="experiment.status === 'DRAFT' ? `/experiments/edit/${experiment.id}` : `/experiments/${experiment.slug}`"
+            class="no-underline"
+          >
+            <Card class="mt-4">
+              <CardContent class="p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <p class="font-medium">
+                      {{ nameOrPlaceholderForExperiment(experiment) }}
+                    </p>
+                    <Badge variant="secondary">
+                      {{ badgeTitleForExperimentStatus(experiment.status) }}
+                    </Badge>
+                  </div>
+                  <Button
+                    v-if="experiment.status === 'DRAFT'"
+                    variant="outline"
+                  >
+                    Bearbeiten
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </NuxtLink>
+        </template>
+        <Button
+          v-if="canCreateExperiment"
+          class="mt-4"
+          :loading="loadingNewExperiment"
+          @click="createExperiment"
+        >
+          Neues Experiment erstellen
+        </Button>
+        <p
+          v-else
+          class="mt-4 text-muted-foreground"
+        >
+          Bitte verifiziere deine E-Mail-Adresse, um ein Experiment zu erstellen.
+        </p>
       </CardContent>
     </Card>
   </div>

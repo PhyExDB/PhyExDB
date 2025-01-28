@@ -13,6 +13,7 @@ type CRUD<T> = {
   get?: Ability<[T]>
   put?: Ability<[T]>
   delete?: Ability<[T]>
+  listOwn?: Ability<[]>
 }
 
 const isAdmin = (user: UserDetail) => user.role === "ADMIN"
@@ -24,6 +25,14 @@ function abillityRequiringUserId<T>(extractUserId: (t: T) => string) {
   return defineAbility(false, (user, t: T) => user.id === extractUserId(t))
 }
 
+const onlyAdminCRUD = {
+  getAll: onlyAdminAbility,
+  get: onlyAdminAbility,
+  put: onlyAdminAbility,
+  delete: onlyAdminAbility,
+  post: onlyAdminAbility,
+} satisfies CRUD<never>
+
 const everyoneSeeAdminEditCRUD = {
   getAll: everyoneAbility,
   get: everyoneAbility,
@@ -31,6 +40,8 @@ const everyoneSeeAdminEditCRUD = {
   delete: onlyAdminAbility,
   post: onlyAdminAbility,
 } satisfies CRUD<never>
+
+export const userAbilities = onlyAdminCRUD
 
 /** Abilities for legal */
 export const legalAbilities = everyoneSeeAdminEditCRUD
@@ -57,7 +68,11 @@ export const experimentAbilities = {
     func: (user, experiment) => user.role === "ADMIN" || user.id === experiment.userId,
     allowGuests: false,
   },
-  post: noGuestsAbility,
+  post: {
+    func: user => user.emailVerified,
+    allowGuests: false,
+  },
+  listOwn: noGuestsAbility,
 } satisfies CRUD<Experiment>
 
 /** Abilities for files */

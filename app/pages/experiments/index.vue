@@ -1,23 +1,17 @@
 <script setup lang='ts'>
-import { CaretSortIcon, TimerIcon, MixerHorizontalIcon } from "@radix-icons/vue"
 import { NuxtLink } from "#components"
 
-/* Pagination */
 const route = useRoute()
 const sort = ref(route.query.sort as string || "none")
-const currentPage = ref(parseInt(route.query.page as string, 10) || 1)
-const itemsPerPage = ref(parseInt(route.query.pageSize as string, 10) || 12)
 
-/* Experiments */
-const experiments = ref<globalThis.Page<globalThis.ExperimentList> | undefined>(undefined)
-const fetchExperiments = async () => {
-  const { data: newExperiments } = await useAPI<Page<ExperimentList>>(
-    `/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
-  )
-  experiments.value = newExperiments.value
-}
-fetchExperiments()
-watch(currentPage, fetchExperiments)
+const { page, pageSize } = getRequestPageMeta()
+
+const { data } = useLazyFetch("/api/experiments", {
+  query: {
+    page: page,
+    pageSize: pageSize,
+  },
+})
 
 /* Attributes */
 const initializeFilterChecklist = (list: boolean[][]) => {
@@ -25,7 +19,7 @@ const initializeFilterChecklist = (list: boolean[][]) => {
     list.push(attribute.values.map(() => false))
   })
 }
-const { data: attributes } = await useAPI<ExperimentAttributeDetail[]>(
+const { data: attributes } = await useFetch(
   `/api/experiments/attributes`,
 )
 
@@ -68,7 +62,7 @@ watch(dialogOpen, () => {
   <div class="grid grid-cols-1 gap-3">
     <!-- Filter -->
     <!-- Filter for Wide Screens -->
-    <div class="flex flex-row gap-1 justify-between items-center hidden xl:flex">
+    <div class="flex-row gap-1 justify-between items-center hidden xl:flex">
       <ExperimentsFilters
         :checked="checked"
         :attributes="attributes"
@@ -88,7 +82,10 @@ watch(dialogOpen, () => {
             class="flex-grow-8"
             @click="dialogOpen = true"
           >
-            Filter <MixerHorizontalIcon class="ml-2 h-4 w-4" />
+            Filter <Icon
+              name="heroicons:adjustments-horizontal"
+              class="ml-2 h-4 w-4"
+            />
           </Button>
         </DialogTrigger>
         <DialogContent
@@ -124,11 +121,14 @@ watch(dialogOpen, () => {
 
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-row gap-1 justify-between items-center">
-      {{ experiments?.pagination?.total }} Experimente gefunden
+      {{ data?.pagination.total }} Experimente gefunden
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline">
-            Sortierung <CaretSortIcon class="ml-2 h-4 w-4" />
+            Sortierung <Icon
+              name="heroicons:chevron-up-down"
+              class="ml-2 h-4 w-4"
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -149,14 +149,14 @@ watch(dialogOpen, () => {
     <!-- Experiments -->
     <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <NuxtLink
-        v-for="experiment in experiments!.items"
+        v-for="experiment in data?.items"
         :key="experiment.id"
         :to="`/experiments/${experiment.slug}`"
         class="relative group border-0"
       >
         <Card
           :style="{
-            backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : experiment.previewImage.path,
+            backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : `url(${experiment.previewImage.path})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }"
@@ -195,7 +195,10 @@ watch(dialogOpen, () => {
             <CardTitle>{{ experiment.name }}</CardTitle>
             <CardDescription>
               <Badge>
-                <TimerIcon class="mr-2 h-4 w-4" />
+                <Icon
+                  name="heroicons:clock"
+                  class="mr-2 h-4 w-4"
+                />
                 {{ experiment.duration }} Min.
               </Badge>
             </CardDescription>
@@ -204,52 +207,9 @@ watch(dialogOpen, () => {
       </NuxtLink>
     </div>
 
-    <!-- Pagination -->
-    <div
-      v-if="experiments?.pagination?.total > itemsPerPage"
-    >
-      <Pagination
-        v-slot="{ page }"
-        :items-per-page="itemsPerPage"
-        :total="experiments?.pagination?.total"
-        :sibling-count="1"
-        show-edges
-        :default-page="currentPage"
-        class="flex flex-row grow gap-4 justify-center items-center"
-        @update:page="currentPage = $event"
-      >
-        <PaginationList
-          v-slot="{ items }"
-          class="flex items-center gap-1"
-        >
-          <PaginationFirst />
-          <PaginationPrev />
-
-          <template v-for="(item, index) in items">
-            <PaginationListItem
-              v-if="item.type === 'page'"
-              :key="index"
-              :value="item.value"
-              as-child
-            >
-              <Button
-                class="w-10 h-10 p-0"
-                :variant="item.value === page ? 'default' : 'outline'"
-              >
-                {{ item.value }}
-              </Button>
-            </PaginationListItem>
-            <PaginationEllipsis
-              v-else
-              :key="item.type"
-              :index="index"
-            />
-          </template>
-
-          <PaginationNext />
-          <PaginationLast />
-        </PaginationList>
-      </Pagination>
-    </div>
+    <MyPagination
+      v-model="page"
+      :page-meta="data?.pagination"
+    />
   </div>
 </template>

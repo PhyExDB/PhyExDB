@@ -1,5 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { betterAuth } from "better-auth"
+import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import prisma from "../../server/utils/prisma"
 
@@ -32,15 +33,13 @@ export const auth = betterAuth({
         authLogger.alert("changeEmail", { user, newEmail, devUrl, token })
       },
     },
-    additionalFields: {
-      role: {
-        type: "string",
-        required: true,
-        defaultValue: "USER",
-        input: false, // don't allow user to set role
-      },
-    },
   },
+  plugins: [
+    admin({
+      defaultRole: "USER",
+      adminRole: ["ADMIN"],
+    }),
+  ],
 })
 
 /**

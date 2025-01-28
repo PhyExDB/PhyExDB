@@ -57,12 +57,12 @@ const onSubmit = form.handleSubmit(async (values) => {
   // because then the email update is not displayed when the
   // email is changed directly because the current email was
   // not verified.
-  await authClient.updateUser({
+  await useAuth().client.updateUser({
     name: values.name,
   })
 
   if (values.email !== user.email) {
-    const { error } = await authClient.changeEmail({
+    const { error } = await useAuth().client.changeEmail({
       newEmail: values.email,
       callbackURL: "/profile",
     })
