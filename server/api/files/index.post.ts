@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
     const dbFile = await prisma.file.create({
       data: {
         path: newFileLocation,
+        originalName: file.name,
         mimeType: file.type,
         createdBy: { connect: { id: user.id } },
       },

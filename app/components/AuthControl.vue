@@ -6,13 +6,13 @@ const user = await useUser()
 
 <template>
   <DropdownMenu v-if="user">
-    <DropdownMenuTrigger>
+    <DropdownMenuTrigger as-child>
       <Avatar>
         <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
       </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
-      <DropdownMenuItem>
+      <DropdownMenuItem as-child>
         <NuxtLink href="/profile">
           <span>Profil</span>
         </NuxtLink>

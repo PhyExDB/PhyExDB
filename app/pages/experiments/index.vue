@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { CaretSortIcon, TimerIcon, MixerHorizontalIcon } from "@radix-icons/vue"
 import { NuxtLink } from "#components"
 
 /* Pagination */
@@ -9,14 +8,15 @@ const currentPage = ref(parseInt(route.query.page as string, 10) || 1)
 const itemsPerPage = ref(parseInt(route.query.pageSize as string, 10) || 12)
 
 /* Experiments */
-const experiments = ref<globalThis.Page<globalThis.ExperimentList> | undefined>(undefined)
+const { data: experiments } = await useFetch(
+  `/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
+)
 const fetchExperiments = async () => {
-  const { data: newExperiments } = await useAPI<Page<ExperimentList>>(
+  const newExperiments = await $fetch(
     `/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
   )
-  experiments.value = newExperiments.value
+  experiments.value = newExperiments
 }
-fetchExperiments()
 watch(currentPage, fetchExperiments)
 
 /* Attributes */
@@ -25,7 +25,7 @@ const initializeFilterChecklist = (list: boolean[][]) => {
     list.push(attribute.values.map(() => false))
   })
 }
-const { data: attributes } = await useAPI<ExperimentAttributeDetail[]>(
+const { data: attributes } = await useFetch(
   `/api/experiments/attributes`,
 )
 
@@ -68,7 +68,7 @@ watch(dialogOpen, () => {
   <div class="grid grid-cols-1 gap-3">
     <!-- Filter -->
     <!-- Filter for Wide Screens -->
-    <div class="flex flex-row gap-1 justify-between items-center hidden xl:flex">
+    <div class="flex-row gap-1 justify-between items-center hidden xl:flex">
       <ExperimentsFilters
         :checked="checked"
         :attributes="attributes"
@@ -88,7 +88,10 @@ watch(dialogOpen, () => {
             class="flex-grow-8"
             @click="dialogOpen = true"
           >
-            Filter <MixerHorizontalIcon class="ml-2 h-4 w-4" />
+            Filter <Icon
+              name="heroicons:adjustments-horizontal"
+              class="ml-2 h-4 w-4"
+            />
           </Button>
         </DialogTrigger>
         <DialogContent
@@ -128,7 +131,10 @@ watch(dialogOpen, () => {
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline">
-            Sortierung <CaretSortIcon class="ml-2 h-4 w-4" />
+            Sortierung <Icon
+              name="heroicons:chevron-up-down"
+              class="ml-2 h-4 w-4"
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -149,14 +155,14 @@ watch(dialogOpen, () => {
     <!-- Experiments -->
     <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <NuxtLink
-        v-for="experiment in experiments!.items"
+        v-for="experiment in experiments?.items ?? []"
         :key="experiment.id"
         :to="`/experiments/${experiment.slug}`"
         class="relative group border-0"
       >
         <Card
           :style="{
-            backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : experiment.previewImage.path,
+            backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : `url(${experiment.previewImage.path})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }"
@@ -195,7 +201,10 @@ watch(dialogOpen, () => {
             <CardTitle>{{ experiment.name }}</CardTitle>
             <CardDescription>
               <Badge>
-                <TimerIcon class="mr-2 h-4 w-4" />
+                <Icon
+                  name="heroicons:clock"
+                  class="mr-2 h-4 w-4"
+                />
                 {{ experiment.duration }} Min.
               </Badge>
             </CardDescription>

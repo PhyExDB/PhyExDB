@@ -19,7 +19,6 @@ const formSchema = toTypedSchema(schema)
 const form = useForm({ validationSchema: formSchema })
 
 const onSubmit = form.handleSubmit(async (values) => {
-  console.log(values)
   if (loading.value) return
   loading.value = true
   const data = {

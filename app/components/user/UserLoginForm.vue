@@ -68,7 +68,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       E-Mail oder Passwort falsch
     </div>
     <Button
-      loading="{loading}"
+      :loading="loading"
       type="submit"
     >
       Anmelden

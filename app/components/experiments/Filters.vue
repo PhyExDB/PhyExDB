@@ -9,10 +9,13 @@
       >
         <Button
           variant="outline"
-          :class="{ 'border-green-500': checked[attributeIndex]!.some(checked => checked) }"
+          :class="{ 'border-success-foreground': checked[attributeIndex]!.some(checked => checked) }"
         >
           {{ attribute.name }}
-          <ChevronDownIcon class="ml-2 h-4 w-4" />
+          <Icon
+            name="heroicons:chevron-down"
+            class="ml-2 h-4 w-4"
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -44,9 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ChevronDownIcon } from "@radix-icons/vue"
-
-const props = defineProps<{
+const { checked, attributes, singleChoiceAttributes, showUndoButton } = defineProps<{
   checked: boolean[][]
   attributes: ExperimentAttributeDetail[] | undefined
   singleChoiceAttributes: string[]
