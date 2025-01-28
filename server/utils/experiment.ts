@@ -16,6 +16,8 @@ export const experimentIncludeForToList = {
           id: true,
           slug: true,
           name: true,
+          order: true,
+          multipleSelection: true,
         },
       },
     },
