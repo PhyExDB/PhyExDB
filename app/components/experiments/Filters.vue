@@ -26,7 +26,7 @@
           v-for="(attributeValue, valueIndex) in attribute.values"
           :key="attributeValue.id"
           v-model:checked="checked[attributeIndex]![valueIndex]"
-          :disabled="singleChoiceAttributes.includes(attribute.name)
+          :disabled="attribute.multipleSelection === false
             && checked[attributeIndex]!.some(
               (isChecked, idx) => isChecked && idx !== valueIndex,
             )"
@@ -47,10 +47,9 @@
 </template>
 
 <script lang="ts" setup>
-const { checked, attributes, singleChoiceAttributes, showUndoButton } = defineProps<{
+const { checked, attributes, showUndoButton } = defineProps<{
   checked: boolean[][]
   attributes: ExperimentAttributeDetail[] | undefined
-  singleChoiceAttributes: string[]
   showUndoButton: boolean
 }>()
 </script>

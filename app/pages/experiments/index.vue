@@ -25,20 +25,6 @@ const { data: attributes } = await useFetch(
 
 const checked = ref<boolean[][]>([])
 initializeFilterChecklist(checked.value)
-const attributeOrder = [
-  "Themenbereich",
-  "Versuchsart",
-  "Einsatz",
-  "Arbeitsform",
-  "Messwerterfassung",
-  "Vorbereitungszeit",
-]
-attributes.value!.sort((a, b) => {
-  const indexA = attributeOrder.indexOf(a.name)
-  const indexB = attributeOrder.indexOf(b.name)
-  return indexA - indexB
-})
-const singleChoiceAttributes = ["Themenbereich", "Versuchsart", "Vorbereitungszeit"]
 
 /* Filter Dialog */
 const dialogOpen = ref(false)
@@ -66,7 +52,6 @@ watch(dialogOpen, () => {
       <ExperimentsFilters
         :checked="checked"
         :attributes="attributes"
-        :single-choice-attributes="singleChoiceAttributes"
         :show-undo-button="true"
       />
     </div>
@@ -100,7 +85,6 @@ watch(dialogOpen, () => {
             <ExperimentsFilters
               :checked="temporaryChecked"
               :attributes="attributes"
-              :single-choice-attributes="singleChoiceAttributes"
               :show-undo-button="false"
             />
             <DialogFooter>
