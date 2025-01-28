@@ -11,14 +11,19 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: false,
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }, _) => {
-      const devUrl = url.replace("http://localhost", "http://localhost:3000")
-      authLogger.alert("signupEmail", { user, devUrl, token })
-    },
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url, token }, _) => {
+      await useNodeMailer().sendMail({
+        subject: "Verifying PHYEXDB email-address",
+        text: `Please click the following link to verify your email address: ${url} or enter the token ${token} on the verification page.`,
+        to: user.email,
+        html: `Please click the following link to verify your email address: ${url} or enter the token ${token} on the verification page.`,
+      })
+    },
   },
   user: {
     changeEmail: {

@@ -41,3 +41,6 @@ test-results
 
 # Uploaded Files
 public/uploads
+
+# Mailpit data 
+data
