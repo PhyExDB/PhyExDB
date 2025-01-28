@@ -1,4 +1,5 @@
 import { readValidatedBody } from "h3"
+import type { Prisma } from "@prisma/client"
 import type { ExperimentDetail } from "~~/shared/types"
 import { getExperimentSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
@@ -18,55 +19,100 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, experimentAbilities.put, experiment)
 
+  const sections = await $fetch("/api/experiments/sections")
+  const attributes = await $fetch("/api/experiments/attributes")
+
   const updatedExperimentData = await readValidatedBody(
     event,
-    async body => (await getExperimentSchema()).parseAsync(body),
+    async body => (getExperimentSchema(sections, attributes)).parseAsync(body),
   )
 
-  const updatedExperiment = await untilSlugUnique(
-    async (slug: string) => {
-      return prisma.experiment.update({
-        where: { id: experiment.id },
-        data: {
-          name: updatedExperimentData.name,
-          slug: slug,
-          duration: updatedExperimentData.duration,
-          sections: {
-            update: await Promise.all(
-              updatedExperimentData.sections.map(async section => ({
+  const sanitizedExperimentData = {
+    ...updatedExperimentData,
+    sections: updatedExperimentData.sections.map(section => ({
+      ...section,
+      text: sanitizeHTML(section.text),
+      files: section.files,
+    })),
+  }
+
+  function experimentData(slug: string) {
+    const data: Prisma.ExperimentUpdateInput = {
+      name: sanitizedExperimentData.name,
+      slug: slug,
+      duration: sanitizedExperimentData.duration[0]!,
+      sections: {
+        update: sanitizedExperimentData.sections.map(section => ({
+          where: {
+            id: section.experimentSectionContentId,
+          },
+          data: {
+            text: section.text,
+            files: {
+              upsert: section.files.map((file, index) => ({
                 where: {
-                  id: (await prisma.experimentSectionContent.findFirst({
-                    where: {
-                      experimentId: experiment.id,
-                      experimentSection: {
-                        order: section.experimentSectionPositionInOrder,
-                      },
-                    },
-                  }))!.id,
+                  fileId: file.fileId,
                 },
-                data: {
-                  text: section.text,
-                  files: {
-                    set: [], // now there might be files that are not used in any experiment
-                    connect: section.files.map(file => ({
+                update: {
+                  description: file.description,
+                  order: index,
+                },
+                create: {
+                  description: file.description,
+                  order: index,
+                  file: {
+                    connect: {
                       id: file.fileId,
-                    })),
+                    },
                   },
                 },
               })),
-            ),
+            },
           },
-          attributes: {
-            set: [],
-            connect: updatedExperimentData.attributes.map(attribute => ({
-              id: attribute.valueId,
-            })),
-          },
+        })),
+      },
+      attributes: {
+        set: [],
+        connect: sanitizedExperimentData.attributes
+          .filter(attribute => attribute.valueId !== undefined)
+          .map(attribute => ({
+            id: attribute.valueId,
+          })),
+      },
+    }
+
+    if (sanitizedExperimentData.previewImageId) {
+      data["previewImage"] = {
+        connect: {
+          id: sanitizedExperimentData.previewImageId,
         },
-        include: experimentIncludeForToDetail,
-      })
+      }
+    }
+
+    return data
+  }
+
+  const updatedExperiment = await untilSlugUnique(
+    async (slug: string) => {
+      const [_, newExperiment] = await prisma.$transaction([
+        prisma.experimentFile.deleteMany({
+          where: {
+            experimentSection: {
+              experiment: {
+                id: experiment.id,
+              },
+            },
+          },
+        }),
+        prisma.experiment.update({
+          where: { id: experiment.id },
+          data: experimentData(slug),
+          include: experimentIncludeForToDetail,
+        }),
+      ])
+      return newExperiment
     },
-    slugify(updatedExperimentData.name),
+    slugify(sanitizedExperimentData.name),
   )
 
   return updatedExperiment as ExperimentDetail

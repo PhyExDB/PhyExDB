@@ -5,13 +5,19 @@ import { z } from "zod"
  */
 export interface ExperimentAttributeValueList extends SlugList {
   /**
-   * The id of the value
-   */
-  id: string
-  /**
    * The value of the attribute
    */
   value: string
+}
+
+/**
+ * Represents an AttributeValueDetail with id, value, slug, and attribute
+ */
+export interface ExperimentAttributeValueDetail extends ExperimentAttributeValueList {
+  /**
+   * The attribute of the value.
+   */
+  attribute: ExperimentAttributeList
 }
 
 /**

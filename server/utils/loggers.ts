@@ -37,6 +37,9 @@ const rootLogger = winston.createLogger({
           (info, _) => info,
         )(),
         colorize(),
+        format(
+          (info, _) => info.label !== "db" ? info : false,
+        )(),
         printf(({ level, message, label, timestamp, ...meta }) => {
           return `${level}${typeof label == "undefined" ? "" : ` ${label}`}: ${message} ${JSON.stringify(meta)}`
         }),

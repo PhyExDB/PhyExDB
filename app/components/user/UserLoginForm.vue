@@ -79,7 +79,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       Account gesperrt
     </div>
     <Button
-      loading="{loading}"
+      :loading="loading"
       type="submit"
     >
       Anmelden

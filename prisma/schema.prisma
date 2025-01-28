@@ -92,6 +92,8 @@ model ExperimentSectionContent {
   files               ExperimentFile[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
+
+  @@unique([experimentId, experimentSectionId])
 }
 
 model ExperimentAttribute {
@@ -116,6 +118,7 @@ model ExperimentAttributeValue {
 
 model File {
   id                    String          @id @default(uuid())
+  originalName          String
   path                  String
   mimeType              String
   experimentFile        ExperimentFile?
@@ -134,8 +137,11 @@ model ExperimentFile {
   description         String?
   experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String
+  order               Int
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
+
+  @@unique([experimentSectionId, order])
 }
 
 model UserFile {
