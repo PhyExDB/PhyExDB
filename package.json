@@ -61,7 +61,7 @@
     "@prisma/client": "^6.2.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/bcrypt": "^5.0.2",
-    "@types/node": "^22.10.10",
+    "@types/node": "^22.12.0",
     "@types/uuid": "^10.0.0",
     "@vitest/coverage-istanbul": "^3.0.4",
     "@vue/test-utils": "^2.4.6",
