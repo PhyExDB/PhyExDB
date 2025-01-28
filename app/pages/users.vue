@@ -9,19 +9,13 @@ import Email from "~/components/user/Email.vue"
 authorize(userAbilities.getAll)
 
 const data = ref<UserDetailAdmin[]>([])
-const route = useRoute()
-const pageMeta = ref<PageMeta>({
-  page: parseInt(route.query.page as string, 10) || 1,
-  pageSize: parseInt(route.query.pageSize as string, 10) || 12,
-  total: 0,
-  totalPages: 0,
-})
+const pageMeta = ref<PageMeta>(getPageMeta())
 const search = ref<string>("")
 watch(search, fetch)
 
 async function fetch() {
   const newData = await $fetch(
-    `/api/users?page=${pageMeta.value.page}&pageSize=${pageMeta.value.pageSize}&search=${search.value}`,
+    `/api/users?${getQueryFromPageMeta(pageMeta.value)}&search=${search.value}`,
   )
   data.value = newData.items
   pageMeta.value = newData.pagination
