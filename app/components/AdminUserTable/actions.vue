@@ -112,7 +112,7 @@ const isDialogOpen = ref(false)
           Abbrechen
         </AlertDialogCancel>
         <AlertDialogAction @click="isDialogOpen = false; handleDelete()">
-          Weiter
+          Löschen
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
