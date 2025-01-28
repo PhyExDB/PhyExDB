@@ -44,9 +44,9 @@ const table = useVueTable({
   <div class="w-full">
     <div class="flex gap-2 items-center py-4">
       <Input
+        v-model="search"
         class="max-w-sm"
         placeholder="Filtern nach Name und E-Mail ..."
-        v-model="search"
       />
       <DropdownMenu>
         <DropdownMenuTrigger as-child>

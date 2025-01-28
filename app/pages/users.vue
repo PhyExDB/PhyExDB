@@ -45,7 +45,6 @@ function handleChange(row: { index: number, original: UserDetailAdmin }) {
   }
 }
 
-
 const columns: ColumnDef<UserDetailAdmin>[] = [
   {
     accessorKey: "name",
@@ -84,9 +83,9 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
 <template>
   <div class="container py-10 mx-auto">
     <AdminUserTableDataTable
+      v-model="search"
       :columns="columns"
       :data="data"
-      v-model="search"
     />
     <MyPagination
       :page-meta="pageMeta"

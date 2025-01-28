@@ -25,7 +25,7 @@ const allowed = await allows(userAbilities.getAll)
           <span>Profil</span>
         </NuxtLink>
       </DropdownMenuItem>
-      
+
       <DropdownMenuItem
         v-if="data?.session.impersonatedBy"
         @click="stopImpersonating"
