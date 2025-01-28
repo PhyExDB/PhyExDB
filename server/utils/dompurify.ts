@@ -1,3 +1,19 @@
+import { Window } from "happy-dom"
+import createDOMPurify from "dompurify"
+
+/**
+ * Creates a DOMPurify instance using a virtual DOM window provided by Happy DOM.
+ *
+ * @returns {DOMPurify} A DOMPurify instance configured to use the virtual DOM window.
+ */
+export function createDomPurify() {
+  // Create a virtual DOM window using Happy DOM
+  const happyDomWindow = new Window()
+
+  // Cast Happy DOM's `Window` to the required `WindowLike` type
+  return createDOMPurify(happyDomWindow)
+}
+
 /**
   * Sanitizes an HTML string to remove any potentially harmful content.
   *
