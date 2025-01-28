@@ -16,6 +16,8 @@ const verifiedValue = user.value?.emailVerified
   ? "verifiziert"
   : "nicht verifiziert"
 
+const canCreateExperiment = await allows(experimentAbilities.post)
+
 function nameOrPlaceholderForExperiment(experiment: ExperimentList) {
   return experiment.name || "Unbenanntes Experiment"
 }
@@ -169,12 +171,19 @@ async function createExperiment() {
           </NuxtLink>
         </template>
         <Button
+          v-if="canCreateExperiment"
           class="mt-4"
           :loading="loadingNewExperiment"
           @click="createExperiment"
         >
           Neues Experiment erstellen
         </Button>
+        <p
+          v-else
+          class="mt-4 text-muted-foreground"
+        >
+          Bitte verifiziere deine E-Mail-Adresse, um ein Experiment zu erstellen.
+        </p>
       </CardContent>
     </Card>
   </div>
