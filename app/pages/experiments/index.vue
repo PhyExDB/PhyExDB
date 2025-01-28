@@ -1,23 +1,17 @@
 <script setup lang='ts'>
 import { NuxtLink } from "#components"
 
-/* Pagination */
 const route = useRoute()
 const sort = ref(route.query.sort as string || "none")
-const currentPage = ref(parseInt(route.query.page as string, 10) || 1)
-const itemsPerPage = ref(parseInt(route.query.pageSize as string, 10) || 12)
 
-/* Experiments */
-const { data: experiments } = await useFetch(
-  `/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
-)
-const fetchExperiments = async () => {
-  const newExperiments = await $fetch(
-    `/api/experiments?page=${currentPage.value}&pageSize=${itemsPerPage.value}`,
-  )
-  experiments.value = newExperiments
-}
-watch(currentPage, fetchExperiments)
+const { page, pageSize } = getRequestPageMeta()
+
+const { data } = useLazyFetch("/api/experiments", {
+  query: {
+    page: page,
+    pageSize: pageSize,
+  },
+})
 
 /* Attributes */
 const initializeFilterChecklist = (list: boolean[][]) => {
@@ -127,7 +121,7 @@ watch(dialogOpen, () => {
 
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-row gap-1 justify-between items-center">
-      {{ experiments?.pagination?.total }} Experimente gefunden
+      {{ data?.pagination.total }} Experimente gefunden
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline">
@@ -155,7 +149,7 @@ watch(dialogOpen, () => {
     <!-- Experiments -->
     <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <NuxtLink
-        v-for="experiment in experiments?.items ?? []"
+        v-for="experiment in data?.items"
         :key="experiment.id"
         :to="`/experiments/${experiment.slug}`"
         class="relative group border-0"
@@ -213,52 +207,9 @@ watch(dialogOpen, () => {
       </NuxtLink>
     </div>
 
-    <!-- Pagination -->
-    <div
-      v-if="experiments?.pagination?.total > itemsPerPage"
-    >
-      <Pagination
-        v-slot="{ page }"
-        :items-per-page="itemsPerPage"
-        :total="experiments?.pagination?.total"
-        :sibling-count="1"
-        show-edges
-        :default-page="currentPage"
-        class="flex flex-row grow gap-4 justify-center items-center"
-        @update:page="currentPage = $event"
-      >
-        <PaginationList
-          v-slot="{ items }"
-          class="flex items-center gap-1"
-        >
-          <PaginationFirst />
-          <PaginationPrev />
-
-          <template v-for="(item, index) in items">
-            <PaginationListItem
-              v-if="item.type === 'page'"
-              :key="index"
-              :value="item.value"
-              as-child
-            >
-              <Button
-                class="w-10 h-10 p-0"
-                :variant="item.value === page ? 'default' : 'outline'"
-              >
-                {{ item.value }}
-              </Button>
-            </PaginationListItem>
-            <PaginationEllipsis
-              v-else
-              :key="item.type"
-              :index="index"
-            />
-          </template>
-
-          <PaginationNext />
-          <PaginationLast />
-        </PaginationList>
-      </Pagination>
-    </div>
+    <MyPagination
+      v-model="page"
+      :page-meta="data?.pagination"
+    />
   </div>
 </template>

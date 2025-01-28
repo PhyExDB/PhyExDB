@@ -1,4 +1,4 @@
-import { useUser } from "./authClient"
+import { useUser } from "./auth"
 import type { Ability, UserAbility } from "~~/shared/utils/auth"
 import { evaluateAbility } from "~~/shared/utils/auth"
 

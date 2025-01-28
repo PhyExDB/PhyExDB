@@ -24,6 +24,14 @@ function abillityRequiringUserId<T>(extractUserId: (t: T) => string) {
   return defineAbility(false, (user, t: T) => user.id === extractUserId(t))
 }
 
+const onlyAdminCRUD = {
+  getAll: onlyAdminAbility,
+  get: onlyAdminAbility,
+  put: onlyAdminAbility,
+  delete: onlyAdminAbility,
+  post: onlyAdminAbility,
+} satisfies CRUD<never>
+
 const everyoneSeeAdminEditCRUD = {
   getAll: everyoneAbility,
   get: everyoneAbility,
@@ -31,6 +39,8 @@ const everyoneSeeAdminEditCRUD = {
   delete: onlyAdminAbility,
   post: onlyAdminAbility,
 } satisfies CRUD<never>
+
+export const userAbilities = onlyAdminCRUD
 
 /** Abilities for legal */
 export const legalAbilities = everyoneSeeAdminEditCRUD
