@@ -22,6 +22,7 @@ describe("API Route POST /api/experiments/attributes", () => {
     const addContent = {
       name: "New Value",
       values: ["a", "b"],
+      multipleSelection: false,
     }
 
     prisma.experimentAttribute.create = vi.fn().mockResolvedValue(
