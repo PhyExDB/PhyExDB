@@ -5,24 +5,14 @@ import { NuxtLink } from "#components"
 const route = useRoute()
 const sort = ref(route.query.sort as string || "none")
 
-/* Pagination */
-const pageMeta = ref<PageMeta>(getPageMeta())
+const { page, pageSize } = getRequestPageMeta()
 
-/* Experiments */
-const experiments = ref<ExperimentList[] | undefined>(undefined)
-const fetch = async () => {
-  const newData = await $fetch(
-    `/api/experiments?${getQueryFromPageMeta(pageMeta.value)}`,
-  )
-  experiments.value = newData.items
-  pageMeta.value = newData.pagination
-}
-onMounted(fetch)
-
-function handlePageChanged(newPage: number) {
-  pageMeta.value.page = newPage
-  fetch()
-}
+const { data } = useLazyFetch('/api/experiments', {
+  query: {
+    page: page,
+    pageSize: pageSize,
+  }
+})
 
 /* Attributes */
 const initializeFilterChecklist = (list: boolean[][]) => {
@@ -129,7 +119,7 @@ watch(dialogOpen, () => {
 
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-row gap-1 justify-between items-center">
-      {{ pageMeta.total }} Experimente gefunden
+      {{ data?.pagination.total }} Experimente gefunden
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline">
@@ -154,7 +144,7 @@ watch(dialogOpen, () => {
     <!-- Experiments -->
     <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <NuxtLink
-        v-for="experiment in experiments"
+        v-for="experiment in data?.items"
         :key="experiment.id"
         :to="`/experiments/${experiment.slug}`"
         class="relative group border-0"
@@ -210,8 +200,8 @@ watch(dialogOpen, () => {
     </div>
 
     <MyPagination
-      :page-meta="pageMeta"
-      @page-changed="handlePageChanged"
+      :page-meta="data?.pagination"
+      v-model="page"
     />
   </div>
 </template>

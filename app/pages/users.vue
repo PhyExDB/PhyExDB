@@ -8,29 +8,19 @@ import Email from "~/components/user/Email.vue"
 
 authorize(userAbilities.getAll)
 
-const data = ref<UserDetailAdmin[]>([])
-const pageMeta = ref<PageMeta>(getPageMeta())
+const { page, pageSize } = getRequestPageMeta()
 const search = ref<string>("")
-watch(search, fetch)
 
-async function fetch() {
-  const newData = await $fetch(
-    `/api/users?${getQueryFromPageMeta(pageMeta.value)}&search=${search.value}`,
-  )
-  data.value = newData.items
-  pageMeta.value = newData.pagination
-}
-onMounted(fetch)
-
-function handlePageChanged(newPage: number) {
-  pageMeta.value.page = newPage
-  fetch()
-}
+const { data, refresh } = useLazyFetch('/api/users', {
+  query: {
+    page: page,
+    pageSize: pageSize,
+    search: search,
+  }
+})
 
 async function updateRow(index: number, user: UserDetailAdmin) {
-  const updatedData = [...data.value]
-  updatedData[index] = user
-  data.value = updatedData
+  refresh()
 }
 
 function handleChange(row: { index: number, original: UserDetailAdmin }) {
@@ -68,7 +58,7 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      return h(DropdownAction, { user: row.original, onDeleted: fetch, onChanged: handleChange(row) })
+      return h(DropdownAction, { user: row.original, onDeleted: refresh, onChanged: handleChange(row) })
     },
   },
 ]
@@ -77,13 +67,14 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
 <template>
   <div class="container py-10 mx-auto">
     <AdminUserTableDataTable
+      v-if="data"
       v-model="search"
       :columns="columns"
-      :data="data"
+      :data="data.items"
     />
     <MyPagination
-      :page-meta="pageMeta"
-      @page-changed="handlePageChanged"
+      :page-meta="data?.pagination"
+      v-model="page"
     />
   </div>
 </template>

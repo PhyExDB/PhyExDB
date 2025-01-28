@@ -1,25 +1,24 @@
 <script setup lang="ts">
-const { pageMeta } = defineProps<{ pageMeta: PageMeta }>()
-
-const emit = defineEmits(["page-changed"])
+const { pageMeta } = defineProps<{ pageMeta?: PageMeta }>()
+const page = defineModel<number>()
 
 function update(newPage: number) {
-  emit("page-changed", newPage)
+  page.value = newPage
 }
 </script>
 
 <template>
   <div
-    v-if="pageMeta.total > pageMeta.pageSize"
+    v-if="pageMeta && pageMeta.total > pageMeta.pageSize"
     class="p-8"
   >
     <Pagination
       v-slot="{ page }"
-      :items-per-page="pageMeta.pageSize"
+      :items-per-page="pageMeta?.pageSize"
       :total="pageMeta?.total"
       :sibling-count="1"
       show-edges
-      :default-page="pageMeta.page"
+      :default-page="pageMeta?.page"
       class="flex flex-row grow gap-4 justify-center items-center"
       @update:page="update"
     >
