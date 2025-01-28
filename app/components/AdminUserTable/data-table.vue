@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TData, TValue">
+<script setup lang="ts" generic="TData extends UserDetailAdmin, TValue">
 import type {
   ColumnDef,
   SortingState,
@@ -26,6 +26,8 @@ const props = defineProps<{
   data: TData[]
 }>()
 
+const search = defineModel<string>()
+
 const table = useVueTable({
   get data() { return props.data },
   get columns() { return props.columns },
@@ -43,9 +45,8 @@ const table = useVueTable({
     <div class="flex gap-2 items-center py-4">
       <Input
         class="max-w-sm"
-        placeholder="Filter emails..."
-        :model-value="table.getColumn('email')?.getFilterValue() as string"
-        @update:model-value=" table.getColumn('email')?.setFilterValue($event)"
+        placeholder="Filtern nach Name und E-Mail ..."
+        v-model="search"
       />
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
@@ -96,7 +97,7 @@ const table = useVueTable({
               v-for="row in table.getRowModel().rows"
               :key="row.id"
               :data-state="row.getIsSelected() ? 'selected' : undefined"
-              :class="{ 'text-gray-500': row.getValue('banned') }"
+              :class="{ 'text-gray-500': row.original.banned }"
             >
               <TableCell
                 v-for="cell in row.getVisibleCells()"

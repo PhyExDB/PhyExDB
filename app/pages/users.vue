@@ -15,10 +15,12 @@ const pageMeta = ref<PageMeta>({
   total: 0,
   totalPages: 0,
 })
+const search = ref<string>("")
+watch(search, fetch)
 
 async function fetch() {
   const newData = await $fetch(
-    `/api/users?page=${pageMeta.value.page}&pageSize=${pageMeta.value.pageSize}`,
+    `/api/users?page=${pageMeta.value.page}&pageSize=${pageMeta.value.pageSize}&search=${search.value}`,
   )
   data.value = newData.items
   pageMeta.value = newData.pagination
@@ -41,6 +43,7 @@ function handleChange(row: { index: number, original: UserDetailAdmin }) {
     updateRow(row.index, { ...row.original, ...updated })
   }
 }
+
 
 const columns: ColumnDef<UserDetailAdmin>[] = [
   {
@@ -89,6 +92,7 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
     <AdminUserTableDataTable
       :columns="columns"
       :data="data"
+      v-model="search"
     />
     <MyPagination
       :page-meta="pageMeta"

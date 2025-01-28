@@ -1,11 +1,23 @@
 import { userAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
 import type { UserDetailAdmin } from "~~/shared/types"
+import type { Prisma } from "@prisma/client"
 
 export default defineEventHandler(async (event) => {
   await authorize(event, userAbilities.getAll)
 
-  const whereClause = {}
+  const query = getQuery(event)
+  const search: string = query.search as string
+
+  let whereClause: Prisma.UserWhereInput = {}
+  if (search) {
+    whereClause = {
+      OR: [
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+      ],
+    }
+  }
 
   const total = await prisma.user.count({ where: whereClause })
   const pageMeta = getPageMeta(event, total)
