@@ -58,7 +58,10 @@ export const experimentAbilities = {
     func: (user, experiment) => user.role === "ADMIN" || user.id === experiment.userId,
     allowGuests: false,
   },
-  post: noGuestsAbility,
+  post: {
+    func: user => user.emailVerified,
+    allowGuests: false,
+  },
   listOwn: noGuestsAbility,
 } satisfies CRUD<Experiment>
 
