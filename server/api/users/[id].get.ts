@@ -1,6 +1,10 @@
 import { getUserByEvent } from "~~/server/utils/user"
+import { userAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
+  await authorize(event, userAbilities.get)
+
   return (await getUserByEvent(event)) as UserDetail
 })
 

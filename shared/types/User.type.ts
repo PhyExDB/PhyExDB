@@ -40,6 +40,16 @@ export interface UserDetail extends UserList {
 }
 
 /**
+ * Represents a user with their id, name, role, email, and verification status.
+ */
+export interface UserDetailAdmin extends UserDetail {
+  /**
+   * If the user is banned.
+   */
+  banned: boolean
+}
+
+/**
  * Schema to verify the user name
  */
 export const nameSchema = {

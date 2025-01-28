@@ -34,7 +34,7 @@ function badgeTitleForExperimentStatus(status: string) {
 }
 
 async function sendVerificationEmail() {
-  await authClient.sendVerificationEmail({
+  await useAuth().client.sendVerificationEmail({
     email: user.value!.email,
     callbackURL: "/profile",
   })

@@ -26,6 +26,10 @@ model User {
   userFile      UserFile?
   experiments   Experiment[]
 
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+
   @@unique([email])
   @@map("user")
 }
@@ -158,6 +162,8 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime
   updatedAt DateTime
+
+  impersonatedBy String?
 
   @@unique([token])
   @@map("session")
