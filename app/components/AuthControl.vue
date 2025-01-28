@@ -2,6 +2,13 @@
 import getInitials from "~~/shared/utils/initials"
 
 const user = await useUser()
+
+const { data } = await useAuth().session
+const impersonatedBy = data.value?.session.impersonatedBy
+async function stopImpersonating() {
+  await useAuth().client.admin.stopImpersonating()
+  await navigateTo("/users")
+}
 </script>
 
 <template>
@@ -19,6 +26,10 @@ const user = await useUser()
       </DropdownMenuItem>
       <DropdownMenuItem @click="useAuth().client.signOut()">
         <span>Abmelden</span>
+      </DropdownMenuItem>
+      
+      <DropdownMenuItem v-if="impersonatedBy" @click="stopImpersonating">
+        <span>Imitieren beenden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>

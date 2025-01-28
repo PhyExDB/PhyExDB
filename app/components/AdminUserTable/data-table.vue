@@ -9,6 +9,7 @@ import {
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table"
+import { ChevronDown } from "lucide-vue-next"
 import {
   Table,
   TableBody,

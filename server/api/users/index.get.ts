@@ -1,5 +1,6 @@
 import { userAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
+import type { UserDetailAdmin } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
   await authorize(event, userAbilities.getAll)
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
   return {
     items: result as UserDetail[],
     pagination: pageMeta,
-  } as Page<UserDetail>
+  } as Page<UserDetailAdmin>
 })
 
 defineRouteMeta({

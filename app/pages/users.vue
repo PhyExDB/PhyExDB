@@ -3,8 +3,11 @@ import type {
   ColumnDef,
 } from "@tanstack/vue-table"
 import RoleDropdown from "~/components/AdminUserTable/role-dropdown.vue"
+import DropdownAction from "~/components/AdminUserTable/data-table-dropdown.vue"
 
-const data = ref<UserDetail[]>([])
+authorize(userAbilities.getAll)
+
+const data = ref<UserDetailAdmin[]>([])
 const route = useRoute()
 const pageMeta = ref<PageMeta>({
   page: parseInt(route.query.page as string, 10) || 1,
@@ -13,28 +16,32 @@ const pageMeta = ref<PageMeta>({
   totalPages: 0,
 })
 
-const fetch = async () => {
-  const { data: newData } = await useAPI<Page<UserDetail>>(
+async function fetch() {
+  const newData = await $fetch(
     `/api/users?page=${pageMeta.value.page}&pageSize=${pageMeta.value.pageSize}`,
   )
-  if (!newData.value) return
-  data.value = newData.value!.items
-  pageMeta.value = newData.value!.pagination
+  data.value = newData.items
+  pageMeta.value = newData.pagination
 }
-fetch()
+onMounted(fetch)
 
 function handlePageChanged(newPage: number) {
   pageMeta.value.page = newPage
   fetch()
 }
 
-async function updateRow(index: number, user: UserDetail) {
+async function updateRow(index: number, user: UserDetailAdmin) {
   const updatedData = [...data.value]
   updatedData[index] = user
   data.value = updatedData
 }
 
-const columns: ColumnDef<UserDetail>[] = [
+function handleChange(row: { index: number, original: UserDetailAdmin }) {
+  return function (updated: Partial<UserDetailAdmin>) {
+    updateRow(row.index, { ...row.original, ...updated })
+}}
+
+const columns: ColumnDef<UserDetailAdmin>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -62,11 +69,22 @@ const columns: ColumnDef<UserDetail>[] = [
     cell: ({ row }) => {
       return h(RoleDropdown, {
         ...row.original,
-        onRoleChanged: async (role: UserRole) => {
-          row.original.role = role
-          updateRow(row.index, row.original)
-        },
+        onChanged: handleChange(row),
       })
+    },
+  },
+  {
+    accessorKey: "banned",
+    header: () => "Ban",
+    cell: ({ row }) => {
+      return row.getValue("banned") ? "gebannt" : "nicht gebannt"
+    },
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return h(DropdownAction, { user: row.original, onDeleted: fetch, onChanged: handleChange(row) })
     },
   },
 ]

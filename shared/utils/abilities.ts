@@ -25,8 +25,8 @@ function abillityRequiringUserId<T>(extractUserId: (t: T) => string) {
 }
 
 const onlyAdminCRUD = {
-  getAll: everyoneAbility,
-  get: everyoneAbility,
+  getAll: onlyAdminAbility,
+  get: onlyAdminAbility,
   put: onlyAdminAbility,
   delete: onlyAdminAbility,
   post: onlyAdminAbility,

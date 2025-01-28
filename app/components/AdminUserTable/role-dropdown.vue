@@ -9,7 +9,9 @@ const props = defineProps<{
   role: UserRole
 }>()
 
-const emit = defineEmits(["role-changed"])
+const emit = defineEmits<{ 
+  (e: "changed", updated: { role: UserRole }): void
+}>()
 
 const position = ref<UserRole>(props.role)
 watch(position, async (newVal) => {
@@ -17,7 +19,7 @@ watch(position, async (newVal) => {
     userId: props.id,
     role: newVal as UserRole,
   })
-  emit("role-changed", newVal)
+  emit("changed", { role: newVal })
 })
 </script>
 
