@@ -1,4 +1,6 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import { experimentAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
@@ -10,7 +12,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Experiment not found!" })
   }
 
-  await authorize(event, canSeeExperiment, experiment)
+  await authorize(event, experimentAbilities.get, experiment)
 
   return experiment as ExperimentDetail
 })

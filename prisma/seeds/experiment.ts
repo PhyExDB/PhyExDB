@@ -180,6 +180,154 @@ export async function experimentMigrations() {
   await prisma.experiment.create({
     data: {
       id: uuidv4(),
+      name: "Doppelspaltversuch",
+      slug: "doppelspaltversuch",
+      duration: 10,
+      status: "PUBLISHED",
+      user: {
+        connect: {
+          id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
+        },
+      },
+      sections: {
+        createMany: {
+          data: [
+            {
+              text: "Was passiert im Inneren eines Fahrraddynamos?",
+              experimentSectionId: versuchsziel!.id,
+            },
+            {
+              text: "Man benötigt einen alten Fahrraddynamo, Werkzeug zum Öffnen des Gehäuses und ein kleines Stück Eisen.",
+              experimentSectionId: material!.id,
+            },
+            {
+              text: "Der Fahrraddynamo wird geöffnet, das Innere untersucht und ein Eisenstück an den Magneten gehalten.",
+              experimentSectionId: versuchsaufbau!.id,
+            },
+            {
+              text: "Der Dynamo wird mit Werkzeug geöffnet. Anschließend wird das Eisenstück an den Magneten im Dynamo gehalten.",
+              experimentSectionId: durchfuehrung!.id,
+            },
+            {
+              text: "Das Eisenstück wird vom Magneten im Dynamo angezogen.",
+              experimentSectionId: beobachtung!.id,
+            },
+            {
+              text: "Im Dynamo sind ein Magnet und eine Spule verbaut. Der Magnet erzeugt ein Magnetfeld, das zur Stromerzeugung beiträgt.",
+              experimentSectionId: ergebnis!.id,
+            },
+            {
+              text: "Achte darauf, dass das Werkzeug isoliert ist, um Verletzungen oder Beschädigungen zu vermeiden.",
+              experimentSectionId: tippsUndTricks!.id,
+            },
+          ],
+        },
+      },
+      attributes: {
+        connect: [
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Quantenphysik" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Freihand" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Weiterführung" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Demoversuch" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Analog" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Digital" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "unter 1 Stunde" } }))!.id,
+          },
+        ],
+      },
+    },
+  })
+
+  await prisma.experiment.create({
+    data: {
+      id: uuidv4(),
+      name: "Millikan-Versuch",
+      slug: "millikan-versuch",
+      duration: 15,
+      status: "PUBLISHED",
+      user: {
+        connect: {
+          id: (await prisma.user.findFirst({ where: { email: "user@test.test" } }))!.id,
+        },
+      },
+      sections: {
+        createMany: {
+          data: [
+            {
+              text: "Was passiert im Inneren eines Fahrraddynamos?",
+              experimentSectionId: versuchsziel!.id,
+            },
+            {
+              text: "Man benötigt einen alten Fahrraddynamo, Werkzeug zum Öffnen des Gehäuses und ein kleines Stück Eisen.",
+              experimentSectionId: material!.id,
+            },
+            {
+              text: "Der Fahrraddynamo wird geöffnet, das Innere untersucht und ein Eisenstück an den Magneten gehalten.",
+              experimentSectionId: versuchsaufbau!.id,
+            },
+            {
+              text: "Der Dynamo wird mit Werkzeug geöffnet. Anschließend wird das Eisenstück an den Magneten im Dynamo gehalten.",
+              experimentSectionId: durchfuehrung!.id,
+            },
+            {
+              text: "Das Eisenstück wird vom Magneten im Dynamo angezogen.",
+              experimentSectionId: beobachtung!.id,
+            },
+            {
+              text: "Im Dynamo sind ein Magnet und eine Spule verbaut. Der Magnet erzeugt ein Magnetfeld, das zur Stromerzeugung beiträgt.",
+              experimentSectionId: ergebnis!.id,
+            },
+            {
+              text: "Achte darauf, dass das Werkzeug isoliert ist, um Verletzungen oder Beschädigungen zu vermeiden.",
+              experimentSectionId: tippsUndTricks!.id,
+            },
+          ],
+        },
+      },
+      attributes: {
+        connect: [
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Atomphysik" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Quantenphysik" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Simulation" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Gesetzmäßigkeiten" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "SUS-Versuch" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "Beobachtung" } }))!.id,
+          },
+          {
+            id: (await prisma.experimentAttributeValue.findFirst({ where: { value: "unter 1 Stunde" } }))!.id,
+          },
+        ],
+      },
+    },
+  })
+
+  await prisma.experiment.create({
+    data: {
+      id: uuidv4(),
       name: "Weinglasschwingung",
       slug: "weinglasschwingung",
       duration: 20,

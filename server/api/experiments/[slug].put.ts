@@ -3,6 +3,8 @@ import type { ExperimentDetail } from "~~/shared/types"
 import { getExperimentSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
+import { experimentAbilities } from "~~/shared/utils/abilities"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
@@ -14,11 +16,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Experiment not found!" })
   }
 
-  const user = await getUser(event)
-  if (user == null) {
-    throw createError({ statusCode: 401, statusMessage: "No user is logged in" })
-  }
-  await authorize(event, canEditExperiment, experiment)
+  await authorize(event, experimentAbilities.put, experiment)
 
   const updatedExperimentData = await readValidatedBody(
     event,

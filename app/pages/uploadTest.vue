@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const { handleFileInput, files } = useFileStorage()
 
+authorize(fileAbilities.post)
+
 const uploadedFiles = ref<FileDetail[]>([])
 
 async function submit() {
