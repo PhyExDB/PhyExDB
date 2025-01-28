@@ -3,7 +3,7 @@ import type {
   ColumnDef,
 } from "@tanstack/vue-table"
 import RoleDropdown from "~/components/AdminUserTable/role-dropdown.vue"
-import DropdownAction from "~/components/AdminUserTable/data-table-dropdown.vue"
+import DropdownAction from "~/components/AdminUserTable/actions.vue"
 import Email from "~/components/user/Email.vue"
 
 authorize(userAbilities.getAll)
