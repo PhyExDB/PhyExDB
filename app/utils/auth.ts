@@ -1,3 +1,4 @@
+import type { RefSymbol } from "@vue/reactivity"
 import { toRef } from "vue"
 
 /**
@@ -13,23 +14,14 @@ export async function useUser(): Promise<Ref<UserDetail | null>> {
   return user
 }
 
-function redirectNotLoggedInUserWatcher() {
-  watchEffect(async () => {
-    const user = await useUser()
-    if (user.value === null) {
-      await navigateTo("/login")
-    }
-  })
-}
-
 /**
  * Hook to get the current user session.
  */
 export async function useUserOrThrowError(): Promise<Ref<UserDetail>> {
-  redirectNotLoggedInUserWatcher()
   const user = await useUser()
-  return toRef(() => {
-    if (user.value === null) {
+  return computed(() => {
+    if (user.value == null) {
+      navigateTo("/login")
       throw createError({ statusCode: 401, statusMessage: "Not logged in" })
     }
     return user.value
