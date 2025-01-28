@@ -19,9 +19,7 @@ const { data, refresh } = useLazyFetch("/api/users", {
   },
 })
 
-async function updateRow(index: number, user: UserDetailAdmin) {
-  consume(index)
-  consume(user)
+async function updateRow(_index: number, _user: UserDetailAdmin) {
   refresh()
 }
 
