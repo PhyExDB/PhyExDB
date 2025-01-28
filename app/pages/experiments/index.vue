@@ -7,11 +7,11 @@ const sort = ref(route.query.sort as string || "none")
 
 const { page, pageSize } = getRequestPageMeta()
 
-const { data } = useLazyFetch('/api/experiments', {
+const { data } = useLazyFetch("/api/experiments", {
   query: {
     page: page,
     pageSize: pageSize,
-  }
+  },
 })
 
 /* Attributes */
@@ -200,8 +200,8 @@ watch(dialogOpen, () => {
     </div>
 
     <MyPagination
-      :page-meta="data?.pagination"
       v-model="page"
+      :page-meta="data?.pagination"
     />
   </div>
 </template>

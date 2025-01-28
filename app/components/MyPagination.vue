@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const { pageMeta } = defineProps<{ pageMeta?: PageMeta }>()
-const page = defineModel<number>()
+const model = defineModel<number>()
 
 function update(newPage: number) {
-  page.value = newPage
+  model.value = newPage
 }
 </script>
 

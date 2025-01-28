@@ -11,15 +11,17 @@ authorize(userAbilities.getAll)
 const { page, pageSize } = getRequestPageMeta()
 const search = ref<string>("")
 
-const { data, refresh } = useLazyFetch('/api/users', {
+const { data, refresh } = useLazyFetch("/api/users", {
   query: {
     page: page,
     pageSize: pageSize,
     search: search,
-  }
+  },
 })
 
 async function updateRow(index: number, user: UserDetailAdmin) {
+  consume(index)
+  consume(user)
   refresh()
 }
 
@@ -73,8 +75,8 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
       :data="data.items"
     />
     <MyPagination
-      :page-meta="data?.pagination"
       v-model="page"
+      :page-meta="data?.pagination"
     />
   </div>
 </template>
