@@ -18,7 +18,9 @@ export function cn(...inputs: ClassValue[]) {
  * Updates the value of a given reference based on the provided updater function or value.
  */
 export function valueUpdater<T extends Updater<any>>(updaterOrValue: T, ref: Ref) {
-  ref.value = typeof updaterOrValue === "function"
-    ? updaterOrValue(ref.value)
-    : updaterOrValue
+  if (typeof updaterOrValue === "function") {
+    ref.value = updaterOrValue(ref.value)
+  } else {
+    ref.value = updaterOrValue
+  }
 }
