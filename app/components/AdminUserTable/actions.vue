@@ -15,9 +15,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useToast } from "@/components/ui/toast/use-toast"
+
+const { toast } = useToast()
 
 const { user } = defineProps<{
-  user: Pick<UserDetailAdmin, "id" | "banned">
+  user: Pick<UserDetailAdmin, "id" | "name" | "banned">
 }>()
 
 const emit = defineEmits<{
@@ -28,18 +31,38 @@ const emit = defineEmits<{
 async function handleImpersonate() {
   await useAuth().client.admin.impersonateUser({ userId: user.id })
   await navigateTo("/profile")
+  toast({
+    title: "Account imitiert",
+    description: `${ user.name} wird imitiert.`,
+    variant: "success",
+  })
 }
 async function handleBan() {
   await useAuth().client.admin.banUser({ userId: user.id })
   emit("changed", { banned: true })
+  toast({
+    title: "Account gesperrt",
+    description: `${ user.name}'s Account wurde erfolgreich gesperrt.`,
+    variant: "success",
+  })
 }
 async function handleUnban() {
   await useAuth().client.admin.unbanUser({ userId: user.id })
   emit("changed", { banned: false })
+  toast({
+    title: "Accountsperre aufgehoben",
+    description: `${ user.name}'s Accountsperre wurde erfolgreich aufgehoben.`,
+    variant: "success",
+  })
 }
 async function handleDelete() {
   await useAuth().client.admin.removeUser({ userId: user.id })
   emit("deleted")
+  toast({
+    title: "Account gelöscht",
+    description: `${ user.name}'s Account wurde erfolgreich gelöscht.`,
+    variant: "success",
+  })
 }
 
 const isDialogOpen = ref(false)

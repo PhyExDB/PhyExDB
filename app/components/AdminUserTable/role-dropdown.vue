@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import { useToast } from "@/components/ui/toast/use-toast"
+
+const { toast } = useToast()
+
 const props = defineProps<{
   id: string
+  name: string
   role: UserRole
 }>()
 
@@ -15,6 +20,11 @@ watch(position, async (newVal) => {
     role: newVal as UserRole,
   })
   emit("changed", { role: newVal })
+  toast({
+    title: "Rolle geändert",
+    description: `${props.name}'s Rolle wurde erfolgreich zu ${ capitalizeFirstLetter(newVal) } geändert.`,
+    variant: "success",
+  })
 })
 </script>
 
@@ -37,7 +47,7 @@ watch(position, async (newVal) => {
             User
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="MODERATOR">
-            Mod
+            Moderator
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="ADMIN">
             Admin
