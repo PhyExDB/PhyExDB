@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import { MoreHorizontal } from "lucide-vue-next"
-import { Button } from "@/components/ui/button"
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu"
+import { Trash2, Ban, UserCheck, ScanEye } from "lucide-vue-next"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +10,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const { user } = defineProps<{
   user: Pick<UserDetailAdmin, "id" | "banned">
@@ -49,32 +47,42 @@ const isDialogOpen = ref(false)
 </script>
 
 <template>
-  <DropdownMenu>
-    <DropdownMenuTrigger as-child>
-      <Button
-        variant="ghost"
-        class="w-8 h-8 p-0"
-      >
-        <span class="sr-only">Open menu</span>
-        <MoreHorizontal class="w-4 h-4" />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end">
-      <DropdownMenuItem @click="handleImpersonate">
-        Imitieren
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem v-if="!user.banned" @click="handleBan">
-        Bannen
-      </DropdownMenuItem>
-      <DropdownMenuItem v-if="user.banned" @click="handleUnban">
-        Unbannen
-      </DropdownMenuItem>
-      <DropdownMenuItem @click="() => isDialogOpen = true">
-        Löschen
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
+  <div class="flex flex-nowrap">
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <ScanEye class="ml-2 h-4 w-4" @click="handleImpersonate"/>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Imitieren</p>
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip v-if="user.banned">
+        <TooltipTrigger>
+          <UserCheck class="ml-2 h-4 w-4" @click="handleUnban"/>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Ban aufheben</p>
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip v-if="!user.banned">
+        <TooltipTrigger>
+          <Ban class="ml-2 h-4 w-4" @click="handleBan"/>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Bannen</p>
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger>
+          <Trash2 class="ml-2 h-4 w-4" @click="() => isDialogOpen = true"/>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Löschen</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </div>
 
   <AlertDialog :open="isDialogOpen">
       <AlertDialogContent>

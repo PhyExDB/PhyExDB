@@ -74,13 +74,6 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
     },
   },
   {
-    accessorKey: "banned",
-    header: () => "Ban",
-    cell: ({ row }) => {
-      return row.getValue("banned") ? "gebannt" : "nicht gebannt"
-    },
-  },
-  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
