@@ -13,7 +13,6 @@ type CRUD<T> = {
   get?: Ability<[T]>
   put?: Ability<[T]>
   delete?: Ability<[T]>
-  listOwn?: Ability<[]>
 }
 
 const isAdmin = (user: UserDetail) => user.role === "ADMIN"
@@ -63,7 +62,7 @@ export const experimentAbilities = {
     allowGuests: false,
   },
   listOwn: noGuestsAbility,
-} satisfies CRUD<Experiment>
+} satisfies CRUD<Experiment> & { listOwn?: Ability<[]> }
 
 /** Abilities for files */
 export const fileAbilities = {
