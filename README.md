@@ -18,7 +18,7 @@ In the `.env` file change `localhost` in the `DATABASE_URL` to `db` for the dock
 
 ### Database
 
-Before running the application, you need to create the database and run the migrations.
+Before running the application, you need to create the database. The migrations are run automatically on the server start.
 
 Start the development database with:
 
@@ -26,24 +26,11 @@ Start the development database with:
 docker compose -f docker-compose.development.yml up -d
 ```
 
-Run the database migration:
-
-```bash
-npm run migrate
-```
-
-Run the database seed (throws an error if the tables aren't created or the data allready exists):
-
-```bash
-npm run migrate:seed
-```
-
 To revert the development database to the initial state, delete the docker container:
 
 ```bash
 docker compose -f docker-compose.development.yml down
 ```
-
 
 ## Development Server
 
@@ -83,14 +70,7 @@ docker compose up -d
 
 The `-d` flag is optional and runs the container in detached mode, to see the logs remove this flag.
 
-#### Migrations and Seeding
-
-To run the migrations and seed the database in the docker container, run:
-
-```bash
-docker compose run migrate
-docker compose run seed
-```
+#### Production Database
 
 The production database is not reverted when stopping the container to prevent data loss. To delete the database, run:
 
@@ -104,7 +84,7 @@ The `-v` flag deletes the volumes, which contain the database data and the publi
 
 The application is built and deployed to GitHub Packages on every push to the `main` branch. The image is tagged with `latest` and can be pulled from GitHub Packages. On every push to a pull request, the image is tagged with `pr-[PR-number]` and can be pulled from GitHub Packages.
 
-To use one of these images, set the `APP_TAG` in the `.env` file to `latest` or `pr-[PR-number]`. Make sure to not set the `APP_IMAGE` in the `.env`, so the default value is used and the image is pulled from GitHub Packages. You can then run the docker compose commands as described above. Make sure to have the `.env` file in the root directory of the project and run the migrations and seed in the docker container.
+To use one of these images, set the `APP_TAG` in the `.env` file to `latest` or `pr-[PR-number]`. Make sure to not set the `APP_IMAGE` in the `.env`, so the default value is used, and the image is pulled from GitHub Packages. You can then run the docker compose commands as described above. Make sure to have the `.env` file in the root directory of the project and run the migrations and seed in the docker container.
 
 ## API Documentation
 
@@ -155,7 +135,7 @@ Make sure to fix all linting errors before committing your changes. Otherwise, t
 
 ## Development Setup
 
-For development we recommend using Visual Studio Code. The project contains a `.vscode` directory with recommended extensions. 
+For development, we recommend using Visual Studio Code. The project contains a `.vscode` directory with recommended extensions.
 
 To enable format on save, add the following to your `settings.json`:
 
