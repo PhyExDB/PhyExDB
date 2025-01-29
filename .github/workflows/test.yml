@@ -17,23 +17,6 @@ jobs:
     permissions:
       contents: read
 
-    env:
-      DATABASE_URL: postgresql://nuxt:nuxt_password@localhost:5432/phyexdb
-      # For API Base URL
-      NUXT_PUBLIC_API_BASE: http://db:3000/api/
-      BETTER_AUTH_SECRET: better_auth_secret
-
-    services:
-      db:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_DB: phyexdb
-          POSTGRES_USER: nuxt
-          POSTGRES_PASSWORD: nuxt_password
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,9 +29,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run db migrations and seeds
-        run: npm run migrate && npm run migrate:seed
 
       - name: Run unit tests with coverage
         run: npm run test:unit:coverage
