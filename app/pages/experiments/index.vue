@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 const route = useRoute()
 const sort = ref(route.query.sort as string || "none")
-const attributeFilter = ref<string>("")
+const attributeFilter = ref<string>(route.query.attributes as string || "")
 
 const { page, pageSize } = getRequestPageMeta()
 
@@ -23,7 +23,14 @@ function initializeFilterChecklist(list: string[][]) {
   if (!attributes) {
     return
   }
-  attributes.value!.forEach(_ => list.push([]))
+  attributeFilter.value.split(",").forEach((id) => {
+    list.push([])
+    attributes.value?.forEach((attribute, attrIndex) => {
+      if (attribute.values.some(value => value.id === id)) {
+        list[attrIndex]?.push(id)
+      }
+    })
+  })
 }
 
 const checked = ref<string[][]>([])
@@ -49,6 +56,31 @@ watch(checked, () => {
   ).filter(
     attribute => attribute.length > 0,
   ).join(",")
+})
+
+/* Update the URL */
+watch([sort, attributeFilter, page, pageSize], () => {
+  const query:
+  {
+    attributes?: string
+    page?: number
+    pageSize?: number
+    sort?: string
+  } = {}
+  if (attributeFilter.value !== "") {
+    query.attributes = attributeFilter.value
+  }
+  if (page.value !== defaultPage) {
+    query.page = page.value
+  }
+  if (pageSize.value !== defaultPageSize) {
+    query.pageSize = pageSize.value
+  }
+  if (sort.value !== "none") {
+    query.sort = sort.value
+  }
+  const newUrl = { path: route.path, query }
+  useRouter().replace(newUrl)
 })
 </script>
 
