@@ -226,6 +226,7 @@ async function submitForReview() {
     method: "POST",
   })
 
+  await navigateTo(`/experiments/${experimentId}`)
   toast({
     title: "Experiment zur Überprüfung eingereicht",
     description: "Das Experiment wurde zur Überprüfung eingereicht.",
