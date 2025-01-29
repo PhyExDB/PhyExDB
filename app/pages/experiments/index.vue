@@ -155,7 +155,7 @@ watch(checked, () => {
 
               <!-- Overlay Content (Defines Section Size) -->
               <div
-                class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-50 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
+                class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
               >
                 <div class="grid grid-cols-2 gap-1">
                   <template
