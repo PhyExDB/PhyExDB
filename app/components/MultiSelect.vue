@@ -56,32 +56,31 @@ const toggle = (option: T) => {
 </script>
 
 <template>
-  <Popover
-    v-model:open="open"
-  >
+  <Popover v-model:open="open">
     <PopoverTrigger
       as-child
-      class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate text-start"
+      class="flex min-h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-start"
     >
       <Button
         variant="outline"
         role="combobox"
         :aria-expanded="open"
-        class="justify-between"
+        class="justify-between w-full flex items-center min-h-[40px] h-auto py-2"
       >
-        <slot
-          name="preview"
-          :selected="selected"
-        >
-          Select options
-        </slot>
+        <span class="truncate whitespace-normal break-words text-left flex-1">
+          <slot
+            name="preview"
+            :selected="selected"
+          >
+            Select options
+          </slot>
+        </span>
         <Icon
           name="heroicons:chevron-up-down"
           class="ml-2 h-4 w-4 shrink-0 opacity-50"
         />
       </Button>
-    </PopoverTrigger>
-    <PopoverContent class="p-0">
+    </PopoverTrigger>    <PopoverContent class="p-0 w-full">
       <Command>
         <CommandInput
           class="h-9"
@@ -98,6 +97,7 @@ const toggle = (option: T) => {
               v-for="option in options"
               :key="option.id"
               :value="valueForOption(option)"
+              class="whitespace-normal break-words flex flex-1"
               @select="toggle(option)"
             >
               <slot

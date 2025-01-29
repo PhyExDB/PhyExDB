@@ -38,7 +38,7 @@ function submitFilters() {
   <div class="grid grid-cols-1 gap-3">
     <!-- Filter -->
     <!-- Filter for Wide Screens -->
-    <div class="flex-row gap-1 justify-between items-center hidden xl:flex">
+    <div class="flex-row gap-2 justify-between items-center hidden xl:flex">
       <ExperimentsFilters
         :checked="checked"
         :attributes="attributes"
