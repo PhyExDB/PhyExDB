@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from "uuid"
 import Seed from "./seed"
 
+/**
+ * Experiment seed.
+ */
 export default class ExperimentSeed extends Seed {
   constructor() {
     super("experiment")

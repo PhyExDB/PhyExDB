@@ -1,3 +1,6 @@
+/**
+ * The base class for all seeds.
+ */
 export default abstract class Seed {
   /**
    * The name of the seed.
