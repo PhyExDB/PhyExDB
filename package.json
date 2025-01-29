@@ -9,7 +9,7 @@
     "build": "prisma generate && nuxt build",
     "dev": "prisma generate && dotenv -e .env.development nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "preview": "dotenv -e .env.development nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
