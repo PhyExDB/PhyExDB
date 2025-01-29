@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 const route = useRoute()
 const sort = ref(route.query.sort as string || "none")
+const attributeFilter = ref<string>("")
 
 const { page, pageSize } = getRequestPageMeta()
 
@@ -8,6 +9,8 @@ const { data } = useLazyFetch("/api/experiments", {
   query: {
     page: page,
     pageSize: pageSize,
+    sort: sort,
+    attributes: attributeFilter,
   },
 })
 
@@ -32,6 +35,15 @@ const dialogOpen = ref(false)
 function submitFilters() {
   dialogOpen.value = false
 }
+
+/* React to Filter Changes */
+watch(checked, () => {
+  attributeFilter.value = checked.value.map(
+    attribute => attribute.join(","),
+  ).filter(
+    attribute => attribute.length > 0,
+  ).join(",")
+})
 </script>
 
 <template>
