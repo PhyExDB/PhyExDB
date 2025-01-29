@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ComboboxRootEmits, ComboboxRootProps } from 'radix-vue'
-import { cn } from '@/utils/utils'
-import { ComboboxRoot, useForwardPropsEmits } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+import type { ComboboxRootEmits, ComboboxRootProps } from "radix-vue"
+import { ComboboxRoot, useForwardPropsEmits } from "radix-vue"
+import { computed, type HTMLAttributes } from "vue"
+import { cn } from "@/utils/utils"
 
-const props = withDefaults(defineProps<ComboboxRootProps & { class?: HTMLAttributes['class'] }>(), {
+const props = withDefaults(defineProps<ComboboxRootProps & { class?: HTMLAttributes["class"] }>(), {
   open: true,
-  modelValue: '',
+  modelValue: "",
 })
 
 const emits = defineEmits<ComboboxRootEmits>()
