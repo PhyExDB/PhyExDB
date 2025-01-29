@@ -31,9 +31,15 @@ initializeFilterChecklist(checked.value)
 
 /* Filter Dialog */
 const dialogOpen = ref(false)
+const temporaryChecked = ref<string[][]>([])
 
+function openDialog() {
+  temporaryChecked.value = checked.value
+  dialogOpen.value = true
+}
 function submitFilters() {
   dialogOpen.value = false
+  checked.value = temporaryChecked.value
 }
 
 /* React to Filter Changes */
@@ -68,7 +74,7 @@ watch(checked, () => {
           <Button
             variant="outline"
             class="flex-grow-8"
-            @click="dialogOpen = true"
+            @click="openDialog"
           >
             Filter <Icon
               name="heroicons:adjustments-horizontal"
@@ -89,6 +95,7 @@ watch(checked, () => {
               :checked="checked"
               :attributes="attributes"
               :show-undo-button="false"
+              @update:checked="temporaryChecked = $event"
             />
             <DialogFooter>
               <Button
@@ -103,6 +110,7 @@ watch(checked, () => {
       </Dialog>
       <ExperimentsUndoFilters
         :checked="checked"
+        @update:checked="checked = $event"
       />
     </div>
 
