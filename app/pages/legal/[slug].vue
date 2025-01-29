@@ -24,9 +24,6 @@ const form = useForm({ validationSchema: formSchema, initialValues: {
 } })
 const openForm = (event: boolean) => {
   open.value = event
-  if (event) {
-    form.resetForm()
-  }
 }
 
 watch (() => legal.value, (newLegal) => {
