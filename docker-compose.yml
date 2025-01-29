@@ -28,28 +28,6 @@ services:
       start_period: 5s
       timeout: 5s
 
-  migrate:
-    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    profiles:
-      - tools
-    command: sh -c "cd prisma && npx prisma migrate deploy"
-
-  seed:
-    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    profiles:
-      - tools
-    command: sh -c "cd prisma && npx prisma db seed"
-
 volumes:
   db_data:
   public_data:
