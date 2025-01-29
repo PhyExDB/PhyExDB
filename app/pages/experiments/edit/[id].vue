@@ -210,18 +210,10 @@ async function submitForReview() {
   const experimentReviewSchema = getExperimentReadyForReviewSchema(sections.value, attributes.value)
   const errors = await experimentReviewSchema.safeParseAsync(experimentForReview)
   if (!errors.success) {
-    const fieldErrors = errors.error.flatten().fieldErrors
-    form.setErrors({
-      name: fieldErrors.name,
-      previewImageId: fieldErrors.previewImageId,
-      duration: fieldErrors.duration,
-      ...(fieldErrors.attributes?.map((attribute, index) => ({
-        [`attributes.${index}.valueId`]: attribute,
-      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})),
-      ...(fieldErrors.sections?.map((section, index) => ({
-        [`sections.${index}.text`]: section,
-      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})),
-    })
+    const errorObject = errors.error.errors.map(error => ({
+      [error.path.join(".")]: error.message,
+    })).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+    form.setErrors(errorObject)
     toast({
       title: "Fehler beim Überprüfen",
       description: "Es sind noch nicht alle erforderlichen Felder ausgefüllt.",
@@ -369,6 +361,7 @@ async function submitForReview() {
                   </template>
                 </MultiSelect>
               </FormControl>
+              <FormMessage />
             </FormItem>
           </FormField>
           <!-- <FormField

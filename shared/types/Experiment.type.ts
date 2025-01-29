@@ -227,7 +227,7 @@ export function getExperimentReadyForReviewSchema(
     //   })
     attributes: z.array(z.object({
       attributeId: z.string().uuid(),
-      valueIds: z.array(z.string().uuid()),
+      valueIds: z.array(z.string().uuid()).nonempty("Attribut wird benötigt"),
     })).refine(async (attributes) => {
       const attributesContained = new Set()
       attributes.forEach((attribute) => {
