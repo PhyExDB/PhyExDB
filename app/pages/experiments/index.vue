@@ -137,40 +137,50 @@ watch(dialogOpen, () => {
         class="relative group border-0"
       >
         <Card class="flex flex-col h-full">
-          <CardContent class="relative grow flex flex-col justify-center items-center p-0 rounded-t-lg">
-            <div class="h-full">
-              <!-- <NuxtImg
+          <CardContent class="relative grow flex flex-col p-0 rounded-t-lg overflow-hidden">
+            <!-- Image + Overlay Container (size determined by overlay) -->
+            <div class="relative w-full min-h-[150px] flex flex-col items-center justify-center h-full">
+              <!-- Image that adjusts to overlay size -->
+              <NuxtImg
                 :src="experiment.previewImage?.path ?? 'experiment_placeholder.png'"
                 alt="Preview Image"
-                class="absolute top-0 left-0 object-cover z-0"
-              /> -->
+                class="absolute inset-0 w-full h-full"
+                :class="experiment.previewImage?.path ? 'object-contain' : 'object-cover'"
+              />
+
+              <!-- Overlay Content (Defines Section Size) -->
               <div
-                class="relative grid grid-cols-2 gap-2 z-10 p-4 w-full h-full bg-black bg-opacity-50 text-white opacity-50 group-hover:opacity-100 transition-opacity"
+                class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-50 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
               >
-                <template
-                  v-for="attribute in attributes"
-                  :key="attribute.id"
-                >
-                  <div class="text-right">
-                    {{ attribute.name }}
-                  </div>
-                  <div class="flex flex-wrap gap-1">
-                    <template
-                      v-for="attributeValue in experiment.attributes.map((attr) => attr.values).flat()"
-                      :key="attributeValue.id"
-                    >
-                      <Badge
-                        v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
-                        class="h-5"
+                <div class="grid grid-cols-2 gap-1">
+                  <template
+                    v-for="attribute in attributes"
+                    :key="attribute.id"
+                  >
+                    <div class="text-right">
+                      {{ attribute.name }}
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                      <template
+                        v-for="attributeValue in experiment.attributes.map((attr) => attr.values).flat()"
+                        :key="attributeValue.id"
                       >
-                        {{ attributeValue.value }}
-                      </Badge>
-                    </template>
-                  </div>
-                </template>
+                        <Badge
+                          v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
+                          class="h-5"
+                        >
+                          {{ attributeValue.value }}
+                        </Badge>
+                      </template>
+                    </div>
+                  </template>
+                </div>
               </div>
             </div>
+
             <Separator />
+
+            <!-- Bottom Content -->
             <div class="flex flex-col items-left p-4 gap-2 w-full">
               <CardTitle class="text-primary/80">
                 {{ experiment.name }}
