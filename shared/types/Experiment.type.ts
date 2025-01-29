@@ -24,7 +24,7 @@ export interface ExperimentList extends SlugList {
   /**
    * The attributes associated with the experiment.
    */
-  attributes: ExperimentAttributeValueDetail[]
+  attributes: ExperimentAttributeDetail[]
   /**
    * The preview image of the experiment.
    */
@@ -39,6 +39,26 @@ export interface ExperimentDetail extends ExperimentList {
    * The sections of the experiment.
    */
   sections: ExperimentSectionContentDetail[]
+}
+
+/**
+ * Experiment List object with attribute values instead of attributes
+ */
+export interface ExperimentIncorrectList extends Omit<ExperimentList, "attributes"> {
+  /**
+   * The attribute values associated with the experiment.
+   */
+  attributes: ExperimentAttributeValueDetail[]
+}
+
+/**
+ * Experiment Detail object with attribute values instead of attributes
+ */
+export interface ExperimentIncorrectDetail extends Omit<ExperimentDetail, "attributes"> {
+  /**
+   * The attribute values associated with the experiment.
+   */
+  attributes: ExperimentAttributeValueDetail[]
 }
 
 /**
@@ -69,10 +89,7 @@ export function getExperimentSchema(
   sections: ExperimentSectionList[],
   attributes: ExperimentAttributeDetail[],
 ) {
-  const attributeValueSets = attributes.map((attribute) => {
-    const attributeValues = attribute.values.map(attributeValue => attributeValue.id)
-    return new Set(attributeValues)
-  })
+  const attributeIds = new Set(attributes.map(attribute => attribute.id))
   const requiredNumAttributes = attributes.length
   const requiredNumSections = sections.length
 
@@ -100,17 +117,16 @@ export function getExperimentSchema(
     }),
 
     attributes: z.array(z.object({
-      valueId: z.string().uuid().optional(),
+      attributeId: z.string().uuid(),
+      valueIds: z.array(z.string().uuid().nullish()),
     })).refine(async (attributes) => {
       const attributesContained = new Set()
       attributes.forEach((attribute) => {
-        if (!attribute.valueId) {
+        if (!attribute.valueIds) {
           return
         }
-        for (let i = 0; i < attributeValueSets.length; i++) {
-          if (attributeValueSets[i]?.has(attribute.valueId)) {
-            attributesContained.add(i)
-          }
+        if (attributeIds.has(attribute.attributeId)) {
+          attributesContained.add(attribute.attributeId)
         }
       })
       return attributesContained.size <= requiredNumAttributes
@@ -143,9 +159,16 @@ export function transformExperimentToSchemaType(
         description: file.description ?? undefined,
       })),
     })),
-    attributes: attributes.map(attribute => ({
-      valueId: experiment.attributes.find(experimentAttribute => experimentAttribute.attribute.id === attribute.id)?.id,
-    })),
+    // attributes: attributes.map(attribute => ({
+    //   valueId: experiment.attributes.find(experimentAttribute => experimentAttribute.attribute.id === attribute.id)?.id,
+    // })),
+    attributes: attributes.map((attribute) => {
+      const experimentAttribute = experiment.attributes.find(experimentAttribute => experimentAttribute.id === attribute.id)
+      return {
+        attributeId: attribute.id,
+        valueIds: experimentAttribute?.values.map(value => value.id) ?? [],
+      }
+    }),
   }
 }
 
@@ -159,10 +182,7 @@ export function getExperimentReadyForReviewSchema(
   sections: ExperimentSectionList[],
   attributes: ExperimentAttributeDetail[],
 ) {
-  const attributeValueSets = attributes.map((attribute) => {
-    const attributeValues = attribute.values.map(attributeValue => attributeValue.id)
-    return new Set(attributeValues)
-  })
+  const attributeIds = new Set(attributes.map(attribute => attribute.id))
   const requiredNumAttributes = attributes.length
   const requiredNumSections = sections.length
 
@@ -191,18 +211,31 @@ export function getExperimentReadyForReviewSchema(
       message: "Not enough sections defined",
     }),
 
+    // attributes: z.array(z.object({
+    //   valueId: z.string({ message: "Attribut wird benötigt" }).uuid("Attribut wird benötigt"),
+    // })).refine(async (attributes) => {
+    //   const attributesContained = new Set()
+    //   attributes.forEach((attribute) => {
+    //     if (!attribute.valueId) {
+    //       return
+    //     }
+    //     for (let i = 0; i < attributeValueSets.length; i++) {
+    //       if (attributeValueSets[i]?.has(attribute.valueId)) {
+    //         attributesContained.add(i)
+    //       }
+    //     }
+    //   })
     attributes: z.array(z.object({
-      valueId: z.string({ message: "Attribut wird benötigt" }).uuid("Attribut wird benötigt"),
+      attributeId: z.string().uuid(),
+      valueIds: z.array(z.string().uuid()).nonempty("Attribut wird benötigt"),
     })).refine(async (attributes) => {
       const attributesContained = new Set()
       attributes.forEach((attribute) => {
-        if (!attribute.valueId) {
+        if (!attribute.valueIds.length) {
           return
         }
-        for (let i = 0; i < attributeValueSets.length; i++) {
-          if (attributeValueSets[i]?.has(attribute.valueId)) {
-            attributesContained.add(i)
-          }
+        if (attributeIds.has(attribute.attributeId)) {
+          attributesContained.add(attribute.attributeId)
         }
       })
       return attributesContained.size === requiredNumAttributes

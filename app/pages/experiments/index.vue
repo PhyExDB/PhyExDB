@@ -1,6 +1,4 @@
 <script setup lang='ts'>
-import { NuxtLink } from "#components"
-
 const route = useRoute()
 const sort = ref(route.query.sort as string || "none")
 
@@ -13,61 +11,39 @@ const { data } = useLazyFetch("/api/experiments", {
   },
 })
 
-/* Attributes */
-const initializeFilterChecklist = (list: boolean[][]) => {
-  attributes.value!.forEach((attribute) => {
-    list.push(attribute.values.map(() => false))
-  })
-}
 const { data: attributes } = await useFetch(
   `/api/experiments/attributes`,
 )
 
-const checked = ref<boolean[][]>([])
+/* Attributes */
+function initializeFilterChecklist(list: string[][]) {
+  if (!attributes) {
+    return
+  }
+  attributes.value!.forEach(_ => list.push([]))
+}
+
+const checked = ref<string[][]>([])
 initializeFilterChecklist(checked.value)
-const attributeOrder = [
-  "Themenbereich",
-  "Versuchsart",
-  "Einsatz",
-  "Arbeitsform",
-  "Messwerterfassung",
-  "Vorbereitungszeit",
-]
-attributes.value!.sort((a, b) => {
-  const indexA = attributeOrder.indexOf(a.name)
-  const indexB = attributeOrder.indexOf(b.name)
-  return indexA - indexB
-})
-const singleChoiceAttributes = ["Themenbereich", "Versuchsart", "Vorbereitungszeit"]
 
 /* Filter Dialog */
 const dialogOpen = ref(false)
 
-const temporaryChecked = ref<boolean[][]>([])
-initializeFilterChecklist(temporaryChecked.value)
-
-const submitFilters = () => {
-  checked.value = temporaryChecked.value
+function submitFilters() {
   dialogOpen.value = false
 }
-
-watch(dialogOpen, () => {
-  if (dialogOpen.value) {
-    temporaryChecked.value = checked.value
-  }
-})
 </script>
 
 <template>
   <div class="grid grid-cols-1 gap-3">
     <!-- Filter -->
     <!-- Filter for Wide Screens -->
-    <div class="flex-row gap-1 justify-between items-center hidden xl:flex">
+    <div class="flex-row gap-2 justify-between items-center hidden xl:flex">
       <ExperimentsFilters
         :checked="checked"
         :attributes="attributes"
-        :single-choice-attributes="singleChoiceAttributes"
         :show-undo-button="true"
+        @update:checked="checked = $event"
       />
     </div>
     <div class="flex flex-row gap-1 justify-between items-center xl:hidden">
@@ -98,9 +74,8 @@ watch(dialogOpen, () => {
               <DialogTitle>Filter Konfigurieren</DialogTitle>
             </DialogHeader>
             <ExperimentsFilters
-              :checked="temporaryChecked"
+              :checked="checked"
               :attributes="attributes"
-              :single-choice-attributes="singleChoiceAttributes"
               :show-undo-button="false"
             />
             <DialogFooter>
@@ -154,55 +129,66 @@ watch(dialogOpen, () => {
         :to="`/experiments/${experiment.slug}`"
         class="relative group border-0"
       >
-        <Card
-          :style="{
-            backgroundImage: experiment.previewImage == null ? 'url(experiment_placeholder.png)' : `url(${experiment.previewImage.path})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }"
-          class="flex flex-col h-full"
-        >
-          <CardContent
-            class="grow flex flex-col justify-center items-center bg-black
-          bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity p-0 rounded-t-lg"
-          >
-            <div
-              v-for="attribute in attributes"
-              :key="attribute.id"
-              class="grid grid-cols-2 gap-4 w-full p-1"
-            >
-              <div class="text-right">
-                {{ attribute.name }}
-              </div>
-              <div class="flex flex-row flex-wrap pd-1 text-left">
-                <div
-                  v-for="attributeValue in experiment.attributes"
-                  :key="attributeValue.id"
-                >
-                  <Badge
-                    v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
+        <Card class="flex flex-col h-full">
+          <CardContent class="relative grow flex flex-col p-0 rounded-t-lg overflow-hidden">
+            <!-- Image + Overlay Container (size determined by overlay) -->
+            <div class="relative w-full min-h-[150px] flex flex-col items-center justify-center h-full">
+              <!-- Image that adjusts to overlay size -->
+              <NuxtImg
+                :src="experiment.previewImage?.path ?? 'experiment_placeholder.png'"
+                alt="Preview Image"
+                class="absolute inset-0 w-full h-full"
+                :class="experiment.previewImage?.path ? 'object-contain' : 'object-cover'"
+              />
+
+              <!-- Overlay Content (Defines Section Size) -->
+              <div
+                class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-50 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
+              >
+                <div class="grid grid-cols-2 gap-1">
+                  <template
+                    v-for="attribute in attributes"
+                    :key="attribute.id"
                   >
-                    {{ attributeValue.value }}
-                  </Badge>
+                    <div class="text-right">
+                      {{ attribute.name }}
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                      <template
+                        v-for="attributeValue in experiment.attributes.map((attr) => attr.values).flat()"
+                        :key="attributeValue.id"
+                      >
+                        <Badge
+                          v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
+                          class="h-5"
+                        >
+                          {{ attributeValue.value }}
+                        </Badge>
+                      </template>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
-          </CardContent>
 
-          <CardHeader
-            class="flex-none bottom-0 bg-black bg-opacity-75 text-white p-2 rounded-b-lg"
-          >
-            <CardTitle>{{ experiment.name }}</CardTitle>
-            <CardDescription>
-              <Badge>
-                <Icon
-                  name="heroicons:clock"
-                  class="mr-2 h-4 w-4"
-                />
-                {{ experiment.duration }} Min.
-              </Badge>
-            </CardDescription>
-          </CardHeader>
+            <Separator />
+
+            <!-- Bottom Content -->
+            <div class="flex flex-col items-left p-4 gap-2 w-full">
+              <CardTitle class="text-primary/80">
+                {{ experiment.name }}
+              </CardTitle>
+              <CardDescription>
+                <Badge>
+                  <Icon
+                    name="heroicons:clock"
+                    class="mr-2 h-4 w-4"
+                  />
+                  {{ experiment.duration }} Min.
+                </Badge>
+              </CardDescription>
+            </div>
+          </CardContent>
         </Card>
       </NuxtLink>
     </div>

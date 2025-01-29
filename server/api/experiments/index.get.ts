@@ -1,4 +1,4 @@
-import type { Page } from "~~/shared/types"
+import type { ExperimentIncorrectList, Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
   const totalExperiments = await prisma.experiment.count({
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   })
 
   return {
-    items: experiments as ExperimentList[],
+    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
     pagination: pageMeta,
   } as Page<ExperimentList>
 })

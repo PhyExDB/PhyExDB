@@ -9,14 +9,18 @@ if (!experiment) {
 
 const attributesWithoutDuration = computed(() => {
   return experiment.value?.attributes.filter(
-    attribute => attribute.attribute.name !== "Vorbereitungszeit",
+    attribute => attribute.name !== "Vorbereitungszeit",
   )
 })
 const preparationDuration = computed(() => {
   return experiment.value?.attributes.find(
-    attribute => attribute.attribute.name === "Vorbereitungszeit",
-  )?.value
+    attribute => attribute.name === "Vorbereitungszeit",
+  )?.values[0]?.value
 })
+
+function attributeValuesString(attribute: ExperimentAttributeDetail) {
+  return attribute.values.map(value => value.value).join(", ")
+}
 
 const isImageFile = (mimeType: string) => mimeType.startsWith("image/")
 const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
@@ -66,8 +70,8 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
           :key="attribute.id"
           class="flex items-center justify-between border-b py-2 last:border-none"
         >
-          <span class="font-semibold">{{ attribute.attribute.name }}:</span>
-          <span class="text-muted-foreground">{{ attribute.value }}</span>
+          <span class="font-semibold">{{ attribute.name }}:</span>
+          <span class="text-muted-foreground">{{ attributeValuesString(attribute) }}</span>
         </div>
       </div>
       <div

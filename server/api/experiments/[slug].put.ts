@@ -1,7 +1,5 @@
 import { readValidatedBody } from "h3"
 import type { Prisma } from "@prisma/client"
-import type { ExperimentDetail } from "~~/shared/types"
-import { getExperimentSchema } from "~~/shared/types"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
 import slugify from "~~/server/utils/slugify"
 import { experimentAbilities } from "~~/shared/utils/abilities"
@@ -74,9 +72,10 @@ export default defineEventHandler(async (event) => {
       attributes: {
         set: [],
         connect: sanitizedExperimentData.attributes
-          .filter(attribute => attribute.valueId !== undefined)
-          .map(attribute => ({
-            id: attribute.valueId,
+          .flatMap(attribute => attribute.valueIds)
+          .filter(valueId => valueId != undefined)
+          .map(valueId => ({
+            id: valueId,
           })),
       },
     }
@@ -115,7 +114,7 @@ export default defineEventHandler(async (event) => {
     slugify(sanitizedExperimentData.name),
   )
 
-  return updatedExperiment as ExperimentDetail
+  return mapExperimentToDetail(updatedExperiment as ExperimentIncorrectDetail)
 })
 
 defineRouteMeta({

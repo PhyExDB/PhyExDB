@@ -1,4 +1,3 @@
-import type { ExperimentDetail } from "~~/shared/types"
 import { getExperimentReadyForReviewSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
@@ -16,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const sections = await $fetch("/api/experiments/sections")
   const attributes = await $fetch("/api/experiments/attributes")
 
-  const experimentForReview = transformExperimentToSchemaType(experiment as ExperimentDetail, attributes)
+  const experimentForReview = transformExperimentToSchemaType(mapExperimentToDetail(experiment as ExperimentIncorrectDetail), attributes)
 
   const experimentReviewSchema = getExperimentReadyForReviewSchema(sections, attributes)
   await experimentReviewSchema.parseAsync(experimentForReview)
