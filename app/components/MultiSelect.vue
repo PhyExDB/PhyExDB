@@ -33,6 +33,10 @@ const emit = defineEmits<{
 const open = ref(false)
 const selected = ref<string[]>(modelValue)
 
+watch(() => modelValue, (value) => {
+  selected.value = value
+})
+
 const isSelected = (option: T) => selected.value.includes(option.id)
 
 const toggle = (option: T) => {
