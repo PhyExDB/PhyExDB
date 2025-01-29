@@ -74,6 +74,6 @@ export default class UserSeed extends Seed {
         emailVerified: false,
       },
     ]
-    users.forEach(async user => this.createUser(user))
+    await Promise.all(users.map(async user => this.createUser(user)))
   }
 }

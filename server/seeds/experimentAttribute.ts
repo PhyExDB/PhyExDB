@@ -56,7 +56,7 @@ export default class ExperimentAttributeSeed extends Seed {
       },
     ]
 
-    attributes.forEach(async (attribute, index) => {
+    await Promise.all(attributes.map(async (attribute, index) => {
       await prisma.experimentAttribute.create({
         data: {
           name: attribute.name,
@@ -71,6 +71,6 @@ export default class ExperimentAttributeSeed extends Seed {
           },
         },
       })
-    })
+    }))
   }
 }
