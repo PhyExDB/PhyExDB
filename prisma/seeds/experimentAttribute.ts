@@ -39,12 +39,12 @@ export async function experimentAttributeMigrations() {
       values: ["Demoversuch", "SUS-Versuch", "Heimversuch"],
     },
     {
-      name: "Messwerterfassung",
+      name: "Messwert\u00ADerfassung",
       multipleSelection: true,
       values: ["Analog", "Digital", "Beobachtung"],
     },
     {
-      name: "Vorbereitungszeit",
+      name: "Vorbereitungs\u00ADzeit",
       multipleSelection: false,
       values: ["unter 1 Stunde", "ca. 1 Stunde", "mehrere Stunden", "mehrere Tage"],
     },
