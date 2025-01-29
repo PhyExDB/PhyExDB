@@ -1,5 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { expect, assert, vi } from "vitest"
+import { Prisma } from "@prisma/client"
 
 /**
  * Creates an H3Event object with the specified parameters and body.
@@ -31,4 +32,27 @@ export function prismaMockResolvedCheckingWhereClause<T>(data: T, checkWhereClau
         checkWhereClause(where)
         return Promise.resolve(data)
     })
+}
+
+type tables = Uncapitalize<Prisma.ModelName>
+
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a POST request.
+ */
+export function mockPrismaForPost<T>(table: tables, data: T, expected: T, checkWhereClause: (where: any) => void) {
+    prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+    prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+
+    prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
+}
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a POST request.
+ */
+export function mockPrismaForPostSlugOrId<T extends SlugList>(table: tables, data: T, expected: T) {
+    const checkWhereClause = checkWhereClauseSlugOrId(data)
+
+    prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+    prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+
+    prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
 }

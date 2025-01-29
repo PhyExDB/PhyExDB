@@ -5,8 +5,7 @@ import updateLegalDocument from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import {
   getEvent,
-  checkWhereClauseSlugOrId,
-  prismaMockResolvedCheckingWhereClause,
+  mockPrismaForPostSlugOrId,
 } from "~~/tests/helpers/utils"
 import { generateMock } from "@anatine/zod-mock"
 
@@ -33,9 +32,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       const event = getEvent({ params: { slug }, body: updateContent })
 
       // mock
-      const checkWhereClause = checkWhereClauseSlugOrId(data)
-      prisma.legalDocument.findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
-      prisma.legalDocument.update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
+      mockPrismaForPostSlugOrId("legalDocument", data, expected)
 
       // test
       const response = await updateLegalDocument(event)
