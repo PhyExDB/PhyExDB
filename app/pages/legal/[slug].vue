@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
-import type { LegalDocumentDetail } from "~~/shared/types"
 
 definePageMeta({
   validate: ({ params }) => {
@@ -16,7 +15,7 @@ const formSchema = toTypedSchema(legalDocumentUpdateSchema)
 const route = useRoute()
 const slug = route.params.slug as string
 
-const { data: legal } = await useAPI<LegalDocumentDetail>(`/api/legal/${slug}`)
+const { data: legal } = await useFetch(`/api/legal/${slug}`)
 
 const form = useForm({ validationSchema: formSchema, initialValues: {
   name: legal.value?.name,
