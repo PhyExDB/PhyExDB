@@ -214,3 +214,8 @@ model Comment {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
+
+model SeedStatus {
+  name        String   @id
+  performedAt DateTime @default(now())
+}
