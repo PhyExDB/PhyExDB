@@ -1,20 +1,25 @@
+<script lang="ts" setup>
+const { checked } = defineProps<{
+  checked: string[][]
+}>()
+
+const emit = defineEmits<{
+  (event: "update:checked", value: string[][]): void
+}>()
+
+function resetModelValues() {
+  emit("update:checked", checked.map(() => []))
+}
+</script>
+
 <template>
   <Button
-    @click="checked.forEach((values) => values.fill(false))"
+    @click="resetModelValues"
   >
-    Zurücksetzen <Icon
+    Zurücksetzen
+    <Icon
       name="heroicons:arrow-uturn-left"
       class="ml-2 h-4 w-4"
     />
   </Button>
 </template>
-
-<script lang="ts" setup>
-const { checked } = defineProps<{
-  checked: boolean[][]
-}>()
-</script>
-
-<style>
-
-</style>

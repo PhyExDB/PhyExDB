@@ -179,7 +179,6 @@ async function removeFile(sectionIndex: number, fileId: string) {
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
-  console.log(values)
   if (!emailVerified) return
   if (loading.value) return
   loading.value = true

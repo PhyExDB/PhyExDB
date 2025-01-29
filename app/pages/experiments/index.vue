@@ -11,35 +11,27 @@ const { data } = useLazyFetch("/api/experiments", {
   },
 })
 
-/* Attributes */
-const initializeFilterChecklist = (list: boolean[][]) => {
-  attributes.value!.forEach((attribute) => {
-    list.push(attribute.values.map(() => false))
-  })
-}
 const { data: attributes } = await useFetch(
   `/api/experiments/attributes`,
 )
 
-const checked = ref<boolean[][]>([])
+/* Attributes */
+function initializeFilterChecklist(list: string[][]) {
+  if (!attributes) {
+    return
+  }
+  attributes.value!.forEach(_ => list.push([]))
+}
+
+const checked = ref<string[][]>([])
 initializeFilterChecklist(checked.value)
 
 /* Filter Dialog */
 const dialogOpen = ref(false)
 
-const temporaryChecked = ref<boolean[][]>([])
-initializeFilterChecklist(temporaryChecked.value)
-
-const submitFilters = () => {
-  checked.value = temporaryChecked.value
+function submitFilters() {
   dialogOpen.value = false
 }
-
-watch(dialogOpen, () => {
-  if (dialogOpen.value) {
-    temporaryChecked.value = checked.value
-  }
-})
 </script>
 
 <template>
@@ -51,6 +43,7 @@ watch(dialogOpen, () => {
         :checked="checked"
         :attributes="attributes"
         :show-undo-button="true"
+        @update:checked="checked = $event"
       />
     </div>
     <div class="flex flex-row gap-1 justify-between items-center xl:hidden">
@@ -81,7 +74,7 @@ watch(dialogOpen, () => {
               <DialogTitle>Filter Konfigurieren</DialogTitle>
             </DialogHeader>
             <ExperimentsFilters
-              :checked="temporaryChecked"
+              :checked="checked"
               :attributes="attributes"
               :show-undo-button="false"
             />
