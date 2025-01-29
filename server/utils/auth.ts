@@ -1,5 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { betterAuth } from "better-auth"
+import { APIError } from "better-auth/api";
 import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import prisma from "../../server/utils/prisma"
@@ -26,11 +27,27 @@ export const auth = betterAuth({
     },
   },
   user: {
+    deleteUser: {
+      enabled: true,
+      beforeDelete: async (user, _) => {
+        // There should at least be one admin user in the database
+        const adminUsers = await prisma.user.count({ where: { role: "ADMIN" } })
+        const userRecord = await prisma.user.findUnique({ where: { id: user.id } })
+        const userRole = userRecord?.role
+        if (adminUsers === 1 && userRole === "ADMIN") {
+          throw new APIError("BAD_REQUEST", { message: "Cannot delete the last admin user" })
+        }
+      },
+      // Cleanup user data after deletion in betterAuth table. Referential fields are set to null as definded in schema.prisma
+      afterDelete: async (user, _) => {
+        prisma.user.delete({ where: { id: user.id } })
+      },
+    },
     changeEmail: {
       enabled: true,
       sendChangeEmailVerification: async ({ user, newEmail, url, token }, _) => {
         const devUrl = url.replace("http://localhost", "http://localhost:3000")
-        authLogger.alert("changeEmail", { user, newEmail, devUrl, token })
+        authLogger.alert("cha^ngeEmail", { user, newEmail, devUrl, token })
       },
     },
   },

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserDeleteAccountDialog from "~/components/user/UserDeleteAccountDialog.vue"
 import getInitials from "~~/shared/utils/initials"
 
 definePageMeta({
@@ -130,6 +131,14 @@ async function createExperiment() {
                 Passwort ändern
               </Button>
             </UserUpdatePasswordDialog>
+            <UserDeleteAccountDialog>
+              <Button
+                variant="outline"
+                class="m-1 px-5 justify-center"
+              >
+                Account löschen
+              </Button>
+            </UserDeleteAccountDialog>
           </div>
         </div>
       </CardContent>
