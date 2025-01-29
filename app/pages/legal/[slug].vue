@@ -9,16 +9,36 @@ definePageMeta({
   },
 })
 authorize(legalAbilities.get)
-
 const loading = ref(false)
 const open = ref(false)
 const formSchema = toTypedSchema(legalDocumentUpdateSchema)
-const form = useForm({ validationSchema: formSchema })
 
 const route = useRoute()
 const slug = route.params.slug as string
 
 const { data: legal } = await useAPI<LegalDocumentDetail>(`/api/legal/${slug}`)
+
+const form = useForm({ validationSchema: formSchema, initialValues: {
+  name: legal.value?.name,
+  text: legal.value?.text,
+} })
+const openForm = (event: boolean) => {
+  open.value = event
+  if (event) {
+    form.resetForm()
+  }
+}
+
+watch (() => legal.value, (newLegal) => {
+  if (!open.value) {
+    form.resetForm({
+      values: {
+        name: newLegal?.name,
+        text: newLegal?.text,
+      },
+    })
+  }
+})
 
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
@@ -29,6 +49,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     body: values,
   })
   open.value = false
+  loading.value = false
 })
 </script>
 
@@ -46,7 +67,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     >
       <Dialog
         :open="open"
-        @update:open="open=$eve"
+        @update:open="openForm"
       >
         <DialogTrigger as-child>
           <Button
