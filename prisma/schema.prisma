@@ -53,8 +53,8 @@ model Experiment {
   id             String                     @id @default(uuid())
   name           String
   slug           String                     @unique
-  user           User                       @relation(fields: [userId], references: [id])
-  userId         String
+  user           User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         String?
   status         ExperimentStatus           @default(DRAFT)
   duration       Int
   previewImage   File?                      @relation(fields: [previewImageId], references: [id])
@@ -124,8 +124,8 @@ model File {
   experimentFile        ExperimentFile?
   experimentPreviewFile Experiment?
   userFile              UserFile?
-  createdBy             User            @relation(fields: [createdById], references: [id])
-  createdById           String
+  createdBy             User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById           String?
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
 }
@@ -148,7 +148,7 @@ model UserFile {
   id     String  @id @default(uuid())
   file   File    @relation(fields: [fileId], references: [id])
   fileId String  @unique
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId String? @unique
 }
 
@@ -202,8 +202,8 @@ model Verification {
 model Comment {
   id           String      @id
   text         String
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId       String?
   experiment   Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
   experimentId String?
   parent       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: SetNull)
