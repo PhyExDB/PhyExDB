@@ -29,7 +29,7 @@ export const auth = betterAuth({
   user: {
     deleteUser: {
       enabled: true,
-      beforeDelete: async (user, __) => {
+      beforeDelete: async (user, _) => {
         // There should at least be one admin user in the database
         const adminUsers = await prisma.user.count({ where: { role: "ADMIN" } })
         const userRecord = await prisma.user.findUnique({ where: { id: user.id } })
