@@ -6,7 +6,6 @@
  * It then navigates to the specified path.
  */
 export function followRedirect(){
-    // useRouter().back()
     const path = useRoute().query.redirect as string || "/profile"
     navigateTo(path)
 }
