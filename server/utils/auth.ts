@@ -21,7 +21,6 @@ export const auth = betterAuth({
         subject: "Verifying PHYEXDB email-address",
         text: `Please click the following link to verify your email address: ${url} or enter the token ${token} on the verification page.`,
         to: user.email,
-        html: `Please click the following link to verify your email address: ${url} or enter the token ${token} on the verification page.`,
       })
     },
   },

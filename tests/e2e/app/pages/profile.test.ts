@@ -134,8 +134,8 @@ test.describe("Profile Page", () => {
       - button "Passwort ändern"
       `)
     // Expect the toast to show
-    await expect(page.getByRole("status", { name: "Account aktualisiert" })).toMatchAriaSnapshot(`
-      - status "Account aktualisiert":
+    await expect(page.getByRole("alert", { name: "Account aktualisiert" })).toMatchAriaSnapshot(`
+      - alert "Account aktualisiert":
         - text: Account aktualisiert Dein Account wurde erfolgreich aktualisiert.
         - button:
           - img
@@ -247,8 +247,8 @@ test.describe("Profile Page", () => {
     await page.locator("#oldPassword").fill("1Password")
     await page.getByRole("button", { name: "Speichern" }).click()
     // Expect the toast to show
-    await expect(page.getByRole("status", { name: "Passwort geändert" })).toMatchAriaSnapshot(`
-    - status "Passwort geändert":
+    await expect(page.getByRole("alert", { name: "Passwort geändert" })).toMatchAriaSnapshot(`
+    - alert "Passwort geändert":
       - text: Passwort geändert Dein Passwort wurde erfolgreich geändert.
       - button:
         - img
