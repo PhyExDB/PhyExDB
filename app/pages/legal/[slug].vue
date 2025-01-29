@@ -31,11 +31,9 @@ const openForm = (event: boolean) => {
 
 watch (() => legal.value, (newLegal) => {
   if (!open.value) {
-    form.resetForm({
-      values: {
-        name: newLegal?.name,
-        text: newLegal?.text,
-      },
+    form.setValues({
+      name: newLegal?.name,
+      text: newLegal?.text,
     })
   }
 })
