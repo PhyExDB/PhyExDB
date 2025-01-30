@@ -23,12 +23,14 @@ function initializeFilterChecklist(list: string[][]) {
   if (!attributes) {
     return
   }
-  attributeFilter.value.split(",").forEach((id) => {
-    list.push([])
+  attributeFilter.value.split(",").forEach((slug) => {
     attributes.value?.forEach((attribute, attrIndex) => {
-      if (attribute.values.some(value => value.id === id)) {
-        list[attrIndex]?.push(id)
-      }
+      list.push([])
+      attribute.values.forEach((value) => {
+        if (value.slug === slug) {
+          list[attrIndex]?.push(value.id)
+        }
+      })
     })
   })
 }
