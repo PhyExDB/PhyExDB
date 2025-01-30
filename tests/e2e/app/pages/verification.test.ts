@@ -29,7 +29,7 @@ test.describe("E-Mail verification", () => {
       `)
 
     await page.goto("http://localhost:8025/", { waitUntil: "networkidle" })
-    await page.getByRole("link", { name: `email@email.com To: ${email}` }).click()
+    await page.getByRole("link", { name: `email@test.test To: ${email}` }).click()
     const page1Promise = page.waitForEvent("popup")
     await page.getByRole("link", { name: "http://localhost:3000/api/" }).click()
     const page1 = await page1Promise
