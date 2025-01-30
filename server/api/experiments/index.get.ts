@@ -1,9 +1,11 @@
 import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
-  /* Attribute Filter */
+  // Attribute Filter
   const query = getQuery(event)
-  const attributes = (typeof query.attributes === "string" && query.attributes.length > 0) ? query.attributes.split(",") : []
+  const attributes = (typeof query.attributes === "string" && query.attributes.length > 0)
+    ? query.attributes.split(",")
+    : []
   const attributeFilters = attributes.map(slug => ({
     attributes: {
       some: {
@@ -13,15 +15,18 @@ export default defineEventHandler(async (event) => {
   }))
   const attributeFilter = attributeFilters.length > 0 ? { AND: attributeFilters } : {}
 
-  /* Sorting */
+  // Sorting
   const sort = query.sort as string || undefined
-  const sortOption = sort === "alphabetical"
-    ? { name: "asc" as const }
-    : sort === "duration"
-      ? { duration: "asc" as const }
-      : undefined
+  let sortOption
+  if (sort === "alphabetical") {
+    sortOption = { name: "asc" as const }
+  } else if (sort === "duration") {
+    sortOption = { duration: "asc" as const }
+  } else {
+    sortOption = undefined
+  }
 
-  /* Total Number of Experiments */
+  // Total Number of Experiments
   const totalExperiments = await prisma.experiment.count({
     where: {
       status: "PUBLISHED",
@@ -29,10 +34,10 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  /* Pagination */
+  // Pagination
   const pageMeta = getPageMeta(event, totalExperiments)
 
-  /* Experiment Data */
+  // Experiment Data
   const experiments = await prisma.experiment.findMany({
     ...getPaginationPrismaParam(pageMeta),
     where: {
