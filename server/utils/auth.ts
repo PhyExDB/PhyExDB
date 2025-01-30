@@ -1,6 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { betterAuth } from "better-auth"
-import { APIError } from "better-auth/api";
+import { APIError } from "better-auth/api"
 import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import prisma from "../../server/utils/prisma"

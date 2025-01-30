@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { copyPrismaAssets } from "./server/utils/copy-prisma-assets"
+
 export default defineNuxtConfig({
   modules: [
     "@nuxt/eslint",
@@ -40,6 +42,7 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       openAPI: true,
+      tasks: true,
     },
   },
 
@@ -54,6 +57,10 @@ export default defineNuxtConfig({
       tailwindcss: {},
       autoprefixer: {},
     },
+  },
+
+  hooks: {
+    "nitro:build:public-assets": copyPrismaAssets,
   },
 
   eslint: {
@@ -74,12 +81,12 @@ export default defineNuxtConfig({
 
   // In order for mails from nodemailer to be visible in mailpit a username and password in the auth field must be set
   nodemailer: {
-    from: "email@email.com",
+    from: "email@test.test",
     host: "localhost",
     port: 1025,
     secure: false,
     auth: {
-      user: "test@gmail.com",
+      user: "test@test.test",
       pass: "null",
     },
   },

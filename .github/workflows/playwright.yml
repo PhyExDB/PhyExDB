@@ -56,9 +56,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run db migrations and seeds
-        run: npm run migrate && npm run migrate:seed
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
