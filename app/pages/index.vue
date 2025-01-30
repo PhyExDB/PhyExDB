@@ -5,4 +5,5 @@
 </template>
 
 <script setup>
+await navigateTo("/experiments")
 </script>
