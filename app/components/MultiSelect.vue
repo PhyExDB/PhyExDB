@@ -47,7 +47,11 @@ const toggle = (option: T) => {
       selected.value = [...selected.value, option.id]
     }
   } else {
-    selected.value = [option.id]
+    if (isSelected(option)) {
+      selected.value = []
+    } else {
+      selected.value = [option.id]
+    }
     open.value = false
   }
 
