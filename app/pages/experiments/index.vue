@@ -106,6 +106,7 @@ watch([sort, attributeFilter, page, pageSize], () => {
         :checked="checked"
         :attributes="attributes"
         :show-undo-button="true"
+        :show-all-selected="false"
         @update:checked="checked = $event"
       />
     </div>
@@ -140,6 +141,7 @@ watch([sort, attributeFilter, page, pageSize], () => {
               :checked="checked"
               :attributes="attributes"
               :show-undo-button="false"
+              :show-all-selected="true"
               @update:checked="temporaryChecked = $event"
             />
             <DialogFooter>
