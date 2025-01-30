@@ -365,34 +365,6 @@ async function submitForReview() {
               <FormMessage />
             </FormItem>
           </FormField>
-          <!-- <FormField
-            v-slot="{ componentField }"
-            :name="`attributes[${index}].valueIds[0]`"
-          >
-            <FormItem>
-              <FormLabel>{{ attribute.name }}</FormLabel>
-              <Select v-bind="componentField">
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Auswählen" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectGroup>
-                    <template
-                      v-for="value in attribute.values"
-                      :key="value.id"
-                    >
-                      <SelectItem :value="value.id">
-                        {{ value.value }}
-                      </SelectItem>
-                    </template>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          </FormField> -->
         </template>
 
         <template
