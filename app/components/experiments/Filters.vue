@@ -50,12 +50,11 @@ function selectedToString(selected: string[], attribute: ExperimentAttributeDeta
             Keine Optionen gefunden.
           </template>
           <template #preview="{ selected }">
-            <span style="white-space: nowrap;">
+            <span class="whitespace-nowrap">
               {{ selectedToString(selected, attribute) }}
               <Badge
                 v-if="!showAllSelected && selected.length > 1"
-                class="text-xs"
-                style="background-color: transparent; color: white; border: 1px solid white;"
+                class="text-xs bg-transparent text-white border border-white"
               >
                 + {{ selected.length - 1 }}
               </Badge>
