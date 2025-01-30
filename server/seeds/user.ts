@@ -40,10 +40,7 @@ export default class UserSeed extends Seed {
     })
   }
 
-  /**
-   * Seeds the database with users.
-   */
-  async seed() {
+  private devUsers(): UserDetail[] {
     const users: UserDetail[] = [
       {
         id: uuidv4(),
@@ -74,6 +71,41 @@ export default class UserSeed extends Seed {
         emailVerified: false,
       },
     ]
+    return users
+  }
+
+  private prodUsers(): UserDetail[] {
+    const users: UserDetail[] = [
+      {
+        id: uuidv4(),
+        name: "Admin",
+        role: "ADMIN",
+        email: "admin@test.test",
+        emailVerified: false,
+      },
+      {
+        id: uuidv4(),
+        name: "User",
+        role: "USER",
+        email: "user@test.test",
+        emailVerified: false,
+      },
+    ]
+    return users
+  }
+
+  /**
+   * Seeds the database with users.
+   */
+  async seed() {
+    let users: UserDetail[]
+    if (import.meta.dev) {
+      logger.info("Seeding dev users")
+      users = this.devUsers()
+    } else {
+      logger.info("Seeding production users")
+      users = this.prodUsers()
+    }
     await Promise.all(users.map(async user => this.createUser(user)))
   }
 }
