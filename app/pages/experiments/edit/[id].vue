@@ -178,15 +178,20 @@ async function removeFile(sectionIndex: number, fileId: string) {
   })
 }
 
+async function saveForm(values: typeof form.values) {
+  const response = await $fetch<ExperimentDetail>(`/api/experiments/${experimentId}`, {
+    method: "PUT",
+    body: values,
+  })
+  return response
+}
+
 const onSubmit = form.handleSubmit(async (values) => {
   if (!emailVerified) return
   if (loading.value) return
   loading.value = true
 
-  const response = await $fetch<ExperimentDetail>(`/api/experiments/${experimentId}`, {
-    method: "PUT",
-    body: values,
-  })
+  const response = await saveForm(values)
   experiment.value = response
 
   loading.value = false
@@ -201,11 +206,10 @@ const onSubmit = form.handleSubmit(async (values) => {
 async function submitForReview() {
   if (!experiment.value || !sections.value || !attributes.value) return
 
-  await onSubmit()
-  // Without this timeout, the errors don't show up
-  await new Promise(resolve => setTimeout(resolve, 100))
+  form.validate()
+  const response = await saveForm(form.values)
 
-  const experimentForReview = transformExperimentToSchemaType(experiment.value, attributes.value)
+  const experimentForReview = transformExperimentToSchemaType(response, attributes.value)
 
   const experimentReviewSchema = getExperimentReadyForReviewSchema(sections.value, attributes.value)
   const errors = await experimentReviewSchema.safeParseAsync(experimentForReview)
