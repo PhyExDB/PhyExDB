@@ -54,7 +54,7 @@ function selectedToString(selected: string[], attribute: ExperimentAttributeDeta
               {{ selectedToString(selected, attribute) }}
               <Badge
                 v-if="!showAllSelected && selected.length > 1"
-                class="text-xs bg-transparent text-white border border-white"
+                variant="outline"
               >
                 + {{ selected.length - 1 }}
               </Badge>
