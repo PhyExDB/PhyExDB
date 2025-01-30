@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-const { checked, attributes, showUndoButton } = defineProps<{
+const { checked, attributes, showUndoButton, showAllSelected } = defineProps<{
   checked: string[][]
   attributes: ExperimentAttributeDetail[] | undefined
   showUndoButton: boolean
+  showAllSelected: boolean
 }>()
 
 const emit = defineEmits<{
@@ -17,6 +18,15 @@ function updateModelValueAtIndex(index: number, value: string[]) {
   const newChecked = checked.slice()
   newChecked[index] = value
   updateModelValue(newChecked)
+}
+
+function selectedToString(selected: string[], attribute: ExperimentAttributeDetail) {
+  if (selected.length) {
+    const selectedValues = selected.map(id => attribute.values.find(value => value.id === id)?.value)
+    return showAllSelected ? selectedValues.join(",") : selectedValues.at(0)
+  } else {
+    return "Alle"
+  }
 }
 </script>
 
@@ -40,7 +50,15 @@ function updateModelValueAtIndex(index: number, value: string[]) {
             Keine Optionen gefunden.
           </template>
           <template #preview="{ selected }">
-            {{ selected.length ? selected.map(id => attribute.values.find(value => value.id === id)?.value).join(", ") : "Alle" }}
+            <span class="whitespace-nowrap">
+              {{ selectedToString(selected, attribute) }}
+              <Badge
+                v-if="!showAllSelected && selected.length > 1"
+                class="text-xs bg-transparent text-white border border-white"
+              >
+                + {{ selected.length - 1 }}
+              </Badge>
+            </span>
           </template>
           <template #option="{ option }">
             {{ option.value }}

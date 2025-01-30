@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 const route = useRoute()
 const sort = ref(route.query.sort as string || "none")
+const attributeFilter = ref<string>(route.query.attributes as string || "")
 
 const { page, pageSize } = getRequestPageMeta()
 
@@ -8,6 +9,8 @@ const { data } = useLazyFetch("/api/experiments", {
   query: {
     page: page,
     pageSize: pageSize,
+    sort: sort,
+    attributes: attributeFilter,
   },
 })
 
@@ -20,7 +23,16 @@ function initializeFilterChecklist(list: string[][]) {
   if (!attributes) {
     return
   }
-  attributes.value!.forEach(_ => list.push([]))
+  attributeFilter.value.split(",").forEach((slug) => {
+    attributes.value?.forEach((attribute, attrIndex) => {
+      list.push([])
+      attribute.values.forEach((value) => {
+        if (value.slug === slug) {
+          list[attrIndex]?.push(value.id)
+        }
+      })
+    })
+  })
 }
 
 const checked = ref<string[][]>([])
@@ -28,10 +40,63 @@ initializeFilterChecklist(checked.value)
 
 /* Filter Dialog */
 const dialogOpen = ref(false)
+const temporaryChecked = ref<string[][]>([])
 
+function openDialog() {
+  temporaryChecked.value = checked.value
+  dialogOpen.value = true
+}
 function submitFilters() {
   dialogOpen.value = false
+  checked.value = temporaryChecked.value
 }
+
+/* React to Filter Changes */
+function mapFilterIdToSlug(id: string) {
+  for (const attribute of attributes.value || []) {
+    for (const value of attribute.values) {
+      if (id === value.id) {
+        return value.slug
+      }
+    }
+  }
+  return ""
+}
+watch(checked, () => {
+  attributeFilter.value = checked.value.map(
+    attribute => attribute.map(
+      attributeValue => mapFilterIdToSlug(attributeValue),
+    ).join(","),
+  ).filter(
+    attribute => attribute.length > 0,
+  ).join(",")
+  console.log(attributeFilter)
+})
+
+/* Update the URL */
+watch([sort, attributeFilter, page, pageSize], () => {
+  const query:
+  {
+    attributes?: string
+    page?: number
+    pageSize?: number
+    sort?: string
+  } = {}
+  if (attributeFilter.value !== "") {
+    query.attributes = attributeFilter.value
+  }
+  if (page.value !== defaultPage) {
+    query.page = page.value
+  }
+  if (pageSize.value !== defaultPageSize) {
+    query.pageSize = pageSize.value
+  }
+  if (sort.value !== "none") {
+    query.sort = sort.value
+  }
+  const newUrl = { path: route.path, query }
+  useRouter().replace(newUrl)
+})
 </script>
 
 <template>
@@ -43,6 +108,7 @@ function submitFilters() {
         :checked="checked"
         :attributes="attributes"
         :show-undo-button="true"
+        :show-all-selected="false"
         @update:checked="checked = $event"
       />
     </div>
@@ -56,7 +122,7 @@ function submitFilters() {
           <Button
             variant="outline"
             class="flex-grow-8"
-            @click="dialogOpen = true"
+            @click="openDialog"
           >
             Filter <Icon
               name="heroicons:adjustments-horizontal"
@@ -77,6 +143,8 @@ function submitFilters() {
               :checked="checked"
               :attributes="attributes"
               :show-undo-button="false"
+              :show-all-selected="true"
+              @update:checked="temporaryChecked = $event"
             />
             <DialogFooter>
               <Button
@@ -91,6 +159,7 @@ function submitFilters() {
       </Dialog>
       <ExperimentsUndoFilters
         :checked="checked"
+        @update:checked="checked = $event"
       />
     </div>
 
@@ -143,7 +212,7 @@ function submitFilters() {
 
               <!-- Overlay Content (Defines Section Size) -->
               <div
-                class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-50 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
+                class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
               >
                 <div class="grid grid-cols-2 gap-1">
                   <template
