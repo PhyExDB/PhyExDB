@@ -50,12 +50,25 @@ function submitFilters() {
 }
 
 /* React to Filter Changes */
+function mapFilterIdToSlug(id: string) {
+  for (const attribute of attributes.value || []) {
+    for (const value of attribute.values) {
+      if (id === value.id) {
+        return value.slug
+      }
+    }
+  }
+  return ""
+}
 watch(checked, () => {
   attributeFilter.value = checked.value.map(
-    attribute => attribute.join(","),
+    attribute => attribute.map(
+      attributeValue => mapFilterIdToSlug(attributeValue),
+    ).join(","),
   ).filter(
     attribute => attribute.length > 0,
   ).join(",")
+  console.log(attributeFilter)
 })
 
 /* Update the URL */

@@ -4,10 +4,10 @@ export default defineEventHandler(async (event) => {
   /* Attribute Filter */
   const query = getQuery(event)
   const attributes = (typeof query.attributes === "string" && query.attributes.length > 0) ? query.attributes.split(",") : []
-  const attributeFilters = attributes.map(id => ({
+  const attributeFilters = attributes.map(slug => ({
     attributes: {
       some: {
-        id: id,
+        slug: slug,
       },
     },
   }))
