@@ -28,8 +28,12 @@ export default defineNuxtConfig({
   runtimeConfig: {
     logLevel: "debug",
     fileMount: "./public",
+    trustedOrigins: "http://localhost:3000",
     public: {
       sectionFileAccepts: "image/jpeg,image/png,image/webp,application/pdf,video/mp4",
+      fileStorage: {
+        mount: "public",
+      },
     },
   },
 
@@ -73,10 +77,6 @@ export default defineNuxtConfig({
         semi: false,
       },
     },
-  },
-
-  fileStorage: {
-    mount: process.env.NUXT_FILE_MOUNT,
   },
 
   // In order for mails from nodemailer to be visible in mailpit a username and password in the auth field must be set
