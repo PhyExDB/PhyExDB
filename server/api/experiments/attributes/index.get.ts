@@ -5,7 +5,11 @@ export default defineEventHandler(async (event) => {
   await authorize(event, experimentAttributeAbilities.getAll)
 
   const attributes = await prisma.experimentAttribute.findMany({
-    include: { values: true },
+    include: {
+      values: {
+        orderBy: { value: "asc" },
+      },
+    },
     orderBy: { order: "asc" },
   })
 
