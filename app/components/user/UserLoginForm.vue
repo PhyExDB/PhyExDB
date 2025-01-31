@@ -24,7 +24,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       console.error(error)
     }
   } else {
-    await navigateTo("/profile")
+    followRedirect()
   }
   loading.value = false
 })
