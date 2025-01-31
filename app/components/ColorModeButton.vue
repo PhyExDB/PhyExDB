@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-
 const colorMode = useColorMode()
 
 const colorModes = [
