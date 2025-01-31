@@ -307,30 +307,6 @@ async function submitForReview() {
           Kategorisierung
         </h3>
 
-        <FormField
-          v-slot="{ componentField, value }"
-          name="duration"
-        >
-          <FormItem>
-            <FormLabel>Dauer</FormLabel>
-            <FormControl>
-              <Slider
-                id="duration"
-                v-bind="componentField"
-                :default-value="[20]"
-                :min="5"
-                :max="120"
-                :step="5"
-              />
-              <FormDescription class="flex justify-between">
-                <span>Wie lange dauert die Durchführung des Experiments ungefähr?</span>
-                <span>ca. {{ durationToMinAndHourString(value?.[0]) }}</span>
-              </FormDescription>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        </FormField>
-
         <template
           v-for="(attribute, index) in attributes"
           :key="attribute.id"
@@ -370,6 +346,30 @@ async function submitForReview() {
             </FormItem>
           </FormField>
         </template>
+
+        <FormField
+          v-slot="{ componentField, value }"
+          name="duration"
+        >
+          <FormItem>
+            <FormLabel>Dauer</FormLabel>
+            <FormControl>
+              <Slider
+                id="duration"
+                v-bind="componentField"
+                :default-value="[20]"
+                :min="5"
+                :max="120"
+                :step="5"
+              />
+              <FormDescription class="flex justify-between">
+                <span>Wie lange dauert die Durchführung des Experiments ungefähr?</span>
+                <span>ca. {{ durationToMinAndHourString(value?.[0]) }}</span>
+              </FormDescription>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
 
         <template
           v-for="section in sections"
