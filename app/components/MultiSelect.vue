@@ -1,5 +1,5 @@
 <script lang="ts" generic="T extends { id: string }" setup>
-const { modelValue, options, multiple } = defineProps({
+const { modelValue, options, multiple, valueForOption, allowNone } = defineProps({
   modelValue: {
     type: Array<string>,
     required: false,
@@ -24,6 +24,11 @@ const { modelValue, options, multiple } = defineProps({
     required: false,
     default: (option: T) => option.id,
   },
+  allowNone: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 
 const emit = defineEmits<{
@@ -47,7 +52,7 @@ const toggle = (option: T) => {
       selected.value = [...selected.value, option.id]
     }
   } else {
-    if (isSelected(option)) {
+    if (isSelected(option) && allowNone) {
       selected.value = []
     } else {
       selected.value = [option.id]
@@ -84,7 +89,8 @@ const toggle = (option: T) => {
           class="ml-2 h-4 w-4 shrink-0 opacity-50"
         />
       </Button>
-    </PopoverTrigger>    <PopoverContent class="p-0 w-full">
+    </PopoverTrigger>
+    <PopoverContent class="p-0 w-full">
       <Command>
         <CommandInput
           class="h-9"

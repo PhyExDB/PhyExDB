@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 const route = useRoute()
-const sort = ref(route.query.sort as string || "none")
+const sort = ref<string[]>([route.query.sort as string || "none"])
 const attributeFilter = ref<string>(route.query.attributes as string || "")
 
 const { page, pageSize } = getRequestPageMeta()
@@ -34,6 +34,12 @@ function initializeFilterChecklist(list: string[][]) {
     })
   })
 }
+
+const sortOptions = [
+  { id: "none", label: "Keine Sortierung" },
+  { id: "alphabetical", label: "Alphabetisch" },
+  { id: "duration", label: "Durchführungsdauer" },
+]
 
 const checked = ref<string[][]>([])
 initializeFilterChecklist(checked.value)
@@ -91,8 +97,8 @@ watch([sort, attributeFilter, page, pageSize], () => {
   if (pageSize.value !== defaultPageSize) {
     query.pageSize = pageSize.value
   }
-  if (sort.value !== "none") {
-    query.sort = sort.value
+  if (sort.value[0] !== "none") {
+    query.sort = sort.value[0]
   }
   const newUrl = { path: route.path, query }
   useRouter().replace(newUrl)
@@ -112,7 +118,7 @@ watch([sort, attributeFilter, page, pageSize], () => {
         @update:checked="checked = $event"
       />
     </div>
-    <div class="flex flex-row gap-1 justify-between items-center xl:hidden">
+    <div class="flex flex-col sm:flex-row gap-1 justify-between items-center xl:hidden">
       <!-- Filter Dialog for Small Screens -->
       <Dialog
         :open="dialogOpen"
@@ -121,7 +127,7 @@ watch([sort, attributeFilter, page, pageSize], () => {
         <DialogTrigger as-child>
           <Button
             variant="outline"
-            class="flex-grow-8"
+            class="w-full sm:w-auto"
             @click="openDialog"
           >
             Filter <Icon
@@ -159,36 +165,36 @@ watch([sort, attributeFilter, page, pageSize], () => {
       </Dialog>
       <ExperimentsUndoFilters
         :checked="checked"
+        class="w-full sm:w-auto mt-2 sm:mt-0"
         @update:checked="checked = $event"
       />
     </div>
 
     <!-- Experiment Count & Sorting -->
-    <div class="flex flex-row gap-1 justify-between items-center">
-      {{ data?.pagination.total }} Experimente gefunden
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button variant="outline">
-            Sortierung <Icon
-              name="heroicons:chevron-up-down"
-              class="ml-2 h-4 w-4"
-            />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuRadioGroup v-model="sort">
-            <DropdownMenuRadioItem value="none">
-              Keine Sortierung
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="duration">
-              Durchführungsdauer
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="alphabetical">
-              Alphabetisch
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
+      <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">
+        {{ data?.pagination.total }} Experimente gefunden
+      </div>
+      <div class="w-full sm:w-64 order-1 sm:order-2">
+        <MultiSelect
+          :model-value="sort"
+          :options="sortOptions"
+          :value-for-option="option => option.label"
+          search-placeholder="Sortierung"
+          :allow-none="false"
+          @update:model-value="sort = $event"
+        >
+          <template #empty>
+            Sortierung
+          </template>
+          <template #preview="{ selected }">
+            {{ sortOptions.find(option => option.id === selected[0])?.label }}
+          </template>
+          <template #option="{ option }">
+            {{ option.label }}
+          </template>
+        </MultiSelect>
+      </div>
     </div>
     <!-- Experiments -->
     <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
