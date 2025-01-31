@@ -1,4 +1,3 @@
-import type { RefSymbol } from "@vue/reactivity"
 import { toRef } from "vue"
 
 /**
