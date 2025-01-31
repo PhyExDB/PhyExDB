@@ -21,8 +21,6 @@
     "migrate:seed": "dotenv -e .env.development prisma db seed"
   },
   "dependencies": {
-    "@anatine/zod-mock": "^3.13.5",
-    "@faker-js/faker": "^9.4.0",
     "@formkit/drag-and-drop": "^0.3.3",
     "@nuxt/icon": "^1.10.3",
     "@nuxt/image": "^1.9.0",
@@ -55,13 +53,15 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@anatine/zod-mock": "^3.13.5",
+    "@faker-js/faker": "^9.4.0",
     "@iconify-json/heroicons": "^1.2.2",
     "@iconify-json/uil": "^1.2.3",
     "@nuxt/eslint": "^0.7.5",
     "@nuxt/test-utils": "^3.15.4",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "@playwright/test": "^1.50.0",
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "^6.0.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^22.12.0",
@@ -76,7 +76,8 @@
     "nuxt-nodemailer": "^1.1.2",
     "playwright-core": "^1.49.1",
     "postcss": "^8.5.1",
-    "prisma": "^6.2.1",
+    "prisma": "^6.0.1",
+    "prisma-generator-fake-data": "^0.14.3",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
