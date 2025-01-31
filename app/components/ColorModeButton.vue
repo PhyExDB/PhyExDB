@@ -3,6 +3,21 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const colorMode = useColorMode()
+
+const colorModes = [
+  {
+    name: "Hell",
+    value: "light",
+  },
+  {
+    name: "Dunkel",
+    value: "dark",
+  },
+  {
+    name: "System",
+    value: "system",
+  },
+]
 </script>
 
 <template>
@@ -24,15 +39,22 @@ const colorMode = useColorMode()
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuItem @click="colorMode.preference = 'light'">
-        Light
-      </DropdownMenuItem>
-      <DropdownMenuItem @click="colorMode.preference = 'dark'">
-        Dark
-      </DropdownMenuItem>
-      <DropdownMenuItem @click="colorMode.preference = 'system'">
-        System
-      </DropdownMenuItem>
+      <template
+        v-for="mode in colorModes"
+        :key="mode.value"
+      >
+        <DropdownMenuItem
+          class="flex flex-row justify-between"
+          @click="colorMode.preference = mode.value"
+        >
+          {{ mode.name }}
+          <Icon
+            v-if="colorMode.preference === mode.value"
+            name="heroicons:check"
+            class="ml-2 h-4 w-4"
+          />
+        </DropdownMenuItem>
+      </template>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
