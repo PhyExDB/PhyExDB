@@ -352,7 +352,7 @@ async function submitForReview() {
           name="duration"
         >
           <FormItem>
-            <FormLabel>Dauer</FormLabel>
+            <FormLabel>Durchführungszeit</FormLabel>
             <FormControl>
               <Slider
                 id="duration"
