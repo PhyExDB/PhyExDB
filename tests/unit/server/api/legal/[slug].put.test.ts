@@ -17,7 +17,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       { slug: "privacy-policy" },
       { slug: "terms-of-service" },
       { slug: "imprint" },
-    ])(`should return the updated detail of the legal document with ${param} $slug`, async ({ slug }) => {
+    ])(`should_succeed with ${param} $slug`, async ({ slug }) => {
       // definitions
       const updateContent = generateMock(legalDocumentUpdateSchema)
       
