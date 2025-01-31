@@ -10,6 +10,7 @@ import prisma from "../../server/utils/prisma"
  */
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
+  trustedOrigins: useRuntimeConfig().trustedOrigins.split(","),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
