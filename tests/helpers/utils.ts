@@ -63,7 +63,7 @@ export function mockPrismaForPost<T>(table: tables, data: T, expected: T, checkW
 /**
  * Mocks the Prisma client methods for a specific table to simulate a POST request.
  */
-export function mockPrismaForPostSlugOrId<T extends SlugList>(table: tables, data: T, expected: T) {
+export function mockPrismaForPutSlugOrId<T extends SlugList>(table: tables, data: T, expected: T) {
   const checkWhereClause = checkWhereClauseSlugOrId(data)
 
   prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)

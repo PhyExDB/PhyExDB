@@ -5,7 +5,7 @@ import endpoint from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import {
   getEvent,
-  mockPrismaForPostSlugOrId,
+  mockPrismaForPutSlugOrId,
   forSlugAndId,
   testSlugFails,
   testZodFailWithEmptyBody,
@@ -26,7 +26,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
 
   // mock
   mockUser(user.admin)
-  mockPrismaForPostSlugOrId("legalDocument", data, expected)
+  mockPrismaForPutSlugOrId("legalDocument", data, expected)
 
   // tests
   {
