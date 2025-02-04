@@ -15,7 +15,7 @@ const user = defineProps<{
           <Icon
             v-if="user.emailVerified"
             size="1.2em"
-            class="text-success m-0.5"
+            class="text-success-foreground"
             name="heroicons:check-badge"
           />
           <Icon
