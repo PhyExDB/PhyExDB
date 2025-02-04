@@ -9,16 +9,21 @@ export default defineEventHandler(async (event) => {
 
   const content = await readValidatedBody(event, body => experimentAttributeCreateSchema.parse(body))
 
+  const numberOfAttributes = await prisma.experimentAttribute.count()
+
   const result = await untilSlugUnique(
     (slug: string) => {
       return prisma.experimentAttribute.create({
         data: {
           name: content.name,
           slug: slugify(content.name),
+          order: numberOfAttributes,
+          multipleSelection: content.multipleSelection,
           values: {
             create: content.values.map(value => ({
               value: value,
               slug: slug,
+              order: numberOfAttributes,
             })),
           },
         },
@@ -48,6 +53,8 @@ defineRouteMeta({
                 properties: {
                   id: { type: "string", format: "uuid" },
                   name: { type: "string" },
+                  order: { type: "number" },
+                  multipleSelection: { type: "boolean" },
                   valueList: { type: "array" },
                 },
               },

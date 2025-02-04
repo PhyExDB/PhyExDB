@@ -9,7 +9,7 @@ definePageMeta({
 
 const user = await useUser()
 if (user.value) {
-  await navigateTo("/profile")
+  followRedirect()
 }
 </script>
 

@@ -47,7 +47,7 @@ const allowed = await allows(userAbilities.getAll)
   </DropdownMenu>
   <Button v-if="!user">
     <NuxtLink
-      href="/login"
+      @click.prevent="navigateToWithRedirect('/login')"
     >
       Anmelden
     </NuxtLink>

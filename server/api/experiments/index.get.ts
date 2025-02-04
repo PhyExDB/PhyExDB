@@ -1,24 +1,55 @@
 import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
+  // Attribute Filter
+  const query = getQuery(event)
+  const attributes = (typeof query.attributes === "string" && query.attributes.length > 0)
+    ? query.attributes.split(",")
+    : []
+  const attributeFilters = attributes.map(slug => ({
+    attributes: {
+      some: {
+        slug: slug,
+      },
+    },
+  }))
+  const attributeFilter = attributeFilters.length > 0 ? { AND: attributeFilters } : {}
+
+  // Sorting
+  const sort = query.sort as string || undefined
+  let sortOption
+  if (sort === "alphabetical") {
+    sortOption = { name: "asc" as const }
+  } else if (sort === "duration") {
+    sortOption = { duration: "asc" as const }
+  } else {
+    sortOption = undefined
+  }
+
+  // Total Number of Experiments
   const totalExperiments = await prisma.experiment.count({
     where: {
       status: "PUBLISHED",
+      ...attributeFilter,
     },
   })
 
+  // Pagination
   const pageMeta = getPageMeta(event, totalExperiments)
 
+  // Experiment Data
   const experiments = await prisma.experiment.findMany({
     ...getPaginationPrismaParam(pageMeta),
     where: {
       status: "PUBLISHED",
+      ...attributeFilter,
     },
     include: experimentIncludeForToList,
+    orderBy: sortOption,
   })
 
   return {
-    items: experiments as ExperimentList[],
+    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
     pagination: pageMeta,
   } as Page<ExperimentList>
 })

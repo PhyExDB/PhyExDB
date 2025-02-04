@@ -14,6 +14,14 @@ export interface ExperimentAttributeList extends SlugList {
    * The name of the Attribute
    */
   name: string
+  /**
+   * The order of the Attribute
+   */
+  order: number
+  /**
+   * Whether the attribute allows multiple selections
+   */
+  multipleSelection: boolean
 }
 /**
  * Represents an AttributeDetail with id, name, slug, and valueList
@@ -44,4 +52,5 @@ export const experimentAttributeUpdateSchema = z.object({
 export const experimentAttributeCreateSchema = z.object({
   name: z.string(),
   values: z.array(experimentAttributeValueCreateSchema.shape.value),
+  multipleSelection: z.boolean(),
 })

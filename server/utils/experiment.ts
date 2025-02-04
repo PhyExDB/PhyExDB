@@ -7,6 +7,16 @@ import type { Prisma } from "@prisma/client"
 export const experimentIncludeForToList = {
   previewImage: true,
   attributes: {
+    orderBy: [
+      {
+        attribute: {
+          order: "asc" as Prisma.SortOrder,
+        },
+      },
+      {
+        value: "asc" as Prisma.SortOrder,
+      },
+    ],
     select: {
       id: true,
       slug: true,
@@ -16,6 +26,8 @@ export const experimentIncludeForToList = {
           id: true,
           slug: true,
           name: true,
+          order: true,
+          multipleSelection: true,
         },
       },
     },
@@ -65,4 +77,41 @@ export const experimentIncludeForToDetail = {
       },
     },
   },
+}
+
+/**
+ * Maps the attributes of an experiment to conform to the experiment detail type.
+ */
+export function mapExperimentToList(experiment: ExperimentIncorrectList): ExperimentList {
+  const experimentAttributes = experiment.attributes.map((attributeValue) => {
+    const { attribute, ...value } = attributeValue
+    return {
+      ...attribute,
+      values: [value],
+    }
+  }).reduce((acc, attribute) => {
+    const existingAttribute = acc.find(a => a.id === attribute.id)
+    if (existingAttribute) {
+      existingAttribute.values.push(...attribute.values)
+    } else {
+      acc.push(attribute)
+    }
+    return acc
+  }, [] as ExperimentAttributeDetail[])
+
+  return {
+    ...experiment,
+    attributes: experimentAttributes,
+  } as ExperimentDetail
+}
+
+/**
+ * Maps the attributes of an experiment to conform to the experiment detail type.
+ */
+export function mapExperimentToDetail(experiment: ExperimentIncorrectDetail): ExperimentDetail {
+  const listObject = mapExperimentToList(experiment)
+  return {
+    ...experiment,
+    ...listObject,
+  } as ExperimentDetail
 }

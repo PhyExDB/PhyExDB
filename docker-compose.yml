@@ -1,22 +1,22 @@
 services:
-  backend:
+  phyexdb:
     image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
-    container_name: ${APP_NAME:-phyexdb}_backend
-    restart: always
+    container_name: ${APP_NAME:-phyexdb}_phyexdb
+    restart: unless-stopped
     env_file:
       - .env
+    ports:
+      - 8080:8080
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - public_data:/app/public
-    ports:
-      - 8080:8080
 
   db:
     image: postgres:${POSTGRES_TAG:-17-alpine}
     container_name: ${APP_NAME:-phyexdb}_db
-    restart: always
+    restart: unless-stopped
     env_file:
       - .env
     volumes:
@@ -28,27 +28,21 @@ services:
       start_period: 5s
       timeout: 5s
 
-  migrate:
-    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
-    env_file:
-      - .env
+  proxy:
+    image: nginx:latest
+    container_name: ${APP_NAME:-phyexdb}_proxy
+    restart: unless-stopped
     depends_on:
-      db:
-        condition: service_healthy
-    profiles:
-      - tools
-    command: sh -c "cd prisma && npx prisma migrate deploy"
-
-  seed:
-    image: ${APP_IMAGE:-ghcr.io/phyexdb/phyexdb}:${APP_TAG:-latest}
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    profiles:
-      - tools
-    command: sh -c "cd prisma && npx prisma db seed"
+      - phyexdb
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - public_data:/app/public:ro
+      # Include the following line if you want to use SSL
+      # But this also needs to be configured in nginx.conf
+      # - /etc/ssl:/etc/ssl:ro
 
 volumes:
   db_data:

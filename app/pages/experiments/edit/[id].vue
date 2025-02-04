@@ -2,6 +2,7 @@
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
+import FormControl from "~/components/ui/form/FormControl.vue"
 
 const user = await useUser()
 
@@ -35,9 +36,13 @@ const form = useForm({
     name: experiment.value?.name ?? "",
     duration: [experiment.value?.duration ?? 20],
     previewImageId: experiment.value?.previewImage?.id ?? undefined,
-    attributes: attributes.value?.map(attribute => ({
-      valueId: experiment.value?.attributes.find(a => a.attribute.id === attribute.id)?.id,
-    })) ?? [],
+    attributes: attributes.value?.map((attribute) => {
+      const experimentAttribute = experiment.value?.attributes.find(a => a.id === attribute.id)
+      return {
+        attributeId: attribute.id,
+        valueIds: experimentAttribute?.values.map(value => value.id) ?? [],
+      }
+    }) ?? [],
     sections: sections.value?.map((section) => {
       const experimentSection = experiment.value?.sections.find(s => s.experimentSection.id === section.id)
       return {
@@ -173,15 +178,20 @@ async function removeFile(sectionIndex: number, fileId: string) {
   })
 }
 
+async function saveForm(values: typeof form.values) {
+  const response = await $fetch<ExperimentDetail>(`/api/experiments/${experimentId}`, {
+    method: "PUT",
+    body: values,
+  })
+  return response
+}
+
 const onSubmit = form.handleSubmit(async (values) => {
   if (!emailVerified) return
   if (loading.value) return
   loading.value = true
 
-  const response = await $fetch<ExperimentDetail>(`/api/experiments/${experimentId}`, {
-    method: "PUT",
-    body: values,
-  })
+  const response = await saveForm(values)
   experiment.value = response
 
   loading.value = false
@@ -196,27 +206,18 @@ const onSubmit = form.handleSubmit(async (values) => {
 async function submitForReview() {
   if (!experiment.value || !sections.value || !attributes.value) return
 
-  await onSubmit()
-  // Without this timeout, the errors don't show up
-  await new Promise(resolve => setTimeout(resolve, 100))
+  form.validate()
+  const response = await saveForm(form.values)
 
-  const experimentForReview = transformExperimentToSchemaType(experiment.value, attributes.value)
+  const experimentForReview = transformExperimentToSchemaType(response, attributes.value)
 
   const experimentReviewSchema = getExperimentReadyForReviewSchema(sections.value, attributes.value)
   const errors = await experimentReviewSchema.safeParseAsync(experimentForReview)
   if (!errors.success) {
-    const fieldErrors = errors.error.flatten().fieldErrors
-    form.setErrors({
-      name: fieldErrors.name,
-      previewImageId: fieldErrors.previewImageId,
-      duration: fieldErrors.duration,
-      ...(fieldErrors.attributes?.map((attribute, index) => ({
-        [`attributes.${index}.valueId`]: attribute,
-      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})),
-      ...(fieldErrors.sections?.map((section, index) => ({
-        [`sections.${index}.text`]: section,
-      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})),
-    })
+    const errorObject = errors.error.errors.map(error => ({
+      [error.path.join(".")]: error.message,
+    })).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+    form.setErrors(errorObject)
     toast({
       title: "Fehler beim Überprüfen",
       description: "Es sind noch nicht alle erforderlichen Felder ausgefüllt.",
@@ -229,6 +230,7 @@ async function submitForReview() {
     method: "POST",
   })
 
+  await navigateTo(`/experiments/${experimentId}`)
   toast({
     title: "Experiment zur Überprüfung eingereicht",
     description: "Das Experiment wurde zur Überprüfung eingereicht.",
@@ -305,12 +307,52 @@ async function submitForReview() {
           Kategorisierung
         </h3>
 
+        <template
+          v-for="(attribute, index) in attributes"
+          :key="attribute.id"
+        >
+          <FormField
+            v-slot="{ componentField }"
+            :name="`attributes[${index}].valueIds`"
+          >
+            <FormItem>
+              <FormLabel>
+                {{ attribute.name }}
+                <span class="text-muted-foreground">
+                  (Wähle {{ attribute.multipleSelection ? "mehrere" : "eins" }})
+                </span>
+              </FormLabel>
+              <FormControl>
+                <MultiSelect
+                  :options="attribute.values"
+                  :multiple="attribute.multipleSelection"
+                  search-placeholder="Suche..."
+                  :model-value="componentField.modelValue"
+                  :value-for-option="option => option.value"
+                  @update:model-value="value => componentField.onChange(value)"
+                >
+                  <template #empty>
+                    Keine Optionen gefunden.
+                  </template>
+                  <template #preview="{ selected }">
+                    {{ selected.length ? selected.map(id => attribute.values.find(value => value.id === id)?.value).join(", ") : "Auswählen" }}
+                  </template>
+                  <template #option="{ option }">
+                    {{ option.value }}
+                  </template>
+                </MultiSelect>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+        </template>
+
         <FormField
           v-slot="{ componentField, value }"
           name="duration"
         >
           <FormItem>
-            <FormLabel>Dauer</FormLabel>
+            <FormLabel>Durchführungszeit</FormLabel>
             <FormControl>
               <Slider
                 id="duration"
@@ -328,40 +370,6 @@ async function submitForReview() {
             <FormMessage />
           </FormItem>
         </FormField>
-
-        <template
-          v-for="(attribute, index) in attributes"
-          :key="attribute.id"
-        >
-          <FormField
-            v-slot="{ componentField }"
-            :name="`attributes[${index}].valueId`"
-          >
-            <FormItem>
-              <FormLabel>{{ attribute.name }}</FormLabel>
-              <Select v-bind="componentField">
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Auswählen" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectGroup>
-                    <template
-                      v-for="value in attribute.values"
-                      :key="value.id"
-                    >
-                      <SelectItem :value="value.id">
-                        {{ value.value }}
-                      </SelectItem>
-                    </template>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-        </template>
 
         <template
           v-for="section in sections"

@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, experimentAbilities.get, experiment)
 
-  return experiment as ExperimentDetail
+  return mapExperimentToDetail(experiment as ExperimentIncorrectDetail)
 })
 
 defineRouteMeta({
