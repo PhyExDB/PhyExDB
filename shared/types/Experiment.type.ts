@@ -198,7 +198,7 @@ export function getExperimentReadyForReviewSchema(
         .regex(/^(?!<p><\/p>$).*/, "Beschreibung wird benötigt"),
       files: z.array(z.object({
         fileId: z.string().uuid(),
-        description: z.string().optional(),
+        description: z.string({ message: "Beschreibung wird benötigt" }),
       })),
     })).refine((sections) => {
       const sectionIds = sections.map(section => section.experimentSectionContentId)
@@ -210,21 +210,6 @@ export function getExperimentReadyForReviewSchema(
     }, {
       message: "Not enough sections defined",
     }),
-
-    // attributes: z.array(z.object({
-    //   valueId: z.string({ message: "Attribut wird benötigt" }).uuid("Attribut wird benötigt"),
-    // })).refine(async (attributes) => {
-    //   const attributesContained = new Set()
-    //   attributes.forEach((attribute) => {
-    //     if (!attribute.valueId) {
-    //       return
-    //     }
-    //     for (let i = 0; i < attributeValueSets.length; i++) {
-    //       if (attributeValueSets[i]?.has(attribute.valueId)) {
-    //         attributesContained.add(i)
-    //       }
-    //     }
-    //   })
     attributes: z.array(z.object({
       attributeId: z.string().uuid(),
       valueIds: z.array(z.string().uuid()).nonempty("Attribut wird benötigt"),

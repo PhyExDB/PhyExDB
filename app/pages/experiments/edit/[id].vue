@@ -450,6 +450,7 @@ async function submitForReview() {
                           placeholder="Beschreibung"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   </FormField>
                   <div class="m-2">
