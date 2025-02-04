@@ -237,6 +237,11 @@ async function submitForReview() {
     variant: "success",
   })
 }
+
+async function previewExperiment() {
+  await onSubmit()
+  navigateTo(`/experiments/${experimentId}`)
+}
 </script>
 
 <template>
@@ -496,7 +501,7 @@ async function submitForReview() {
         <Button
           variant="secondary"
           @click.prevent
-          @click="navigateTo(`/experiments/${experimentId}`)"
+          @click="previewExperiment"
         >
           Vorschau anzeigen
         </Button>
