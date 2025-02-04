@@ -7,6 +7,7 @@ import DropdownAction from "~/components/AdminUserTable/actions.vue"
 import Email from "~/components/user/Email.vue"
 
 authorize(userAbilities.getAll)
+const user = await useUser()
 
 const { page, pageSize } = getRequestPageMeta()
 const search = ref<string>("")
@@ -56,8 +57,8 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
   },
   {
     id: "actions",
-    enableHiding: false,
     cell: ({ row }) => {
+      if (row.original.id === user.value?.id) return null
       return h(DropdownAction, { user: row.original, onDeleted: refresh, onChanged: handleChange(row) })
     },
   },
