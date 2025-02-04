@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest"
 import { v4 as uuidv4 } from "uuid"
+import { generateMock } from "@anatine/zod-mock"
 import endpoint from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import {
@@ -9,12 +10,11 @@ import {
   testSlugFails,
   testZodFailWithEmptyBody,
 } from "~~/tests/helpers/utils"
-import { generateMock } from "@anatine/zod-mock"
 
 describe("Api Route PUT /api/legal/{slug}", () => {
   // definitions
   const body = generateMock(legalDocumentUpdateSchema)
-    
+
   const data = {
     id: uuidv4(),
     slug: "legal-document",
@@ -31,7 +31,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   testSlugFails(body, endpoint)
   testZodFailWithEmptyBody(data, endpoint)
 
-  it(`should_succeed`, async () => {  
+  it(`should_succeed`, async () => {
     forSlugAndId(data, async (params) => {
       const event = getEvent({ params, body })
 
