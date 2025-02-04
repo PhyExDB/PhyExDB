@@ -8,7 +8,11 @@ export default defineEventHandler(async (event) => {
 
   const attribute = await prisma.experimentAttribute.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
-    include: { values: true },
+    include: {
+      values: {
+        orderBy: { value: "asc" },
+      },
+    },
   })
 
   if (!attribute) {

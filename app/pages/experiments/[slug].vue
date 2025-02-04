@@ -9,12 +9,12 @@ if (!experiment) {
 
 const attributesWithoutDuration = computed(() => {
   return experiment.value?.attributes.filter(
-    attribute => attribute.name !== "Vorbereitungszeit",
+    attribute => attribute.name.replace("\u00AD", "") !== "Vorbereitungszeit",
   )
 })
 const preparationDuration = computed(() => {
   return experiment.value?.attributes.find(
-    attribute => attribute.name === "Vorbereitungszeit",
+    attribute => attribute.name.replace("\u00AD", "") === "Vorbereitungszeit",
   )?.values[0]?.value
 })
 
