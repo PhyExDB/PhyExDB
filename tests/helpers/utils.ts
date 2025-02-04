@@ -110,20 +110,62 @@ export function testSlugFails<T>(body: object, endpoint: (event: Event) => Promi
 }
 
 /**
+ * Creates an object containing a Jest matcher that checks if a string contains the specified message.
+ */
+export function expectMessage(message: string) {
+    return {
+        message: expect.stringContaining(message),
+    }
+}
+
+/**
+ * Tests that the given endpoint fails with a ZodError for each body in the failingBodies array.
+ */
+export function testZodFail<T>(
+    data: SlugList,
+    endpoint: (event: Event) => Promise<T>,
+    failingBodies: { body: object, error?: object }[]
+) {
+    it(`should_fail_zod`, async () => {
+      failingBodies.forEach(async ({body, error}) => {
+
+        forSlugAndIdEvent(data, body, async (event) => {
+            await expect(endpoint(event)).rejects.toThrowError(
+            expect.objectContaining({
+                name: "ZodError",
+                ...error,
+            }),
+            )
+        })
+      })
+    })
+}
+
+export function testZodFailMessage<T>(
+    data: SlugList,
+    endpoint: (event: Event) => Promise<T>,
+    failingBodies: { body: object, message?: string }[]
+) {
+    it(`should_fail_zod`, async () => {
+      failingBodies.forEach(async ({body, message}) => {
+
+        forSlugAndIdEvent(data, body, async (event) => {
+            await expect(endpoint(event)).rejects.toThrowError(
+            expect.objectContaining({
+                name: "ZodError",
+                ...(message ? expectMessage(message) : {}),
+            }),
+            )
+        })
+      })
+    })
+}
+
+/**
  * Tests that the given endpoint fails with a ZodError when provided with an empty body.
  */
 export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: Event) => Promise<T>) {
-  it(`should_fail_zod`, async () => {
-    const body = {}
-
-    forSlugAndIdEvent(data, body, async (event) => {
-      await expect(endpoint(event)).rejects.toThrowError(
-        expect.objectContaining({
-          name: "ZodError",
-        }),
-      )
-    })
-  })
+    testZodFail(data, endpoint, [{ body: {} }])
 }
 
 /**

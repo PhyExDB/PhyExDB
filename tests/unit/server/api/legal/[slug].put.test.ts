@@ -7,7 +7,7 @@ import {
   mockPrismaForPutSlugOrId,
   forSlugAndIdEvent,
   testSlugFails,
-  testZodFailWithEmptyBody,
+  testZodFailMessage,
   testAuthFail,
 } from "~~/tests/helpers/utils"
 
@@ -38,7 +38,16 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     })
 
     testSlugFails(body, endpoint)
-    testZodFailWithEmptyBody(data, endpoint)
+    testZodFailMessage(data, endpoint, [
+      { 
+        body: { name: "a", text: "" }, 
+        message: "Please enter some content",
+      },
+      { 
+        body: { name: "", text: "a" }, 
+        message: "Please enter a name",
+      }
+    ])
     // needs to be last, because it changes the user mock
     testAuthFail(body, data, endpoint, [user.guest, user.user])
   }
