@@ -4,9 +4,8 @@ import { generateMock } from "@anatine/zod-mock"
 import endpoint from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import {
-  getEvent,
   mockPrismaForPutSlugOrId,
-  forSlugAndId,
+  forSlugAndIdEvent,
   testSlugFails,
   testZodFailWithEmptyBody,
   testAuthFail,
@@ -24,16 +23,14 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   }
   const expected = { ...data, ...body }
 
-  // mock
+  // mocks
   mockUser(user.admin)
   mockPrismaForPutSlugOrId("legalDocument", data, expected)
 
   // tests
   {
     it(`should_succeed`, async () => {
-      forSlugAndId(data, async (params) => {
-        const event = getEvent({ params, body })
-
+      forSlugAndIdEvent(data, body, async (event) => {
         const response = await endpoint(event)
         expectTypeOf(response).toEqualTypeOf<typeof expected>()
         expect(response).toStrictEqual(expected)

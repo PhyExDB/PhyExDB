@@ -4,16 +4,18 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
 import { mockUser } from "~~/tests/helpers/auth"
 
+type Event = H3Event<EventHandlerRequest>
+
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
-export function getEvent(options: { params?: object, body?: object }): H3Event<EventHandlerRequest> {
+export function getEvent(options: { params?: object, body?: object }): Event {
   return {
     context: {
       params: options.params || {},
     },
     body: options.body || {},
-  } as unknown as H3Event<EventHandlerRequest>
+  } as unknown as Event
 }
 
 /**
@@ -23,6 +25,15 @@ export function getEvent(options: { params?: object, body?: object }): H3Event<E
 export function forSlugAndId(data: SlugList, func: (params: { slug: string } | { id: string }) => void) {
   func({ slug: data.id })
   func({ slug: data.slug })
+}
+
+/**
+ * Creates an event object with the provided data and executes the provided function.
+ */
+export function forSlugAndIdEvent(data: SlugList, body: object, func: (event: Event) => void) {
+  forSlugAndId(data, (params) => {
+    func(getEvent({ params, body }))
+  })
 }
 
 type CheckWhereClause = (where: any) => boolean
@@ -49,12 +60,12 @@ export function prismaMockResolvedCheckingWhereClause<T>(data: T, checkWhereClau
   })
 }
 
-type tables = Uncapitalize<Prisma.ModelName>
+type Tables = Uncapitalize<Prisma.ModelName>
 
 /**
  * Mocks the Prisma client methods for a specific table to simulate a POST request.
  */
-export function mockPrismaForPost<T>(table: tables, data: T, expected: T, checkWhereClause: CheckWhereClause) {
+export function mockPrismaForPost<T>(table: Tables, data: T, expected: T, checkWhereClause: CheckWhereClause) {
   prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
   prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
 
@@ -63,7 +74,7 @@ export function mockPrismaForPost<T>(table: tables, data: T, expected: T, checkW
 /**
  * Mocks the Prisma client methods for a specific table to simulate a POST request.
  */
-export function mockPrismaForPutSlugOrId<T extends SlugList>(table: tables, data: T, expected: T) {
+export function mockPrismaForPutSlugOrId<T extends SlugList>(table: Tables, data: T, expected: T) {
   const checkWhereClause = checkWhereClauseSlugOrId(data)
 
   prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
@@ -75,11 +86,11 @@ export function mockPrismaForPutSlugOrId<T extends SlugList>(table: tables, data
 /**
  * Tests common error scenarios for endpoints that use slugs.
  */
-export function testSlugFails<T>(body: object, endpoint: (event: H3Event<EventHandlerRequest>) => Promise<T>) {
+export function testSlugFails<T>(body: object, endpoint: (event: Event) => Promise<T>) {
   it ("should_fail_when_unknown_slug", async () => {
-    forSlugAndId({ id: uuidv4(), slug: "unknown-slug" }, async (params) => {
-      const event = getEvent({ params, body })
+    const data = { id: uuidv4(), slug: "unknown-slug" }
 
+    forSlugAndIdEvent(data, body, async (event) => {
       await expect(endpoint(event)).rejects.toThrowError(
         expect.objectContaining({
           statusCode: 404,
@@ -101,13 +112,11 @@ export function testSlugFails<T>(body: object, endpoint: (event: H3Event<EventHa
 /**
  * Tests that the given endpoint fails with a ZodError when provided with an empty body.
  */
-export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: H3Event<EventHandlerRequest>) => Promise<T>) {
+export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: Event) => Promise<T>) {
   it(`should_fail_zod`, async () => {
     const body = {}
 
-    forSlugAndId(data, async (params) => {
-      const event = getEvent({ params, body })
-
+    forSlugAndIdEvent(data, body, async (event) => {
       await expect(endpoint(event)).rejects.toThrowError(
         expect.objectContaining({
           name: "ZodError",
@@ -121,16 +130,20 @@ export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: H3
  * Tests that the provided endpoint fails authentication for the given users.
  * Needs to be last, because it changes the user mock!!!
  */
-export function testAuthFail<T>(body: object, data: SlugList, endpoint: (event: H3Event<EventHandlerRequest>) => Promise<T>, failingUsers: (UserDetail | null)[]) {
+export function testAuthFail<T>(
+  body: object,
+  data: SlugList,
+  endpoint: (event: Event) => Promise<T>,
+  failingUsers: (UserDetail | null)[],
+) {
   it(`should_fail_auth`, async () => {
     failingUsers.forEach(async (failingUser) => {
       mockUser(failingUser)
+      const expectedStatusCode = failingUser ? 403 : 401
 
-      forSlugAndId(data, async (params) => {
-        const event = getEvent({ params, body })
-
+      forSlugAndIdEvent(data, body, async (event) => {
         await expect(endpoint(event)).rejects.toMatchObject({
-          statusCode: failingUser === null ? 401 : 403,
+          statusCode: expectedStatusCode,
         })
       })
     })
