@@ -18,11 +18,60 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url, token }, _) => {
+    sendVerificationEmail: async ({ user, url }, _) => {
       await useNodeMailer().sendMail({
         subject: "Verifying PHYEXDB email-address",
-        text: `Please click the following link to verify your email address: ${url} or enter the token ${token} on the verification page.`,
+        text: `Bitte klicke auf den folgenden Link um deinen PhyExDB Account zu verifizieren: ${url}.`,
         to: user.email,
+        html: `<!DOCTYPE html>
+      <html lang="de">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Verifiziere deine E-Mail</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #0f172a;
+                  color: #e2e8f0;
+                  text-align: center;
+                  padding: 20px;
+              }
+              .container {
+                  max-width: 600px;
+                  background-color: #1e293b;
+                  padding: 20px;
+                  border-radius: 10px;
+                  margin: auto;
+                  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              }
+              .button {
+                  display: inline-block;
+                  padding: 10px 20px;
+                  background-color: #ffffff;
+                  color: #1e293b;
+                  text-decoration: none;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-top: 20px;
+              }
+              .footer {
+                  margin-top: 20px;
+                  font-size: 12px;
+                  color: #94a3b8;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <h1>Willkommen bei PhyExDB!</h1>
+              <p>Um dein Konto zu aktivieren, bestätige bitte deine E-Mail-Adresse, indem du auf den Button unten klickst.</p>
+              <a href="${url}" class="button">E-Mail bestätigen</a>
+              <p class="footer">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
+          </div>
+      </body>
+      </html>
+      `,
       })
     },
   },
