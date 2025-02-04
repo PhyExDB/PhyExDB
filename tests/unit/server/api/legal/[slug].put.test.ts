@@ -11,15 +11,28 @@ import { generateMock } from "@anatine/zod-mock"
 
 mockUser(user.admin)
 
+const workingUsers: UserDetail[] = []
+const failingUsers: UserDetail[] = []
+const allowGuests = false
+
+const data = {}
+const wokringBodies = []
+const failingBodies = []
+
+const workingParams = []
+const failingParams = []
+
 describe("Api Route PUT /api/legal/{slug}", () => {
+
   ["slug", "id of"].forEach((param) => {
+    
     it.each([
       { slug: "privacy-policy" },
       { slug: "terms-of-service" },
       { slug: "imprint" },
     ])(`should_succeed with ${param} $slug`, async ({ slug }) => {
       // definitions
-      const updateContent = generateMock(legalDocumentUpdateSchema)
+      const body = generateMock(legalDocumentUpdateSchema)
       
       const data = {
         id: uuidv4(),
@@ -27,9 +40,9 @@ describe("Api Route PUT /api/legal/{slug}", () => {
         name: "Legal Document name",
         text: "This is the legal document text",
       }
-      const expected = { ...data, ...updateContent }
+      const expected = { ...data, ...body }
       
-      const event = getEvent({ params: { slug }, body: updateContent })
+      const event = getEvent({ params: { slug }, body: body })
 
       // mock
       mockPrismaForPostSlugOrId("legalDocument", data, expected)
