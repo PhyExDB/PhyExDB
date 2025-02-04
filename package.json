@@ -24,7 +24,7 @@
     "@nuxt/image": "^1.9.0",
     "@nuxtjs/color-mode": "^3.5.2",
     "@tanstack/vue-table": "^8.20.5",
-    "@tiptap/extension-link": "^2.11.4",
+    "@tiptap/extension-link": "^2.11.5",
     "@types/jsonwebtoken": "^9.0.8",
     "@vee-validate/zod": "^4.15.0",
     "@vueuse/core": "^12.5.0",
