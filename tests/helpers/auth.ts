@@ -47,4 +47,5 @@ export const user = {
     email: "unverified@test.test",
     emailVerified: false,
   },
-} satisfies Record<string, UserDetail>
+  guest: null,
+} satisfies Record<string, UserDetail | null>

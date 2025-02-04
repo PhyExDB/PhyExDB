@@ -9,6 +9,7 @@ import {
   forSlugAndId,
   testSlugFails,
   testZodFailWithEmptyBody,
+  testAuthFail,
 } from "~~/tests/helpers/utils"
 
 describe("Api Route PUT /api/legal/{slug}", () => {
@@ -28,16 +29,20 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   mockPrismaForPostSlugOrId("legalDocument", data, expected)
 
   // tests
-  testSlugFails(body, endpoint)
-  testZodFailWithEmptyBody(data, endpoint)
+  {
+    it(`should_succeed`, async () => {
+      forSlugAndId(data, async (params) => {
+        const event = getEvent({ params, body })
 
-  it(`should_succeed`, async () => {
-    forSlugAndId(data, async (params) => {
-      const event = getEvent({ params, body })
-
-      const response = await endpoint(event)
-      expectTypeOf(response).toEqualTypeOf<typeof expected>()
-      expect(response).toStrictEqual(expected)
+        const response = await endpoint(event)
+        expectTypeOf(response).toEqualTypeOf<typeof expected>()
+        expect(response).toStrictEqual(expected)
+      })
     })
-  })
+
+    testSlugFails(body, endpoint)
+    testZodFailWithEmptyBody(data, endpoint)
+    // needs to be last, because it changes the user mock
+    testAuthFail(body, data, endpoint, [user.guest, user.user])
+  }
 })

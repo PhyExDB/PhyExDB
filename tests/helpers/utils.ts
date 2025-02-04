@@ -2,6 +2,7 @@ import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { describe, expect, expectTypeOf, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
+import { mockUser } from "~~/tests/helpers/auth"
 
 /**
  * Creates an H3Event object with the specified parameters and body.
@@ -73,19 +74,6 @@ export function mockPrismaForPostSlugOrId<T extends SlugList>(table: tables, dat
 
 /**
  * Tests common error scenarios for endpoints that use slugs.
- *
- * @param body - The request body to be used in the tests.
- * @param endpoint - The endpoint function to be tested.
- *
- * @remarks
- * This function runs two tests:
- * 1. It checks that the endpoint returns a 404 error when an unknown slug is provided.
- * 2. It checks that the endpoint returns a 400 error when no slug is provided.
- *
- * @example
- * ```typescript
- * testForCommonSlugErrore({ key: "value" }, myEndpointFunction);
- * ```
  */
 export function testSlugFails<T>(body: object, endpoint: (event: H3Event<EventHandlerRequest>) => Promise<T>) {
   it ("should_fail_when_unknown_slug", async () => {
@@ -110,6 +98,9 @@ export function testSlugFails<T>(body: object, endpoint: (event: H3Event<EventHa
   })
 }
 
+/**
+ * Tests that the given endpoint fails with a ZodError when provided with an empty body.
+ */
 export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: H3Event<EventHandlerRequest>) => Promise<T>) {
   it(`should_fail_zod`, async () => {
     const body = {}
@@ -122,6 +113,26 @@ export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: H3
           name: "ZodError",
         }),
       )
+    })
+  })
+}
+
+/**
+ * Tests that the provided endpoint fails authentication for the given users.
+ * Needs to be last, because it changes the user mock!!!
+ */
+export function testAuthFail<T>(body: object, data: SlugList, endpoint: (event: H3Event<EventHandlerRequest>) => Promise<T>, failingUsers: (UserDetail | null)[]) {
+  it(`should_fail_auth`, async () => {
+    failingUsers.forEach(async (failingUser) => {
+      mockUser(failingUser)
+
+      forSlugAndId(data, async (params) => {
+        const event = getEvent({ params, body })
+
+        await expect(endpoint(event)).rejects.toMatchObject({
+          statusCode: failingUser === null ? 401 : 403,
+        })
+      })
     })
   })
 }
