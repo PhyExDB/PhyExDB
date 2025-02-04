@@ -143,7 +143,7 @@ async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileLis
           ...section,
           files: newFileOrder.map(file => ({
             fileId: file.file.id,
-            description: file.description ?? undefined,
+            description: section.files.find(f => f.fileId === file.file.id)?.description,
           })),
         }
       }
