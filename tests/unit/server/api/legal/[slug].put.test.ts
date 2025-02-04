@@ -1,14 +1,15 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest"
 import { v4 as uuidv4 } from "uuid"
-import updateLegalDocument from "~~/server/api/legal/[slug].put"
+import endpoint from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import {
   getEvent,
   mockPrismaForPostSlugOrId,
   forSlugAndId,
+  testSlugFails,
+  testZodFailWithEmptyBody,
 } from "~~/tests/helpers/utils"
 import { generateMock } from "@anatine/zod-mock"
-
 
 describe("Api Route PUT /api/legal/{slug}", () => {
   // definitions
@@ -27,50 +28,16 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   mockPrismaForPostSlugOrId("legalDocument", data, expected)
 
   // tests
+  testSlugFails(body, endpoint)
+  testZodFailWithEmptyBody(data, endpoint)
 
   it(`should_succeed`, async () => {  
     forSlugAndId(data, async (params) => {
       const event = getEvent({ params, body })
 
-      const response = await updateLegalDocument(event)
+      const response = await endpoint(event)
       expectTypeOf(response).toEqualTypeOf<typeof expected>()
       expect(response).toStrictEqual(expected)
     })
   })
-
-  it(`should_fail_zod`, async () => {
-    const body = {}
-
-    forSlugAndId(data, async (params) => {
-      const event = getEvent({ params, body })
-
-      await expect(updateLegalDocument(event)).rejects.toThrowError(
-        expect.objectContaining({
-          name: "ZodError",
-        }),
-      )
-    })
-  })
-
-  it ("should_fail_when_unknown_slug", async () => {
-    forSlugAndId({ id: uuidv4(), slug: "unknow-slug"}, async (params) => {
-      const event = getEvent({ params, body })
-
-      await expect(updateLegalDocument(event)).rejects.toThrowError(
-        expect.objectContaining({
-          statusCode: 404,
-        }),
-      )
-    })
-  })
-
-  it("should_fail_when_no_slug", async () => {
-    const event = getEvent({ body })
-
-    await expect(updateLegalDocument(event)).rejects.toMatchObject({
-      message: "Invalid slug",
-      statusCode: 400,
-    })
-  })
-
 })

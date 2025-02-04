@@ -1,5 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
-import { vi } from "vitest"
+import { v4 as uuidv4 } from "uuid"
+import { describe, expect, expectTypeOf, it, vi } from "vitest"
 import { Prisma } from "@prisma/client"
 
 /**
@@ -68,4 +69,59 @@ export function mockPrismaForPostSlugOrId<T extends SlugList>(table: tables, dat
     prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
 
     prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
+}
+
+/**
+ * Tests common error scenarios for endpoints that use slugs.
+ *
+ * @param body - The request body to be used in the tests.
+ * @param endpoint - The endpoint function to be tested.
+ *
+ * @remarks
+ * This function runs two tests:
+ * 1. It checks that the endpoint returns a 404 error when an unknown slug is provided.
+ * 2. It checks that the endpoint returns a 400 error when no slug is provided.
+ *
+ * @example
+ * ```typescript
+ * testForCommonSlugErrore({ key: "value" }, myEndpointFunction);
+ * ```
+ */
+export function testSlugFails<T>(body: object, endpoint: (event: H3Event<EventHandlerRequest>) => Promise<T>){
+    it ("should_fail_when_unknown_slug", async () => {
+        forSlugAndId({ id: uuidv4(), slug: "unknown-slug"}, async (params) => {
+          const event = getEvent({ params, body })
+
+          await expect(endpoint(event)).rejects.toThrowError(
+            expect.objectContaining({
+              statusCode: 404,
+            }),
+          )
+        })
+      })
+
+      it("should_fail_when_no_slug", async () => {
+        const event = getEvent({ body })
+
+        await expect(endpoint(event)).rejects.toMatchObject({
+          message: "Invalid slug",
+          statusCode: 400,
+        })
+      })
+}
+
+export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: H3Event<EventHandlerRequest>) => Promise<T>){
+    it(`should_fail_zod`, async () => {
+        const body = {}
+    
+        forSlugAndId(data, async (params) => {
+          const event = getEvent({ params, body })
+    
+          await expect(endpoint(event)).rejects.toThrowError(
+            expect.objectContaining({
+              name: "ZodError",
+            }),
+          )
+        })
+      })
 }
