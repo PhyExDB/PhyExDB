@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Level } from "@tiptap/extension-heading"
+
 const { modelValue } = defineProps({
   modelValue: {
     type: String,
@@ -24,6 +26,12 @@ const editor = useEditor({
 
 const linkUrl = ref("")
 const isLinkDropdownOpen = ref(false)
+
+const headings = [
+  { level: 1, label: "H1" },
+  { level: 2, label: "H2" },
+  { level: 3, label: "H3" },
+] as { level: Level, label: string }[]
 
 function setLinkValue() {
   linkUrl.value = editor.value?.getAttributes("link")?.href || ""
@@ -145,7 +153,20 @@ onBeforeUnmount(() => {
 
           <!-- Headings -->
           <div class="flex gap-1">
-            <Button
+            <template
+              v-for="heading in headings"
+              :key="heading.level"
+            >
+              <Button
+                variant="outline"
+                class="btn aspect-square"
+                :class="{ 'btn-active': editor.isActive('heading', { level: heading.level }) }"
+                @click="editor.chain().focus().toggleHeading({ level: heading.level }).run()"
+              >
+                {{ heading.label }}
+              </Button>
+            </template>
+            <!-- <Button
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('heading', { level: 1 }) }"
@@ -168,7 +189,7 @@ onBeforeUnmount(() => {
               @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
             >
               H3
-            </Button>
+            </Button> -->
           </div>
 
           <!-- Lists -->
