@@ -166,30 +166,6 @@ onBeforeUnmount(() => {
                 {{ heading.label }}
               </Button>
             </template>
-            <!-- <Button
-              variant="outline"
-              class="btn aspect-square"
-              :class="{ 'btn-active': editor.isActive('heading', { level: 1 }) }"
-              @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-            >
-              H1
-            </Button>
-            <Button
-              variant="outline"
-              class="btn aspect-square"
-              :class="{ 'btn-active': editor.isActive('heading', { level: 2 }) }"
-              @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-            >
-              H2
-            </Button>
-            <Button
-              variant="outline"
-              class="btn aspect-square"
-              :class="{ 'btn-active': editor.isActive('heading', { level: 3 }) }"
-              @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
-            >
-              H3
-            </Button> -->
           </div>
 
           <!-- Lists -->
