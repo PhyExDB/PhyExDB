@@ -252,9 +252,9 @@ async function submitForReview() {
         class="grid gap-4 lg:w-2/3"
         @submit="onSubmit"
       >
-        <h3 class="text-xl font-semibold mt-2">
+        <h2 class="text-3xl font-semibold mt-2">
           Allgemeines
-        </h3>
+        </h2>
 
         <FormField
           v-slot="{ componentField }"
@@ -303,9 +303,9 @@ async function submitForReview() {
           </FormItem>
         </FormField>
 
-        <h3 class="text-xl font-semibold mt-2">
+        <h2 class="text-3xl font-semibold mt-2">
           Kategorisierung
-        </h3>
+        </h2>
 
         <template
           v-for="(attribute, index) in attributes"
@@ -375,9 +375,9 @@ async function submitForReview() {
           v-for="section in sections"
           :key="section.id"
         >
-          <h3 class="text-xl font-semibold mt-2">
+          <h2 class="text-3xl font-semibold mt-2">
             {{ section.name }}
-          </h3>
+          </h2>
 
           <FormField
             v-slot="{ componentField }"
