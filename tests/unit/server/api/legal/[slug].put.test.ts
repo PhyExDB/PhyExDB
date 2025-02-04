@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it, vi } from "vitest"
+import { describe, expect, expectTypeOf, it } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import { generateMock } from "@anatine/zod-mock"
 import endpoint from "~~/server/api/legal/[slug].put"

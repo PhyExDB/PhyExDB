@@ -1,6 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
-import { describe, expect, expectTypeOf, it, vi } from "vitest"
+import { expect, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
 import { mockUser } from "~~/tests/helpers/auth"
 
