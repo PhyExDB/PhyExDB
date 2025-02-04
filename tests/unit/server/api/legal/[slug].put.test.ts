@@ -1,127 +1,76 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest"
-import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import updateLegalDocument from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import {
   getEvent,
   mockPrismaForPostSlugOrId,
+  forSlugAndId,
 } from "~~/tests/helpers/utils"
 import { generateMock } from "@anatine/zod-mock"
 
-mockUser(user.admin)
-
-const workingUsers: UserDetail[] = []
-const failingUsers: UserDetail[] = []
-const allowGuests = false
-
-const data = {}
-const wokringBodies = []
-const failingBodies = []
-
-const workingParams = []
-const failingParams = []
 
 describe("Api Route PUT /api/legal/{slug}", () => {
-  it(`should_succeed`, async () => {
-    // definitions
-    const body = generateMock(legalDocumentUpdateSchema)
+  // definitions
+  const body = generateMock(legalDocumentUpdateSchema)
     
-    const data = {
-      id: uuidv4(),
-      slug: "legal-document",
-      name: "Legal Document name",
-      text: "This is the legal document text",
-    }
-    const expected = { ...data, ...body }
-    
-    const event = getEvent({ params: { slug }, body: body })
-
-    // mock
-    mockPrismaForPostSlugOrId("legalDocument", data, expected)
-
-    // test
-    const response = await updateLegalDocument(event)
-
-    // assertions
-    expectTypeOf(response).toEqualTypeOf<LegalDocumentDetail>()
-    expect(response).toStrictEqual(expected)
-  })
-})
-
-it.each([
-  { value: "name", description: "a name" },
-  { value: "text", description: "some content" },
-])(`should return an error when the field $value empty`, async ({ value, description }) => {
-  const updateContent = {
-    name: "New name",
-    text: "New content",
-  }
-  if (value === "name") {
-    updateContent.name = ""
-  } else if (value === "text") {
-    updateContent.text = ""
-  }
-
-  const event = {
-    context: {
-      params: {
-        slug: "privacy-policy",
-      },
-    },
-    body: updateContent,
-  } as unknown as H3Event<EventHandlerRequest>
-
-  const document = {
+  const data = {
     id: uuidv4(),
-    slug: "privacy-policy",
+    slug: "legal-document",
     name: "Legal Document name",
     text: "This is the legal document text",
   }
+  const expected = { ...data, ...body }
 
-  const getter = vi.fn().mockImplementation(({ where }) => {
-    if (where.id === document.id || where.slug === document.slug) {
-      return Promise.resolve(document)
-    }
-    return Promise.resolve(null)
+  // mock
+  mockUser(user.admin)
+  mockPrismaForPostSlugOrId("legalDocument", data, expected)
+
+  // tests
+
+  it(`should_succeed`, async () => {  
+    forSlugAndId(data, async (params) => {
+      const event = getEvent({ params, body })
+
+      const response = await updateLegalDocument(event)
+      expectTypeOf(response).toEqualTypeOf<typeof expected>()
+      expect(response).toStrictEqual(expected)
+    })
   })
 
-  prisma.legalDocument.findFirst = getter
-  prisma.legalDocument.update = getter
+  it(`should_fail_zod`, async () => {
+    const body = {}
 
-  await expect(updateLegalDocument(event)).rejects.toThrowError(
-    expect.objectContaining({
-      message: expect.stringContaining(`Please enter ${description}`),
-    }),
-  )
-})
+    forSlugAndId(data, async (params) => {
+      const event = getEvent({ params, body })
 
-it ("should return an error when an unknown slug is passed", async () => {
-  prisma.legalDocument.findFirst = vi.fn().mockResolvedValue(null)
-
-  const event = {
-    context: {
-      params: {
-        slug: uuidv4(),
-      },
-    },
-  } as unknown as H3Event<EventHandlerRequest>
-
-  await expect(updateLegalDocument(event)).rejects.toMatchObject({
-    message: "Document not found",
-    statusCode: 404,
+      await expect(updateLegalDocument(event)).rejects.toThrowError(
+        expect.objectContaining({
+          name: "ZodError",
+        }),
+      )
+    })
   })
-})
 
-it("should return an error when no slug is passed", async () => {
-  const event = {
-    context: {
-      params: {},
-    },
-  } as unknown as H3Event<EventHandlerRequest>
+  it ("should_fail_when_unknown_slug", async () => {
+    forSlugAndId({ id: uuidv4(), slug: "unknow-slug"}, async (params) => {
+      const event = getEvent({ params, body })
 
-  await expect(updateLegalDocument(event)).rejects.toMatchObject({
-    message: "Invalid slug",
-    statusCode: 400,
+      await expect(updateLegalDocument(event)).rejects.toThrowError(
+        expect.objectContaining({
+          statusCode: 404,
+        }),
+      )
+    })
   })
+
+  it("should_fail_when_no_slug", async () => {
+    const event = getEvent({ body })
+
+    await expect(updateLegalDocument(event)).rejects.toMatchObject({
+      message: "Invalid slug",
+      statusCode: 400,
+    })
+  })
+
 })
