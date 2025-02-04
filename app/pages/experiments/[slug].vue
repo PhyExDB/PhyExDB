@@ -92,9 +92,9 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
         :key="section.id"
         class="space-y-6"
       >
-        <h3 class="text-xl font-bold">
+        <h2 class="text-3xl font-bold">
           {{ section.experimentSection.name }}
-        </h3>
+        </h2>
         <div
           v-if="section.text && section.text.length && section.text != '<p></p>'"
           class="prose dark:prose-invert"
