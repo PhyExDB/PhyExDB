@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useToast } from "@/components/ui/toast/use-toast"
 import { computed } from "vue"
+import { useToast } from "@/components/ui/toast/use-toast"
 
 const { toast } = useToast()
 
@@ -46,7 +46,10 @@ watch(position, async (newVal) => {
           />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent class="w-56" v-if="canChangeRole">
+      <DropdownMenuContent
+        v-if="canChangeRole"
+        class="w-56"
+      >
         <DropdownMenuRadioGroup v-model="position">
           <DropdownMenuRadioItem value="USER">
             User
