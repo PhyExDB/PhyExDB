@@ -1,9 +1,9 @@
 import { describe, expectTypeOf } from "vitest"
 import { generateMock } from "@anatine/zod-mock"
+import { detail } from "./data"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
-import { detail } from "./data"
 
 import endpoint from "~~/server/api/legal/[slug].put"
 

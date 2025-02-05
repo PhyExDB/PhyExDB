@@ -1,8 +1,8 @@
 import { describe, expectTypeOf } from "vitest"
+import { lists } from "./data"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
-import { lists } from "./data"
 
 import endpoint from "~~/server/api/legal/index.get"
 
