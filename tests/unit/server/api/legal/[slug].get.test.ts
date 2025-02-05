@@ -1,8 +1,8 @@
 import { describe, expectTypeOf } from "vitest"
-import { v4 as uuidv4 } from "uuid"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
+import { detail } from "./data"
 
 import endpoint from "~~/server/api/legal/[slug].get"
 
@@ -10,12 +10,7 @@ describe("Api Route GET /api/legal/{slug}", () => {
   // definitions
   const body = {}
 
-  const data = {
-    id: uuidv4(),
-    slug: "legal-document",
-    name: "Legal Document name",
-    text: "This is the legal document text",
-  }
+  const data = detail
   const expected = data
 
   // mocks

@@ -1,9 +1,9 @@
 import { describe, expectTypeOf } from "vitest"
-import { v4 as uuidv4 } from "uuid"
 import { generateMock } from "@anatine/zod-mock"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
+import { detail } from "./data"
 
 import endpoint from "~~/server/api/legal/[slug].put"
 
@@ -11,12 +11,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   // definitions
   const body = generateMock(legalDocumentUpdateSchema)
 
-  const data = {
-    id: uuidv4(),
-    slug: "legal-document",
-    name: "Legal Document name",
-    text: "This is the legal document text",
-  }
+  const data = detail
   const expected = { ...data, ...body }
 
   const params = { slug: data.slug }
