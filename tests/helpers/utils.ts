@@ -7,6 +7,11 @@ import { mockUser } from "~~/tests/helpers/auth"
 type Event = H3Event<EventHandlerRequest>
 
 /**
+ * A utility type that extracts the resolved type of a Promise returned by a endpoint.
+ */
+export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<ReturnType<T>>
+
+/**
  * Creates an H3Event object with the specified parameters and body.
  */
 export function getEvent(options: { params?: object, body?: object }): Event {
@@ -90,6 +95,9 @@ export function mockPrismaForPutSlugOrId<T extends SlugList>(table: Tables, data
   prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
 }
 
+/**
+ * Tests if the given endpoint function succeeds and returns the expected result
+ */
 export function testSuccess<T>(event: Event, endpoint: (event: Event) => Promise<T>, expected: T) {
   it(`should_succeed`, async () => {
     const response = await endpoint(event)
@@ -97,6 +105,9 @@ export function testSuccess<T>(event: Event, endpoint: (event: Event) => Promise
   })
 }
 
+/**
+ * Tests an endpoint function with a given slug list and body, expecting a specific result.
+ */
 export function testSuccessWithSlugAndId<T>(slugList: SlugList, body: object, endpoint: (event: Event) => Promise<T>, expected: T) {
   it(`should_succeed`, async () => {
     forSlugAndIdEvent(slugList, body, async (event) => {

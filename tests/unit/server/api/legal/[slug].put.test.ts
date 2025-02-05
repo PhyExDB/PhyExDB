@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 import { generateMock } from "@anatine/zod-mock"
 import endpoint from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
+import type { EndpointResult } from "~~/tests/helpers/utils"
 import {
   getEvent,
   mockPrismaForPutSlugOrId,
@@ -34,8 +35,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   // tests
   {
     // type test
-    type Endpoint = Awaited<ReturnType<typeof endpoint>>
-    expectTypeOf<Endpoint>().toEqualTypeOf<typeof expected>()
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
     
     testSuccessWithSlugAndId(data, body, endpoint, expected)
 
