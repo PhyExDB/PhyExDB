@@ -117,10 +117,10 @@ export function mockPrismaForSlugOrIdPut<T extends SlugList>(
 /**
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
-export function mockPrismaForGetAll<T extends Array<any>>(
+export function mockPrismaForGetAll<T>(
   table: Tables,
-  data: T,
-  _: T,
+  data: Array<T>,
+  _: Array<T>,
 ) {
   prisma[table].findMany = vi.fn().mockResolvedValue(data)
 }
