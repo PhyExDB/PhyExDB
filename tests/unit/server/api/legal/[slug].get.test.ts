@@ -16,11 +16,11 @@ describe("Api Route GET /api/legal/{slug}", () => {
     name: "Legal Document name",
     text: "This is the legal document text",
   }
-  const expected: LegalDocumentDetail = data
+  const expected = data
 
   // mocks
   mockUser(user.guest)
-  u.mockPrismaForSlugOrId("GET", "legalDocument", data, expected)
+  u.mockPrismaForSlugOrIdGet("legalDocument", data, expected)
 
   // tests
   {

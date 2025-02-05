@@ -1,38 +1,45 @@
-import { describe, expect, expectTypeOf, it, vi } from "vitest"
-import type { H3Event, EventHandlerRequest } from "h3"
+import { describe, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
-import listLegalDocuments from "~~/server/api/legal/index.get"
+import { mockUser, user } from "~~/tests/helpers/auth"
+import type { EndpointResult } from "~~/tests/helpers/utils"
+import * as u from "~~/tests/helpers/utils"
 
-describe("Api Route GET /api/legal", async () => {
-  it("should return a list of legal documents", async () => {
-    const privacyPolicy = {
+import endpoint from "~~/server/api/legal/index.get"
+
+describe("Api Route GET /api/legal/index", () => {
+  // definitions
+  const body = {}
+
+  const data = [
+    {
       id: uuidv4(),
       slug: "privacy-policy",
       name: "Privacy Policy",
-    }
-    const termsOfService = {
+    },
+    {
       id: uuidv4(),
       slug: "terms-of-service",
       name: "Terms of Service",
-    }
-    const imprint = {
+    },
+    {
       id: uuidv4(),
       slug: "imprint",
       name: "Imprint",
-    }
-    const documents = [
-      privacyPolicy,
-      termsOfService,
-      imprint,
-    ]
+    },
+  ]
+  const expected = data
 
-    prisma.legalDocument.findMany = vi.fn().mockResolvedValue(documents)
+  const event = u.getEvent({ body })
 
-    const event = {} as unknown as H3Event<EventHandlerRequest>
+  // mocks
+  mockUser(user.guest)
+  u.mockPrismaForGetAll("legalDocument", data, expected)
 
-    const response = await listLegalDocuments(event)
+  // tests
+  {
+    // type test
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    expectTypeOf(response).toEqualTypeOf<LegalDocumentList[]>()
-    expect(response).toStrictEqual(documents)
-  })
+    u.testSuccess(event, endpoint, expected)
+  }
 })

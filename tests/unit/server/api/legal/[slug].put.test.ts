@@ -17,14 +17,14 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     name: "Legal Document name",
     text: "This is the legal document text",
   }
-  const expected: LegalDocumentDetail = { ...data, ...body }
+  const expected = { ...data, ...body }
 
   const params = { slug: data.slug }
   const event = u.getEvent({ params, body })
 
   // mocks
   mockUser(user.admin)
-  u.mockPrismaForSlugOrId("PUT", "legalDocument", data, expected)
+  u.mockPrismaForSlugOrIdPut("legalDocument", data, expected)
 
   // tests
   {
