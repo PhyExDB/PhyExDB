@@ -9,12 +9,6 @@ test.describe("Legal Page", () => {
   ].forEach((slug) => {
     test(`should render the legal document with slug ${slug}`, async ({ page, request }) => {
       // Navigate to the homepage
-      await page.goto("/login", { waitUntil: "networkidle" })
-      // log in as administrator
-      await page.locator("#email").fill("admin@test.test")
-      await page.locator("#password").fill("password")
-      await page.getByRole("button", { name: "Anmelden" }).click()
-      await page.waitForNavigation({ waitUntil: "networkidle" })
       await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
 
       const apiResponse = await request.get(`/api/legal/${slug}`)
@@ -32,7 +26,40 @@ test.describe("Legal Page", () => {
       const legalContent = proseContent.locator("p")
       expect(await legalContent.textContent()).toContain(legalDocument!.text)
       await expect(legalContent).toBeVisible()
+    })
 
+    test(`should update the legal documents once for ${slug}`, async ({ page }) => {
+      await page.goto("/login", { waitUntil: "networkidle" })
+      // log in as administrator
+      await page.locator("#email").fill("admin@test.test")
+      await page.locator("#password").fill("password")
+      await page.getByRole("button", { name: "Anmelden" }).click()
+      await page.waitForNavigation({ waitUntil: "networkidle" })
+      await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
+      await page.getByRole("button", { name: "edit" }).click()
+
+      const newTitle = `updated Legal Document ${uuidv4()}`
+      const newContent = `updated Legal for testing purposes ${uuidv4()}`
+
+      await page.locator("#name").fill(newTitle)
+      await page.locator("#text").fill(newContent)
+      await page.getByRole("button", { name: "Speichern" }).click()
+
+      const proseContent2 = page.locator("div[class=\"prose dark:prose-invert\"]")
+      await expect(proseContent2).toBeVisible()
+
+      await expect(page.getByRole("heading")).toContainText(newTitle)
+      await expect(page.getByRole("main")).toContainText(newContent)
+    })
+
+    test(`should update the legal documents twice for ${slug}`, async ({ page }) => {
+      await page.goto("/login", { waitUntil: "networkidle" })
+      // log in as administrator
+      await page.locator("#email").fill("admin@test.test")
+      await page.locator("#password").fill("password")
+      await page.getByRole("button", { name: "Anmelden" }).click()
+      await page.waitForNavigation({ waitUntil: "networkidle" })
+      await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
       await page.getByRole("button", { name: "edit" }).click()
 
       const newTitle = `updated Legal Document ${uuidv4()}`
