@@ -1,17 +1,11 @@
-import { describe, expect, expectTypeOf, it } from "vitest"
+import { describe, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import { generateMock } from "@anatine/zod-mock"
-import endpoint from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
-import {
-  getEvent,
-  mockPrismaForPutSlugOrId,
-  testSuccessWithSlugAndId,
-  testSlugFails,
-  testZodFailMessage,
-  testAuthFail,
-} from "~~/tests/helpers/utils"
+import * as u from "~~/tests/helpers/utils"
+
+import endpoint from "~~/server/api/legal/[slug].put"
 
 describe("Api Route PUT /api/legal/{slug}", () => {
   // definitions
@@ -25,22 +19,22 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   }
   const expected: LegalDocumentDetail = { ...data, ...body }
 
-  const params = { slug: data.slug }  
-  const event = getEvent({ params, body })
+  const params = { slug: data.slug }
+  const event = u.getEvent({ params, body })
 
   // mocks
   mockUser(user.admin)
-  mockPrismaForPutSlugOrId("legalDocument", data, expected)
+  u.mockPrismaForSlugOrId("PUT", "legalDocument", data, expected)
 
   // tests
   {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
-    
-    testSuccessWithSlugAndId(data, body, endpoint, expected)
 
-    testSlugFails(body, endpoint)
-    testZodFailMessage(params, endpoint, [
+    u.testSuccessWithSlugAndId(data, body, endpoint, expected)
+
+    u.testSlugFails(body, endpoint)
+    u.testZodFailMessage(params, endpoint, [
       {
         body: { name: "a", text: "" },
         message: "Please enter some content",
@@ -51,6 +45,6 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       },
     ])
     // needs to be last, because it changes the user mock
-    testAuthFail(event, endpoint, [user.guest, user.user])
+    u.testAuthFail(event, endpoint, [user.guest, user.user])
   }
 })

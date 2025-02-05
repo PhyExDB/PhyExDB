@@ -9,6 +9,7 @@ type Event = H3Event<EventHandlerRequest>
 /**
  * A utility type that extracts the resolved type of a Promise returned by a endpoint.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<ReturnType<T>>
 
 /**
@@ -75,16 +76,16 @@ export function prismaMockResolvedCheckingWhereClause<T>(data: T, checkWhereClau
 type Tables = Uncapitalize<Prisma.ModelName>
 
 /**
- * Mocks the Prisma client methods for a specific table to simulate a POST request.
+ * Mocks the Prisma client methods for a specific table to simulate a PUT request.
  */
-export function mockPrismaForPost<T>(table: Tables, data: T, expected: T, checkWhereClause: CheckWhereClause) {
+export function mockPrismaForPut<T>(table: Tables, data: T, expected: T, checkWhereClause: CheckWhereClause) {
   prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
   prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
 
   prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
 }
 /**
- * Mocks the Prisma client methods for a specific table to simulate a POST request.
+ * Mocks the Prisma client methods for a specific table to simulate a PUT request.
  */
 export function mockPrismaForPutSlugOrId<T extends SlugList>(table: Tables, data: T, expected: T) {
   const checkWhereClause = checkWhereClauseSlugOrId(data)
@@ -93,6 +94,34 @@ export function mockPrismaForPutSlugOrId<T extends SlugList>(table: Tables, data
   prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
 
   prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
+}
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a PUT request.
+ */
+export function mockPrismaForGetSlugOrId<T extends SlugList>(table: Tables, data: T) {
+  const checkWhereClause = checkWhereClauseSlugOrId(data)
+
+  prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+  prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+}
+
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForSlugOrId<T extends SlugList>(
+  method: "PUT" | "GET",
+  table: Tables,
+  data: T,
+  expected: T,
+) {
+  const checkWhereClause = checkWhereClauseSlugOrId(data)
+
+  prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+  prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+
+  if (method === "PUT") {
+    prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
+  }
 }
 
 /**
@@ -209,8 +238,8 @@ export function testZodFailMessage<T>(
     params,
     endpoint,
     failingBodies.map(({ body, message }) =>
-      ({ body, error: message ? expectMessage(message) : undefined })
-    )
+      ({ body, error: message ? expectMessage(message) : undefined }),
+    ),
   )
 }
 
