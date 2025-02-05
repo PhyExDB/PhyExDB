@@ -5,10 +5,11 @@ import type { Prisma } from "@prisma/client"
 import { mockUser } from "~~/tests/helpers/auth"
 
 type Event = H3Event<EventHandlerRequest>
+type Endpoint<T> = (event: Event) => Promise<T>
 
 /**
  * A utility type that extracts the resolved type of a Promise returned by a endpoint.
- */
+*/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<ReturnType<T>>
 
@@ -137,7 +138,12 @@ export function testSuccess<T>(event: Event, endpoint: (event: Event) => Promise
 /**
  * Tests an endpoint function with a given slug list and body, expecting a specific result.
  */
-export function testSuccessWithSlugAndId<T>(slugList: SlugList, body: object, endpoint: (event: Event) => Promise<T>, expected: T) {
+export function testSuccessWithSlugAndId<T>(
+  slugList: SlugList,
+  body: object,
+  endpoint: Endpoint<T>,
+  expected: T
+) {
   it(`should_succeed`, async () => {
     forSlugAndIdEvent(slugList, body, async (event) => {
       const response = await endpoint(event)
@@ -149,7 +155,7 @@ export function testSuccessWithSlugAndId<T>(slugList: SlugList, body: object, en
 /**
  * Tests common error scenarios for endpoints that use ids.
  */
-export function testIdFails<T>(body: object, endpoint: (event: Event) => Promise<T>) {
+export function testIdFails<T>(body: object, endpoint: Endpoint<T>) {
   it ("should_fail_when_unknown_id", async () => {
     const event = getEventWithIdParam({ id: uuidv4(), body })
 
@@ -173,7 +179,7 @@ export function testIdFails<T>(body: object, endpoint: (event: Event) => Promise
 /**
  * Tests common error scenarios for endpoints that use slugs.
  */
-export function testSlugFails<T>(body: object, endpoint: (event: Event) => Promise<T>) {
+export function testSlugFails<T>(body: object, endpoint: Endpoint<T>) {
   it ("should_fail_when_unknown_slug", async () => {
     const data = { id: uuidv4(), slug: "unknown-slug" }
 
@@ -210,7 +216,7 @@ export function expectMessage(message: string) {
  */
 export function testZodFail<T>(
   params: object,
-  endpoint: (event: Event) => Promise<T>,
+  endpoint: Endpoint<T>,
   failingBodies: { body: object, error?: object }[],
 ) {
   it(`should_fail_zod`, async () => {
@@ -231,7 +237,7 @@ export function testZodFail<T>(
  */
 export function testZodFailMessage<T>(
   params: object,
-  endpoint: (event: Event) => Promise<T>,
+  endpoint: Endpoint<T>,
   failingBodies: { body: object, message?: string }[],
 ) {
   testZodFail(
@@ -246,7 +252,7 @@ export function testZodFailMessage<T>(
 /**
  * Tests that the given endpoint fails with a ZodError when provided with an empty body.
  */
-export function testZodFailWithEmptyBody<T>(params: object, endpoint: (event: Event) => Promise<T>) {
+export function testZodFailWithEmptyBody<T>(params: object, endpoint: Endpoint<T>) {
   testZodFail(params, endpoint, [{ body: {} }])
 }
 
@@ -256,7 +262,7 @@ export function testZodFailWithEmptyBody<T>(params: object, endpoint: (event: Ev
  */
 export function testAuthFail<T>(
   event: Event,
-  endpoint: (event: Event) => Promise<T>,
+  endpoint: Endpoint<T>,
   failingUsers: (UserDetail | null)[],
 ) {
   it(`should_fail_auth`, async () => {
