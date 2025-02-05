@@ -134,7 +134,18 @@ async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
   deleteFiles(oldFileIds)
 }
 
+const temporarilyRemovedFiles = ref<{ fileId: string, description?: string | undefined }[]>([])
+
 async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileList[]) {
+  const previousSectionFiles = form.values.sections?.[sectionIndex]?.files ?? []
+  const removedFiles = previousSectionFiles.filter(file => !newFileOrder.some(newFile => newFile.file.id === file.fileId))
+  const insertedFiles = newFileOrder.filter(newFile => !previousSectionFiles.some(file => file.fileId === newFile.file.id))
+
+  temporarilyRemovedFiles.value.push(...removedFiles)
+
+  const allFormFiles = form.values.sections?.flatMap(section => section.files) ?? []
+  const allFiles = allFormFiles.concat(temporarilyRemovedFiles.value)
+
   form.setValues({
     ...form.values,
     sections: form.values.sections?.map((section, i) => {
@@ -143,13 +154,18 @@ async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileLis
           ...section,
           files: newFileOrder.map(file => ({
             fileId: file.file.id,
-            description: section.files.find(f => f.fileId === file.file.id)?.description,
+            description: allFiles.find(f => f.fileId === file.file.id)?.description ?? file.description ?? undefined,
           })),
         }
+      } else {
+        return section
       }
-      return section
     }),
   })
+
+  temporarilyRemovedFiles.value = temporarilyRemovedFiles.value.filter(
+    file => !insertedFiles.some(insertedFile => insertedFile.file.id === file.fileId),
+  )
 }
 
 async function removeFile(sectionIndex: number, fileId: string) {
