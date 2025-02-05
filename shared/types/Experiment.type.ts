@@ -12,7 +12,7 @@ export interface ExperimentList extends SlugList {
   /**
    * The creator of the experiment.
    */
-  userId: string
+  userId: string | null
   /**
    * The status of the experiment.
    */
