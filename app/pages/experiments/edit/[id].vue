@@ -138,8 +138,12 @@ const temporarilyRemovedFiles = ref<{ fileId: string, description?: string | und
 
 async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileList[]) {
   const previousSectionFiles = form.values.sections?.[sectionIndex]?.files ?? []
-  const removedFiles = previousSectionFiles.filter(file => !newFileOrder.some(newFile => newFile.file.id === file.fileId))
-  const insertedFiles = newFileOrder.filter(newFile => !previousSectionFiles.some(file => file.fileId === newFile.file.id))
+  const removedFiles = previousSectionFiles.filter(
+    file => !newFileOrder.some(newFile => newFile.file.id === file.fileId),
+  )
+  const insertedFiles = newFileOrder.filter(
+    newFile => !previousSectionFiles.some(file => file.fileId === newFile.file.id),
+  )
 
   temporarilyRemovedFiles.value.push(...removedFiles)
 
