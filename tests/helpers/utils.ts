@@ -19,6 +19,13 @@ export function getEvent(options: { params?: object, body?: object }): Event {
 }
 
 /**
+ * Creates an H3Event object with the specified id as parameter and body.
+ */
+export function getEventWithIdParam(options: { id: string, body?: object }): Event {
+  return getEvent({ params: { id: options.id }, body: options.body })
+}
+
+/**
  * Executes a provided function twice, once with an object containing the `id` property
  * and once with an object containing the `slug` property from the given data.
  */
@@ -84,6 +91,30 @@ export function mockPrismaForPutSlugOrId<T extends SlugList>(table: Tables, data
 }
 
 /**
+ * Tests common error scenarios for endpoints that use ids.
+ */
+export function testIdFails<T>(body: object, endpoint: (event: Event) => Promise<T>) {
+  it ("should_fail_when_unknown_id", async () => {
+    const event = getEventWithIdParam({ id: uuidv4(), body })
+
+    await expect(endpoint(event)).rejects.toThrowError(
+      expect.objectContaining({
+        statusCode: 404,
+      }),
+    )
+  })
+
+  it("should_fail_when_no_id", async () => {
+    const event = getEvent({ body })
+
+    await expect(endpoint(event)).rejects.toMatchObject({
+      message: "Invalid slug",
+      statusCode: 400,
+    })
+  })
+}
+
+/**
  * Tests common error scenarios for endpoints that use slugs.
  */
 export function testSlugFails<T>(body: object, endpoint: (event: Event) => Promise<T>) {
@@ -122,20 +153,19 @@ export function expectMessage(message: string) {
  * Tests that the given endpoint fails with a ZodError for each body in the failingBodies array.
  */
 export function testZodFail<T>(
-  data: SlugList,
+  params: object,
   endpoint: (event: Event) => Promise<T>,
   failingBodies: { body: object, error?: object }[],
 ) {
   it(`should_fail_zod`, async () => {
     failingBodies.forEach(async ({ body, error }) => {
-      forSlugAndIdEvent(data, body, async (event) => {
-        await expect(endpoint(event)).rejects.toThrowError(
-          expect.objectContaining({
-            name: "ZodError",
-            ...error,
-          }),
-        )
-      })
+      const event = getEvent({ params, body })
+      await expect(endpoint(event)).rejects.toThrowError(
+        expect.objectContaining({
+          name: "ZodError",
+          ...error,
+        }),
+      )
     })
   })
 }
@@ -144,29 +174,18 @@ export function testZodFail<T>(
  * Tests that the given endpoint fails with a ZodError for each of the provided failing bodies.
  */
 export function testZodFailMessage<T>(
-  data: SlugList,
+  params: object,
   endpoint: (event: Event) => Promise<T>,
   failingBodies: { body: object, message?: string }[],
 ) {
-  it(`should_fail_zod`, async () => {
-    failingBodies.forEach(async ({ body, message }) => {
-      forSlugAndIdEvent(data, body, async (event) => {
-        await expect(endpoint(event)).rejects.toThrowError(
-          expect.objectContaining({
-            name: "ZodError",
-            ...(message ? expectMessage(message) : {}),
-          }),
-        )
-      })
-    })
-  })
+  testZodFail(params, endpoint, failingBodies.map(({ body, message }) => ({ body, error: message ? expectMessage(message) : undefined })))
 }
 
 /**
  * Tests that the given endpoint fails with a ZodError when provided with an empty body.
  */
-export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: Event) => Promise<T>) {
-  testZodFail(data, endpoint, [{ body: {} }])
+export function testZodFailWithEmptyBody<T>(params: object, endpoint: (event: Event) => Promise<T>) {
+  testZodFail(params, endpoint, [{ body: {} }])
 }
 
 /**
@@ -174,8 +193,7 @@ export function testZodFailWithEmptyBody<T>(data: SlugList, endpoint: (event: Ev
  * Needs to be last, because it changes the user mock!!!
  */
 export function testAuthFail<T>(
-  body: object,
-  data: SlugList,
+  event: Event,
   endpoint: (event: Event) => Promise<T>,
   failingUsers: (UserDetail | null)[],
 ) {
@@ -184,10 +202,8 @@ export function testAuthFail<T>(
       mockUser(failingUser)
       const expectedStatusCode = failingUser ? 403 : 401
 
-      forSlugAndIdEvent(data, body, async (event) => {
-        await expect(endpoint(event)).rejects.toMatchObject({
-          statusCode: expectedStatusCode,
-        })
+      await expect(endpoint(event)).rejects.toMatchObject({
+        statusCode: expectedStatusCode,
       })
     })
   })

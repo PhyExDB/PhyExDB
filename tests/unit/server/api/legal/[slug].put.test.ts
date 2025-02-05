@@ -4,6 +4,7 @@ import { generateMock } from "@anatine/zod-mock"
 import endpoint from "~~/server/api/legal/[slug].put"
 import { mockUser, user } from "~~/tests/helpers/auth"
 import {
+  getEvent,
   mockPrismaForPutSlugOrId,
   forSlugAndIdEvent,
   testSlugFails,
@@ -23,6 +24,9 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   }
   const expected = { ...data, ...body }
 
+  const params = { slug: data.slug }  
+  const event = getEvent({ params, body })
+
   // mocks
   mockUser(user.admin)
   mockPrismaForPutSlugOrId("legalDocument", data, expected)
@@ -38,7 +42,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     })
 
     testSlugFails(body, endpoint)
-    testZodFailMessage(data, endpoint, [
+    testZodFailMessage(params, endpoint, [
       {
         body: { name: "a", text: "" },
         message: "Please enter some content",
@@ -49,6 +53,6 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       },
     ])
     // needs to be last, because it changes the user mock
-    testAuthFail(body, data, endpoint, [user.guest, user.user])
+    testAuthFail(event, endpoint, [user.guest, user.user])
   }
 })
