@@ -30,7 +30,7 @@
     "@vueuse/core": "^12.5.0",
     "@vueuse/nuxt": "^12.5.0",
     "bcrypt": "^5.1.1",
-    "better-auth": "^1.1.15",
+    "better-auth": "^1.1.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.2.4",
