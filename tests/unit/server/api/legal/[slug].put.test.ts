@@ -6,7 +6,7 @@ import { mockUser, user } from "~~/tests/helpers/auth"
 import {
   getEvent,
   mockPrismaForPutSlugOrId,
-  forSlugAndIdEvent,
+  testSuccessWithSlugAndId,
   testSlugFails,
   testZodFailMessage,
   testAuthFail,
@@ -22,7 +22,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     name: "Legal Document name",
     text: "This is the legal document text",
   }
-  const expected = { ...data, ...body }
+  const expected: LegalDocumentDetail = { ...data, ...body }
 
   const params = { slug: data.slug }  
   const event = getEvent({ params, body })
@@ -33,13 +33,11 @@ describe("Api Route PUT /api/legal/{slug}", () => {
 
   // tests
   {
-    it(`should_succeed`, async () => {
-      forSlugAndIdEvent(data, body, async (event) => {
-        const response = await endpoint(event)
-        expectTypeOf(response).toEqualTypeOf<typeof expected>()
-        expect(response).toStrictEqual(expected)
-      })
-    })
+    // type test
+    type Endpoint = Awaited<ReturnType<typeof endpoint>>
+    expectTypeOf<Endpoint>().toEqualTypeOf<typeof expected>()
+    
+    testSuccessWithSlugAndId(data, body, endpoint, expected)
 
     testSlugFails(body, endpoint)
     testZodFailMessage(params, endpoint, [

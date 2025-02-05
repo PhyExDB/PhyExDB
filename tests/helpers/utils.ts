@@ -29,16 +29,16 @@ export function getEventWithIdParam(options: { id: string, body?: object }): Eve
  * Executes a provided function twice, once with an object containing the `id` property
  * and once with an object containing the `slug` property from the given data.
  */
-export function forSlugAndId(data: SlugList, func: (params: { slug: string } | { id: string }) => void) {
-  func({ slug: data.id })
-  func({ slug: data.slug })
+export function forSlugAndId(slugList: SlugList, func: (params: { slug: string } | { id: string }) => void) {
+  func({ slug: slugList.id })
+  func({ slug: slugList.slug })
 }
 
 /**
  * Creates an event object with the provided data and executes the provided function.
  */
-export function forSlugAndIdEvent(data: SlugList, body: object, func: (event: Event) => void) {
-  forSlugAndId(data, (params) => {
+export function forSlugAndIdEvent(slugList: SlugList, body: object, func: (event: Event) => void) {
+  forSlugAndId(slugList, (params) => {
     func(getEvent({ params, body }))
   })
 }
@@ -88,6 +88,22 @@ export function mockPrismaForPutSlugOrId<T extends SlugList>(table: Tables, data
   prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
 
   prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
+}
+
+export function testSuccess<T>(event: Event, endpoint: (event: Event) => Promise<T>, expected: T) {
+  it(`should_succeed`, async () => {
+    const response = await endpoint(event)
+    expect(response).toStrictEqual(expected)
+  })
+}
+
+export function testSuccessWithSlugAndId<T>(slugList: SlugList, body: object, endpoint: (event: Event) => Promise<T>, expected: T) {
+  it(`should_succeed`, async () => {
+    forSlugAndIdEvent(slugList, body, async (event) => {
+      const response = await endpoint(event)
+      expect(response).toStrictEqual(expected)
+    })
+  })
 }
 
 /**
@@ -178,7 +194,13 @@ export function testZodFailMessage<T>(
   endpoint: (event: Event) => Promise<T>,
   failingBodies: { body: object, message?: string }[],
 ) {
-  testZodFail(params, endpoint, failingBodies.map(({ body, message }) => ({ body, error: message ? expectMessage(message) : undefined })))
+  testZodFail(
+    params,
+    endpoint,
+    failingBodies.map(({ body, message }) =>
+      ({ body, error: message ? expectMessage(message) : undefined })
+    )
+  )
 }
 
 /**
