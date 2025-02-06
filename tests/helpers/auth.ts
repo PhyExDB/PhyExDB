@@ -18,7 +18,7 @@ export function mockUser(user: UserDetail | null): void {
 /**
  * A collection of user objects for testing purposes.
  */
-export const user = {
+export const users = {
   user: {
     id: uuidv4(),
     name: "User",

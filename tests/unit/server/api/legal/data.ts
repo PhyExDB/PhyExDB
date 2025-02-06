@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid"
 
 /**
- * An array of legalDocument lists
+ * An array of ressource lists
  */
 export const lists = [
   {
@@ -19,14 +19,14 @@ export const lists = [
     slug: "imprint",
     name: "Imprint",
   },
-]
+] satisfies LegalDocumentList[]
 
 /**
- * A legalDocument detail
+ * A resource detail
  */
 export const detail = {
   id: uuidv4(),
   slug: "legal-document",
   name: "Legal Document name",
   text: "This is the legal document text",
-}
+} satisfies LegalDocumentDetail

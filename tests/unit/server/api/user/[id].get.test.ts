@@ -3,9 +3,9 @@ import { v4 as uuidv4 } from "uuid"
 import { UserRole } from "@prisma/client"
 import type { H3Event, EventHandlerRequest } from "h3"
 import getUser from "~~/server/api/users/[id].get"
-import { mockUser, user } from "~~/tests/helpers/auth"
+import { mockUser, users } from "~~/tests/helpers/auth"
 
-mockUser(user.admin)
+mockUser(users.admin)
 
 describe("Api Route GET /api/user/{id}", async () => {
   it.each(["name", "id"])("should get a user by %s", async (param) => {

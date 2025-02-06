@@ -1,6 +1,6 @@
 import { describe, expectTypeOf } from "vitest"
 import { lists } from "./data"
-import { mockUser, user } from "~~/tests/helpers/auth"
+import { mockUser, users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
@@ -16,7 +16,7 @@ describe("Api Route GET /api/legal/index", () => {
   const event = u.getEvent({ body })
 
   // mocks
-  mockUser(user.guest)
+  mockUser(users.guest)
   u.mockPrismaForGetAll("legalDocument", data, expected)
 
   // tests

@@ -2,9 +2,9 @@ import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event } from "h3"
 import addValue from "~~/server/api/experiments/attributes/index.post"
-import { mockUser, user } from "~~/tests/helpers/auth"
+import { mockUser, users } from "~~/tests/helpers/auth"
 
-mockUser(user.admin)
+mockUser(users.admin)
 
 describe("API Route POST /api/experiments/attributes", () => {
   it("should add an value successfully", async () => {

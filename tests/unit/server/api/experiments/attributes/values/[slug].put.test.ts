@@ -2,9 +2,9 @@ import { describe, expect, vi, it, expectTypeOf } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import type { H3Event } from "h3"
 import updateAttributeValue from "~~/server/api/experiments/attributes/values/[slug].put"
-import { mockUser, user } from "~~/tests/helpers/auth"
+import { mockUser, users } from "~~/tests/helpers/auth"
 
-mockUser(user.admin)
+mockUser(users.admin)
 
 describe("API Route PUT /api/experiments/attributes/{id}", () => {
   it("should update an attribute value name successfully", async () => {

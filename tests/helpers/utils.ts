@@ -13,15 +13,21 @@ type Endpoint<T> = (event: Event) => Promise<T>
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<ReturnType<T>>
 
+type Params = Record<string, string>
+type Query = Record<string, any>
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
-export function getEvent(options: { params?: object, body?: object }): Event {
+export function getEvent(options: { params?: Params, body?: object, query?: Query }): Event {
   return {
     context: {
       params: options.params || {},
     },
     body: options.body || {},
+    query: options.query || {}, // todo
+    // path(): string {
+    //   return "?" + Object.entries(query).flatMap(([key, value]) => key + "=" + value).join("&")
+    // }
   } as unknown as Event
 }
 
@@ -48,6 +54,23 @@ export function forSlugAndIdEvent(slugList: SlugList, body: object, func: (event
   forSlugAndId(slugList, (params) => {
     func(getEvent({ params, body }))
   })
+}
+
+/**
+ * Paginates an array of items.
+ */
+export function page<T>(arr: T[], page?: number, pageSize?: number): Page<T> {
+  page = page || 1
+  pageSize = pageSize || 12
+  return  {
+    items: arr.slice((page - 1) * pageSize, page * pageSize),
+    pagination: {
+      total: arr.length,
+      totalPages: Math.ceil(arr.length / pageSize),
+      page,
+      pageSize,
+    },
+  }
 }
 
 type CheckWhereClause = (where: any) => boolean
@@ -92,7 +115,7 @@ export function mockPrismaForPut<T>(table: Tables, data: T, expected: T, checkWh
 export function mockPrismaForSlugOrIdGet<T extends SlugList>(
   table: Tables,
   data: T,
-  _: T,
+  _?: any,
 ) {
   const checkWhereClause = checkWhereClauseSlugOrId(data)
 
@@ -120,9 +143,10 @@ export function mockPrismaForSlugOrIdPut<T extends SlugList>(
 export function mockPrismaForGetAll<T>(
   table: Tables,
   data: Array<T>,
-  _: Array<T>,
+  _?: any,
 ) {
   prisma[table].findMany = vi.fn().mockResolvedValue(data)
+  prisma[table].count = vi.fn().mockResolvedValue(data.length)
 }
 
 /**
@@ -146,6 +170,35 @@ export function testSuccessWithSlugAndId<T>(
 ) {
   it(`should_succeed`, async () => {
     forSlugAndIdEvent(slugList, body, async (event) => {
+      const response = await endpoint(event)
+      expect(response).toStrictEqual(expected)
+    })
+  })
+}
+
+/**
+ * Tests an endpoint function with diffrent pagination parameters.
+ */
+export function testSuccessWithPagination<T>(
+  data: T[],
+  body: object,
+  endpoint: Endpoint<Page<T>>,
+  _?: any,
+) {
+  it(`should_succeed`, async () => {
+    [
+      {},
+      { page: 1, pageSize: 12 },
+      { page: 2, pageSize: 12 },
+      { page: 1, pageSize: 1 },
+      { page: 2, pageSize: 1 },
+      { page: 3, pageSize: 1 },
+      { page: 1, pageSize: 2 },
+      { page: 2, pageSize: 2 },
+    ].forEach( async (query) => {
+      const event = getEvent({ query, body })
+      const expected = page(data, query.page, query.pageSize)
+
       const response = await endpoint(event)
       expect(response).toStrictEqual(expected)
     })
@@ -215,7 +268,7 @@ export function expectMessage(message: string) {
  * Tests that the given endpoint fails with a ZodError for each body in the failingBodies array.
  */
 export function testZodFail<T>(
-  params: object,
+  params: Params,
   endpoint: Endpoint<T>,
   failingBodies: { body: object, error?: object }[],
 ) {
@@ -236,7 +289,7 @@ export function testZodFail<T>(
  * Tests that the given endpoint fails with a ZodError for each of the provided failing bodies.
  */
 export function testZodFailMessage<T>(
-  params: object,
+  params: Params,
   endpoint: Endpoint<T>,
   failingBodies: { body: object, message?: string }[],
 ) {
@@ -252,7 +305,7 @@ export function testZodFailMessage<T>(
 /**
  * Tests that the given endpoint fails with a ZodError when provided with an empty body.
  */
-export function testZodFailWithEmptyBody<T>(params: object, endpoint: Endpoint<T>) {
+export function testZodFailWithEmptyBody<T>(params: Params, endpoint: Endpoint<T>) {
   testZodFail(params, endpoint, [{ body: {} }])
 }
 
