@@ -144,7 +144,10 @@ async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileLis
 
 async function removeFile(sectionIndex: number, fileId: string) {
   const file = form.values.sections?.[sectionIndex]?.files?.find(file => file.fileId === fileId)
-  form.setFieldValue(`sections.${sectionIndex}.files`, form.values.sections?.[sectionIndex]?.files?.filter(file => file.fileId !== fileId) ?? [])
+  form.setFieldValue(
+    `sections.${sectionIndex}.files`,
+    form.values.sections?.[sectionIndex]?.files?.filter(file => file.fileId !== fileId) ?? [],
+  )
   await onSubmit()
 
   if (file) {
