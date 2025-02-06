@@ -92,7 +92,7 @@ export function checkWhereClauseSlugOrId(data: { id: string, slug: string }) {
 export function prismaMockResolvedCheckingWhereClause<T>(data: T, checkWhereClause: CheckWhereClause) {
   return vi.fn().mockImplementation(({ where }) => {
     if (!checkWhereClause(where)) {
-      return null
+      return Promise.resolve(null)
     }
     return Promise.resolve(data)
   })
@@ -146,7 +146,10 @@ export function mockPrismaForGetAll<T>(
   data: Array<T>,
   _?: any,
 ) {
-  prisma[table].findMany = vi.fn().mockResolvedValue(data) // todo improve mock to check for pagination
+  prisma[table].findMany = vi.fn().mockImplementation(
+    ({skip, take}: {skip: number, take: number} = {skip: 0, take: data.length}) => {
+    return Promise.resolve(data.slice(skip, skip + take))
+  })
   prisma[table].count = vi.fn().mockResolvedValue(data.length)
 }
 
