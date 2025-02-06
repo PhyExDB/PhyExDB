@@ -87,7 +87,7 @@ const onSubmit = form.handleSubmit(async (values) => {
               name="name"
             >
               <FormItem>
-                <FormLabel>Text</FormLabel>
+                <FormLabel>Titel</FormLabel>
                 <FormControl>
                   <Input
                     id="name"
@@ -104,7 +104,7 @@ const onSubmit = form.handleSubmit(async (values) => {
               name="text"
             >
               <FormItem>
-                <FormLabel>Text</FormLabel>
+                <FormLabel>Inhalt</FormLabel>
                 <FormControl>
                   <Input
                     id="text"
