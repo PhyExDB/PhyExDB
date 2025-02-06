@@ -134,58 +134,17 @@ async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
   deleteFiles(oldFileIds)
 }
 
-const temporarilyRemovedFiles = ref<{ fileId: string, description?: string | undefined }[]>([])
-
 async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileList[]) {
-  const previousSectionFiles = form.values.sections?.[sectionIndex]?.files ?? []
-  const removedFiles = previousSectionFiles.filter(
-    file => !newFileOrder.some(newFile => newFile.file.id === file.fileId),
-  )
-  const insertedFiles = newFileOrder.filter(
-    newFile => !previousSectionFiles.some(file => file.fileId === newFile.file.id),
-  )
-
-  temporarilyRemovedFiles.value.push(...removedFiles)
-
-  const allFormFiles = form.values.sections?.flatMap(section => section.files) ?? []
-  const allFiles = allFormFiles.concat(temporarilyRemovedFiles.value)
-
-  form.setValues({
-    ...form.values,
-    sections: form.values.sections?.map((section, i) => {
-      if (i === sectionIndex) {
-        return {
-          ...section,
-          files: newFileOrder.map(file => ({
-            fileId: file.file.id,
-            description: allFiles.find(f => f.fileId === file.file.id)?.description ?? file.description ?? undefined,
-          })),
-        }
-      } else {
-        return section
-      }
-    }),
-  })
-
-  temporarilyRemovedFiles.value = temporarilyRemovedFiles.value.filter(
-    file => !insertedFiles.some(insertedFile => insertedFile.file.id === file.fileId),
-  )
+  const sectionFiles = form.values.sections?.[sectionIndex]?.files ?? []
+  form.setFieldValue(`sections.${sectionIndex}.files`, newFileOrder.map(file => ({
+    fileId: file.file.id,
+    description: sectionFiles.find(f => f.fileId === file.file.id)?.description ?? file.description ?? undefined,
+  })))
 }
 
 async function removeFile(sectionIndex: number, fileId: string) {
   const file = form.values.sections?.[sectionIndex]?.files?.find(file => file.fileId === fileId)
-  form.setValues({
-    ...form.values,
-    sections: form.values.sections?.map((section, i) => {
-      if (i === sectionIndex) {
-        return {
-          ...section,
-          files: section.files.filter(file => file.fileId !== fileId),
-        }
-      }
-      return section
-    }),
-  })
+  form.setFieldValue(`sections.${sectionIndex}.files`, form.values.sections?.[sectionIndex]?.files?.filter(file => file.fileId !== fileId) ?? [])
   await onSubmit()
 
   if (file) {
