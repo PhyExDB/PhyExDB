@@ -373,6 +373,7 @@ async function previewExperiment() {
                 <TipTapEditor
                   :id="`sections[${section.order}].text`"
                   v-bind="componentField"
+                  :show-headings="false"
                   @click.prevent
                 />
               </FormControl>

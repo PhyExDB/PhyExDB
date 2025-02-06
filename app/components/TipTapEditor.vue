@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import type { Level } from "@tiptap/extension-heading"
 
-const { modelValue } = defineProps({
+const { modelValue, showHeadings } = defineProps({
   modelValue: {
     type: String,
     required: false,
     default: "",
+  },
+  showHeadings: {
+    type: Boolean,
+    required: false,
+    default: true,
   },
 })
 
@@ -13,15 +18,22 @@ const { modelValue } = defineProps({
 const emit = defineEmits(["update:modelValue"])
 
 // Editor initialization
+const editorExtensions = [
+  TiptapStarterKit.configure({
+    heading: showHeadings ? { levels: [1, 2, 3] } : false,
+    codeBlock: false,
+    hardBreak: false,
+    horizontalRule: false,
+    blockquote: false,
+  }),
+  TiptapLink.configure({
+    openOnClick: false,
+    defaultProtocol: "https",
+  }),
+]
 const editor = useEditor({
   content: modelValue,
-  extensions: [
-    TiptapStarterKit,
-    TiptapLink.configure({
-      openOnClick: false,
-      defaultProtocol: "https",
-    }),
-  ],
+  extensions: editorExtensions,
 })
 
 const linkUrl = ref("")
@@ -152,7 +164,10 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Headings -->
-          <div class="flex gap-1">
+          <div
+            v-if="showHeadings"
+            class="flex gap-1"
+          >
             <template
               v-for="heading in headings"
               :key="heading.level"
