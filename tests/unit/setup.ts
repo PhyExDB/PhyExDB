@@ -16,14 +16,6 @@ vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
   }
 })
 
-vitest.mock(import("h3"), async (importOriginal) => {
-  const actual = await importOriginal()
-  return {
-    ...actual,
-    getQuery: vitest.fn(),
-  }
-})
-
 vitest.stubGlobal("useNitroApp", () => {
   return {
     domPurify: createDomPurify(),
@@ -37,6 +29,10 @@ vitest.stubGlobal("getValidatedRouterParams", (e: any, f: any) => f(e.context.pa
 
 vitest.stubGlobal("getRouterParam", (event: any, paramName: string) => {
   return event.context.params[paramName]
+})
+
+vitest.stubGlobal("getQuery", (event: any) => {
+  return event.context.query
 })
 
 vitest.stubGlobal("readValidatedBody", async (event: any, validator: (body: any) => any) => {

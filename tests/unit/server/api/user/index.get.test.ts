@@ -9,6 +9,7 @@ import endpoint from "~~/server/api/users/index.get"
 describe("Api Route GET /api/users/index", () => {
   // definitions
   const body = {}
+  const params = {}
 
   const data = lists
   const expected = u.page(data)
@@ -24,6 +25,6 @@ describe("Api Route GET /api/users/index", () => {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    u.testSuccessWithPagination(data, event, endpoint, expected)
+    u.testSuccessWithPagination(data, params, body, endpoint, expected)
   }
 })

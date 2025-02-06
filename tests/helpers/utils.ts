@@ -2,7 +2,6 @@ import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { expect, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
-import { getQuery } from "h3"
 import { mockUser } from "~~/tests/helpers/auth"
 
 type Event = H3Event<EventHandlerRequest>
@@ -15,13 +14,17 @@ type Endpoint<T> = (event: Event) => Promise<T>
 export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<ReturnType<T>>
 
 type Params = Record<string, string>
+type Query = Record<string, any>
+type Body = any
+type MockedEvent = { params?: Params, body?: Body, query?: Query }
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
-export function getEvent(options: { params?: Params, body?: object }): Event {
+export function getEvent(options: { params?: Params, body?: object, query?: Query }): Event {
   return {
     context: {
       params: options.params || {},
+      query: options.query || {},
     },
     body: options.body || {},
   } as unknown as Event
@@ -180,7 +183,8 @@ export function testSuccessWithSlugAndId<T>(
  */
 export function testSuccessWithPagination<T>(
   data: T[],
-  event: Event,
+  params: Params,
+  body: Body,
   endpoint: Endpoint<Page<T>>,
   _?: any,
 ) {
@@ -198,16 +202,11 @@ export function testSuccessWithPagination<T>(
 
     for (const query of queries) {
       const expected = page(data, query.page, query.pageSize)
-
-      // Warning side effects
-      vi.mocked(getQuery).mockReturnValue(query)
+      const event = getEvent({ params, body, query })
 
       const response = await endpoint(event)
       expect(response).toStrictEqual(expected)
     }
-
-    // reset mock
-    vi.mocked(getQuery).mockReturnValue(undefined)
   })
 }
 
