@@ -431,7 +431,6 @@ async function previewExperiment() {
           />
           <DraggableList
             :values="experiment?.sections[section.order]?.files ?? []"
-            group="experiment-group"
             @update:values="newFileOrder => updateFiles(section.order, newFileOrder)"
           >
             <template #item="{ item, index }">
@@ -494,19 +493,6 @@ async function previewExperiment() {
                       />
                     </Button>
                   </div>
-                </div>
-              </Card>
-            </template>
-            <template #empty-list>
-              <Card class="text-center py-6">
-                <div class="flex flex-col items-center justify-center">
-                  <Icon
-                    name="heroicons:plus-circle"
-                    class="h-12 w-12 text-muted-foreground/60"
-                  />
-                  <p class="mt-4 mx-4 text-sm text-muted-foreground/60">
-                    Noch keine Dateien für {{ section.name }} vorhanden.
-                  </p>
                 </div>
               </Card>
             </template>
