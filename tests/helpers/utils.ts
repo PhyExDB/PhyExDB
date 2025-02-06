@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 import { expect, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
 import { mockUser } from "~~/tests/helpers/auth"
+import { getQuery } from "h3"
 
 type Event = H3Event<EventHandlerRequest>
 type Endpoint<T> = (event: Event) => Promise<T>
@@ -145,7 +146,7 @@ export function mockPrismaForGetAll<T>(
   data: Array<T>,
   _?: any,
 ) {
-  prisma[table].findMany = vi.fn().mockResolvedValue(data)
+  prisma[table].findMany = vi.fn().mockResolvedValue(data) // todo improve mock to check for pagination
   prisma[table].count = vi.fn().mockResolvedValue(data.length)
 }
 
@@ -186,7 +187,7 @@ export function testSuccessWithPagination<T>(
   _?: any,
 ) {
   it(`should_succeed`, async () => {
-    [
+    const queries = [
       {},
       { page: 1, pageSize: 12 },
       { page: 2, pageSize: 12 },
@@ -195,13 +196,17 @@ export function testSuccessWithPagination<T>(
       { page: 3, pageSize: 1 },
       { page: 1, pageSize: 2 },
       { page: 2, pageSize: 2 },
-    ].forEach( async (query) => {
+    ]
+
+    for(const query of queries){
       const event = getEvent({ query, body })
+      vi.mocked(getQuery).mockReturnValue(query)
+      // expect(getQuery(event)).toStrictEqual(query)
       const expected = page(data, query.page, query.pageSize)
 
       const response = await endpoint(event)
       expect(response).toStrictEqual(expected)
-    })
+    }
   })
 }
 

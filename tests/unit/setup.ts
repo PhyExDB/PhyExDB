@@ -16,6 +16,14 @@ vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
   }
 })
 
+vitest.mock(import("h3"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    getQuery: vitest.fn(),
+  }
+})
+
 vitest.stubGlobal("useNitroApp", () => {
   return {
     domPurify: createDomPurify(),
