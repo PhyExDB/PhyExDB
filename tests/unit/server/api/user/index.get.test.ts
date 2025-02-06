@@ -14,8 +14,6 @@ describe("Api Route GET /api/users/index", () => {
   const data = lists
   const expected = u.page(data)
 
-  const event = u.getEvent({ body })
-
   // mocks
   mockUser(users.admin)
   u.mockPrismaForGetAll("user", data, expected)

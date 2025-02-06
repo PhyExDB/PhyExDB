@@ -16,7 +16,6 @@ export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<R
 type Params = Record<string, string>
 type Query = Record<string, any>
 type Body = any
-type MockedEvent = { params?: Params, body?: Body, query?: Query }
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
