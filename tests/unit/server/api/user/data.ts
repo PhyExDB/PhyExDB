@@ -9,8 +9,8 @@ export const detail: UserDetail = users.user
  * A resource detail
  */
 export const lists: UserDetailAdmin[] = (Object.values(users)
-    .filter((user) => user !== null)
-    .map((user) =>
-        ({...user, banned: false })
-    )
+  .filter(user => user !== null)
+  .map(user =>
+    ({ ...user, banned: false }),
+  )
 )

@@ -2,8 +2,8 @@ import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { expect, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
-import { mockUser } from "~~/tests/helpers/auth"
 import { getQuery } from "h3"
+import { mockUser } from "~~/tests/helpers/auth"
 
 type Event = H3Event<EventHandlerRequest>
 type Endpoint<T> = (event: Event) => Promise<T>
@@ -15,20 +15,15 @@ type Endpoint<T> = (event: Event) => Promise<T>
 export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<ReturnType<T>>
 
 type Params = Record<string, string>
-type Query = Record<string, any>
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
-export function getEvent(options: { params?: Params, body?: object, query?: Query }): Event {
+export function getEvent(options: { params?: Params, body?: object }): Event {
   return {
     context: {
       params: options.params || {},
     },
     body: options.body || {},
-    query: options.query || {}, // todo
-    // path(): string {
-    //   return "?" + Object.entries(query).flatMap(([key, value]) => key + "=" + value).join("&")
-    // }
   } as unknown as Event
 }
 
@@ -63,7 +58,7 @@ export function forSlugAndIdEvent(slugList: SlugList, body: object, func: (event
 export function page<T>(arr: T[], page?: number, pageSize?: number): Page<T> {
   page = page || 1
   pageSize = pageSize || 12
-  return  {
+  return {
     items: arr.slice((page - 1) * pageSize, page * pageSize),
     pagination: {
       total: arr.length,
@@ -147,9 +142,9 @@ export function mockPrismaForGetAll<T>(
   _?: any,
 ) {
   prisma[table].findMany = vi.fn().mockImplementation(
-    ({skip, take}: {skip: number, take: number} = {skip: 0, take: data.length}) => {
-    return Promise.resolve(data.slice(skip, skip + take))
-  })
+    ({ skip, take }: { skip: number, take: number } = { skip: 0, take: data.length }) => {
+      return Promise.resolve(data.slice(skip, skip + take))
+    })
   prisma[table].count = vi.fn().mockResolvedValue(data.length)
 }
 
@@ -185,7 +180,7 @@ export function testSuccessWithSlugAndId<T>(
  */
 export function testSuccessWithPagination<T>(
   data: T[],
-  body: object,
+  event: Event,
   endpoint: Endpoint<Page<T>>,
   _?: any,
 ) {
@@ -201,15 +196,18 @@ export function testSuccessWithPagination<T>(
       { page: 2, pageSize: 2 },
     ]
 
-    for(const query of queries){
-      const event = getEvent({ query, body })
-      vi.mocked(getQuery).mockReturnValue(query)
-      // expect(getQuery(event)).toStrictEqual(query)
+    for (const query of queries) {
       const expected = page(data, query.page, query.pageSize)
+
+      // Warning side effects
+      vi.mocked(getQuery).mockReturnValue(query)
 
       const response = await endpoint(event)
       expect(response).toStrictEqual(expected)
     }
+
+    // reset mock
+    vi.mocked(getQuery).mockReturnValue(undefined)
   })
 }
 
