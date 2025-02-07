@@ -84,7 +84,7 @@ model ExperimentSection {
 
 model ExperimentSectionContent {
   id                  String            @id @default(uuid())
-  experiment          Experiment        @relation(fields: [experimentId], references: [id])
+  experiment          Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId        String
   experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String
