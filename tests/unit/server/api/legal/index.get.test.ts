@@ -8,10 +8,6 @@ import endpoint from "~~/server/api/legal/index.get"
 
 describe("Api Route GET /api/legal/index", () => {
   // definitions
-  const body = {}
-  const params = {}
-  const query = {}
-
   const data = lists
   const expected = data
 
@@ -20,9 +16,9 @@ describe("Api Route GET /api/legal/index", () => {
     expected,
     endpoint,
 
-    body,
-    params,
-    query,
+    body: {},
+    params: {},
+    query: {},
   }
 
   // mocks
@@ -34,6 +30,6 @@ describe("Api Route GET /api/legal/index", () => {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    u.testSuccess(context)
+    u.testAuto(context)
   }
 })

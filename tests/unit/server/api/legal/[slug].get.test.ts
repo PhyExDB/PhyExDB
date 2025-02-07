@@ -8,10 +8,6 @@ import endpoint from "~~/server/api/legal/[slug].get"
 
 describe("Api Route GET /api/legal/{slug}", () => {
   // definitions
-  const body = {}
-  const params = {}
-  const query = {}
-
   const data = detail
   const expected = data
 
@@ -20,9 +16,9 @@ describe("Api Route GET /api/legal/{slug}", () => {
     expected,
     endpoint,
 
-    body,
-    params,
-    query,
+    body: {},
+    params: { slug: data.slug },
+    query: {},
   }
 
   // mocks

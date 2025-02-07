@@ -14,18 +14,14 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   const data = detail
   const expected = { ...data, ...body }
 
-  const params = { slug: data.slug }
-  const event = u.getEvent({ params, body })
-  const query = {}
-
   const context = {
     data,
     expected,
     endpoint,
 
-    body,
-    params,
-    query,
+    body: body,
+    params: { slug: data.slug },
+    query: {},
   }
 
   // mocks
@@ -40,17 +36,46 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     u.testSuccessWithSlugAndId(context)
 
     u.testSlugFails(context)
-    u.testZodFailMessage(context, [
-      {
-        body: { name: "a", text: "" },
-        message: "Please enter some content",
-      },
-      {
-        body: { name: "", text: "a" },
-        message: "Please enter a name",
-      },
-    ])
+    u.testZodFail({
+      ...context, 
+      failingBodies: [
+        {
+          body: { name: "a", text: "" },
+          message: "Please enter some content",
+        },
+        {
+          body: { name: "", text: "a" },
+          message: "Please enter a name",
+        },
+      ],
+    })
     // needs to be last, because it changes the user mock
-    u.testAuthFail(context, [users.guest, users.user])
+    u.testAuthFail({
+      ...context, 
+      failingUsers: [users.guest, users.user],
+    })
+
+    u.test(
+      {
+        ...context,
+        failingBodies: [
+          {
+            body: { name: "a", text: "" },
+            message: "Please enter some content",
+          },
+          {
+            body: { name: "", text: "a" },
+            message: "Please enter a name",
+          },
+        ],
+        failingUsers: [users.guest, users.user],
+      },
+      [
+        u.testSuccessWithSlugAndId,
+        u.testSlugFails,
+        u.testZodFail,
+        u.testAuthFail,
+      ]
+    )
   }
 })

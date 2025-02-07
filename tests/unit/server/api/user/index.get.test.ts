@@ -1,17 +1,13 @@
 import { describe, expectTypeOf } from "vitest"
+import { lists } from "./data"
 import { mockUser, users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
-import { lists } from "./data"
 import endpoint from "~~/server/api/users/index.get"
 
 describe("Api Route GET /api/users/index", () => {
   // definitions
-  const body = {}
-  const params = {}
-  const query = {}
-
   const data = lists
   const expected = u.page(data)
 
@@ -20,9 +16,9 @@ describe("Api Route GET /api/users/index", () => {
     expected,
     endpoint,
 
-    body,
-    params,
-    query,
+    body: {},
+    params: {},
+    query: {},
   }
 
   // mocks
