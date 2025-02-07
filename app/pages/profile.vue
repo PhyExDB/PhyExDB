@@ -185,7 +185,7 @@ async function createExperiment() {
 
                     <Button
                       variant="outline"
-                      class="hover:bg-destructive hover:text-white"
+                      class="hover:bg-destructive hover:text-destructive-foreground"
                       @click="deleteExperiment(experiment.id)"
                       @click.prevent
                     >
