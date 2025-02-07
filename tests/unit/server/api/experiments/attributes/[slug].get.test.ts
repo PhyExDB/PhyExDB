@@ -1,80 +1,33 @@
-import { describe, expect, vi, it, expectTypeOf } from "vitest"
-import { v4 as uuidv4 } from "uuid"
-import type { H3Event, EventHandlerRequest } from "h3"
-import getAttribute from "~~/server/api/experiments/attributes/[slug].get"
+import { describe, expectTypeOf } from "vitest"
+import { detail } from "./data"
+import { mockUser, users } from "~~/tests/helpers/auth"
+import type { EndpointResult } from "~~/tests/helpers/utils"
+import * as u from "~~/tests/helpers/utils"
 
-describe("Api Route GET /api/experiments/attributes/{slug}", () => {
-  it("should get an Attribute by id", async () => {
-    const value_1 = {
-      id: uuidv4(),
-      value: "value_one",
-      slug: "value_one",
-    }
-    const value_2 = {
-      id: uuidv4(),
-      value: "value_two",
-      slug: "value_two",
-    }
-    const attribute = {
-      id: uuidv4(),
-      name: "attribute_one",
-      slug: "test",
-      values: [value_1, value_2],
-    }
+import endpoint from "~~/server/api/experiments/attributes/[slug].get"
 
-    // Mocking Prisma
-    prisma.experimentAttribute.findFirst = vi.fn().mockImplementation(({ where }) => {
-      if (where.id === attribute.id) {
-        return Promise.resolve(attribute)
-      }
-      return Promise.resolve(null)
-    })
+describe("Api Route /api/experiments/attributes/[slug].get", () => {
+  // definitions
+  const data = detail
+  const expected = data
 
-    const event = {
-      context: {
-        params: {
-          slug: attribute.id,
-        },
-      },
-    } as unknown as H3Event<EventHandlerRequest>
+  const context = u.getTestContext({
+    data, expected, endpoint,
 
-    const response = await getAttribute(event)
-
-    expectTypeOf(response).toEqualTypeOf<ExperimentAttributeDetail>()
-    expect(response).toStrictEqual(attribute)
-  })
-  it("should return a 400 error if no id is provided", async () => {
-    const event = {
-      context: {
-        params: {},
-      },
-    } as unknown as H3Event
-
-    await expect(getAttribute(event)).rejects.toThrowError(
-      expect.objectContaining({
-        statusCode: 400,
-        message: "Invalid slug",
-      }),
-    )
+    params: { slug: data.slug },
   })
 
-  it("should return a 404 error if the attribute is not found", async () => {
-    // Mocking Prisma to return null
-    prisma.experimentAttribute.findFirst = vi.fn().mockResolvedValue(null)
+  // mocks
+  mockUser(users.guest)
+  u.mockPrismaForSlugOrIdGet(context, "experimentAttribute")
 
-    const event = {
-      context: {
-        params: {
-          slug: uuidv4(),
-        },
-      },
-    } as unknown as H3Event
+  // tests
+  {
+    // type test
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    await expect(getAttribute(event)).rejects.toThrowError(
-      expect.objectContaining({
-        statusCode: 404,
-        message: "Attribute not found",
-      }),
-    )
-  })
+    u.testSuccessWithSlugAndId(context)
+
+    u.testSlugFails(context)
+  }
 })

@@ -203,14 +203,28 @@ export function mockPrismaForIdPut<Data extends BaseList, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForGetAll<T, Data extends Array<T>, Exp>(
-  c: TestContext<Data, Exp>,
+  c: Pick<TestContext<Data, Exp>, "data">,
   table: Tables,
 ) {
   prisma[table].findMany = vi.fn().mockImplementation(
-    ({ skip, take }: { skip: number, take: number } = { skip: 0, take: c.data.length }) => {
+    (params?: { skip?: number, take?: number }) => {
+      const skip = params?.skip || 0
+      const take = params?.take || c.data.length
       return Promise.resolve(c.data.slice(skip, skip + take))
     })
   prisma[table].count = vi.fn().mockResolvedValue(c.data.length)
+}
+
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForPost<Data, Exp>(
+  c: Pick<TestContext<Data, Exp>, "expected">,
+  table: Tables,
+) {
+  prisma[table].create = vi.fn().mockImplementation(
+    _ => Promise.resolve(c.expected),
+  )
 }
 
 /**

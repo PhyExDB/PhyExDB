@@ -44,6 +44,6 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       },
     ])
     // needs to be last, because it changes the user mock
-    u.testAuthFail(context, [users.guest, users.user])
+    u.testAuthFail(context, [users.guest, users.user, users.mod])
   }
 })

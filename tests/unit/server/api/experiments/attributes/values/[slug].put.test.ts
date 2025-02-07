@@ -1,84 +1,44 @@
-import { describe, expect, vi, it, expectTypeOf } from "vitest"
-import { v4 as uuidv4 } from "uuid"
-import type { H3Event } from "h3"
-import updateAttributeValue from "~~/server/api/experiments/attributes/values/[slug].put"
+import { describe, expectTypeOf } from "vitest"
+import { generateMock } from "@anatine/zod-mock"
+import { detail } from "./data"
 import { mockUser, users } from "~~/tests/helpers/auth"
+import type { EndpointResult } from "~~/tests/helpers/utils"
+import * as u from "~~/tests/helpers/utils"
 
-mockUser(users.admin)
+import endpoint from "~~/server/api/experiments/attributes/values/[slug].put"
 
-describe("API Route PUT /api/experiments/attributes/{id}", () => {
-  it("should update an attribute value name successfully", async () => {
-    const mockAttributeValue = {
-      id: uuidv4(),
-      value: "OldName",
-      slug: "oldname",
-    }
+describe("Api Route PUT /api/experiments/attributes/values/[slug]", () => {
+  // definitions
+  const body = generateMock(experimentAttributeValueUpdateSchema)
 
-    prisma.experimentAttributeValue.findFirst = vi.fn().mockImplementation(({ where }) => {
-      if (where.id === mockAttributeValue.id) {
-        return Promise.resolve(mockAttributeValue)
-      }
-      return Promise.resolve(null)
-    })
-    const updateContent = {
-      value: "NewName",
-    }
-    prisma.experimentAttributeValue.update = vi.fn().mockResolvedValue({
-      id: mockAttributeValue.id,
-      value: updateContent.value,
-    })
-    const event = {
-      context: {
-        params: {
-          slug: mockAttributeValue.id,
-        },
-      },
-      body: updateContent,
-    } as unknown as H3Event
+  const data = detail
+  const expected = { ...data, ...body }
 
-    const response = await updateAttributeValue(event)
-    expectTypeOf(response).toEqualTypeOf<ExperimentAttributeValueList>()
-    expect(response).toStrictEqual({
-      id: mockAttributeValue.id,
-      value: updateContent.value,
-    })
-  })
-  it("should return a 400 error if no id is provided", async () => {
-    const event = {
-      context: {
-        params: {},
-      },
-    } as unknown as H3Event
+  const context = u.getTestContext({
+    data, expected, endpoint,
 
-    await expect(updateAttributeValue(event)).rejects.toThrowError(
-      expect.objectContaining({
-        statusCode: 400,
-        message: "Invalid slug",
-      }),
-    )
+    body: body,
+    params: { slug: data.slug },
   })
 
-  it("should return a 404 error if the value is not found", async () => {
-    const event = {
-      context: {
-        params: {
-          slug: uuidv4(),
-        },
-      },
-      body: {
-        value: "newValue",
-      },
-    } as unknown as H3Event
+  // mocks
+  mockUser(users.admin)
+  u.mockPrismaForSlugOrIdPut(context, "experimentAttributeValue")
 
-    prisma.experimentAttributeValue.update = vi.fn().mockResolvedValue(
-      null,
-    )
+  // tests
+  {
+    // type test
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    await expect(updateAttributeValue(event)).rejects.toThrowError(
-      expect.objectContaining({
-        statusCode: 404,
-        message: "Value not found",
-      }),
-    )
-  })
+    u.testSuccessWithSlugAndId(context)
+
+    u.testSlugFails(context)
+    u.testZodFail(context, [
+      {
+        body: { },
+      },
+    ])
+    // needs to be last, because it changes the user mock
+    u.testAuthFail(context, [users.guest, users.user, users.mod])
+  }
 })
