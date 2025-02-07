@@ -1,9 +1,16 @@
 <script setup lang="ts">
-const { modelValue } = defineProps({
+import type { Level } from "@tiptap/extension-heading"
+
+const { modelValue, showHeadings } = defineProps({
   modelValue: {
     type: String,
     required: false,
     default: "",
+  },
+  showHeadings: {
+    type: Boolean,
+    required: false,
+    default: true,
   },
 })
 
@@ -11,19 +18,32 @@ const { modelValue } = defineProps({
 const emit = defineEmits(["update:modelValue"])
 
 // Editor initialization
+const editorExtensions = [
+  TiptapStarterKit.configure({
+    heading: showHeadings ? { levels: [1, 2, 3] } : false,
+    codeBlock: false,
+    hardBreak: false,
+    horizontalRule: false,
+    blockquote: false,
+  }),
+  TiptapLink.configure({
+    openOnClick: false,
+    defaultProtocol: "https",
+  }),
+]
 const editor = useEditor({
   content: modelValue,
-  extensions: [
-    TiptapStarterKit,
-    TiptapLink.configure({
-      openOnClick: false,
-      defaultProtocol: "https",
-    }),
-  ],
+  extensions: editorExtensions,
 })
 
 const linkUrl = ref("")
 const isLinkDropdownOpen = ref(false)
+
+const headings = [
+  { level: 1, label: "H1" },
+  { level: 2, label: "H2" },
+  { level: 3, label: "H3" },
+] as { level: Level, label: string }[]
 
 function setLinkValue() {
   linkUrl.value = editor.value?.getAttributes("link")?.href || ""
@@ -144,31 +164,23 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Headings -->
-          <div class="flex gap-1">
-            <Button
-              variant="outline"
-              class="btn aspect-square"
-              :class="{ 'btn-active': editor.isActive('heading', { level: 1 }) }"
-              @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+          <div
+            v-if="showHeadings"
+            class="flex gap-1"
+          >
+            <template
+              v-for="heading in headings"
+              :key="heading.level"
             >
-              H1
-            </Button>
-            <Button
-              variant="outline"
-              class="btn aspect-square"
-              :class="{ 'btn-active': editor.isActive('heading', { level: 2 }) }"
-              @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-            >
-              H2
-            </Button>
-            <Button
-              variant="outline"
-              class="btn aspect-square"
-              :class="{ 'btn-active': editor.isActive('heading', { level: 3 }) }"
-              @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
-            >
-              H3
-            </Button>
+              <Button
+                variant="outline"
+                class="btn aspect-square"
+                :class="{ 'btn-active': editor.isActive('heading', { level: heading.level }) }"
+                @click="editor.chain().focus().toggleHeading({ level: heading.level }).run()"
+              >
+                {{ heading.label }}
+              </Button>
+            </template>
           </div>
 
           <!-- Lists -->

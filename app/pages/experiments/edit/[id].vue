@@ -135,37 +135,19 @@ async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
 }
 
 async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileList[]) {
-  form.setValues({
-    ...form.values,
-    sections: form.values.sections?.map((section, i) => {
-      if (i === sectionIndex) {
-        return {
-          ...section,
-          files: newFileOrder.map(file => ({
-            fileId: file.file.id,
-            description: file.description ?? undefined,
-          })),
-        }
-      }
-      return section
-    }),
-  })
+  const sectionFiles = form.values.sections?.[sectionIndex]?.files ?? []
+  form.setFieldValue(`sections.${sectionIndex}.files`, newFileOrder.map(file => ({
+    fileId: file.file.id,
+    description: sectionFiles.find(f => f.fileId === file.file.id)?.description ?? file.description ?? undefined,
+  })))
 }
 
 async function removeFile(sectionIndex: number, fileId: string) {
   const file = form.values.sections?.[sectionIndex]?.files?.find(file => file.fileId === fileId)
-  form.setValues({
-    ...form.values,
-    sections: form.values.sections?.map((section, i) => {
-      if (i === sectionIndex) {
-        return {
-          ...section,
-          files: section.files.filter(file => file.fileId !== fileId),
-        }
-      }
-      return section
-    }),
-  })
+  form.setFieldValue(
+    `sections.${sectionIndex}.files`,
+    form.values.sections?.[sectionIndex]?.files?.filter(file => file.fileId !== fileId) ?? [],
+  )
   await onSubmit()
 
   if (file) {
@@ -237,6 +219,11 @@ async function submitForReview() {
     variant: "success",
   })
 }
+
+async function previewExperiment() {
+  await onSubmit()
+  navigateTo(`/experiments/${experimentId}`)
+}
 </script>
 
 <template>
@@ -252,9 +239,9 @@ async function submitForReview() {
         class="grid gap-4 lg:w-2/3"
         @submit="onSubmit"
       >
-        <h3 class="text-xl font-semibold mt-2">
+        <h2 class="text-3xl font-semibold mt-2">
           Allgemeines
-        </h3>
+        </h2>
 
         <FormField
           v-slot="{ componentField }"
@@ -303,9 +290,9 @@ async function submitForReview() {
           </FormItem>
         </FormField>
 
-        <h3 class="text-xl font-semibold mt-2">
+        <h2 class="text-3xl font-semibold mt-2">
           Kategorisierung
-        </h3>
+        </h2>
 
         <template
           v-for="(attribute, index) in attributes"
@@ -375,9 +362,9 @@ async function submitForReview() {
           v-for="section in sections"
           :key="section.id"
         >
-          <h3 class="text-xl font-semibold mt-2">
+          <h2 class="text-3xl font-semibold mt-2">
             {{ section.name }}
-          </h3>
+          </h2>
 
           <FormField
             v-slot="{ componentField }"
@@ -389,6 +376,7 @@ async function submitForReview() {
                 <TipTapEditor
                   :id="`sections[${section.order}].text`"
                   v-bind="componentField"
+                  :show-headings="false"
                   @click.prevent
                 />
               </FormControl>
@@ -406,7 +394,6 @@ async function submitForReview() {
           />
           <DraggableList
             :values="experiment?.sections[section.order]?.files ?? []"
-            group="experiment-group"
             @update:values="newFileOrder => updateFiles(section.order, newFileOrder)"
           >
             <template #item="{ item, index }">
@@ -450,6 +437,7 @@ async function submitForReview() {
                           placeholder="Beschreibung"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   </FormField>
                   <div class="m-2">
@@ -471,19 +459,6 @@ async function submitForReview() {
                 </div>
               </Card>
             </template>
-            <template #empty-list>
-              <Card class="text-center py-6">
-                <div class="flex flex-col items-center justify-center">
-                  <Icon
-                    name="heroicons:plus-circle"
-                    class="h-12 w-12 text-muted-foreground/60"
-                  />
-                  <p class="mt-4 mx-4 text-sm text-muted-foreground/60">
-                    Noch keine Dateien für {{ section.name }} vorhanden.
-                  </p>
-                </div>
-              </Card>
-            </template>
           </DraggableList>
         </template>
 
@@ -495,7 +470,7 @@ async function submitForReview() {
         <Button
           variant="secondary"
           @click.prevent
-          @click="navigateTo(`/experiments/${experimentId}`)"
+          @click="previewExperiment"
         >
           Vorschau anzeigen
         </Button>
