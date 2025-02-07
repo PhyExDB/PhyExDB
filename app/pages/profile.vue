@@ -183,15 +183,19 @@ async function createExperiment() {
                       Bearbeiten
                     </Button>
 
-                    <Button
-                      variant="outline"
-                      class="hover:bg-destructive hover:text-destructive-foreground"
-                      @click="deleteExperiment(experiment.id)"
-                      @click.prevent
+                    <ConfirmDeleteAlertDialog
+                      header="Löschen bestätigen"
+                      message="Diese Aktion kann nicht rückgängig gemacht werden. Das Experiment wird dauerhaft gelöscht."
+                      :on-delete="() => deleteExperiment(experiment.id)"
                     >
-                      Löschen
-                    </Button>
-
+                      <Button
+                        variant="outline"
+                        class="hover:bg-destructive hover:text-destructive-foreground"
+                        @click.prevent
+                      >
+                        Löschen
+                      </Button>
+                    </ConfirmDeleteAlertDialog>
                   </div>
                 </div>
               </CardContent>
