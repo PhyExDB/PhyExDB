@@ -232,8 +232,15 @@ export function getExperimentReadyForReviewSchema(
 }
 
 /**
- * Schema for rejecting an experiment.
+ * Schema for reviewing an experiment.
  */
-export const reviewRejectSchema = z.object({
-  message: z.string({ message: "Nachricht wird benötigt" }).nonempty("Nachricht wird benötigt"),
+export const experimentReviewSchema = z.object({
+  approve: z.boolean({ message: "Entscheidung wird benötigt" }),
+  message: z.string({ message: "Nachricht wird benötigt" }).nonempty("Nachricht wird benötigt").optional(),
+}).refine((value) => {
+  if (!value.approve) {
+    return value.message !== undefined
+  }
+}, {
+  message: "Nachricht wird benötigt",
 })

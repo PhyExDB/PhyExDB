@@ -1,5 +1,12 @@
+import { experimentReviewSchema } from "~~/shared/types"
+
 export default defineEventHandler(async (event) => {
   await authorizeUser(event, experimentAbilities.review)
+
+  const reviewContent = await readValidatedBody(
+    event,
+    body => experimentReviewSchema.parse(body),
+  )
 
   const experiment = await prisma.experiment.findFirst({
     where: getIdPrismaWhereClause(event),
@@ -13,8 +20,8 @@ export default defineEventHandler(async (event) => {
   await prisma.experiment.update({
     where: { id: experiment.id },
     data: {
-      status: "REJECTED",
-      changeRequest: undefined,
+      status: reviewContent.approve ? "PUBLISHED" : "REJECTED",
+      changeRequest: reviewContent.message,
     },
   })
 })
