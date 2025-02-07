@@ -230,3 +230,10 @@ export function getExperimentReadyForReviewSchema(
   })
   return experimentSchema
 }
+
+/**
+ * Schema for rejecting an experiment.
+ */
+export const reviewRejectSchema = z.object({
+  message: z.string({ message: "Nachricht wird benötigt" }).nonempty("Nachricht wird benötigt"),
+})
