@@ -33,14 +33,14 @@ function handleChange(row: { index: number, original: UserDetailAdmin }) {
 const columns: ColumnDef<UserDetailAdmin>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: () => "Name",
     cell: ({ row }) => {
       return row.getValue("name")
     },
   },
   {
     accessorKey: "email",
-    header: "E-Mail",
+    header: () => "E-Mail",
     cell: ({ row }) => {
       return h(Email, row.original)
     },

@@ -9,15 +9,6 @@ import {
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table"
-import { ChevronDown } from "lucide-vue-next"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 
 const sorting = ref<SortingState>([])
 
@@ -54,7 +45,11 @@ const table = useVueTable({
             variant="outline"
             class="ml-auto"
           >
-            Spalten <ChevronDown class="ml-2 h-4 w-4" />
+            Spalten
+            <Icon
+              name="heroicons:chevron-down"
+              class="ml-2 h-4 w-4"
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
