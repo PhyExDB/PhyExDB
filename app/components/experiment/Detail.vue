@@ -1,24 +1,18 @@
 <script lang="ts" setup>
-const { experimentSlug } = defineProps({
-  experimentSlug: {
-    type: String,
-    required: true,
+const { experiment } = defineProps({
+  experiment: {
+    type: Object as PropType<ExperimentDetail>,
+    required: false,
   },
 })
 
-const { data: experiment } = useFetch<ExperimentDetail>(`/api/experiments/${experimentSlug}`)
-
-if (!experiment) {
-  showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
-}
-
 const attributesWithoutDuration = computed(() => {
-  return experiment.value?.attributes.filter(
+  return experiment?.attributes.filter(
     attribute => attribute.name.replace("\u00AD", "") !== "Vorbereitungszeit",
   )
 })
 const preparationDuration = computed(() => {
-  return experiment.value?.attributes.find(
+  return experiment?.attributes.find(
     attribute => attribute.name.replace("\u00AD", "") === "Vorbereitungszeit",
   )?.values[0]?.value
 })

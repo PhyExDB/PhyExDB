@@ -20,6 +20,9 @@ const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/
 if (!experiment.value) {
   showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
 }
+if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECTED") {
+  await navigateTo(`/experiments/${experimentId}`)
+}
 
 const { data: sections } = await useFetch("/api/experiments/sections")
 const { data: attributes } = await useFetch("/api/experiments/attributes")
@@ -239,6 +242,17 @@ async function previewExperiment() {
         class="grid gap-4 lg:w-2/3"
         @submit="onSubmit"
       >
+        <div
+          v-if="experiment?.changeRequest"
+          class="text-destructive"
+        >
+          <h2 class="text-3xl font-semibold mb-2">
+            Änderungsantrag
+          </h2>
+          <div>
+            {{ experiment.changeRequest }}
+          </div>
+        </div>
         <h2 class="text-3xl font-semibold mt-2">
           Allgemeines
         </h2>

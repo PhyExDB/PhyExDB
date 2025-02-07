@@ -9,6 +9,16 @@ if (!user.value || user.value.role == "USER") {
 
 const route = useRoute()
 const experimentSlug = route.params.slug as string
+const { data: experiment } = useFetch<ExperimentDetail>(`/api/experiments/${experimentSlug}`)
+
+if (!experiment) {
+  showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+}
+
+console.log(experiment.value?.status)
+if (experiment.value && experiment.value.status !== "IN_REVIEW") {
+  await navigateTo("/")
+}
 
 const { toast } = useToast()
 
@@ -53,7 +63,7 @@ async function onDelete(message: string) {
     <Card>
       <CardContent class="my-6 mx-4">
         <ExperimentDetail
-          :experiment-slug="experimentSlug"
+          :experiment="experiment"
         />
       </CardContent>
     </Card>

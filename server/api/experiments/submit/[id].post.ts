@@ -1,3 +1,4 @@
+import { ExperimentStatus } from "@prisma/client"
 import { getExperimentReadyForReviewSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
@@ -6,8 +7,11 @@ export default defineEventHandler(async (event) => {
     include: experimentIncludeForToDetail,
   })
 
+  console.log(experiment?.status)
   if (!experiment) {
     throw createError({ status: 404, message: "Experiment not found!" })
+  } else if (experiment.status !== ExperimentStatus.DRAFT && experiment.status !== ExperimentStatus.REJECTED) {
+    throw createError({ status: 400, message: "Experiment is not in draft or rejected!" })
   }
 
   await authorize(event, experimentAbilities.put, experiment)

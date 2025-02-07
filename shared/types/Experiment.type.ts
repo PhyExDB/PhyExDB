@@ -39,6 +39,10 @@ export interface ExperimentDetail extends ExperimentList {
    * The sections of the experiment.
    */
   sections: ExperimentSectionContentDetail[]
+  /**
+   * The change request of the experiment, if any.
+   */
+  changeRequest: string | undefined
 }
 
 /**
