@@ -1,6 +1,6 @@
 import { describe, expectTypeOf } from "vitest"
-import { detail } from "./data"
 import { generateMock } from "@anatine/zod-mock"
+import { detail } from "./data"
 import { mockUser, users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
@@ -17,7 +17,7 @@ describe("Api Route /api/experiments/attributes/index.post", () => {
   const context = u.getTestContext({
     data, expected, endpoint,
 
-    body
+    body,
   })
 
   // mocks

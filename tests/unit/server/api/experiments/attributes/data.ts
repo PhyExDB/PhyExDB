@@ -45,17 +45,21 @@ export const lists = [
     multipleSelection: false,
     values: ["unter 1 Stunde", "ca. 1 Stunde", "mehrere Stunden", "mehrere Tage"],
   },
-].map((attribute, index) => {return {
-  ...attribute,
-  order: index,
-  id: uuidv4(),
-  slug: slugify(attribute.name),
-  values: attribute.values.map(value => {return {
+].map((attribute, index) => {
+  return {
+    ...attribute,
+    order: index,
     id: uuidv4(),
-    value: value,
-    slug: slugify(value),
-  }})
-}}) satisfies ExperimentAttributeDetail[]
+    slug: slugify(attribute.name),
+    values: attribute.values.map((value) => {
+      return {
+        id: uuidv4(),
+        value: value,
+        slug: slugify(value),
+      }
+    }),
+  }
+}) satisfies ExperimentAttributeDetail[]
 
 /**
  * A resource detail

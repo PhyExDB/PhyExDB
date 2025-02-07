@@ -3,8 +3,6 @@ import { v4 as uuidv4 } from "uuid"
 import { expect, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
 import { mockUser } from "~~/tests/helpers/auth"
-import { TabsContent } from "radix-vue"
-import { TabletSmartphone } from "lucide-vue-next"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Event = H3Event<EventHandlerRequest>
