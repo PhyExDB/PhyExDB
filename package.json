@@ -53,7 +53,7 @@
   "devDependencies": {
     "@iconify-json/heroicons": "^1.2.2",
     "@iconify-json/uil": "^1.2.3",
-    "@nuxt/eslint": "^1.0.0",
+    "@nuxt/eslint": "^1.0.1",
     "@nuxt/test-utils": "^3.15.4",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "@playwright/test": "^1.50.1",
@@ -68,7 +68,7 @@
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.20",
     "dotenv-cli": "^8.0.0",
-    "happy-dom": "^16.8.1",
+    "happy-dom": "^17.0.0",
     "nodemailer": "^6.10.0",
     "nuxt-file-storage": "^0.2.9",
     "nuxt-nodemailer": "^1.1.2",
