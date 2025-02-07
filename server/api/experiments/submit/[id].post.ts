@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
     include: experimentIncludeForToDetail,
   })
 
-  console.log(experiment?.status)
   if (!experiment) {
     throw createError({ status: 404, message: "Experiment not found!" })
   } else if (experiment.status !== ExperimentStatus.DRAFT && experiment.status !== ExperimentStatus.REJECTED) {

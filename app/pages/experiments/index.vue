@@ -76,7 +76,6 @@ watch(checked, () => {
   ).filter(
     attribute => attribute.length > 0,
   ).join(",")
-  console.log(attributeFilter)
 })
 
 /* Update the URL */

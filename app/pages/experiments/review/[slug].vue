@@ -15,7 +15,6 @@ if (!experiment) {
   showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
 }
 
-console.log(experiment.value?.status)
 if (experiment.value && experiment.value.status !== "IN_REVIEW") {
   await navigateTo("/")
 }
