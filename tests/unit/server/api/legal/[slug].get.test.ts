@@ -9,9 +9,21 @@ import endpoint from "~~/server/api/legal/[slug].get"
 describe("Api Route GET /api/legal/{slug}", () => {
   // definitions
   const body = {}
+  const params = {}
+  const query = {}
 
   const data = detail
   const expected = data
+
+  const context = {
+    data,
+    expected,
+    endpoint,
+
+    body,
+    params,
+    query,
+  }
 
   // mocks
   mockUser(users.guest)
@@ -22,8 +34,8 @@ describe("Api Route GET /api/legal/{slug}", () => {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    u.testSuccessWithSlugAndId(data, body, endpoint, expected)
+    u.testSuccessWithSlugAndId(context)
 
-    u.testSlugFails(body, endpoint)
+    u.testSlugFails(context)
   }
 })

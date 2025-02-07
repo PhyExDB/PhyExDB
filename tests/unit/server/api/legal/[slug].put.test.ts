@@ -16,6 +16,17 @@ describe("Api Route PUT /api/legal/{slug}", () => {
 
   const params = { slug: data.slug }
   const event = u.getEvent({ params, body })
+  const query = {}
+
+  const context = {
+    data,
+    expected,
+    endpoint,
+
+    body,
+    params,
+    query,
+  }
 
   // mocks
   mockUser(users.admin)
@@ -26,10 +37,10 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    u.testSuccessWithSlugAndId(data, body, endpoint, expected)
+    u.testSuccessWithSlugAndId(context)
 
-    u.testSlugFails(body, endpoint)
-    u.testZodFailMessage(params, endpoint, [
+    u.testSlugFails(context)
+    u.testZodFailMessage(context, [
       {
         body: { name: "a", text: "" },
         message: "Please enter some content",
@@ -40,6 +51,6 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       },
     ])
     // needs to be last, because it changes the user mock
-    u.testAuthFail(event, endpoint, [users.guest, users.user])
+    u.testAuthFail(context, [users.guest, users.user])
   }
 })

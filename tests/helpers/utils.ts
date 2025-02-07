@@ -6,6 +6,17 @@ import { mockUser } from "~~/tests/helpers/auth"
 
 type Event = H3Event<EventHandlerRequest>
 type Endpoint<T> = (event: Event) => Promise<T>
+type Params = Record<string, string>
+type Query = Record<string, any>
+type Body = any
+type TestContext<Data, Expected> = {
+  data: Data,
+  expected: Expected,
+  endpoint: Endpoint<Expected>,
+  body: Body,
+  params: Params,
+  query: Query,
+}
 
 /**
  * A utility type that extracts the resolved type of a Promise returned by a endpoint.
@@ -13,9 +24,6 @@ type Endpoint<T> = (event: Event) => Promise<T>
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<ReturnType<T>>
 
-type Params = Record<string, string>
-type Query = Record<string, any>
-type Body = any
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
@@ -151,28 +159,68 @@ export function mockPrismaForGetAll<T>(
 }
 
 /**
+ * Extends a given TestContext object with partial properties from another TestContext object, shallow combining the body, params and query objects.
+ */
+export function extendContext<Data, Exp, Data2, Exp2>(
+  c: TestContext<Data, Exp>,
+  e: Partial<TestContext<Data2, Exp2>>
+){
+  return {
+    ...c, ...e,
+    body: {...c.body, ...e.body},
+    params: {...c.params, ...e.params},
+    query: {...c.query, ...e.query},
+  }
+}
+
+/**
+ * Asserts that the response from the given test context's endpoint matches the expected value.
+ */
+export async function expectSuccess<Data, Exp>(c: TestContext<Data, Exp>) {
+  const response = await c.endpoint(getEvent(c))
+  expect(response).toStrictEqual(c.expected)
+}
+
+/**
+ * Asserts that the provided test context results in a rejection that contains the expected error object.
+ */
+export async function expectErrorObjectContaining<Data, Exp>(
+  c: TestContext<Data, Exp>,
+  error: object,
+) {
+  expect(c.endpoint(getEvent(c))).rejects.toThrow(
+    expect.objectContaining(error)
+  )
+}
+
+/**
+ * Asserts that the provided test context results in a rejection that matches the expected error object.
+ */
+export async function expectErrorObjectMatching<Data, Exp>(
+  c: TestContext<Data, Exp>,
+  error: object,
+) {
+  expect(c.endpoint(getEvent(c))).rejects.toMatchObject(error)
+}
+
+
+
+/**
  * Tests if the given endpoint function succeeds and returns the expected result
  */
-export function testSuccess<T>(event: Event, endpoint: (event: Event) => Promise<T>, expected: T) {
+export function testSuccess<Data, Exp>(c: TestContext<Data, Exp>) {
   it(`should_succeed`, async () => {
-    const response = await endpoint(event)
-    expect(response).toStrictEqual(expected)
+    expectSuccess(c)
   })
 }
 
 /**
  * Tests an endpoint function with a given slug list and body, expecting a specific result.
  */
-export function testSuccessWithSlugAndId<T>(
-  slugList: SlugList,
-  body: object,
-  endpoint: Endpoint<T>,
-  expected: T,
-) {
+export function testSuccessWithSlugAndId<Data extends SlugList, Exp>(c: TestContext<Data, Exp>) {
   it(`should_succeed`, async () => {
-    forSlugAndIdEvent(slugList, body, async (event) => {
-      const response = await endpoint(event)
-      expect(response).toStrictEqual(expected)
+    forSlugAndId(c.data, async (params) => {
+      expectSuccess(extendContext(c, { params }))
     })
   })
 }
@@ -180,13 +228,7 @@ export function testSuccessWithSlugAndId<T>(
 /**
  * Tests an endpoint function with diffrent pagination parameters.
  */
-export function testSuccessWithPagination<T>(
-  data: T[],
-  params: Params,
-  body: Body,
-  endpoint: Endpoint<Page<T>>,
-  _?: any,
-) {
+export function testSuccessWithPagination<T>(c: TestContext<T[], Page<T>>) {
   it(`should_succeed`, async () => {
     const queries = [
       {},
@@ -200,11 +242,10 @@ export function testSuccessWithPagination<T>(
     ]
 
     for (const query of queries) {
-      const expected = page(data, query.page, query.pageSize)
-      const event = getEvent({ params, body, query })
-
-      const response = await endpoint(event)
-      expect(response).toStrictEqual(expected)
+      const expected = page(c.data, query.page, query.pageSize)
+      expectSuccess(
+        extendContext(c, { expected, query })
+      )
     }
   })
 }
@@ -212,50 +253,56 @@ export function testSuccessWithPagination<T>(
 /**
  * Tests common error scenarios for endpoints that use ids.
  */
-export function testIdFails<T>(body: object, endpoint: Endpoint<T>) {
+export function testIdFails<Data extends BaseList, Exp>(c: TestContext<Data, Exp>) {
   it ("should_fail_when_unknown_id", async () => {
-    const event = getEventWithIdParam({ id: uuidv4(), body })
-
-    await expect(endpoint(event)).rejects.toThrowError(
-      expect.objectContaining({
+    expectErrorObjectContaining(
+      extendContext(c, { params: { id: uuidv4() } }),
+      {
         statusCode: 404,
-      }),
+      },
     )
   })
 
   it("should_fail_when_no_id", async () => {
-    const event = getEvent({ body })
-
-    await expect(endpoint(event)).rejects.toMatchObject({
-      message: "Invalid slug",
-      statusCode: 400,
-    })
+    const params = { ...c.params }
+    delete params.id
+    expectErrorObjectContaining(
+      { ...c, params },
+      {
+        message: "Invalid id",
+        statusCode: 400,
+      },
+    )
   })
 }
 
 /**
  * Tests common error scenarios for endpoints that use slugs.
  */
-export function testSlugFails<T>(body: object, endpoint: Endpoint<T>) {
+export function testSlugFails<Data extends SlugList, Exp>(c: TestContext<Data, Exp>) {
   it ("should_fail_when_unknown_slug", async () => {
     const data = { id: uuidv4(), slug: "unknown-slug" }
 
-    forSlugAndIdEvent(data, body, async (event) => {
-      await expect(endpoint(event)).rejects.toThrowError(
-        expect.objectContaining({
+    forSlugAndId(data, async (params) => {
+      expectErrorObjectContaining(
+        extendContext(c, { params }),
+        {
           statusCode: 404,
-        }),
+        },
       )
     })
   })
 
   it("should_fail_when_no_slug", async () => {
-    const event = getEvent({ body })
-
-    await expect(endpoint(event)).rejects.toMatchObject({
-      message: "Invalid slug",
-      statusCode: 400,
-    })
+    const params = { ...c.params }
+    delete params.slug
+    expectErrorObjectContaining(
+      { ...c, params },
+      {
+        message: "Invalid slug",
+        statusCode: 400,
+      },
+    )
   })
 }
 
@@ -271,19 +318,18 @@ export function expectMessage(message: string) {
 /**
  * Tests that the given endpoint fails with a ZodError for each body in the failingBodies array.
  */
-export function testZodFail<T>(
-  params: Params,
-  endpoint: Endpoint<T>,
+export function testZodFail<Data, Exp>(
+  c: TestContext<Data, Exp>,
   failingBodies: { body: object, error?: object }[],
 ) {
   it(`should_fail_zod`, async () => {
     failingBodies.forEach(async ({ body, error }) => {
-      const event = getEvent({ params, body })
-      await expect(endpoint(event)).rejects.toThrowError(
-        expect.objectContaining({
+      expectErrorObjectContaining(
+        { ...c, body },
+        {
           name: "ZodError",
           ...error,
-        }),
+        },
       )
     })
   })
@@ -292,14 +338,12 @@ export function testZodFail<T>(
 /**
  * Tests that the given endpoint fails with a ZodError for each of the provided failing bodies.
  */
-export function testZodFailMessage<T>(
-  params: Params,
-  endpoint: Endpoint<T>,
+export function testZodFailMessage<Data, Exp>(
+  c: TestContext<Data, Exp>,
   failingBodies: { body: object, message?: string }[],
 ) {
   testZodFail(
-    params,
-    endpoint,
+    c,
     failingBodies.map(({ body, message }) =>
       ({ body, error: message ? expectMessage(message) : undefined }),
     ),
@@ -309,17 +353,16 @@ export function testZodFailMessage<T>(
 /**
  * Tests that the given endpoint fails with a ZodError when provided with an empty body.
  */
-export function testZodFailWithEmptyBody<T>(params: Params, endpoint: Endpoint<T>) {
-  testZodFail(params, endpoint, [{ body: {} }])
+export function testZodFailWithEmptyBody<Data, Exp>(c: TestContext<Data, Exp>) {
+  testZodFail(c, [{ body: {} }])
 }
 
 /**
  * Tests that the provided endpoint fails authentication for the given users.
  * Needs to be last, because it changes the user mock!!!
  */
-export function testAuthFail<T>(
-  event: Event,
-  endpoint: Endpoint<T>,
+export function testAuthFail<Data, Exp>(
+  c: TestContext<Data, Exp>,
   failingUsers: (UserDetail | null)[],
 ) {
   it(`should_fail_auth`, async () => {
@@ -327,9 +370,12 @@ export function testAuthFail<T>(
       mockUser(failingUser)
       const expectedStatusCode = failingUser ? 403 : 401
 
-      await expect(endpoint(event)).rejects.toMatchObject({
-        statusCode: expectedStatusCode,
-      })
+      expectErrorObjectMatching(
+        c,
+        {
+          statusCode: expectedStatusCode,
+        },
+      )
     })
   })
 }
