@@ -29,6 +29,7 @@ export default defineNuxtConfig({
     logLevel: "debug",
     fileMount: "./public",
     trustedOrigins: "http://localhost:3000",
+    appName: "PhyExDB",
     public: {
       sectionFileAccepts: "image/jpeg,image/png,image/webp,application/pdf,video/mp4",
       fileStorage: {
