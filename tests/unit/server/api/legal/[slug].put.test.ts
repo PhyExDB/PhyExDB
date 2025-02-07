@@ -33,23 +33,17 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     u.testSuccessWithSlugAndId(context)
 
     u.testSlugFails(context)
-    u.testZodFail({
-      ...context,
-      failingBodies: [
-        {
-          body: { name: "a", text: "" },
-          message: "Please enter some content",
-        },
-        {
-          body: { name: "", text: "a" },
-          message: "Please enter a name",
-        },
-      ],
-    })
+    u.testZodFail(context, [
+      {
+        body: { name: "a", text: "" },
+        message: "Please enter some content",
+      },
+      {
+        body: { name: "", text: "a" },
+        message: "Please enter a name",
+      },
+    ])
     // needs to be last, because it changes the user mock
-    u.testAuthFail({
-      ...context, 
-      failingUsers: [users.guest, users.user],
-    })
+    u.testAuthFail(context, [users.guest, users.user])
   }
 })

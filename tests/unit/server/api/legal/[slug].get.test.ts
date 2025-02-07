@@ -11,15 +11,11 @@ describe("Api Route GET /api/legal/{slug}", () => {
   const data = detail
   const expected = data
 
-  const context = {
-    data,
-    expected,
-    endpoint,
+  const context = u.getTestContext({
+    data, expected, endpoint,
 
-    body: {},
     params: { slug: data.slug },
-    query: {},
-  }
+  })
 
   // mocks
   mockUser(users.guest)

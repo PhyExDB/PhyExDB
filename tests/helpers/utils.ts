@@ -4,6 +4,7 @@ import { expect, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
 import { mockUser } from "~~/tests/helpers/auth"
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type Event = H3Event<EventHandlerRequest>
 type Endpoint<T> = (event: Event) => Promise<T>
 type Params = Record<string, string>
@@ -28,7 +29,7 @@ export function getTestContext<Data, Expected, T extends {
   body?: Body
   params?: Params
   query?: Query
-}>(c: T){
+}>(c: T) {
   return {
     ...c,
     body: c.body || {},
@@ -40,7 +41,6 @@ export function getTestContext<Data, Expected, T extends {
 /**
  * A utility type that extracts the resolved type of a Promise returned by a endpoint.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<ReturnType<T>>
 
 /**
@@ -337,18 +337,17 @@ export function expectMessage(message: string) {
  * Tests that the given endpoint fails with a ZodError for each body in the failingBodies array.
  */
 export async function testZodFail<Data, Exp>(
-  c: TestContext<Data, Exp> & {
-    failingBodies: (
-      { body: object, error?: object }
-      | { body: object, message?: string }
-    )[],
-  },
+  c: TestContext<Data, Exp>,
+  failingBodies: (
+    { body: object, error?: object }
+    | { body: object, message?: string }
+  )[],
 ) {
   it(`should_fail_zod`, async () => {
-    c.failingBodies.forEach(
+    failingBodies.forEach(
       async (
         { body, error, message }:
-          { body: object, error?: object, message?: string }
+        { body: object, error?: object, message?: string },
       ) => {
         await expectErrorObjectContaining(
           { ...c, body },
@@ -358,7 +357,7 @@ export async function testZodFail<Data, Exp>(
             ...message ? expectMessage(message) : undefined,
           },
         )
-      }
+      },
     )
   })
 }
@@ -367,7 +366,7 @@ export async function testZodFail<Data, Exp>(
  * Tests that the given endpoint fails with a ZodError when provided with an empty body.
  */
 export async function testZodFailWithEmptyBody<Data, Exp>(c: TestContext<Data, Exp>) {
-  await testZodFail({...c, failingBodies: [{ body: {} }]})
+  await testZodFail(c, [{ body: {} }])
 }
 
 /**
@@ -375,12 +374,11 @@ export async function testZodFailWithEmptyBody<Data, Exp>(c: TestContext<Data, E
  * Needs to be last, because it changes the user mock!!!
  */
 export async function testAuthFail<Data, Exp>(
-  c: TestContext<Data, Exp> & {
-    failingUsers: (UserDetail | null)[],
-  }
+  c: TestContext<Data, Exp>,
+  failingUsers: (UserDetail | null)[],
 ) {
   it(`should_fail_auth`, async () => {
-    c.failingUsers.forEach(async (failingUser) => {
+    failingUsers.forEach(async (failingUser) => {
       mockUser(failingUser)
       const expectedStatusCode = failingUser ? 403 : 401
 
@@ -392,14 +390,4 @@ export async function testAuthFail<Data, Exp>(
       )
     })
   })
-}
-
-/**
- * Execute multiple tests with the same context
- */
-export async function test<T extends TestContext<any, any>>(
-  c: T,
-  tests: ((c: T) => any)[]
-){
-  tests.forEach(test => test(c))
 }

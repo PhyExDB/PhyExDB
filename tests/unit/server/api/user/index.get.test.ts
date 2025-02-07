@@ -11,15 +11,9 @@ describe("Api Route GET /api/users/index", () => {
   const data = lists
   const expected = u.page(data)
 
-  const context = {
-    data,
-    expected,
-    endpoint,
-
-    body: {},
-    params: {},
-    query: {},
-  }
+  const context = u.getTestContext({
+    data, expected, endpoint,
+  })
 
   // mocks
   mockUser(users.admin)

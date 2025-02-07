@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 import * as u from "~~/tests/helpers/utils"
 
 describe("Test mocking event", async () => {
