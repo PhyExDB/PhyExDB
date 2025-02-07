@@ -166,18 +166,16 @@ async function createExperiment() {
           >
             <Card class="mt-4">
               <CardContent class="p-4">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center flex-col sm:flex-row justify-between">
                   <div class="flex items-center space-x-2">
                     <p class="font-medium">
-                      <NuxtLink :to="experiment.status === 'DRAFT' ? `/experiments/edit/${experiment.id}` : `/experiments/${experiment.slug}`">
-                        {{ nameOrPlaceholderForExperiment(experiment) }}
-                      </NuxtLink>
+                      {{ nameOrPlaceholderForExperiment(experiment) }}
                     </p>
                     <Badge variant="secondary">
                       {{ badgeTitleForExperimentStatus(experiment.status) }}
                     </Badge>
                   </div>
-                  <div class="flex items-center space-x-2">
+                  <div class="flex items-center space-x-2 pt-2 sm:pt-0">
                     <Button
                       v-if="experiment.status === 'DRAFT'"
                       variant="outline"
