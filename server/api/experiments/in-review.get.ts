@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  await authorizeUser(event, experimentAbilities.listInReview)
+  await authorizeUser(event, experimentAbilities.review)
 
   const totalExperiments = await prisma.experiment.count({
     where: {

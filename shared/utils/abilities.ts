@@ -72,11 +72,11 @@ export const experimentAbilities = {
     allowGuests: false,
   },
   listOwn: noGuestsAbility,
-  listInReview: {
+  review: {
     func: user => minModerator(user),
     allowGuests: false,
   },
-} satisfies CRUD<Experiment> & { listOwn?: Ability<[]> } & { listInReview?: Ability<[]> }
+} satisfies CRUD<Experiment> & { listOwn?: Ability<[]> } & { review?: Ability<[]> }
 
 /** Abilities for files */
 export const fileAbilities = {
