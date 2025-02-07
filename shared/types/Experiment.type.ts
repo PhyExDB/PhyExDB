@@ -241,6 +241,7 @@ export const experimentReviewSchema = z.object({
   if (!value.approve) {
     return value.message !== undefined
   }
+  return true
 }, {
   message: "Nachricht wird benötigt",
 })

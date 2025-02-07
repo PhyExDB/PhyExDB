@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   )
 
   const experiment = await prisma.experiment.findFirst({
-    where: getIdPrismaWhereClause(event),
+    where: getSlugOrIdPrismaWhereClause(event),
     include: experimentIncludeForToDetail,
   })
 
