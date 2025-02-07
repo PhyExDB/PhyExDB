@@ -17,7 +17,7 @@ const { header, message, onDelete } = defineProps({
 
 <template>
   <AlertDialog>
-    <AlertDialogTrigger>
+    <AlertDialogTrigger as-child>
       <slot />
     </AlertDialogTrigger>
     <AlertDialogContent>
