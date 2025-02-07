@@ -11,8 +11,8 @@ export async function authorize<T extends any[]>(
   ability: Ability<T>,
   ...param: T
 ): Promise<Ref<UserDetail | null>> {
-  const user = await useUser()
   const func = async () => {
+    const user = await useUser()
     const result = evaluateAbility(user.value, ability, ...param)
     if (result === "Not logged in") {
       navigateToWithRedirect("/login")
@@ -21,10 +21,24 @@ export async function authorize<T extends any[]>(
       throw showError({ statusCode: 403, statusMessage: "Not authorized" })
     }
   }
-  watch(user, func)
   func()
+  if (import.meta.client) {
+    const user = await useUser()
+    const func = async () => {
+      const result = evaluateAbility(user.value, ability, ...param)
+      if (result === "Not logged in") {
+        navigateToWithRedirect("/login")
+        throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+      } else if (result === "Not authorized") {
+        throw showError({ statusCode: 403, statusMessage: "Not authorized" })
+      }
+    }
+    const stop = watch(user, func)
+    onUnmounted(() => stop())
+  }
   return useUser()
 }
+
 /**
  * Authorizes a user based on the provided UserAbility and parameters.
  * Can't be used with abillities allowing guests to prevent the strengthening of requirements.
