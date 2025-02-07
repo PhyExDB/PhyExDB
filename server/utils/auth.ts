@@ -19,6 +19,7 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }, _) => {
+      const runtimeConfig = useRuntimeConfig()
       await useNodeMailer().sendMail({
         subject: "Verifying PHYEXDB email-address",
         text: `Bitte klicke auf den folgenden Link um deinen PhyExDB Account zu verifizieren: ${url}.`,
@@ -32,7 +33,7 @@ export const auth = betterAuth({
           <style>
               body {
                   font-family: Arial, sans-serif;
-                  background-color: #0f172a;
+                  background-color: #ffffff;
                   color: #e2e8f0;
                   text-align: center;
                   padding: 20px;
@@ -64,7 +65,7 @@ export const auth = betterAuth({
       </head>
       <body>
           <div class="container">
-              <h1>Willkommen bei PhyExDB!</h1>
+              <h1>Willkommen bei ${runtimeConfig.appName}!</h1>
               <p>Um dein Konto zu aktivieren, bestätige bitte deine E-Mail-Adresse, indem du auf den Button unten klickst.</p>
               <a href="${url}" class="button">E-Mail bestätigen</a>
               <p class="footer">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
