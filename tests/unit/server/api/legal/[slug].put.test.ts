@@ -54,8 +54,8 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   })
 
   it.each([
-    { value: "name", description: "a name" },
-    { value: "text", description: "some content" },
+    { value: "name", description: "einen Namen" },
+    { value: "text", description: "einen Inhalt" },
   ])(`should return an error when the field $value empty`, async ({ value, description }) => {
     const updateContent = {
       name: "New name",
@@ -95,7 +95,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
 
     await expect(updateLegalDocument(event)).rejects.toThrowError(
       expect.objectContaining({
-        message: expect.stringContaining(`Please enter ${description}`),
+        message: expect.stringContaining(`Bitte ${description} eingeben.`),
       }),
     )
   })
