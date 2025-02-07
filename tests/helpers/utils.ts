@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from "uuid"
 import { expect, it, vi } from "vitest"
 import type { Prisma } from "@prisma/client"
 import { mockUser } from "~~/tests/helpers/auth"
+import { TabsContent } from "radix-vue"
+import { TabletSmartphone } from "lucide-vue-next"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Event = H3Event<EventHandlerRequest>
@@ -103,9 +105,17 @@ type CheckWhereClause = (where: any) => boolean
 /**
  * Checks if the provided `where` clause contains either the `id` or `slug` from the given data.
  */
-export function checkWhereClauseSlugOrId(data: { id: string, slug: string }) {
+export function checkWhereClauseSlugOrId(data: SlugList) {
   return (where: any) => {
     return where.id === data.id || where.slug === data.slug
+  }
+}
+/**
+ * Checks if the provided `where` clause contains the `id` from the given data.
+ */
+export function checkWhereClauseId(data: BaseList) {
+  return (where: any) => {
+    return where.id === data.id
   }
 }
 
@@ -125,56 +135,82 @@ export function prismaMockResolvedCheckingWhereClause<T>(data: T, checkWhereClau
 type Tables = Uncapitalize<Prisma.ModelName>
 
 /**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForGet<Data, Exp>(
+  c: TestContext<Data, Exp>,
+  table: Tables,
+  checkWhereClause: CheckWhereClause,
+) {
+  prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(c.data, checkWhereClause)
+  prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(c.data, checkWhereClause)
+}
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForSlugOrIdGet<Data extends SlugList, Exp>(
+  c: TestContext<Data, Exp>,
+  table: Tables,
+) {
+  const checkWhereClause = checkWhereClauseSlugOrId(c.data)
+  mockPrismaForGet(c, table, checkWhereClause)
+}
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForIdGet<Data extends BaseList, Exp>(
+  c: TestContext<Data, Exp>,
+  table: Tables,
+) {
+  const checkWhereClause = checkWhereClauseId(c.data)
+  mockPrismaForGet(c, table, checkWhereClause)
+}
+
+/**
  * Mocks the Prisma client methods for a specific table to simulate a PUT request.
  */
-export function mockPrismaForPut<T>(table: Tables, data: T, expected: T, checkWhereClause: CheckWhereClause) {
-  prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
-  prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
-
-  prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
-}
-
-/**
- * Mocks the Prisma client methods for a specific table to simulate a request.
- */
-export function mockPrismaForSlugOrIdGet<T extends SlugList>(
+export function mockPrismaForPut<Data, Exp>(
+  c: TestContext<Data, Exp>,
   table: Tables,
-  data: T,
-  _?: any,
+  checkWhereClause: CheckWhereClause,
 ) {
-  const checkWhereClause = checkWhereClauseSlugOrId(data)
+  mockPrismaForGet(c, table, checkWhereClause)
 
-  prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
-  prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
+  prisma[table].update = prismaMockResolvedCheckingWhereClause(c.expected, checkWhereClause)
 }
 /**
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
-export function mockPrismaForSlugOrIdPut<T extends SlugList>(
+export function mockPrismaForSlugOrIdPut<Data extends SlugList, Exp>(
+  c: TestContext<Data, Exp>,
   table: Tables,
-  data: T,
-  expected: T,
 ) {
-  const checkWhereClause = checkWhereClauseSlugOrId(data)
-
-  prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
-  prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(data, checkWhereClause)
-
-  prisma[table].update = prismaMockResolvedCheckingWhereClause(expected, checkWhereClause)
+  const checkWhereClause = checkWhereClauseSlugOrId(c.data)
+  mockPrismaForPut(c, table, checkWhereClause)
 }
 /**
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
-export function mockPrismaForGetAll<T>(
+export function mockPrismaForIdPut<Data extends BaseList, Exp>(
+  c: TestContext<Data, Exp>,
   table: Tables,
-  data: Array<T>,
-  _?: any,
+) {
+  const checkWhereClause = checkWhereClauseId(c.data)
+  mockPrismaForPut(c, table, checkWhereClause)
+}
+
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForGetAll<T, Data extends Array<T>, Exp>(
+  c: TestContext<Data, Exp>,
+  table: Tables,
 ) {
   prisma[table].findMany = vi.fn().mockImplementation(
-    ({ skip, take }: { skip: number, take: number } = { skip: 0, take: data.length }) => {
-      return Promise.resolve(data.slice(skip, skip + take))
+    ({ skip, take }: { skip: number, take: number } = { skip: 0, take: c.data.length }) => {
+      return Promise.resolve(c.data.slice(skip, skip + take))
     })
-  prisma[table].count = vi.fn().mockResolvedValue(data.length)
+  prisma[table].count = vi.fn().mockResolvedValue(c.data.length)
 }
 
 /**

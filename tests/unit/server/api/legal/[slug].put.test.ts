@@ -23,7 +23,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
 
   // mocks
   mockUser(users.admin)
-  u.mockPrismaForSlugOrIdPut("legalDocument", data, expected)
+  u.mockPrismaForSlugOrIdPut(context, "legalDocument")
 
   // tests
   {

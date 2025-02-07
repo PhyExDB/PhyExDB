@@ -19,7 +19,7 @@ describe("Api Route GET /api/legal/{slug}", () => {
 
   // mocks
   mockUser(users.guest)
-  u.mockPrismaForSlugOrIdGet("legalDocument", data, expected)
+  u.mockPrismaForSlugOrIdGet(context, "legalDocument")
 
   // tests
   {

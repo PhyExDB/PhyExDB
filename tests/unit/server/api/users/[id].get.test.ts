@@ -1,23 +1,25 @@
 import { describe, expectTypeOf } from "vitest"
-import { lists } from "./data"
+import { detail } from "./data"
 import { mockUser, users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
-import endpoint from "~~/server/api/legal/index.get"
+import endpoint from "~~/server/api/users/[id].get"
 
-describe("Api Route GET /api/legal/index", () => {
+describe("Api Route GET /api/users/{id}", () => {
   // definitions
-  const data = lists
+  const data = detail
   const expected = data
 
   const context = u.getTestContext({
     data, expected, endpoint,
+
+    params: { id: data.id },
   })
 
   // mocks
-  mockUser(users.guest)
-  u.mockPrismaForGetAll(context, "legalDocument")
+  mockUser(users.admin)
+  u.mockPrismaForIdGet(context, "user")
 
   // tests
   {
@@ -25,5 +27,12 @@ describe("Api Route GET /api/legal/index", () => {
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
     u.testSuccess(context)
+
+    u.testIdFails(context)
+    u.testAuthFail(context, [
+      users.guest,
+      users.user,
+      users.mod,
+    ])
   }
 })

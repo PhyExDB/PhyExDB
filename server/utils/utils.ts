@@ -13,6 +13,11 @@ export function consume<T>(_: T) {
 }
 
 /**
+ * Type of Event given to Endpoints
+ */
+export type Event = H3Event<EventHandlerRequest>
+
+/**
  * Generates a Prisma where clause based on a slug or ID parameter from the event.
  */
 export function getSlugOrIdPrismaWhereClause(event: H3Event<EventHandlerRequest>) {

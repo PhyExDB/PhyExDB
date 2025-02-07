@@ -17,7 +17,7 @@ describe("Api Route GET /api/users/index", () => {
 
   // mocks
   mockUser(users.admin)
-  u.mockPrismaForGetAll("user", data, expected)
+  u.mockPrismaForGetAll(context, "user")
 
   // tests
   {
