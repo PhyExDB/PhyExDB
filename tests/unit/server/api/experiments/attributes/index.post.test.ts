@@ -31,6 +31,7 @@ describe("Api Route /api/experiments/attributes/index.post", () => {
 
     u.testSuccess(context)
 
+    u.testZodFailWithEmptyBody(context)
     // needs to be last, because it changes the user mock
     u.testAuthFail(context, [users.guest, users.user])
   }
