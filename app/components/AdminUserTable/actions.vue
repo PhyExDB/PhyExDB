@@ -1,20 +1,4 @@
 <script setup lang="ts">
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const { toast } = useToast()
@@ -64,8 +48,6 @@ async function handleDelete() {
     variant: "success",
   })
 }
-
-const isDialogOpen = ref(false)
 </script>
 
 <template>
@@ -74,7 +56,7 @@ const isDialogOpen = ref(false)
       <Tooltip>
         <TooltipTrigger>
           <Icon
-            class="ml-2 h-4 w-4"
+            class="mx-1 h-4 w-4"
             name="heroicons:eye"
             @click="handleImpersonate"
           />
@@ -86,7 +68,7 @@ const isDialogOpen = ref(false)
       <Tooltip v-if="user.banned">
         <TooltipTrigger>
           <Icon
-            class="ml-2 h-4 w-4"
+            class="mx-1 h-4 w-4"
             name="heroicons:check"
             @click="handleUnban"
           />
@@ -98,7 +80,7 @@ const isDialogOpen = ref(false)
       <Tooltip v-if="!user.banned">
         <TooltipTrigger>
           <Icon
-            class="ml-2 h-4 w-4"
+            class="mx-1 h-4 w-4"
             name="heroicons:no-symbol"
             @click="handleBan"
           />
@@ -107,37 +89,23 @@ const isDialogOpen = ref(false)
           <p>Bannen</p>
         </TooltipContent>
       </Tooltip>
-      <Tooltip>
-        <TooltipTrigger>
-          <Icon
-            class="ml-2 h-4 w-4"
-            name="heroicons:trash"
-            @click="isDialogOpen = true"
-          />
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Löschen</p>
-        </TooltipContent>
-      </Tooltip>
+      <ConfirmDeleteAlertDialog
+        header="Löschen bestätigen"
+        message="Diese Aktion kann nicht rückgängig gemacht werden. Der Account wird dauerhaft gelöscht."
+        :on-delete="handleDelete"
+      >
+        <Tooltip>
+          <TooltipTrigger>
+            <Icon
+              class="mx-1 h-4 w-4"
+              name="heroicons:trash"
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Löschen</p>
+          </TooltipContent>
+        </Tooltip>
+      </ConfirmDeleteAlertDialog>
     </TooltipProvider>
   </div>
-
-  <AlertDialog :open="isDialogOpen">
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Sind Sie sich sicher?</AlertDialogTitle>
-        <AlertDialogDescription>
-          Diese Aktion kann nicht rückgängig gemacht werden. Der Account wird dauerhaft gelöscht.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel @click="isDialogOpen = false">
-          Abbrechen
-        </AlertDialogCancel>
-        <AlertDialogAction @click="isDialogOpen = false; handleDelete()">
-          Löschen
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
 </template>
