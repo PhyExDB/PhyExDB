@@ -1,3 +1,4 @@
+import { ExperimentStatus } from "@prisma/client"
 import { experimentReviewSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
@@ -15,6 +16,8 @@ export default defineEventHandler(async (event) => {
 
   if (!experiment) {
     throw createError({ status: 404, message: "Experiment not found!" })
+  } else if (experiment.status !== ExperimentStatus.IN_REVIEW) {
+    throw createError({ status: 400, message: "Experiment is not in review!" })
   }
 
   await prisma.experiment.update({
