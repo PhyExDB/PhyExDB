@@ -23,6 +23,14 @@ const form = useForm({ validationSchema: formSchema, initialValues: {
 } })
 const openForm = (event: boolean) => {
   open.value = event
+  if (event) {
+    form.resetForm({
+      values: {
+        name: legal.value?.name,
+        text: legal.value?.text,
+      },
+    })
+  }
 }
 
 watch (() => legal.value, (newLegal) => {
@@ -69,7 +77,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             class="m-1 px-5 justify-center"
             @click="open=true"
           >
-            edit
+            Bearbeiten
           </Button>
         </DialogTrigger>
         <DialogContent>
