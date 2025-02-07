@@ -62,6 +62,7 @@ model Experiment {
   sections       ExperimentSectionContent[]
   attributes     ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
   comments       Comment[]
+  changeRequest  String?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
 }
@@ -70,6 +71,7 @@ enum ExperimentStatus {
   DRAFT
   IN_REVIEW
   PUBLISHED
+  REJECTED
 }
 
 model ExperimentSection {
