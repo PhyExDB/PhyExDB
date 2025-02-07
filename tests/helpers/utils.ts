@@ -18,14 +18,17 @@ type TestContext<Data, Expected> = {
   query: Query
 }
 
-export function getTestContext<Data, Expected>(c: {
+/**
+ * Constructs a test context object by merging the provided configuration with default values.
+ */
+export function getTestContext<Data, Expected, T extends {
   data: Data
   expected: Expected
   endpoint: Endpoint<Expected>
   body?: Body
   params?: Params
   query?: Query
-}): TestContext<Data, Expected>{
+}>(c: T){
   return {
     ...c,
     body: c.body || {},
@@ -399,61 +402,4 @@ export async function test<T extends TestContext<any, any>>(
   tests: ((c: T) => any)[]
 ){
   tests.forEach(test => test(c))
-}
-
-/**
- * Tests various scenarios for a given context.
- */
-export async function testAuto<Data, Exp>(
-  c: TestContext<Data, Exp> & {
-    failingBodies?: (
-      { body: object, error?: object }
-      | { body: object, message?: string }
-    )[],
-    failingUsers?: (UserDetail | null)[],
-  }
-){
-  testSuccess(c)
-
-  if(typeof c.data === "object" && c.data != null){
-    const data = c.data as Partial<SlugList>
-    if(data.slug && data.id){
-      const context = {
-        ...c,
-        data: {
-          ...c.data,
-          id: data.id,
-          slug: data.slug,
-        }
-      }
-      testSuccessWithSlugAndId(context)
-      testSlugFails(context)
-    } else if(data.id){
-      const context = {
-        ...c,
-        data: {
-          ...c.data,
-          id: data.id,
-        }
-      }
-      testIdFails(context)
-    }
-  }
-
-  // pagination
-
-  if(c.failingBodies){
-    testZodFail({
-      ...c,
-      failingBodies: c.failingBodies
-    })
-  }
-
-  if(c.failingUsers){
-    testAuthFail({
-      ...c,
-      failingUsers: c.failingUsers
-    })
-  }
-
 }

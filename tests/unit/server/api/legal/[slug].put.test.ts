@@ -14,15 +14,12 @@ describe("Api Route PUT /api/legal/{slug}", () => {
   const data = detail
   const expected = { ...data, ...body }
 
-  const context = {
-    data,
-    expected,
-    endpoint,
+  const context = u.getTestContext({
+    data, expected, endpoint,
 
     body: body,
     params: { slug: data.slug },
-    query: {},
-  }
+  })
 
   // mocks
   mockUser(users.admin)
@@ -37,7 +34,7 @@ describe("Api Route PUT /api/legal/{slug}", () => {
 
     u.testSlugFails(context)
     u.testZodFail({
-      ...context, 
+      ...context,
       failingBodies: [
         {
           body: { name: "a", text: "" },
@@ -54,28 +51,5 @@ describe("Api Route PUT /api/legal/{slug}", () => {
       ...context, 
       failingUsers: [users.guest, users.user],
     })
-
-    u.test(
-      {
-        ...context,
-        failingBodies: [
-          {
-            body: { name: "a", text: "" },
-            message: "Please enter some content",
-          },
-          {
-            body: { name: "", text: "a" },
-            message: "Please enter a name",
-          },
-        ],
-        failingUsers: [users.guest, users.user],
-      },
-      [
-        u.testSuccessWithSlugAndId,
-        u.testSlugFails,
-        u.testZodFail,
-        u.testAuthFail,
-      ]
-    )
   }
 })

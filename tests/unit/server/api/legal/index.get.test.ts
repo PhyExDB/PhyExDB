@@ -11,15 +11,9 @@ describe("Api Route GET /api/legal/index", () => {
   const data = lists
   const expected = data
 
-  const context = {
-    data,
-    expected,
-    endpoint,
-
-    body: {},
-    params: {},
-    query: {},
-  }
+  const context = u.getTestContext({
+    data, expected, endpoint,
+  })
 
   // mocks
   mockUser(users.guest)
@@ -30,6 +24,6 @@ describe("Api Route GET /api/legal/index", () => {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    u.testAuto(context)
+    u.testSuccess(context)
   }
 })
