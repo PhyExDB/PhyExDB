@@ -110,7 +110,7 @@ watch([sort, attributeFilter, page, pageSize], () => {
     <!-- Filter -->
     <!-- Filter for Wide Screens -->
     <div class="flex-row gap-2 justify-between items-center hidden xl:flex">
-      <ExperimentsFilters
+      <ExperimentFilters
         :checked="checked"
         :attributes="attributes"
         :show-undo-button="true"
@@ -145,7 +145,7 @@ watch([sort, attributeFilter, page, pageSize], () => {
             <DialogHeader>
               <DialogTitle>Filter Konfigurieren</DialogTitle>
             </DialogHeader>
-            <ExperimentsFilters
+            <ExperimentFilters
               :checked="checked"
               :attributes="attributes"
               :show-undo-button="false"
@@ -163,7 +163,7 @@ watch([sort, attributeFilter, page, pageSize], () => {
           </div>
         </DialogContent>
       </Dialog>
-      <ExperimentsUndoFilters
+      <ExperimentUndoFilters
         :checked="checked"
         class="w-full sm:w-auto mt-2 sm:mt-0"
         @update:checked="checked = $event"

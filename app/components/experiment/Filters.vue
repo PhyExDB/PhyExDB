@@ -71,7 +71,7 @@ function selectedToString(selected: string[], attribute: ExperimentAttributeDeta
     v-if="showUndoButton"
   >
     <div class="w-full flex flex-col h-full justify-end">
-      <ExperimentsUndoFilters
+      <ExperimentUndoFilters
         :checked="checked"
         @update:checked="updateModelValue"
       />
