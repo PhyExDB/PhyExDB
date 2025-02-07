@@ -23,9 +23,7 @@ type TestContext<Data, Expected> = {
  * Constructs a test context object by merging the provided configuration with default values.
  */
 export function getTestContext<Data, Expected, T extends {
-  data: Data
-  expected: Expected
-  endpoint: Endpoint<Expected>
+  data: Data, expected: Expected, endpoint: Endpoint<Expected>
   body?: Body
   params?: Params
   query?: Query
@@ -70,15 +68,6 @@ export function getEventWithIdParam(options: { id: string, body?: object }): Eve
 export function forSlugAndId(slugList: SlugList, func: (params: { slug: string } | { id: string }) => void) {
   func({ slug: slugList.id })
   func({ slug: slugList.slug })
-}
-
-/**
- * Creates an event object with the provided data and executes the provided function.
- */
-export function forSlugAndIdEvent(slugList: SlugList, body: object, func: (event: Event) => void) {
-  forSlugAndId(slugList, (params) => {
-    func(getEvent({ params, body }))
-  })
 }
 
 /**
