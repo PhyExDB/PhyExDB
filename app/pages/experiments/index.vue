@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 const route = useRoute()
-const search = ref<string>("")
+const search = ref<string>(route.query.search as string || "")
 const sort = ref<string[]>([route.query.sort as string || "none"])
 const attributeFilter = ref<string>(route.query.attributes as string || "")
 
