@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client"
 import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
@@ -26,11 +27,16 @@ export default defineEventHandler(async (event) => {
     sortOption = undefined
   }
 
+  // Searching
+  const searchString = query.search as string || undefined
+  const search = searchString ? { name: { contains: searchString, mode: Prisma.QueryMode.insensitive } } : undefined
+
   // Total Number of Experiments
   const totalExperiments = await prisma.experiment.count({
     where: {
       status: "PUBLISHED",
       ...attributeFilter,
+      ...search,
     },
   })
 
@@ -43,6 +49,7 @@ export default defineEventHandler(async (event) => {
     where: {
       status: "PUBLISHED",
       ...attributeFilter,
+      ...search,
     },
     include: experimentIncludeForToList,
     orderBy: sortOption,

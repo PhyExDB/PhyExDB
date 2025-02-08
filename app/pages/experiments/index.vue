@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 const route = useRoute()
+const search = ref<string>("")
 const sort = ref<string[]>([route.query.sort as string || "none"])
 const attributeFilter = ref<string>(route.query.attributes as string || "")
 
@@ -11,6 +12,7 @@ const { data } = useLazyFetch("/api/experiments", {
     pageSize: pageSize,
     sort: sort,
     attributes: attributeFilter,
+    search: search,
   },
 })
 
@@ -80,7 +82,7 @@ watch(checked, () => {
 })
 
 /* Update the URL */
-watch([sort, attributeFilter, page, pageSize], () => {
+watch([sort, attributeFilter, page, pageSize, search], () => {
   const query:
   {
     attributes?: string
@@ -107,6 +109,12 @@ watch([sort, attributeFilter, page, pageSize], () => {
 
 <template>
   <div class="grid grid-cols-1 gap-3">
+    <div class="relative w-full max-w-sm items-center">
+      <NavigationSearch
+        :search="search"
+        @update:search="search = $event"
+      />
+    </div>
     <!-- Filter -->
     <!-- Filter for Wide Screens -->
     <div class="flex-row gap-2 justify-between items-center hidden xl:flex">
