@@ -89,6 +89,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
     page?: number
     pageSize?: number
     sort?: string
+    search?: string
   } = {}
   if (attributeFilter.value !== "") {
     query.attributes = attributeFilter.value
@@ -101,6 +102,9 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
   }
   if (sort.value[0] !== "none") {
     query.sort = sort.value[0]
+  }
+  if (search.value !== "") {
+    query.search = search.value
   }
   const newUrl = { path: route.path, query }
   useRouter().replace(newUrl)
