@@ -15,10 +15,10 @@ function update(value: string) {
 </script>
 
 <template>
-  <div class="relative w-full max-w-sm items-center">
+  <div class="relative items-center">
     <Input
       id="search"
-      :value="search"
+      :model-value="search"
       type="text"
       placeholder="Suchen..."
       class="pl-10"
