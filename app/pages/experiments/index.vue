@@ -1,26 +1,51 @@
 <script setup lang='ts'>
 const route = useRoute()
 const search = ref<string>(route.query.search as string || "")
+const fetched = ref<boolean>(false)
+const searchApiInput = ref<string>(search.value)
 const sort = ref<string[]>([route.query.sort as string || "none"])
 const attributeFilter = ref<string>(route.query.attributes as string || "")
 
 const { page, pageSize } = getRequestPageMeta()
 
+const isLoading = ref(false)
 const { data } = useLazyFetch("/api/experiments", {
   query: {
     page: page,
     pageSize: pageSize,
     sort: sort,
     attributes: attributeFilter,
-    search: search,
+    search: searchApiInput,
+  },
+  onRequest: () => {
+    fetched.value = false
+    setTimeout(() => {
+      if (!fetched.value) {
+        isLoading.value = true
+      }
+    }, 100)
+  },
+  onResponse: () => {
+    isLoading.value = false
+    fetched.value = true
   },
 })
 
+// Search
+let searchTimeout: NodeJS.Timeout
+watch(search, () => {
+  isLoading.value = true
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    searchApiInput.value = search.value
+  }, 500)
+})
+
+/* Attributes */
 const { data: attributes } = await useFetch(
   `/api/experiments/attributes`,
 )
 
-/* Attributes */
 function initializeFilterChecklist(list: string[][]) {
   if (!attributes) {
     return
@@ -185,7 +210,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
       <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">
-        {{ data?.pagination.total }} Experimente gefunden
+        {{ isLoading ? "..." : data?.pagination.total }} Experimente gefunden
       </div>
       <div class="w-full sm:w-64 order-1 sm:order-2">
         <MultiSelect
@@ -209,80 +234,97 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
       </div>
     </div>
     <!-- Experiments -->
-    <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      <NuxtLink
-        v-for="experiment in data?.items"
-        :key="experiment.id"
-        :to="`/experiments/${experiment.slug}`"
-        class="relative group border-0"
-      >
-        <Card class="flex flex-col h-full">
-          <CardContent class="relative grow flex flex-col p-0 rounded-t-lg overflow-hidden">
-            <!-- Image + Overlay Container (size determined by overlay) -->
-            <div class="relative w-full min-h-[150px] flex flex-col items-center justify-center h-full">
-              <!-- Image that adjusts to overlay size -->
-              <NuxtImg
-                :src="experiment.previewImage?.path ?? 'experiment_placeholder.png'"
-                alt="Preview Image"
-                class="absolute inset-0 w-full h-full"
-                :class="experiment.previewImage?.path ? 'object-contain' : 'object-cover'"
-              />
+    <div
+      v-if="!isLoading"
+    >
+      <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <NuxtLink
+          v-for="experiment in data?.items"
+          :key="experiment.id"
+          :to="`/experiments/${experiment.slug}`"
+          class="relative group border-0"
+        >
+          <Card class="flex flex-col h-full">
+            <CardContent class="relative grow flex flex-col p-0 rounded-t-lg overflow-hidden">
+              <!-- Image + Overlay Container (size determined by overlay) -->
+              <div class="relative w-full min-h-[150px] flex flex-col items-center justify-center h-full">
+                <!-- Image that adjusts to overlay size -->
+                <NuxtImg
+                  :src="experiment.previewImage?.path ?? 'experiment_placeholder.png'"
+                  alt="Preview Image"
+                  class="absolute inset-0 w-full h-full"
+                  :class="experiment.previewImage?.path ? 'object-contain' : 'object-cover'"
+                />
 
-              <!-- Overlay Content (Defines Section Size) -->
-              <div
-                class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
-              >
-                <div class="grid grid-cols-2 gap-1">
-                  <template
-                    v-for="attribute in attributes"
-                    :key="attribute.id"
-                  >
-                    <div class="text-right">
-                      {{ attribute.name }}
-                    </div>
-                    <div class="flex flex-wrap gap-1">
-                      <template
-                        v-for="attributeValue in experiment.attributes.map((attr) => attr.values).flat()"
-                        :key="attributeValue.id"
-                      >
-                        <Badge
-                          v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
-                          class="h-5"
+                <!-- Overlay Content (Defines Section Size) -->
+                <div
+                  class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
+                >
+                  <div class="grid grid-cols-2 gap-1">
+                    <template
+                      v-for="attribute in attributes"
+                      :key="attribute.id"
+                    >
+                      <div class="text-right">
+                        {{ attribute.name }}
+                      </div>
+                      <div class="flex flex-wrap gap-1">
+                        <template
+                          v-for="attributeValue in experiment.attributes.map((attr) => attr.values).flat()"
+                          :key="attributeValue.id"
                         >
-                          {{ attributeValue.value }}
-                        </Badge>
-                      </template>
-                    </div>
-                  </template>
+                          <Badge
+                            v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
+                            class="h-5"
+                          >
+                            {{ attributeValue.value }}
+                          </Badge>
+                        </template>
+                      </div>
+                    </template>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <Separator />
+              <Separator />
 
-            <!-- Bottom Content -->
-            <div class="flex flex-col items-left p-4 gap-2 w-full">
-              <CardTitle class="text-primary/80">
-                {{ experiment.name }}
-              </CardTitle>
-              <CardDescription>
-                <Badge>
-                  <Icon
-                    name="heroicons:clock"
-                    class="mr-2 h-4 w-4"
-                  />
-                  {{ experiment.duration }} Min.
-                </Badge>
-              </CardDescription>
-            </div>
-          </CardContent>
-        </Card>
-      </NuxtLink>
+              <!-- Bottom Content -->
+              <div class="flex flex-col items-left p-4 gap-2 w-full">
+                <CardTitle class="text-primary/80">
+                  {{ experiment.name }}
+                </CardTitle>
+                <CardDescription>
+                  <Badge>
+                    <Icon
+                      name="heroicons:clock"
+                      class="mr-2 h-4 w-4"
+                    />
+                    {{ experiment.duration }} Min.
+                  </Badge>
+                </CardDescription>
+              </div>
+            </CardContent>
+          </Card>
+        </NuxtLink>
+      </div>
+
+      <MyPagination
+        v-model="page"
+        :page-meta="data?.pagination"
+      />
     </div>
-
-    <MyPagination
-      v-model="page"
-      :page-meta="data?.pagination"
-    />
+    <div
+      v-if="isLoading"
+    >
+      <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div
+          v-for="index in 8"
+          :key="index"
+          class="flex flex-col space-y-3 items-center justify-center h-full w-full"
+        >
+          <Skeleton class="h-full w-full min-h-[300px] rounded-xl" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
