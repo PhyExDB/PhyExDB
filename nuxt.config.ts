@@ -16,6 +16,13 @@ export default defineNuxtConfig({
     "nuxt-nodemailer",
   ],
 
+  imports: {
+    dirs: [
+      "~~/server/utils/prisma",
+      "~~/server/utils/loggers",
+    ]
+  },
+
   devtools: { enabled: true },
 
   css: ["~/assets/css/main.css"],
