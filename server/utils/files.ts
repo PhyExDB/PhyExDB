@@ -4,7 +4,7 @@ import { logger } from "~~/server/utils/loggers"
 /**
  * Deletes a file from the filesystem at the specified path.
  */
-export function myDeleteFile(filePath: string) {
+export function deleteFile(filePath: string) {
   try {
     unlinkSync(filePath)
   } catch (error) {

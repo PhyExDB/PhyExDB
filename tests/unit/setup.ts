@@ -58,6 +58,6 @@ vitest.mock(import("~~/server/utils/files"), async (importOriginal) => {
   const actual = await importOriginal()
   return {
     ...actual,
-    myDeleteFile: vitest.fn(),
+    deleteFile: vitest.fn(),
   }
 })
