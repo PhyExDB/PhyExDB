@@ -1,3 +1,5 @@
+import prisma from "../lib/prisma"
+
 /**
  * The base class for all seeds.
  */

@@ -1,5 +1,6 @@
 import Seed from "./seed"
 import slugify from "~~/server/utils/slugify"
+import prisma from "../lib/prisma"
 
 /**
  * Experiment attribute seed.

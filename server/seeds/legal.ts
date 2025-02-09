@@ -1,4 +1,5 @@
 import Seed from "./seed"
+import prisma from "../lib/prisma"
 
 /**
  * Legal seed.

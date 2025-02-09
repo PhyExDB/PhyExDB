@@ -16,6 +16,12 @@ export default defineNuxtConfig({
     "nuxt-nodemailer",
   ],
 
+  imports: {
+    dirs: [
+      "server/lib",
+    ],
+  },
+
   devtools: { enabled: true },
 
   css: ["~/assets/css/main.css"],

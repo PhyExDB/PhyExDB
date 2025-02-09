@@ -1,5 +1,5 @@
 import { unlinkSync } from "fs"
-import { logger } from "~~/server/utils/loggers"
+import { logger } from "~~/server/lib/loggers"
 
 /**
  * Deletes a file from the filesystem at the specified path.

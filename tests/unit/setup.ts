@@ -7,7 +7,7 @@ import { createDomPurify } from "~~/server/utils/dompurify"
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
 
-vitest.mock(import("~~/server/utils/loggers"))
+vitest.mock(import("~~/server/lib/loggers"))
 
 vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
   const actual = await importOriginal()
