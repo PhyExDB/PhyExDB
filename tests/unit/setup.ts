@@ -25,8 +25,8 @@ vitest.stubGlobal("useNitroApp", () => {
 vitest.stubGlobal("defineEventHandler", (func: unknown) => func)
 vitest.stubGlobal("defineRouteMeta", (func: unknown) => func)
 vitest.stubGlobal("defineNitroPlugin", (e: unknown) => e)
-vitest.stubGlobal("getValidatedRouterParams", (e: any, f: any) => f(e.context.params))
 
+vitest.stubGlobal("getValidatedRouterParams", (e: any, f: any) => f(e.context.params))
 vitest.stubGlobal("getRouterParam", (event: any, paramName: string) => {
   return event.context.params[paramName]
 })
@@ -37,4 +37,16 @@ vitest.stubGlobal("getQuery", (event: any) => {
 
 vitest.stubGlobal("readValidatedBody", async (event: any, validator: (body: any) => any) => {
   return validator(event.body)
+})
+vitest.stubGlobal("readBody", async (event: any) => {
+  return event.body
+})
+
+vitest.stubGlobal("storeFileLocally", async (
+  fileNameOrIdLength: string | number,
+) => {
+  if (typeof fileNameOrIdLength === "number") {
+    return "randomId"
+  }
+  return fileNameOrIdLength
 })
