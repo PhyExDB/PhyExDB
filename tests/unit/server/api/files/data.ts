@@ -1,67 +1,38 @@
-import { v4 as uuidv4 } from "uuid"
-import slugify from "~~/server/utils/slugify"
+import type { File } from "~~/shared/types/File.type"
+import { users } from "~~/tests/helpers/auth"
 
-/**
- * An array of ressource lists
- */
-export const lists = [
-  {
-    name: "Themenbereich",
-    multipleSelection: false,
-    values: [
-      "Optik",
-      "Wärmelehre",
-      "Magnetismus",
-      "Elektrizität",
-      "Mechanik",
-      "Akustik",
-      "Radioaktivität",
-      "Atomphysik",
-      "Quantenphysik",
-    ],
-  },
-  {
-    name: "Versuchsart",
-    multipleSelection: false,
-    values: ["Freihand", "Qualitativ", "Quantitativ", "Simulation"],
-  },
-  {
-    name: "Einsatz",
-    multipleSelection: true,
-    values: ["Phänomene", "Gesetzmäßigkeiten", "Weiterführung"],
-  },
-  {
-    name: "Arbeitsform",
-    multipleSelection: true,
-    values: ["Demoversuch", "SUS-Versuch", "Heimversuch"],
-  },
-  {
-    name: "Messwert\u00ADerfassung",
-    multipleSelection: true,
-    values: ["Analog", "Digital", "Beobachtung"],
-  },
-  {
-    name: "Vorbereitungs\u00ADzeit",
-    multipleSelection: false,
-    values: ["unter 1 Stunde", "ca. 1 Stunde", "mehrere Stunden", "mehrere Tage"],
-  },
-].map((attribute, index) => {
+/** example files given to the post endpoint  */
+export const filesIn = [
+    {
+      name: "file1",
+      content: "file1 content",
+      size: "1",
+      type: "text/plain",
+      lastModified: "2021-09-01T00:00:00.000Z",
+    },
+    {
+      name: "file2",
+      content: "file2 content",
+      size: "2",
+      type: "text/plain",
+      lastModified: "2021-09-02T00:00:00.000Z",
+    },
+  ]
+
+/** example files as in the database  */
+export const fileDetails = filesIn.map((file: File) => {
   return {
-    ...attribute,
-    order: index,
-    id: uuidv4(),
-    slug: slugify(attribute.name),
-    values: attribute.values.map((value) => {
-      return {
-        id: uuidv4(),
-        value: value,
-        slug: slugify(value),
-      }
-    }),
+    id: "uuid",
+    path: "/uploads/randomId",
+    mimeType: file.type,
+    originalName: file.name,
   }
-}) satisfies ExperimentAttributeDetail[]
+})
 
-/**
- * A resource detail
- */
-export const detail = lists[0]! satisfies ExperimentAttributeDetail
+/** example files as in the database  */
+export const files = fileDetails.map((file) => {
+  return {
+    ...file,
+    createdById: users.user.id
+  }
+})

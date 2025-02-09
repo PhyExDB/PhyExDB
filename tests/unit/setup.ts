@@ -42,6 +42,7 @@ vitest.stubGlobal("readBody", async (event: any) => {
   return event.body
 })
 
+// io
 vitest.stubGlobal("storeFileLocally", async (
   _: File,
   fileNameOrIdLength: string | number,
@@ -50,4 +51,11 @@ vitest.stubGlobal("storeFileLocally", async (
     return "randomId"
   }
   return fileNameOrIdLength
+})
+vitest.mock(import("fs"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    unlinkSync: (_: any) => {},
+  }
 })

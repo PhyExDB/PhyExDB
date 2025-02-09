@@ -3,39 +3,17 @@ import { mockUser, users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
-import type { File } from "~~/shared/types/File.type"
+import { filesIn, fileDetails } from "./data"
 import endpoint from "~~/server/api/files/index.post"
 
 describe("Api Route /api/files/index.post", () => {
   // definitions
   const body = {
-    files: [
-      {
-        name: "file1",
-        content: "file1 content",
-        size: "1",
-        type: "text/plain",
-        lastModified: "2021-09-01T00:00:00.000Z",
-      },
-      {
-        name: "file2",
-        content: "file2 content",
-        size: "2",
-        type: "text/plain",
-        lastModified: "2021-09-02T00:00:00.000Z",
-      },
-    ],
+    files: filesIn,
   }
 
   const data = undefined
-  const expected = body.files.map((file: File) => {
-    return {
-      id: "uuid",
-      path: "/uploads/randomId",
-      mimeType: file.type,
-      originalName: file.name,
-    }
-  })
+  const expected = fileDetails
 
   const context = u.getTestContext({
     data, expected, endpoint,

@@ -41,7 +41,7 @@ type Tables = Uncapitalize<Prisma.ModelName>
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForGet<Data, Exp>(
-  c: TestContext<Data, Exp>,
+  c: Omit<TestContext<Data, Exp>, "expected" | "endpoint">,
   table: Tables,
   checkWhereClause: CheckWhereClause,
 ) {
@@ -52,7 +52,7 @@ export function mockPrismaForGet<Data, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForSlugOrIdGet<Data extends SlugList, Exp>(
-  c: TestContext<Data, Exp>,
+  c: Omit<TestContext<Data, Exp>, "expected" | "endpoint">,
   table: Tables,
 ) {
   const checkWhereClause = checkWhereClauseSlugOrId(c.data)
@@ -62,7 +62,7 @@ export function mockPrismaForSlugOrIdGet<Data extends SlugList, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForIdGet<Data extends BaseList, Exp>(
-  c: TestContext<Data, Exp>,
+  c: Omit<TestContext<Data, Exp>, "expected" | "endpoint">,
   table: Tables,
 ) {
   const checkWhereClause = checkWhereClauseId(c.data)
@@ -128,4 +128,36 @@ export function mockPrismaForPost<Data, Exp>(
   prisma[table].create = vi.fn().mockImplementation(
     _ => Promise.resolve(c.expected),
   )
+}
+
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForDelete<Data>(
+  c: Omit<TestContext<Data, undefined>, "expected" | "endpoint">,
+  table: Tables,
+  checkWhereClause: CheckWhereClause,
+) {
+  mockPrismaForGet(c, table, checkWhereClause)
+  prisma[table].delete = prismaMockResolvedCheckingWhereClause(c.data, checkWhereClause)
+}
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForSlugOrIdDelete<Data extends SlugList>(
+  c: Omit<TestContext<Data, undefined>, "expected" | "endpoint">,
+  table: Tables,
+) {
+  const checkWhereClause = checkWhereClauseSlugOrId(c.data)
+  mockPrismaForDelete(c, table, checkWhereClause)
+}
+/**
+ * Mocks the Prisma client methods for a specific table to simulate a request.
+ */
+export function mockPrismaForIdDelete<Data extends BaseList>(
+  c: Omit<TestContext<Data, undefined>, "expected" | "endpoint">,
+  table: Tables,
+) {
+  const checkWhereClause = checkWhereClauseId(c.data)
+  mockPrismaForDelete(c, table, checkWhereClause)
 }
