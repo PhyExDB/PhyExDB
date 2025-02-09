@@ -41,7 +41,7 @@ type Tables = Uncapitalize<Prisma.ModelName>
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForGet<Data, Exp>(
-  c: Omit<TestContext<Data, Exp>, "expected" | "endpoint">,
+  c: Pick<TestContext<Data, Exp>, "data">,
   table: Tables,
   checkWhereClause: CheckWhereClause,
 ) {
@@ -52,7 +52,7 @@ export function mockPrismaForGet<Data, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForSlugOrIdGet<Data extends SlugList, Exp>(
-  c: Omit<TestContext<Data, Exp>, "expected" | "endpoint">,
+  c: Pick<TestContext<Data, Exp>, "data">,
   table: Tables,
 ) {
   const checkWhereClause = checkWhereClauseSlugOrId(c.data)
@@ -62,7 +62,7 @@ export function mockPrismaForSlugOrIdGet<Data extends SlugList, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForIdGet<Data extends BaseList, Exp>(
-  c: Omit<TestContext<Data, Exp>, "expected" | "endpoint">,
+  c: Pick<TestContext<Data, Exp>, "data">,
   table: Tables,
 ) {
   const checkWhereClause = checkWhereClauseId(c.data)
@@ -73,7 +73,7 @@ export function mockPrismaForIdGet<Data extends BaseList, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a PUT request.
  */
 export function mockPrismaForPut<Data, Exp>(
-  c: TestContext<Data, Exp>,
+  c: Pick<TestContext<Data, Exp>, "data" | "expected">,
   table: Tables,
   checkWhereClause: CheckWhereClause,
 ) {
@@ -85,7 +85,7 @@ export function mockPrismaForPut<Data, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForSlugOrIdPut<Data extends SlugList, Exp>(
-  c: TestContext<Data, Exp>,
+  c: Pick<TestContext<Data, Exp>, "data" | "expected">,
   table: Tables,
 ) {
   const checkWhereClause = checkWhereClauseSlugOrId(c.data)
@@ -95,7 +95,7 @@ export function mockPrismaForSlugOrIdPut<Data extends SlugList, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForIdPut<Data extends BaseList, Exp>(
-  c: TestContext<Data, Exp>,
+  c: Pick<TestContext<Data, Exp>, "data" | "expected">,
   table: Tables,
 ) {
   const checkWhereClause = checkWhereClauseId(c.data)
@@ -134,7 +134,7 @@ export function mockPrismaForPost<Data, Exp>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForDelete<Data>(
-  c: Omit<TestContext<Data, undefined>, "expected" | "endpoint">,
+  c: Pick<TestContext<Data, undefined>, "data">,
   table: Tables,
   checkWhereClause: CheckWhereClause,
 ) {
@@ -145,7 +145,7 @@ export function mockPrismaForDelete<Data>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForSlugOrIdDelete<Data extends SlugList>(
-  c: Omit<TestContext<Data, undefined>, "expected" | "endpoint">,
+  c: Pick<TestContext<Data, undefined>, "data">,
   table: Tables,
 ) {
   const checkWhereClause = checkWhereClauseSlugOrId(c.data)
@@ -155,7 +155,7 @@ export function mockPrismaForSlugOrIdDelete<Data extends SlugList>(
  * Mocks the Prisma client methods for a specific table to simulate a request.
  */
 export function mockPrismaForIdDelete<Data extends BaseList>(
-  c: Omit<TestContext<Data, undefined>, "expected" | "endpoint">,
+  c: Pick<TestContext<Data, undefined>, "data">,
   table: Tables,
 ) {
   const checkWhereClause = checkWhereClauseId(c.data)
