@@ -1,5 +1,4 @@
 import type { H3Event, EventHandlerRequest } from "h3"
-import { getQuery } from "h3"
 
 /**
  * Generates pagination metadata for a given event and total number of items.
