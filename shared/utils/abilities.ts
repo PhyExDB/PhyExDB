@@ -20,8 +20,8 @@ const minModerator = (user: User) => user.role === "MODERATOR" || user.role === 
 const onlyAdminAbility = defineAbility(false, isAdmin)
 const noGuestsAbility = defineAbility(false, _ => true)
 const everyoneAbility = defineAbility(true, _ => true)
-function abillityRequiringUserId<T>(extractUserId: (t: T) => string) {
-  return defineAbility(false, (user, t: T) => user.id === extractUserId(t))
+function abillityRequiringUserId<T>(extractUserId: (t: T) => string | null) {
+  return defineAbility(false, (user, t: T) =>  user.id === extractUserId(t))
 }
 
 const onlyAdminCRUD = {
@@ -105,7 +105,7 @@ export const experimentFileAbilities = {
 
 /** Abilities for userFiles */
 export const userFileAbilities = {
-  post: abillityRequiringUserId(file => file.createdById) satisfies Ability<[{ createdById: string }]>,
+  post: abillityRequiringUserId(file => file.createdById) satisfies Ability<[File]>,
   delete: {
     func: (user, userFile) => userFile.userId != null && user.id === userFile.userId,
     allowGuests: false,
