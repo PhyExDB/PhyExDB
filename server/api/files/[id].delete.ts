@@ -1,7 +1,7 @@
 import { fileAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
 import { getIdPrismaWhereClause } from "~~/server/utils/utils"
-import { deleteFile } from "~~/server/utils/files"
+import { myDeleteFile } from "~~/server/utils/files"
 
 export default defineEventHandler(async (event) => {
   const where = getIdPrismaWhereClause(event)
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig()
   const filePath = `${runtimeConfig.fileMount}/${file.path}`
 
-  deleteFile(filePath)
+  myDeleteFile(filePath)
 
   await prisma.file.delete({
     where,
