@@ -1,9 +1,9 @@
 import { describe, expectTypeOf, vi } from "vitest"
+import { filesIn, fileDetails } from "./data"
 import { mockUser, users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
-import { filesIn, fileDetails } from "./data"
 import endpoint from "~~/server/api/files/index.post"
 
 describe("Api Route /api/files/index.post", () => {

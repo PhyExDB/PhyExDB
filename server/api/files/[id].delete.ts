@@ -1,8 +1,7 @@
-import { unlinkSync } from "fs"
 import { fileAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
 import { getIdPrismaWhereClause } from "~~/server/utils/utils"
-import { logger } from "~~/server/utils/loggers"
+import { deleteFile } from "~~/server/utils/files"
 
 export default defineEventHandler(async (event) => {
   const where = getIdPrismaWhereClause(event)
@@ -23,12 +22,7 @@ export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig()
   const filePath = `${runtimeConfig.fileMount}/${file.path}`
 
-  try {
-    unlinkSync(filePath)
-  } catch (error) {
-    logger.error("Failed to delete file from filesystem", { error })
-    throw createError({ status: 500, message: "Failed to delete file from filesystem" })
-  }
+  deleteFile(filePath)
 
   await prisma.file.delete({
     where,

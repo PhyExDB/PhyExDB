@@ -9,7 +9,8 @@ import endpoint from "~~/server/api/files/[id].delete"
 describe("Api Route /api/files/[id].delete", () => {
   // definitions
   const data = files[0]!
-  const expected = undefined
+  /* eslint-disable @typescript-eslint/no-invalid-void-type */
+  const expected: void = undefined
 
   const context = u.getTestContext({
     data, expected, endpoint,
@@ -23,6 +24,9 @@ describe("Api Route /api/files/[id].delete", () => {
 
   // tests
   {
+    // type test
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
+
     u.testSuccess(context)
 
     u.testIdFails(context)

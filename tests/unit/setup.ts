@@ -52,10 +52,10 @@ vitest.stubGlobal("storeFileLocally", async (
   }
   return fileNameOrIdLength
 })
-vitest.mock(import("fs"), async (importOriginal) => {
+vitest.mock(import("~~/server/utils/files"), async (importOriginal) => {
   const actual = await importOriginal()
   return {
     ...actual,
-    unlinkSync: (_: any) => {},
+    deleteFile: vitest.fn(),
   }
 })
