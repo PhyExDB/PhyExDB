@@ -36,11 +36,11 @@ describe("Api Route PUT /api/legal/{slug}", () => {
     u.testZodFail(context, [
       {
         body: { name: "a", text: "" },
-        message: "Please enter some content",
+        message: "Bitte einen Inhalt eingeben.",
       },
       {
         body: { name: "", text: "a" },
-        message: "Please enter a name",
+        message: "Bitte einen Namen eingeben.",
       },
     ])
     // needs to be last, because it changes the user mock
