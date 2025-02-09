@@ -125,7 +125,6 @@ export function mockPrismaForPost<Data, Exp>(
   c: Pick<TestContext<Data, Exp>, "expected">,
   table: Tables,
 ) {
-  prisma[table].count = vi.fn().mockResolvedValue(0)
   prisma[table].create = vi.fn().mockImplementation(
     _ => Promise.resolve(c.expected),
   )
