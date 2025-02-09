@@ -5,5 +5,5 @@
 </template>
 
 <script setup>
-await navigateTo("/experiments")
+await navigateTo("/experiments", { replace: true })
 </script>
