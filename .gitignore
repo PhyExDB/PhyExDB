@@ -35,6 +35,8 @@ test-results
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+# unplugin-auto-import
+auto-imports.d.ts
 
 # Code Coverage
 **/coverage/
