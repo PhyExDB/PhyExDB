@@ -289,7 +289,7 @@ async function previewExperiment() {
                 @dropped="uploadPreviewImage"
               >
                 <template
-                  v-if="form.values.previewImageId"
+                  v-if="experiment?.previewImage?.path"
                   #message
                 >
                   <NuxtImg
