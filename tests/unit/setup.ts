@@ -43,6 +43,7 @@ vitest.stubGlobal("readBody", async (event: any) => {
 })
 
 vitest.stubGlobal("storeFileLocally", async (
+  _: File,
   fileNameOrIdLength: string | number,
 ) => {
   if (typeof fileNameOrIdLength === "number") {
