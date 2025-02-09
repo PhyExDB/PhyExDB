@@ -1,39 +1,37 @@
 import { ExperimentStatus } from "@prisma/client"
-import { getExperimentReadyForReviewSchema } from "~~/shared/types"
+import { experimentReviewSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
+  await authorizeUser(event, experimentAbilities.review)
+
+  const reviewContent = await readValidatedBody(
+    event,
+    body => experimentReviewSchema.parse(body),
+  )
+
   const experiment = await prisma.experiment.findFirst({
-    where: getIdPrismaWhereClause(event),
+    where: getSlugOrIdPrismaWhereClause(event),
     include: experimentIncludeForToDetail,
   })
 
   if (!experiment) {
     throw createError({ status: 404, message: "Experiment not found!" })
-  } else if (experiment.status !== ExperimentStatus.DRAFT && experiment.status !== ExperimentStatus.REJECTED) {
-    throw createError({ status: 400, message: "Experiment is not in draft or rejected!" })
+  } else if (experiment.status !== ExperimentStatus.IN_REVIEW) {
+    throw createError({ status: 400, message: "Experiment is not in review!" })
   }
-
-  await authorize(event, experimentAbilities.put, experiment)
-
-  const sections = await $fetch("/api/experiments/sections")
-  const attributes = await $fetch("/api/experiments/attributes")
-
-  const experimentForReview = transformExperimentToSchemaType(mapExperimentToDetail(experiment as ExperimentIncorrectDetail), attributes)
-
-  const experimentReviewSchema = getExperimentReadyForReviewSchema(sections, attributes)
-  await experimentReviewSchema.parseAsync(experimentForReview)
 
   await prisma.experiment.update({
     where: { id: experiment.id },
     data: {
-      status: "IN_REVIEW",
+      status: reviewContent.approve ? "PUBLISHED" : "REJECTED",
+      changeRequest: reviewContent.message,
     },
   })
 })
 
 defineRouteMeta({
   openAPI: {
-    description: "Submits an experiment for review",
+    description: "Approves or rejects an experiment",
     tags: ["Experiment"],
     parameters: [
       {
@@ -47,6 +45,22 @@ defineRouteMeta({
         },
       },
     ],
+    requestBody: {
+      description: "Review content",
+      required: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              approve: { type: "boolean" },
+              message: { type: "string" },
+            },
+            required: ["approve"],
+          },
+        },
+      },
+    },
     responses: {
       200: {
         description: "Experiment submitted successfully",

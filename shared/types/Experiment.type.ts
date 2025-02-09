@@ -39,6 +39,10 @@ export interface ExperimentDetail extends ExperimentList {
    * The sections of the experiment.
    */
   sections: ExperimentSectionContentDetail[]
+  /**
+   * The change request of the experiment, if any.
+   */
+  changeRequest: string | undefined
 }
 
 /**
@@ -230,3 +234,18 @@ export function getExperimentReadyForReviewSchema(
   })
   return experimentSchema
 }
+
+/**
+ * Schema for reviewing an experiment.
+ */
+export const experimentReviewSchema = z.object({
+  approve: z.boolean({ message: "Entscheidung wird benötigt" }),
+  message: z.string({ message: "Nachricht wird benötigt" }).nonempty("Nachricht wird benötigt").optional(),
+}).refine((value) => {
+  if (!value.approve) {
+    return value.message !== undefined
+  }
+  return true
+}, {
+  message: "Nachricht wird benötigt",
+})

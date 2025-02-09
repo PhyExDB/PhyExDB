@@ -27,7 +27,6 @@ const onSubmit = form.handleSubmit(async (values) => {
     callbackURL: "/login",
   })
 
-  console.log(error)
   if (error?.code === "INVALID_PASSWORD") {
     hasError = true
     form.setFieldError("password", "Das Passwort ist falsch")

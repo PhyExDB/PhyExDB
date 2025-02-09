@@ -1,9 +1,9 @@
 export default defineEventHandler(async (event) => {
-  const user = await authorizeUser(event, experimentAbilities.listOwn)
+  await authorizeUser(event, experimentAbilities.review)
 
   const totalExperiments = await prisma.experiment.count({
     where: {
-      userId: user.id,
+      status: "IN_REVIEW",
     },
   })
 
@@ -12,15 +12,11 @@ export default defineEventHandler(async (event) => {
   const experiments = await prisma.experiment.findMany({
     ...getPaginationPrismaParam(pageMeta),
     where: {
-      userId: user.id,
+      status: "IN_REVIEW",
     },
-    orderBy: [
-      {
-        status: "asc",
-      }, {
-        createdAt: "desc",
-      },
-    ],
+    orderBy: {
+      createdAt: "asc",
+    },
     include: experimentIncludeForToList,
   })
 
@@ -88,6 +84,9 @@ defineRouteMeta({
       },
       401: {
         description: "Unauthorized",
+      },
+      403: {
+        description: "Forbidden",
       },
     },
   },

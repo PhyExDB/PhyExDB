@@ -9,6 +9,7 @@ definePageMeta({
 const user = await useUserOrThrowError()
 
 const { data: ownExperiments, refresh } = await useLazyFetch("/api/experiments/mine")
+const { data: experimentsToReview } = await useFetch("/api/experiments/in-review?pageSize=0")
 
 const emailVerifiedPopoverOpen = ref(false)
 const loadingNewExperiment = ref(false)
@@ -18,6 +19,7 @@ const verifiedValue = user.value?.emailVerified
   : "nicht verifiziert"
 
 const canCreateExperiment = await allows(experimentAbilities.post)
+const canReviewExperiments = await allows(experimentAbilities.review)
 
 function nameOrPlaceholderForExperiment(experiment: ExperimentList) {
   return experiment.name || "Unbenanntes Experiment"
@@ -31,6 +33,8 @@ function badgeTitleForExperimentStatus(status: string) {
       return "In Überprüfung"
     case "PUBLISHED":
       return "Veröffentlicht"
+    case "REJECTED":
+      return "Abgelehnt"
   }
 }
 
@@ -58,10 +62,18 @@ async function createExperiment() {
   await navigateTo(`/experiments/edit/${experiment.id}`)
   loadingNewExperiment.value = false
 }
+
+function numberOfExperimentsToReview(): string {
+  const numberOfExperimentsToReview = experimentsToReview?.value?.pagination.total ?? 0
+  return numberOfExperimentsToReview === 1
+    ? "1 Experiment"
+    : `${numberOfExperimentsToReview} Experimente`
+}
 </script>
 
 <template>
   <div v-if="user">
+    <!-- Profile -->
     <Card>
       <CardContent class="p-6">
         <div class="flex items-center flex-col sm:flex-row">
@@ -151,6 +163,34 @@ async function createExperiment() {
         </div>
       </CardContent>
     </Card>
+
+    <!-- Review Experiments -->
+    <Card
+      v-if="canReviewExperiments"
+      class="mt-4"
+    >
+      <CardContent class="p-6 text-center sm:text-start">
+        <div class="text-xl">
+          Experimente überprüfen
+        </div>
+        <p class="text-muted-foreground mt-2">
+          Es gibt {{ numberOfExperimentsToReview() }} zur Überprüfung.
+        </p>
+        <NuxtLink
+          v-if="experimentsToReview?.items?.length"
+          to="/experiments/review"
+        >
+          <Button
+            class="mt-4"
+            variant="outline"
+          >
+            Experimente überprüfen
+          </Button>
+        </NuxtLink>
+      </CardContent>
+    </Card>
+
+    <!-- Own Experiments -->
     <Card class="mt-4">
       <CardContent class="p-6">
         <div class="text-xl">
@@ -161,7 +201,7 @@ async function createExperiment() {
           :key="experiment.id"
         >
           <NuxtLink
-            :to="experiment.status === 'DRAFT' ? `/experiments/edit/${experiment.id}` : `/experiments/${experiment.slug}`"
+            :to="experiment.status === 'DRAFT' || experiment.status == 'REJECTED' ? `/experiments/edit/${experiment.id}` : `/experiments/${experiment.slug}`"
             class="no-underline"
           >
             <Card class="mt-4">
@@ -175,23 +215,27 @@ async function createExperiment() {
                       {{ badgeTitleForExperimentStatus(experiment.status) }}
                     </Badge>
                   </div>
-                  <div class="flex items-center space-x-2 pt-2 sm:pt-0">
+                  <div class="flex flex-col sm:flex-row justify-center gap-2 pt-3 sm:pt-0">
                     <Button
-                      v-if="experiment.status === 'DRAFT'"
+                      v-if="experiment.status === 'DRAFT' || experiment.status == 'REJECTED'"
                       variant="outline"
                     >
                       Bearbeiten
                     </Button>
 
-                    <Button
-                      variant="outline"
-                      class="hover:bg-destructive hover:text-white"
-                      @click="deleteExperiment(experiment.id)"
-                      @click.prevent
+                    <ConfirmDeleteAlertDialog
+                      header="Löschen bestätigen"
+                      message="Diese Aktion kann nicht rückgängig gemacht werden. Das Experiment wird dauerhaft gelöscht."
+                      :on-delete="() => deleteExperiment(experiment.id)"
                     >
-                      Löschen
-                    </Button>
-
+                      <Button
+                        variant="outline"
+                        class="hover:bg-destructive hover:text-destructive-foreground"
+                        @click.prevent
+                      >
+                        Löschen
+                      </Button>
+                    </ConfirmDeleteAlertDialog>
                   </div>
                 </div>
               </CardContent>
