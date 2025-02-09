@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, vi } from "vitest"
 import { filesIn, fileDetails } from "./data"
-import { mockUser, users } from "~~/tests/helpers/auth"
+import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
@@ -19,10 +19,10 @@ describe("Api Route /api/files/index.post", () => {
     data, expected, endpoint,
 
     body,
+    user: users.user
   })
 
   // mocks
-  mockUser(users.user)
   prisma.file.create = vi.fn().mockImplementation(async (params: {
     data: { path: string, originalName: string, mimeType: string }
   }) => {

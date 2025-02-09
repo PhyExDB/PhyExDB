@@ -9,15 +9,6 @@ vitest.stubGlobal("prisma", prisma)
 
 vitest.mock(import("~~/server/lib/loggers"))
 
-vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
-  const actual = await importOriginal()
-  return {
-    ...actual,
-    getUser: vitest.fn(),
-    getUserOrThrowError: vitest.fn(),
-  }
-})
-
 vitest.stubGlobal("useNitroApp", () => {
   return {
     domPurify: createDomPurify(),
@@ -42,6 +33,20 @@ vitest.stubGlobal("readValidatedBody", async (event: any, validator: (body: any)
 })
 vitest.stubGlobal("readBody", async (event: any) => {
   return event.body
+})
+
+vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    getUser: (event: any) => event.context.user,
+    getUserOrThrowError: (event: any) => {
+      if(!event.context.user) {
+        throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+      }
+      return event.context.user
+    },
+  }
 })
 
 // io

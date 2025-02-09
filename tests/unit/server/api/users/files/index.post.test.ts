@@ -1,7 +1,7 @@
 import { describe, expectTypeOf, vi } from "vitest"
 import { detail } from "./data"
 import { generateMock } from "@anatine/zod-mock"
-import { mockUser, users } from "~~/tests/helpers/auth"
+import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 import { v4 as uuidv4 } from "uuid"
@@ -22,10 +22,10 @@ describe("Api Route /api/files/users/index.post", () => {
     data, expected, endpoint,
 
     body,
+    user: users.user
   })
 
   // mocks
-  mockUser(users.user)
   u.mockPrismaForIdGet({data: {...detail.file, createdById: users.user.id}}, "file")
   u.mockPrismaForPost(context, "userFile")
 

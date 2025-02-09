@@ -1,6 +1,6 @@
 import { describe, expectTypeOf } from "vitest"
 import { detail } from "./data"
-import { mockUser, users } from "~~/tests/helpers/auth"
+import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
@@ -15,10 +15,10 @@ describe("Api Route GET /api/users/{id}", () => {
     data, expected, endpoint,
 
     params: { id: data.id },
+    user: users.admin
   })
 
   // mocks
-  mockUser(users.admin)
   u.mockPrismaForIdGet(context, "user")
 
   // tests

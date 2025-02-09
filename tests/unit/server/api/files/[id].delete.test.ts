@@ -1,6 +1,6 @@
 import { describe, expectTypeOf } from "vitest"
 import { files } from "./data"
-import { mockUser, users } from "~~/tests/helpers/auth"
+import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
@@ -16,10 +16,10 @@ describe("Api Route /api/files/[id].delete", () => {
     data, expected, endpoint,
 
     params: { id: data.id },
+    user: users.user,
   })
 
   // mocks
-  mockUser(users.user)
   u.mockPrismaForIdDelete(context, "file")
 
   // tests

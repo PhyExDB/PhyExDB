@@ -3,19 +3,6 @@ import { v4 as uuidv4 } from "uuid"
 import { getUser, getUserOrThrowError } from "~~/server/utils/auth"
 
 /**
- * Mocks the global `getUser` function to return a specified user detail.
- */
-export function mockUser(user: UserDetail | null): void {
-  vi.mocked(getUser).mockResolvedValue(user)
-  vi.mocked(getUserOrThrowError).mockImplementation(async (_) => {
-    if (!user) {
-      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
-    }
-    return user
-  })
-}
-
-/**
  * A collection of user objects for testing purposes.
  */
 export const users = {

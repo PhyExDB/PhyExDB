@@ -1,7 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { expect, it } from "vitest"
-import { mockUser } from "~~/tests/helpers/auth"
 
 export * from "./mock"
 
@@ -27,6 +26,7 @@ export type TestContext<Data, Expected> = {
   body: Body
   params: Params
   query: Query
+  user: UserDetail | null
 }
 
 /**
@@ -39,12 +39,14 @@ export function getTestContext<Data, Expected, T extends {
   body?: Body
   params?: Params
   query?: Query
+  user?: UserDetail | null
 }>(c: T) {
   return {
     ...c,
     body: c.body || {},
     params: c.params || {},
     query: c.query || {},
+    user: c.user || null,
   }
 }
 
@@ -56,11 +58,12 @@ export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<R
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
-export function getEvent(options: { params?: Params, body?: object, query?: Query }): Event {
+export function getEvent(options: { params?: Params, body?: object, query?: Query, user?: UserDetail | null }): Event {
   return {
     context: {
       params: options.params || {},
       query: options.query || {},
+      user: options.user || null,
     },
     body: options.body || {},
   } as unknown as Event
@@ -301,11 +304,10 @@ export async function testAuthFail<Data, Exp>(
 ) {
   it(`should_fail_auth`, async () => {
     failingUsers.forEach(async (failingUser) => {
-      mockUser(failingUser)
       const expectedStatusCode = failingUser ? 403 : 401
 
       await expectErrorObjectMatching(
-        c,
+        extendContext(c, { user: failingUser }),
         {
           statusCode: expectedStatusCode,
         },

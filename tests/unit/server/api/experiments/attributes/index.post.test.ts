@@ -1,7 +1,7 @@
 import { describe, expectTypeOf } from "vitest"
 import { generateMock } from "@anatine/zod-mock"
 import { detail } from "./data"
-import { mockUser, users } from "~~/tests/helpers/auth"
+import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
@@ -18,10 +18,10 @@ describe("Api Route /api/experiments/attributes/index.post", () => {
     data, expected, endpoint,
 
     body,
+    user: users.admin,
   })
 
   // mocks
-  mockUser(users.admin)
   u.mockPrismaForPost(context, "experimentAttribute")
 
   // tests

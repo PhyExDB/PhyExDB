@@ -1,6 +1,6 @@
 import { describe, expectTypeOf } from "vitest"
 import { lists } from "./data"
-import { mockUser, users } from "~~/tests/helpers/auth"
+import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
@@ -13,10 +13,11 @@ describe("Api Route /api/experiments/sections/index.get", () => {
 
   const context = u.getTestContext({
     data, expected, endpoint,
+    
+    user: users.guest
   })
 
   // mocks
-  mockUser(users.guest)
   u.mockPrismaForGetAll(context, "experimentSection")
 
   // tests
