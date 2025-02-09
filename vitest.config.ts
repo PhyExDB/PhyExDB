@@ -9,7 +9,7 @@ export default defineVitestConfig({
         "vitest",
       ],
       dirs: [
-        "./server/utils",
+        // "./server/utils",
       ],
       dts: true
     })
