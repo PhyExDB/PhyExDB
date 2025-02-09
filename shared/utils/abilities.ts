@@ -3,7 +3,7 @@ import type { ExperimentList, UserDetail } from "~~/shared/types"
 // selects the fields that should be able to influence the authorization
 type User = Pick<UserDetail, "id" | "role" | "emailVerified">
 type Experiment = Pick<ExperimentList, "userId" | "status">
-type File = { createdById: string }
+type File = { createdById: string | null }
 type ExperimentFile = { experimentSection: { experiment: Experiment } }
 type UserFile = { userId: string | null }
 
@@ -105,7 +105,7 @@ export const experimentFileAbilities = {
 
 /** Abilities for userFiles */
 export const userFileAbilities = {
-  post: abillityRequiringUserId(file => file.createdById) satisfies Ability<[File]>,
+  post: abillityRequiringUserId(file => file.createdById) satisfies Ability<[{ createdById: string }]>,
   delete: {
     func: (user, userFile) => userFile.userId != null && user.id === userFile.userId,
     allowGuests: false,
