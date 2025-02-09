@@ -8,7 +8,7 @@ export interface ExperimentFileList extends BaseList {
   /**
    * The description of the file.
    */
-  description: string | undefined
+  description?: string | undefined
   /**
    * The position of the file.
    */

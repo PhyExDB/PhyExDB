@@ -55,9 +55,6 @@ watch(
     <slot
       v-if="items.length === 0"
       name="empty-list"
-      :item="null"
-    >
-      <div>No items</div>
-    </slot>
+    />
   </div>
 </template>

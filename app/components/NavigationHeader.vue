@@ -13,7 +13,6 @@
     </NuxtLink>
     <!-- Spacer -->
     <div class="flex-grow" />
-    <NavigationSearch />
     <ColorModeButton />
     <!-- Add user dropdown here and put in separate component -->
     <AuthControl />

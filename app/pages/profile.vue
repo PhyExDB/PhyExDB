@@ -8,7 +8,7 @@ definePageMeta({
 })
 const user = await useUserOrThrowError()
 
-const { data: ownExperiments } = await useFetch("/api/experiments/mine")
+const { data: ownExperiments, refresh } = await useLazyFetch("/api/experiments/mine")
 
 const emailVerifiedPopoverOpen = ref(false)
 const loadingNewExperiment = ref(false)
@@ -40,6 +40,14 @@ async function sendVerificationEmail() {
     callbackURL: "/profile",
   })
   emailVerifiedPopoverOpen.value = false
+}
+
+async function deleteExperiment(id: string) {
+  await $fetch(`/api/experiments/delete/${id}`, {
+    method: "DELETE",
+  })
+
+  await refresh()
 }
 
 async function createExperiment() {
@@ -158,7 +166,7 @@ async function createExperiment() {
           >
             <Card class="mt-4">
               <CardContent class="p-4">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center flex-col sm:flex-row justify-between">
                   <div class="flex items-center space-x-2">
                     <p class="font-medium">
                       {{ nameOrPlaceholderForExperiment(experiment) }}
@@ -167,12 +175,24 @@ async function createExperiment() {
                       {{ badgeTitleForExperimentStatus(experiment.status) }}
                     </Badge>
                   </div>
-                  <Button
-                    v-if="experiment.status === 'DRAFT'"
-                    variant="outline"
-                  >
-                    Bearbeiten
-                  </Button>
+                  <div class="flex items-center space-x-2 pt-2 sm:pt-0">
+                    <Button
+                      v-if="experiment.status === 'DRAFT'"
+                      variant="outline"
+                    >
+                      Bearbeiten
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      class="hover:bg-destructive hover:text-white"
+                      @click="deleteExperiment(experiment.id)"
+                      @click.prevent
+                    >
+                      Löschen
+                    </Button>
+
+                  </div>
                 </div>
               </CardContent>
             </Card>
