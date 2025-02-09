@@ -1,6 +1,4 @@
-import { vi } from "vitest"
 import { v4 as uuidv4 } from "uuid"
-import { getUser, getUserOrThrowError } from "~~/server/utils/auth"
 
 /**
  * A collection of user objects for testing purposes.

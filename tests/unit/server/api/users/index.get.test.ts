@@ -14,7 +14,7 @@ describe("Api Route GET /api/users/index", () => {
   const context = u.getTestContext({
     data, expected, endpoint,
 
-    user: users.admin
+    user: users.admin,
   })
 
   // mocks

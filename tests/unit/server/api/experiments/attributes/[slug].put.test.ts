@@ -19,7 +19,7 @@ describe("Api Route api/experiments/attributes/[slug].put", () => {
 
     body: body,
     params: { slug: data.slug },
-    user: users.admin
+    user: users.admin,
   })
 
   // mocks

@@ -41,7 +41,7 @@ vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
     ...actual,
     getUser: (event: any) => event.context.user,
     getUserOrThrowError: (event: any) => {
-      if(!event.context.user) {
+      if (!event.context.user) {
         throw createError({ statusCode: 401, statusMessage: "Not logged in" })
       }
       return event.context.user

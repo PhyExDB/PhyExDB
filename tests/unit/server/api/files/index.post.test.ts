@@ -19,7 +19,7 @@ describe("Api Route /api/files/index.post", () => {
     data, expected, endpoint,
 
     body,
-    user: users.user
+    user: users.user,
   })
 
   // mocks

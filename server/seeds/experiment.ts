@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
-import Seed from "./seed"
 import prisma from "../lib/prisma"
+import Seed from "./seed"
 
 /**
  * Experiment seed.

@@ -1,5 +1,5 @@
-import Seed from "./seed"
 import prisma from "../lib/prisma"
+import Seed from "./seed"
 
 /**
  * Legal seed.

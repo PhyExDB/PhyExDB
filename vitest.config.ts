@@ -1,5 +1,5 @@
 import { defineVitestConfig } from "@nuxt/test-utils/config"
-import AutoImport from 'unplugin-auto-import/vite'
+import AutoImport from "unplugin-auto-import/vite"
 
 export default defineVitestConfig({
   plugins: [
@@ -11,8 +11,8 @@ export default defineVitestConfig({
       dirs: [
         "./server/utils",
       ],
-      dts: true
-    })
+      dts: true,
+    }),
   ],
   test: {
     root: "./",

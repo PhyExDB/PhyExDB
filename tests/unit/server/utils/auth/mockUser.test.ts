@@ -1,5 +1,4 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
-import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { getUser } from "~~/server/utils/auth"
 import * as u from "~~/tests/helpers/utils"

@@ -13,8 +13,8 @@ describe("Api Route GET /api/legal/index", () => {
 
   const context = u.getTestContext({
     data, expected, endpoint,
-    
-    user: users.guest
+
+    user: users.guest,
   })
 
   // mocks

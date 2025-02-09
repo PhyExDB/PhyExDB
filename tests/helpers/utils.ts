@@ -27,6 +27,7 @@ export type TestContext<Data, Expected> = {
   params: Params
   query: Query
   user: UserDetail | null
+  additionalEventProperties: object
 }
 
 /**
@@ -40,6 +41,7 @@ export function getTestContext<Data, Expected, T extends {
   params?: Params
   query?: Query
   user?: UserDetail | null
+  additionalEventProperties?: object
 }>(c: T) {
   return {
     ...c,
@@ -47,6 +49,7 @@ export function getTestContext<Data, Expected, T extends {
     params: c.params || {},
     query: c.query || {},
     user: c.user || null,
+    additionalEventProperties: c.additionalEventProperties || {},
   }
 }
 
@@ -58,7 +61,13 @@ export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<R
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
-export function getEvent(options: { params?: Params, body?: object, query?: Query, user?: UserDetail | null }): Event {
+export function getEvent(options: {
+  params?: Params
+  body?: object
+  query?: Query
+  user?: UserDetail | null
+  additionalEventProperties?: object
+}): Event {
   return {
     context: {
       params: options.params || {},
@@ -66,6 +75,7 @@ export function getEvent(options: { params?: Params, body?: object, query?: Quer
       user: options.user || null,
     },
     body: options.body || {},
+    ...options.additionalEventProperties,
   } as unknown as Event
 }
 

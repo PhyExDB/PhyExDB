@@ -21,7 +21,7 @@ const onlyAdminAbility = defineAbility(false, isAdmin)
 const noGuestsAbility = defineAbility(false, _ => true)
 const everyoneAbility = defineAbility(true, _ => true)
 function abillityRequiringUserId<T>(extractUserId: (t: T) => string | null) {
-  return defineAbility(false, (user, t: T) =>  user.id === extractUserId(t))
+  return defineAbility(false, (user, t: T) => user.id === extractUserId(t))
 }
 
 const onlyAdminCRUD = {
@@ -106,8 +106,5 @@ export const experimentFileAbilities = {
 /** Abilities for userFiles */
 export const userFileAbilities = {
   post: abillityRequiringUserId(file => file.createdById) satisfies Ability<[File]>,
-  delete: {
-    func: (user, userFile) => userFile.userId != null && user.id === userFile.userId,
-    allowGuests: false,
-  } satisfies Ability<[UserFile]>,
+  delete: abillityRequiringUserId(userFile => userFile.userId) satisfies Ability<[UserFile]>,
 }
