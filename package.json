@@ -36,7 +36,7 @@
     "dompurify": "^3.2.4",
     "embla-carousel-vue": "^8.5.2",
     "jsonwebtoken": "^9.0.2",
-    "lucide-vue-next": "^0.474.0",
+    "lucide-vue-next": "^0.475.0",
     "nuxt": "^3.15.4",
     "nuxt-tiptap-editor": "^2.1.4",
     "radix-vue": "^1.9.13",
