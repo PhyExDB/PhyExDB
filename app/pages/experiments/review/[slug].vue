@@ -75,6 +75,7 @@ async function onDelete(message: string) {
       <CardContent class="my-6 mx-4">
         <ExperimentDetail
           :experiment="experiment"
+          :showDropdown="false"
         />
       </CardContent>
     </Card>

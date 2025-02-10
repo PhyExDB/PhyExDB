@@ -4,10 +4,14 @@ try {
   user = await useUserOrThrowError()
 } catch { /* empty */ }
 
-const { experiment } = defineProps({
+const { experiment, showDropdown } = defineProps({
   experiment: {
     type: Object as PropType<ExperimentDetail>,
     required: false,
+  },
+  showDropdown: {
+    type: Boolean,
+    default: true,
   },
 })
 
@@ -55,7 +59,9 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
       <h1 class="text-4xl font-extrabold mr-2">
         {{ experiment.name }}
       </h1>
-      <DropdownMenu>
+      <DropdownMenu
+        v-if="showDropdown"
+      >
         <DropdownMenuTrigger>
           <Button
             variant="outline"
