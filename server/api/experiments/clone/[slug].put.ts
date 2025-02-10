@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
           },
           attributes: {
             connect: experiment.attributes
-              .filter(attribute => attribute.id != undefined)
+              .filter(attribute => attribute.id !== undefined)
               .map(attribute => ({
                 id: attribute.id,
               })),
