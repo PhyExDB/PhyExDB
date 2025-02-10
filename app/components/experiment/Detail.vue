@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-let user
+let user: globalThis.Ref<globalThis.UserDetail, globalThis.UserDetail>
 try {
   user = await useUserOrThrowError()
 } catch { /* empty */ }
