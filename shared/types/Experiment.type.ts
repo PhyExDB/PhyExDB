@@ -29,6 +29,14 @@ export interface ExperimentList extends SlugList {
    * The preview image of the experiment.
    */
   previewImage?: FileList
+  /**
+   * The id of the experiment this experiment revises
+   */
+  revisionOf: ExperimentList | undefined
+  /**
+   * The id of the experiment this experiment is revised by
+   */
+  revisedBy: ExperimentList | undefined
 }
 
 /**

@@ -11,8 +11,23 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "Experiment not found!" })
   }
 
+  const query = getQuery(event)
+  const revision = query.revision === "true" ? true : false
+
   const user = await authorizeUser(event, fileAbilities.post)
   authorize(event, experimentAbilities.get, experiment)
+
+  // warning: ownership is transferred when sucessfully revisioning experiment
+  // bug: preview bilder können noch überschrieben werden
+  if (revision && experiment.revisedBy) {
+    throw createError({ status: 400, message: "There can only be one revision of an experiment!" })
+  }
+  if (revision && experiment.revisionOf) {
+    throw createError({ status: 400, message: "Cannot create revisions of revisions " })
+  }
+  if (revision && experiment.status !== "PUBLISHED") {
+    throw createError({ status: 400, message: "Can only revise published experiments" })
+  }
 
   const newExperiment = await untilSlugUnique(
     async (slug: string) => {
@@ -21,13 +36,13 @@ export default defineEventHandler(async (event) => {
           name: experiment.name,
           slug: slug,
           duration: experiment.duration,
-          previewImage: experiment.previewImageId
-            ? {
-                connect: {
-                  id: experiment.previewImageId,
-                },
-              }
-            : undefined,
+          ...(experiment.previewImageId && {
+            previewImage: {
+              connect: {
+                id: experiment.previewImageId,
+              },
+            },
+          }),
           user: {
             connect: {
               id: user!.id,
@@ -61,6 +76,13 @@ export default defineEventHandler(async (event) => {
                 id: attribute.id,
               })),
           },
+          ...(revision && {
+            revisionOf: {
+              connect: {
+                id: experiment.id,
+              },
+            },
+          }),
         },
         include: experimentIncludeForToDetail,
       })
@@ -69,7 +91,7 @@ export default defineEventHandler(async (event) => {
   )
 
   setResponseStatus(event, 201)
-  return mapExperimentToDetail(newExperiment as ExperimentIncorrectDetail)
+  return mapExperimentToDetail(newExperiment as unknown as ExperimentIncorrectDetail)
 })
 
 defineRouteMeta({

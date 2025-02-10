@@ -16,9 +16,9 @@ export default defineEventHandler(async (event) => {
     },
     orderBy: [
       {
-        status: "asc",
+        status: "desc",
       }, {
-        createdAt: "desc",
+        createdAt: "asc",
       },
     ],
     include: experimentIncludeForToList,

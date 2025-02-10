@@ -20,6 +20,15 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, fileAbilities.delete, file)
 
+  const referencedExperiments = await prisma.experiment.count({
+    where: {
+      previewImageId: file.id,
+    },
+  })
+  if (referencedExperiments) {
+    return setResponseStatus(event, 204)
+  }
+
   const runtimeConfig = useRuntimeConfig()
   const filePath = `${runtimeConfig.fileMount}/${file.path}`
 

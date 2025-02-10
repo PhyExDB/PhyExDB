@@ -62,6 +62,9 @@ model Experiment {
   sections       ExperimentSectionContent[]
   attributes     ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
   comments       Comment[]
+  revisionOf     Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
+  revisedBy      Experiment?                @relation("Revision")
+  revisionOfId   String?                    @unique
   changeRequest  String?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
@@ -139,7 +142,7 @@ model ExperimentFile {
   file                File                     @relation(fields: [fileId], references: [id])
   fileId              String
   description         String?
-  experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id])
+  experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id], onDelete: Cascade)
   experimentSectionId String
   order               Int
   createdAt           DateTime                 @default(now())
@@ -152,7 +155,7 @@ model UserFile {
   id     String  @id @default(uuid())
   file   File    @relation(fields: [fileId], references: [id])
   fileId String  @unique
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String? @unique
 }
 
