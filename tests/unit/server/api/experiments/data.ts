@@ -23,11 +23,11 @@ export const lists: ExperimentList[] = [
                         value: "value",
                         slug: "value",
                     },
-                    // {
-                    //     id: uuidv4(),
-                    //     value: "value2",
-                    //     slug: "value2",
-                    // }
+                    {
+                        id: uuidv4(),
+                        value: "value2",
+                        slug: "value2",
+                    }
                 ],
             }
         ],
