@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     ...getPaginationPrismaParam(pageMeta),
     where: {
       userId: user.id,
+      revisionOf: null,
     },
     orderBy: [
       {
