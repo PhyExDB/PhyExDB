@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
       previewImageId: file.id,
     },
   })
+  console.log(referencedExperiments)
   if (referencedExperiments) {
     return setResponseStatus(event, 204)
   }
@@ -33,17 +34,19 @@ export default defineEventHandler(async (event) => {
   const filePath = `${runtimeConfig.fileMount}/${file.path}`
 
   try {
-    fs.unlinkSync(filePath)
-  } catch (error) {
-    logger.error("Failed to delete file from filesystem", { error })
-    throw createError({ status: 500, message: "Failed to delete file from filesystem" })
-  }
+    await prisma.file.delete({
+      where: {
+        id: fileId,
+      },
+    })
 
-  await prisma.file.delete({
-    where: {
-      id: fileId,
-    },
-  })
+    try {
+      fs.unlinkSync(filePath)
+    } catch (error) {
+      logger.error("Failed to delete file from filesystem", { error })
+      throw createError({ status: 500, message: "Failed to delete file from filesystem" })
+    }
+  } catch { /* don't delete file because there are multiple references to it */ }
 
   return setResponseStatus(event, 204)
 })

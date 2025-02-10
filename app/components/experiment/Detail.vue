@@ -2,7 +2,7 @@
 let user: globalThis.Ref<globalThis.UserDetail, globalThis.UserDetail>
 try {
   user = await useUserOrThrowError()
-} catch { /* empty */ }
+} catch { /* not logged in -> user is undefined */ }
 
 const { experiment, showDropdown } = defineProps({
   experiment: {
