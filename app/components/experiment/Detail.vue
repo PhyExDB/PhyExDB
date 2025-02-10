@@ -23,6 +23,21 @@ function attributeValuesString(attribute: ExperimentAttributeDetail) {
 
 const isImageFile = (mimeType: string) => mimeType.startsWith("image/")
 const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
+
+async function duplicateExperiment(experiment: ExperimentList, isRevision: boolean) {
+  try {
+    const duplicate = await $fetch(`/api/experiments/clone/${experiment.id}?revision=${isRevision}`, {
+      method: "PUT",
+    })
+    await navigateTo(`/experiments/edit/${duplicate.id}`)
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const status = (error as any).response?.status
+    if (status === 401 || status === 403) {
+      await navigateTo("/login")
+    }
+  }
+}
 </script>
 
 <template>
@@ -31,10 +46,33 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
     class="grid gap-6 lg:w-2/3 mx-auto"
   >
     <!-- Experiment Name -->
-    <div>
-      <h1 class="text-4xl font-extrabold">
+    <div class="flex items-center">
+      <h1 class="text-4xl font-extrabold mr-2">
         {{ experiment.name }}
       </h1>
+      <Popover>
+        <PopoverTrigger as-child>
+          <Button
+            variant="outline"
+            size="sm"
+            class="rounded-full p-1"
+          >
+            <Icon
+              name="heroicons:ellipsis-horizontal"
+              class="w-6 h-6 text-muted-foreground"
+            />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <Button
+            variant="outline"
+            class="w-full"
+            @click="duplicateExperiment(experiment, false)"
+          >
+            Kopie erstellen
+          </Button>
+        </PopoverContent>
+      </Popover>
     </div>
 
     <!-- Preview Image -->
