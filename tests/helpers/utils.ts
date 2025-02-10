@@ -181,7 +181,7 @@ export async function testSuccessWithSlugAndId<Data extends SlugList, Exp>(c: Te
 /**
  * Tests an endpoint function with diffrent pagination parameters.
  */
-export async function testSuccessWithPagination<T>(c: TestContext<T[], Page<T>>) {
+export async function testSuccessWithPagination<S, T>(c: TestContext<S[], Page<T>>, expectedArray: T[]) {
   it(`should_succeed`, async () => {
     const queries = [
       {},
@@ -195,7 +195,7 @@ export async function testSuccessWithPagination<T>(c: TestContext<T[], Page<T>>)
     ]
 
     for (const query of queries) {
-      const expected = page(c.data, query.page, query.pageSize)
+      const expected = page(expectedArray, query.page, query.pageSize)
       await expectSuccess(
         extendContext(c, { expected, query }),
       )
