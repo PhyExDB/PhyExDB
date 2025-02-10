@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
             files: {
               upsert: section.files.map((file, index) => ({
                 where: {
-                  fileId: file.fileId,
+                  id: file.fileId,
                 },
                 update: {
                   description: file.description,

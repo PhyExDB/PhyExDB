@@ -12,26 +12,19 @@ export default defineEventHandler(async (event) => {
   }
 
   const user = await authorizeUser(event, fileAbilities.post)
-  //authorize(event, experimentAbilities.get, experiment)
-
-  async function cloneFile(file: FileDetail) {
-    return (await $fetch("/api/files", {
-      method: "POST",
-      body: file,
-    }))[0]
-  }
+  authorize(event, experimentAbilities.get, experiment)
 
   const newExperiment = await untilSlugUnique(
     async (slug: string) => {
       return prisma.experiment.create({
         data: {
-          name: experiment.slug,
+          name: experiment.name,
           slug: slug,
           duration: experiment.duration,
-          previewImage: experiment.previewImage
+          previewImage: experiment.previewImageId
             ? {
                 connect: {
-                  id: (await cloneFile(experiment.previewImage)).id,
+                  id: experiment.previewImageId,
                 },
               }
             : undefined,
@@ -41,27 +34,25 @@ export default defineEventHandler(async (event) => {
             },
           },
           sections: {
-            create: await Promise.all(experiment.sections.map(async section => ({
+            create: experiment.sections.map(section => ({
               text: section.text,
               experimentSection: {
                 connect: {
                   id: section.experimentSection.id,
-                  slug: section.experimentSection.slug,
-                  order: section.experimentSection.order,
                 },
               },
               files: {
-                create: await Promise.all(section.files.map(async (file, index) => ({
+                create: section.files.map((file, index) => ({
                   description: file.description,
                   order: index,
                   file: {
                     connect: {
-                      id: (await cloneFile(file.file)).id,
+                      id: file.file.id,
                     },
                   },
-                }))),
+                })),
               },
-            }))),
+            })),
           },
           attributes: {
             connect: experiment.attributes
