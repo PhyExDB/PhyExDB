@@ -1,8 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
-import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { getUser } from "~~/server/utils/auth"
-import { mockUser } from "~~/tests/helpers/auth"
+import * as u from "~~/tests/helpers/utils"
 
 describe("Test mocking of signed in user", async () => {
   it("Test mocking of signed in user", async () => {
@@ -14,16 +13,7 @@ describe("Test mocking of signed in user", async () => {
       email: "user@test.test",
     }
 
-    mockUser(user)
-
-    const event = {
-      context: {
-        params: {
-        },
-      },
-      body: {},
-    } as unknown as H3Event<EventHandlerRequest>
-    const res = await getUser(event)
+    const res = await getUser(u.getEvent({ user }))
 
     expectTypeOf(res).toEqualTypeOf<UserDetail | null>()
     expect(res).toStrictEqual(user)

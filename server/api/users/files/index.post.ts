@@ -5,10 +5,7 @@ import { userFileAbilities } from "~~/shared/utils/abilities"
 export default defineEventHandler(async (event) => {
   const newUserFileContent = await readValidatedBody(event, body => userFileCreateSchema.parse(body))
 
-  const user = await getUser(event)
-  if (!user) {
-    throw createError({ status: 401, message: "Unauthorized" })
-  }
+  const user = await getUserOrThrowError(event)
 
   const file = await prisma.file.findFirst({
     where: {
@@ -20,7 +17,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "File not found" })
   }
 
-  await authorize(event, userFileAbilities.post, file)
+  await authorizeUser(event, userFileAbilities.post, file)
 
   const newUserFile = await prisma.userFile.create({
     include: {

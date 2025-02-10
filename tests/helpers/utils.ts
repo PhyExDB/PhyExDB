@@ -1,7 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { expect, it } from "vitest"
-import { mockUser } from "~~/tests/helpers/auth"
 
 export * from "./mock"
 
@@ -27,6 +26,8 @@ export type TestContext<Data, Expected> = {
   body: Body
   params: Params
   query: Query
+  user: UserDetail | null
+  additionalEventProperties: object
 }
 
 /**
@@ -39,12 +40,16 @@ export function getTestContext<Data, Expected, T extends {
   body?: Body
   params?: Params
   query?: Query
+  user?: UserDetail | null
+  additionalEventProperties?: object
 }>(c: T) {
   return {
     ...c,
     body: c.body || {},
     params: c.params || {},
     query: c.query || {},
+    user: c.user || null,
+    additionalEventProperties: c.additionalEventProperties || {},
   }
 }
 
@@ -56,13 +61,21 @@ export type EndpointResult<T extends (...args: any) => Promise<any>> = Awaited<R
 /**
  * Creates an H3Event object with the specified parameters and body.
  */
-export function getEvent(options: { params?: Params, body?: object, query?: Query }): Event {
+export function getEvent(options: {
+  params?: Params
+  body?: object
+  query?: Query
+  user?: UserDetail | null
+  additionalEventProperties?: object
+}): Event {
   return {
     context: {
       params: options.params || {},
       query: options.query || {},
+      user: options.user || null,
     },
     body: options.body || {},
+    ...options.additionalEventProperties,
   } as unknown as Event
 }
 
@@ -168,7 +181,7 @@ export async function testSuccessWithSlugAndId<Data extends SlugList, Exp>(c: Te
 /**
  * Tests an endpoint function with diffrent pagination parameters.
  */
-export async function testSuccessWithPagination<T>(c: TestContext<T[], Page<T>>) {
+export async function testSuccessWithPagination<S, T>(c: TestContext<S[], Page<T>>, expectedArray: T[]) {
   it(`should_succeed`, async () => {
     const queries = [
       {},
@@ -182,7 +195,7 @@ export async function testSuccessWithPagination<T>(c: TestContext<T[], Page<T>>)
     ]
 
     for (const query of queries) {
-      const expected = page(c.data, query.page, query.pageSize)
+      const expected = page(expectedArray, query.page, query.pageSize)
       await expectSuccess(
         extendContext(c, { expected, query }),
       )
@@ -301,11 +314,10 @@ export async function testAuthFail<Data, Exp>(
 ) {
   it(`should_fail_auth`, async () => {
     failingUsers.forEach(async (failingUser) => {
-      mockUser(failingUser)
       const expectedStatusCode = failingUser ? 403 : 401
 
       await expectErrorObjectMatching(
-        c,
+        extendContext(c, { user: failingUser }),
         {
           statusCode: expectedStatusCode,
         },

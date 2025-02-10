@@ -3,7 +3,7 @@ import type { ExperimentList, UserDetail } from "~~/shared/types"
 // selects the fields that should be able to influence the authorization
 type User = Pick<UserDetail, "id" | "role" | "emailVerified">
 type Experiment = Pick<ExperimentList, "userId" | "status">
-type File = { createdById: string }
+type File = { createdById: string | null }
 type ExperimentFile = { experimentSection: { experiment: Experiment } }
 type UserFile = { userId: string | null }
 
@@ -20,7 +20,7 @@ const minModerator = (user: User) => user.role === "MODERATOR" || user.role === 
 const onlyAdminAbility = defineAbility(false, isAdmin)
 const noGuestsAbility = defineAbility(false, _ => true)
 const everyoneAbility = defineAbility(true, _ => true)
-function abillityRequiringUserId<T>(extractUserId: (t: T) => string) {
+function abillityRequiringUserId<T>(extractUserId: (t: T) => string | null) {
   return defineAbility(false, (user, t: T) => user.id === extractUserId(t))
 }
 
@@ -76,6 +76,10 @@ export const experimentAbilities = {
     func: user => minModerator(user),
     allowGuests: false,
   },
+  delete: {
+    func: (user, experiment) => user.role === "ADMIN" || user.id === experiment.userId,
+    allowGuests: false,
+  },
 } satisfies CRUD<Experiment> & { listOwn?: Ability<[]> } & { review?: Ability<[]> }
 
 /** Abilities for files */
@@ -106,8 +110,5 @@ export const experimentFileAbilities = {
 /** Abilities for userFiles */
 export const userFileAbilities = {
   post: abillityRequiringUserId(file => file.createdById) satisfies Ability<[File]>,
-  delete: {
-    func: (user, userFile) => userFile.userId != null && user.id === userFile.userId,
-    allowGuests: false,
-  } satisfies Ability<[UserFile]>,
+  delete: abillityRequiringUserId(userFile => userFile.userId) satisfies Ability<[UserFile]>,
 }

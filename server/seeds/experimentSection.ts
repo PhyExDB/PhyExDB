@@ -1,3 +1,4 @@
+import prisma from "../lib/prisma"
 import Seed from "./seed"
 import slugify from "~~/server/utils/slugify"
 

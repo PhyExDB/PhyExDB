@@ -5,40 +5,34 @@ import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
-import endpoint from "~~/server/api/experiments/attributes/[slug].put"
+import endpoint from "~~/server/api/experiments/attributes/values/index.post"
 
-describe("Api Route api/experiments/attributes/[slug].put", () => {
+describe("Api Route /api/experiments/attributes/values/index.post", () => {
   // definitions
-  const body = generateMock(experimentAttributeUpdateSchema)
+  const body = generateMock(experimentAttributeValueCreateSchema)
 
-  const data = detail
-  const expected = { ...data, ...body }
+  const data = undefined
+  const expected = detail
 
   const context = u.getTestContext({
     data, expected, endpoint,
 
-    body: body,
-    params: { slug: data.slug },
+    body,
     user: users.admin,
   })
 
   // mocks
-  u.mockPrismaForSlugOrIdPut(context, "experimentAttribute")
+  u.mockPrismaForPost(context, "experimentAttributeValue")
 
   // tests
   {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    u.testSuccessWithSlugAndId(context)
+    u.testSuccess(context)
 
-    u.testSlugFails(context)
-    u.testZodFail(context, [
-      {
-        body: { },
-      },
-    ])
+    u.testZodFailWithEmptyBody(context)
     // needs to be last, because it changes the user mock
-    u.testAuthFail(context, [users.guest, users.user, users.mod])
+    u.testAuthFail(context, [users.guest, users.user])
   }
 })

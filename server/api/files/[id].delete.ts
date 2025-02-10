@@ -1,14 +1,13 @@
-import fs from "fs"
 import { fileAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
+import { getIdPrismaWhereClause } from "~~/server/utils/utils"
+import { myDeleteFile } from "~~/server/utils/files"
 
 export default defineEventHandler(async (event) => {
-  const fileId = getRouterParam(event, "id")
+  const where = getIdPrismaWhereClause(event)
 
   const file = await prisma.file.findFirst({
-    where: {
-      id: fileId,
-    },
+    where,
     include: {
       createdBy: true,
     },
@@ -23,17 +22,10 @@ export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig()
   const filePath = `${runtimeConfig.fileMount}/${file.path}`
 
-  try {
-    fs.unlinkSync(filePath)
-  } catch (error) {
-    logger.error("Failed to delete file from filesystem", { error })
-    throw createError({ status: 500, message: "Failed to delete file from filesystem" })
-  }
+  myDeleteFile(filePath)
 
   await prisma.file.delete({
-    where: {
-      id: fileId,
-    },
+    where,
   })
 
   return setResponseStatus(event, 204)
