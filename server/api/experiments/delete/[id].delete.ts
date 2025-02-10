@@ -1,20 +1,18 @@
 export default defineEventHandler(async (event) => {
-  const experimentId = getRouterParam(event, "id")
+  const where = getIdPrismaWhereClause(event)
 
   const experiment = await prisma.experiment.findUnique({
-    where: {
-      id: experimentId,
-    },
+    where,
   })
 
   if (experiment === null) {
     throw createError({ status: 404, message: "Experiment to delete not found" })
   }
 
+  await authorize(event, experimentAbilities.delete, experiment)
+
   await prisma.experiment.delete({
-    where: {
-      id: experimentId,
-    },
+    where,
   })
 
   return setResponseStatus(event, 204)

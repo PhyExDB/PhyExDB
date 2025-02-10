@@ -15,6 +15,7 @@ describe("Api Route PUT /api/experiments/review/[slug].post", () => {
     ...detailDb,
     status: "IN_REVIEW",
   }
+  /* eslint-disable @typescript-eslint/no-invalid-void-type */
   const expected: void = undefined
 
   const context = u.getTestContext({

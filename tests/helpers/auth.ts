@@ -11,6 +11,13 @@ export const users = {
     email: "user@test.test",
     emailVerified: true,
   },
+  user2: {
+    id: uuidv4(),
+    name: "User2",
+    role: "USER",
+    email: "user2@test.test",
+    emailVerified: true,
+  },
   mod: {
     id: uuidv4(),
     name: "Moderator",

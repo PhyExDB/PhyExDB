@@ -76,6 +76,10 @@ export const experimentAbilities = {
     func: user => minModerator(user),
     allowGuests: false,
   },
+  delete: {
+    func: (user, experiment) => user.role === "ADMIN" || user.id === experiment.userId,
+    allowGuests: false,
+  },
 } satisfies CRUD<Experiment> & { listOwn?: Ability<[]> } & { review?: Ability<[]> }
 
 /** Abilities for files */
