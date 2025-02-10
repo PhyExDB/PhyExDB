@@ -50,7 +50,7 @@ export const lists: ExperimentList[] = [
 ]
 
 /** A resource detail */
-export const detail = {
+export const detail: ExperimentDetail = {
     ...lists[0]!,
     sections: [{
         id: uuidv4(),
@@ -64,19 +64,29 @@ export const detail = {
         }
     }],
     changeRequest: undefined,
-} satisfies ExperimentDetail
+}
+
+function attributesToDb(attributes: ExperimentList["attributes"]): ExperimentIncorrectList["attributes"] {
+    return attributes.flatMap((attr) => {
+        return attr.values.map((val) => {
+            return {
+                attribute: attr,
+                ...val,
+            }
+        })
+    }).sort((a, b) => a.attribute.order - b.attribute.order)
+}
 
 /** the lists in db */
 export const listsDb = lists.map((exp) => {
     return {
         ...exp,
-        attributes: exp.attributes.flatMap((attr) => {
-            return attr.values.map((val) => {
-                return {
-                    attribute: attr,
-                    ...val,
-                }
-            })
-        }).sort((a, b) => a.attribute.order - b.attribute.order),
+        attributes: attributesToDb(exp.attributes),
     }
 }) satisfies ExperimentIncorrectList[]
+
+/** the detail in db */
+export const detailDb = {
+    ...detail,
+    attributes: attributesToDb(detail.attributes),
+}
