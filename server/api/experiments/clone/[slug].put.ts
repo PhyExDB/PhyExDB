@@ -18,7 +18,6 @@ export default defineEventHandler(async (event) => {
   authorize(event, experimentAbilities.get, experiment)
 
   // warning: ownership is transferred when sucessfully revisioning experiment
-  // bug: preview bilder können noch überschrieben werden
   if (revision && experiment.revisedBy) {
     throw createError({ status: 400, message: "There can only be one revision of an experiment!" })
   }
