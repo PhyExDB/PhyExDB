@@ -33,10 +33,10 @@ describe("Api Route api/experiments/[slug].put", async () => {
   u.mockPrismaForSlugOrIdPut(context, "experiment")
   prisma.$transaction = vi.fn().mockResolvedValue([undefined, detailDb])
   prisma.experimentFile.deleteMany = vi.fn()
-  vi.stubGlobal("$fetch", async (path: any) => {
-    if(path === "/api/experiments/sections") {
+  vi.stubGlobal("$fetch", async (path: string) => {
+    if (path === "/api/experiments/sections") {
       return sections
-    } else if(path === "/api/experiments/attributes") {
+    } else if (path === "/api/experiments/attributes") {
       return attributes
     }
   })

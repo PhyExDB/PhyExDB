@@ -19,7 +19,7 @@ describe("Api Route /api/experiments/index.post", () => {
 
   // mocks
   u.mockPrismaForPost({ ...context, expected: detailDb }, "experiment")
-  vi.stubGlobal("$fetch", async (path: any) => {
+  vi.stubGlobal("$fetch", async (_: string) => {
     return []
   })
 
