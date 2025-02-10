@@ -34,17 +34,9 @@ export default defineEventHandler(async (event) => {
 
   try {
     await prisma.file.delete({
-      where: {
-        id: fileId,
-      },
+      where,
     })
-
-    try {
-      fs.unlinkSync(filePath)
-    } catch (error) {
-      logger.error("Failed to delete file from filesystem", { error })
-      throw createError({ status: 500, message: "Failed to delete file from filesystem" })
-    }
+    myDeleteFile(filePath)
   } catch {
     // don't delete file because there are multiple references to it
   }
