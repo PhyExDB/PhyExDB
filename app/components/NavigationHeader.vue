@@ -7,9 +7,19 @@
   >
     <NuxtLink
       href="/"
-      class="text-sm font-medium transition-colors hover:text-primary"
+      class="text-xl font-medium transition-colors hover:text-primary"
     >
-      Logo / Home
+      <div class="flex flex-row items-center space-x-2">
+        <NuxtImg
+          src="/Logo.png"
+          alt="Logo"
+          width="40"
+          height="40"
+        />
+        <p>
+          <span class="font-bold">PhyEx</span><span class="text-accent">DB</span>
+        </p>
+      </div>
     </NuxtLink>
     <!-- Spacer -->
     <div class="flex-grow" />
