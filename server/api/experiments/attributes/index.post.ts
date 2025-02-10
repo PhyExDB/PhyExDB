@@ -23,7 +23,6 @@ export default defineEventHandler(async (event) => {
             create: content.values.map(value => ({
               value: value,
               slug: slug,
-              order: numberOfAttributes,
             })),
           },
         },

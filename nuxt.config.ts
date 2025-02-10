@@ -49,6 +49,11 @@ export default defineNuxtConfig({
       openAPI: true,
       tasks: true,
     },
+    imports: {
+      dirs: [
+        "server/lib",
+      ],
+    },
   },
 
   vite: {

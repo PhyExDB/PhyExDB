@@ -1,5 +1,6 @@
 import PrismaInternals from "@prisma/internals"
 import PrismaMigrate from "@prisma/migrate"
+import { logger } from "~~/server/lib/loggers"
 
 export default defineTask({
   meta: {

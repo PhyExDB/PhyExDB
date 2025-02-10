@@ -1,17 +1,12 @@
 import { userFileAbilities } from "~~/shared/utils/abilities"
 
 export default defineEventHandler(async (event) => {
-  const userFileId = getRouterParam(event, "id")
+  await getUserOrThrowError(event)
 
-  const user = await getUser(event)
-  if (!user) {
-    throw createError({ status: 401, message: "Unauthorized" })
-  }
+  const where = getIdPrismaWhereClause(event)
 
   const userFile = await prisma.userFile.findFirst({
-    where: {
-      id: userFileId,
-    },
+    where,
     include: {
       user: true,
     },
@@ -21,19 +16,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: "User file not found" })
   }
 
-  await authorize(event, userFileAbilities.delete, userFile)
+  await authorizeUser(event, userFileAbilities.delete, userFile)
 
   const deletedUserFile = await prisma.userFile.delete({
-    where: {
-      id: userFileId,
-    },
+    where,
   })
 
+  /* eslint-disable @typescript-eslint/no-invalid-void-type */
   // Using event.$fetch forwards headers like Authorization
   // @ts-expect-error: Excessive stack depth
   return await event.$fetch("/api/files/" + deletedUserFile.fileId, {
     method: "DELETE",
-  })
+  }) satisfies void
 })
 
 defineRouteMeta({

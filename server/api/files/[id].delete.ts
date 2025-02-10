@@ -1,14 +1,13 @@
-import fs from "fs"
 import { fileAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
+import { getIdPrismaWhereClause } from "~~/server/utils/utils"
+import { myDeleteFile } from "~~/server/utils/files"
 
 export default defineEventHandler(async (event) => {
-  const fileId = getRouterParam(event, "id")
+  const where = getIdPrismaWhereClause(event)
 
   const file = await prisma.file.findFirst({
-    where: {
-      id: fileId,
-    },
+    where,
     include: {
       createdBy: true,
     },

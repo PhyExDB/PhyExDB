@@ -3,6 +3,7 @@ import ExperimentAttributeSeed from "~~/server/seeds/experimentAttribute"
 import ExperimentSectionSeed from "~~/server/seeds/experimentSection"
 import LegalSeed from "~~/server/seeds/legal"
 import UserSeed from "~~/server/seeds/user"
+import { logger } from "~~/server/lib/loggers"
 
 export default defineTask({
   meta: {

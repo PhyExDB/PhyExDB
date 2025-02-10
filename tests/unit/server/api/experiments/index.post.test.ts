@@ -1,28 +1,27 @@
-import { describe, expectTypeOf } from "vitest"
-import { generateMock } from "@anatine/zod-mock"
-import { detail } from "./data"
+import { describe, expectTypeOf, vi } from "vitest"
+import { detail, detailDb } from "./data"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
-import endpoint from "~~/server/api/experiments/attributes/index.post"
+import endpoint from "~~/server/api/experiments/index.post"
 
-describe("Api Route /api/experiments/attributes/index.post", () => {
+describe("Api Route /api/experiments/index.post", () => {
   // definitions
-  const body = generateMock(experimentAttributeCreateSchema)
-
   const data = undefined
   const expected = detail
 
   const context = u.getTestContext({
     data, expected, endpoint,
 
-    body,
-    user: users.admin,
+    user: users.user,
   })
 
   // mocks
-  u.mockPrismaForPost(context, "experimentAttribute")
+  u.mockPrismaForPost({ ...context, expected: detailDb }, "experiment")
+  vi.stubGlobal("$fetch", async (_: string) => {
+    return []
+  })
 
   // tests
   {
@@ -31,8 +30,7 @@ describe("Api Route /api/experiments/attributes/index.post", () => {
 
     u.testSuccess(context)
 
-    u.testZodFailWithEmptyBody(context)
     // needs to be last, because it changes the user mock
-    u.testAuthFail(context, [users.guest, users.user])
+    u.testAuthFail(context, [users.guest, users.unverified])
   }
 })
