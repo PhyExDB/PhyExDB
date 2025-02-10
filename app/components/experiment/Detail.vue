@@ -1,4 +1,9 @@
 <script lang="ts" setup>
+let user
+try {
+  user = await useUserOrThrowError()
+} catch { /* empty */ }
+
 const { experiment } = defineProps({
   experiment: {
     type: Object as PropType<ExperimentDetail>,
@@ -50,8 +55,8 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
       <h1 class="text-4xl font-extrabold mr-2">
         {{ experiment.name }}
       </h1>
-      <Popover>
-        <PopoverTrigger as-child>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
           <Button
             variant="outline"
             size="sm"
@@ -62,17 +67,33 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
               class="w-6 h-6 text-muted-foreground"
             />
           </Button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <Button
-            variant="outline"
-            class="w-full"
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem
             @click="duplicateExperiment(experiment, false)"
           >
-            Kopie erstellen
-          </Button>
-        </PopoverContent>
-      </Popover>
+            <span>
+              Kopie erstellen
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            v-if="user.id === experiment.userId && !experiment.revisedBy"
+            @click="duplicateExperiment(experiment, true)"
+          >
+            <span>
+              Überarbeiten
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            v-if="user.id === experiment.userId && experiment.revisedBy"
+            @click="navigateTo(`/experiments/edit/${experiment.revisedBy.id}`)"
+          >
+            <span>
+              Zur Überarbeitung
+            </span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
 
     <!-- Preview Image -->
