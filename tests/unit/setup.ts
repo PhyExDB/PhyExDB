@@ -31,6 +31,10 @@ vitest.stubGlobal("getRouterParam", (event: any, paramName: string) => {
   return event.context.params[paramName]
 })
 
+vitest.stubGlobal("getQuery", (event: any) => {
+  return event.context.query
+})
+
 vitest.stubGlobal("readValidatedBody", async (event: any, validator: (body: any) => any) => {
   return validator(event.body)
 })

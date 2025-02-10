@@ -30,6 +30,10 @@ export interface LegalDocumentDetail extends LegalDocumentList {
  * Schema for validating updates to a legal document.
  */
 export const legalDocumentUpdateSchema = z.object({
-  name: z.string().trim().nonempty("Please enter a name."),
-  text: z.string().trim().nonempty("Please enter some content."),
+  name: z.string({ message: "Bitte einen Namen eingeben." }).trim().nonempty("Bitte einen Namen eingeben."),
+  text: z.string({ message: "Bitte einen Inhalt eingeben." }).trim().nonempty("Bitte einen Inhalt eingeben."),
+}).refine((value) => {
+  return value.name !== undefined && value.text !== undefined
+}, {
+  message: "Name und Inhalt dürfen nicht leer sein.",
 })

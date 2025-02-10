@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue"
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const { toast } = useToast()
@@ -12,6 +13,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "changed", updated: { role: UserRole }): void
 }>()
+
+const user = await useUser()
+const canChangeRole = computed(() => user.value?.id !== props.id)
 
 const position = ref<UserRole>(props.role)
 watch(position, async (newVal) => {
@@ -35,13 +39,17 @@ watch(position, async (newVal) => {
         <div class="flex flex-nowrap">
           <span>{{ capitalizeFirstLetter(props.role) }}</span>
           <Icon
+            v-if="canChangeRole"
             size="1.2em"
             class="m-0.5 ml-1"
             name="heroicons:pencil"
           />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent class="w-56">
+      <DropdownMenuContent
+        v-if="canChangeRole"
+        class="w-56"
+      >
         <DropdownMenuRadioGroup v-model="position">
           <DropdownMenuRadioItem value="USER">
             User

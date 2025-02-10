@@ -1,40 +1,38 @@
-import { describe, expect, vi, it, expectTypeOf } from "vitest"
-import { v4 as uuidv4 } from "uuid"
-import type { H3Event } from "h3"
-import addValue from "~~/server/api/experiments/attributes/index.post"
-import { mockUser, user } from "~~/tests/helpers/auth"
+import { describe, expectTypeOf } from "vitest"
+import { generateMock } from "@anatine/zod-mock"
+import { detail } from "./data"
+import { mockUser, users } from "~~/tests/helpers/auth"
+import type { EndpointResult } from "~~/tests/helpers/utils"
+import * as u from "~~/tests/helpers/utils"
 
-mockUser(user.admin)
+import endpoint from "~~/server/api/experiments/attributes/index.post"
 
-describe("API Route POST /api/experiments/attributes", () => {
-  it("should add an value successfully", async () => {
-    const mockAttributeValue = {
-      id: uuidv4(),
-      value: "Value 1",
-      slug: "value-1",
-    }
-    const mockAttribute = {
-      id: uuidv4(),
-      name: "name",
-      slug: "name",
-      values: [mockAttributeValue],
-    }
-    const addContent = {
-      name: "New Value",
-      values: ["a", "b"],
-      multipleSelection: false,
-    }
+describe("Api Route /api/experiments/attributes/index.post", () => {
+  // definitions
+  const body = generateMock(experimentAttributeCreateSchema)
 
-    prisma.experimentAttribute.create = vi.fn().mockResolvedValue(
-      mockAttribute,
-    )
-    const event = {
-      body: addContent,
-    } as unknown as H3Event
+  const data = undefined
+  const expected = detail
 
-    const response = await addValue(event)
+  const context = u.getTestContext({
+    data, expected, endpoint,
 
-    expectTypeOf(response).toEqualTypeOf<ExperimentAttributeDetail>()
-    expect(response).toStrictEqual(mockAttribute)
+    body,
   })
+
+  // mocks
+  mockUser(users.admin)
+  u.mockPrismaForPost(context, "experimentAttribute")
+
+  // tests
+  {
+    // type test
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
+
+    u.testSuccess(context)
+
+    u.testZodFailWithEmptyBody(context)
+    // needs to be last, because it changes the user mock
+    u.testAuthFail(context, [users.guest, users.user])
+  }
 })
