@@ -52,7 +52,10 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
     <!-- Carousel for Multiple Items -->
     <div v-else>
       <!-- Main Carousel -->
-      <Carousel class="max-w-full max-h-96">
+      <Carousel
+        class="max-w-full max-h-96"
+        @init-api="(val) => emblaMainApi = val"
+      >
         <CarouselContent class="!-ml-0 shrink">
           <CarouselItem
             v-for="(item, index) in items"
