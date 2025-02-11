@@ -17,10 +17,11 @@ const { data: experimentsToReview } = await useLazyFetch("/api/experiments/in-re
 
 <template>
   <div>
-    <h2 class="text-4xl font-extrabold">
-      Zu überprüfende Experimente
-    </h2>
-    <div v-if="experimentsToReview">
+    <!-- Experiments to show -->
+    <div v-if="experimentsToReview && experimentsToReview.pagination.total > 0">
+      <h2 class="text-4xl font-extrabold">
+        Zu überprüfende Experimente
+      </h2>
       <template
         v-for="experiment in experimentsToReview.items"
         :key="experiment.id"
@@ -50,10 +51,24 @@ const { data: experimentsToReview } = await useLazyFetch("/api/experiments/in-re
         </NuxtLink>
       </template>
     </div>
-
     <MyPagination
       v-model="page"
       :page-meta="experimentsToReview?.pagination"
     />
+
+    <!-- No experiments to show -->
+    <div
+      v-if="!experimentsToReview || experimentsToReview.pagination.total === 0"
+      class="flex items-center justify-center min-h-screen"
+    >
+      <div class="flex flex-col items-center space-y-4 text-gray-400">
+        <h1 class="text-2xl">
+          Es gibt keine Experimente mehr zu überprüfen
+        </h1>
+        <Button>
+          <NuxtLink to="/profile">Zurück zum Profil</NuxtLink>
+        </Button>
+      </div>
+    </div>
   </div>
 </template>

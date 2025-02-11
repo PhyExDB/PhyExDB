@@ -20,13 +20,36 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 400, message: "Experiment is not in review!" })
   }
 
-  await prisma.experiment.update({
-    where: { id: experiment.id },
-    data: {
-      status: reviewContent.approve ? "PUBLISHED" : "REJECTED",
-      changeRequest: reviewContent.message,
-    },
-  })
+  if (reviewContent.approve) {
+    // Delete old version if revision
+    const isRevision = experiment.revisionOf !== null
+    if (isRevision) {
+      await prisma.experiment.delete({
+        where: {
+          id: experiment.revisionOf?.id,
+        },
+      })
+    }
+    // Publish new version under same slug if the title is the same
+    await prisma.experiment.update({
+      where: { id: experiment.id },
+      data: {
+        status: "PUBLISHED",
+        slug: experiment.name === experiment.revisionOf?.name
+          ? experiment.revisionOf?.slug
+          : experiment.slug,
+      },
+    })
+  } else {
+    // Reject experiment with change request
+    await prisma.experiment.update({
+      where: { id: experiment.id },
+      data: {
+        status: "REJECTED",
+        changeRequest: reviewContent.message,
+      },
+    })
+  }
 })
 
 defineRouteMeta({

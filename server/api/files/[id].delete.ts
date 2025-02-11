@@ -19,14 +19,27 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, fileAbilities.delete, file)
 
+  const referencedExperiments = await prisma.experiment.count({
+    where: {
+      previewImageId: file.id,
+    },
+  })
+
+  if (referencedExperiments) {
+    return setResponseStatus(event, 204)
+  }
+
   const runtimeConfig = useRuntimeConfig()
   const filePath = `${runtimeConfig.fileMount}/${file.path}`
 
-  myDeleteFile(filePath)
-
-  await prisma.file.delete({
-    where,
-  })
+  try {
+    await prisma.file.delete({
+      where,
+    })
+    myDeleteFile(filePath)
+  } catch {
+    // don't delete file because there are multiple references to it
+  }
 
   return setResponseStatus(event, 204)
 })

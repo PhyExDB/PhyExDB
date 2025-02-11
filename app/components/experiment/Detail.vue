@@ -1,8 +1,14 @@
 <script lang="ts" setup>
-const { experiment } = defineProps({
+const user = await useUser()
+
+const { experiment, showDropdown } = defineProps({
   experiment: {
     type: Object as PropType<ExperimentDetail>,
     required: false,
+  },
+  showDropdown: {
+    type: Boolean,
+    default: true,
   },
 })
 
@@ -23,6 +29,21 @@ function attributeValuesString(attribute: ExperimentAttributeDetail) {
 
 const isImageFile = (mimeType: string) => mimeType.startsWith("image/")
 const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
+
+async function duplicateExperiment(experiment: ExperimentList, isRevision: boolean) {
+  try {
+    const duplicate = await $fetch(`/api/experiments/clone/${experiment.id}?revision=${isRevision}`, {
+      method: "PUT",
+    })
+    await navigateTo(`/experiments/edit/${duplicate.id}`)
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const status = (error as any).response?.status
+    if (status === 401 || status === 403) {
+      await navigateTo("/login")
+    }
+  }
+}
 </script>
 
 <template>
@@ -31,10 +52,51 @@ const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
     class="grid gap-6 lg:w-2/3 mx-auto"
   >
     <!-- Experiment Name -->
-    <div>
-      <h1 class="text-4xl font-extrabold">
+    <div class="flex items-center">
+      <h1 class="text-4xl font-extrabold mr-2">
         {{ experiment.name }}
       </h1>
+      <DropdownMenu
+        v-if="showDropdown"
+      >
+        <DropdownMenuTrigger>
+          <Button
+            variant="outline"
+            size="sm"
+            class="rounded-full p-1"
+          >
+            <Icon
+              name="heroicons:ellipsis-horizontal"
+              class="w-6 h-6 text-muted-foreground"
+            />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            @click="duplicateExperiment(experiment, false)"
+          >
+            <span>
+              Kopie erstellen
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            v-if="user.id === experiment.userId && !experiment.revisedBy"
+            @click="duplicateExperiment(experiment, true)"
+          >
+            <span>
+              Überarbeiten
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            v-if="user.id === experiment.userId && experiment.revisedBy"
+            @click="navigateTo(`/experiments/edit/${experiment.revisedBy.id}`)"
+          >
+            <span>
+              Zur Überarbeitung
+            </span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
 
     <!-- Preview Image -->

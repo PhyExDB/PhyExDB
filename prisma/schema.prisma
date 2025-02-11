@@ -58,10 +58,13 @@ model Experiment {
   status         ExperimentStatus           @default(DRAFT)
   duration       Int
   previewImage   File?                      @relation(fields: [previewImageId], references: [id])
-  previewImageId String?                    @unique
+  previewImageId String?
   sections       ExperimentSectionContent[]
   attributes     ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
   comments       Comment[]
+  revisionOf     Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
+  revisedBy      Experiment?                @relation("Revision")
+  revisionOfId   String?                    @unique
   changeRequest  String?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
@@ -125,8 +128,8 @@ model File {
   originalName          String
   path                  String
   mimeType              String
-  experimentFile        ExperimentFile?
-  experimentPreviewFile Experiment?
+  experimentFile        ExperimentFile[]
+  experimentPreviewFile Experiment[]
   userFile              UserFile?
   createdBy             User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById           String?
@@ -137,9 +140,9 @@ model File {
 model ExperimentFile {
   id                  String                   @id @default(uuid())
   file                File                     @relation(fields: [fileId], references: [id])
-  fileId              String                   @unique
+  fileId              String
   description         String?
-  experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id])
+  experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id], onDelete: Cascade)
   experimentSectionId String
   order               Int
   createdAt           DateTime                 @default(now())
@@ -152,7 +155,7 @@ model UserFile {
   id     String  @id @default(uuid())
   file   File    @relation(fields: [fileId], references: [id])
   fileId String  @unique
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String? @unique
 }
 

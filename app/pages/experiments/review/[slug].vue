@@ -59,10 +59,23 @@ async function onDelete(message: string) {
     <h2 class="text-4xl font-extrabold pb-4">
       Zu überprüfendes Experiment
     </h2>
+    <h3
+      v-if="experiment?.revisionOf"
+      class="text-2xl font-bold pb-4"
+    >
+      Dies ist eine Überarbeitung von
+      <NuxtLink
+        :to="`/experiments/${experiment?.revisionOf?.slug}`"
+        class="underline"
+      >
+        {{ experiment?.revisionOf?.name }}
+      </NuxtLink>
+    </h3>
     <Card>
       <CardContent class="my-6 mx-4">
         <ExperimentDetail
           :experiment="experiment"
+          :showDropdown="false"
         />
       </CardContent>
     </Card>

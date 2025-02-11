@@ -69,6 +69,13 @@ function numberOfExperimentsToReview(): string {
     ? "1 Experiment"
     : `${numberOfExperimentsToReview} Experimente`
 }
+
+async function duplicateExperiment(experiment: ExperimentList, isRevision: boolean) {
+  await $fetch(`/api/experiments/clone/${experiment.id}?revision=${isRevision}`, {
+    method: "PUT",
+  })
+  await refresh()
+}
 </script>
 
 <template>
@@ -200,47 +207,20 @@ function numberOfExperimentsToReview(): string {
           v-for="experiment in ownExperiments?.items ?? []"
           :key="experiment.id"
         >
-          <NuxtLink
-            :to="experiment.status === 'DRAFT' || experiment.status == 'REJECTED' ? `/experiments/edit/${experiment.id}` : `/experiments/${experiment.slug}`"
-            class="no-underline"
+          <Card
+            v-if="!experiment.revisionOf"
+            class="mt-4"
           >
-            <Card class="mt-4">
-              <CardContent class="p-4">
-                <div class="flex items-center flex-col sm:flex-row justify-between">
-                  <div class="flex items-center space-x-2">
-                    <p class="font-medium">
-                      {{ nameOrPlaceholderForExperiment(experiment) }}
-                    </p>
-                    <Badge variant="secondary">
-                      {{ badgeTitleForExperimentStatus(experiment.status) }}
-                    </Badge>
-                  </div>
-                  <div class="flex flex-col sm:flex-row justify-center gap-2 pt-3 sm:pt-0">
-                    <Button
-                      v-if="experiment.status === 'DRAFT' || experiment.status == 'REJECTED'"
-                      variant="outline"
-                    >
-                      Bearbeiten
-                    </Button>
-
-                    <ConfirmDeleteAlertDialog
-                      header="Löschen bestätigen"
-                      message="Diese Aktion kann nicht rückgängig gemacht werden. Das Experiment wird dauerhaft gelöscht."
-                      :on-delete="() => deleteExperiment(experiment.id)"
-                    >
-                      <Button
-                        variant="outline"
-                        class="hover:bg-destructive hover:text-destructive-foreground"
-                        @click.prevent
-                      >
-                        Löschen
-                      </Button>
-                    </ConfirmDeleteAlertDialog>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </NuxtLink>
+            <CardContent class="p-4">
+              <ExperimentRow
+                :experiment="experiment"
+                :name-or-placeholder-for-experiment="nameOrPlaceholderForExperiment"
+                :badge-title-for-experiment-status="badgeTitleForExperimentStatus"
+                :delete-experiment="deleteExperiment"
+                :duplicate-experiment="duplicateExperiment"
+              />
+            </CardContent>
+          </Card>
         </template>
         <Button
           v-if="canCreateExperiment"

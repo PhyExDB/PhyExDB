@@ -13,12 +13,13 @@ export default defineEventHandler(async (event) => {
     ...getPaginationPrismaParam(pageMeta),
     where: {
       userId: user.id,
+      revisionOf: null,
     },
     orderBy: [
       {
-        status: "asc",
+        status: "desc",
       }, {
-        createdAt: "desc",
+        createdAt: "asc",
       },
     ],
     include: experimentIncludeForToList,
