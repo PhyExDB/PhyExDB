@@ -44,6 +44,30 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
     }
   }
 }
+
+const router = useRouter()
+const canGoBack = ref(false)
+
+onMounted(() => {
+  canGoBack.value = window.history.length > 1
+})
+
+const showDeleteDialog = ref(false)
+async function deleteExperiment(experiment: ExperimentList) {
+  try {
+    await $fetch(`/api/experiments/delete/${experiment.id}`, {
+      method: "DELETE",
+    })
+    await navigateTo("/experiments")
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const status = (error as any).response?.status
+    if (status === 401) {
+      await navigateTo("/login")
+    }
+    throw error
+  }
+}
 </script>
 
 <template>
@@ -51,6 +75,17 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
     v-if="experiment"
     class="grid gap-6 lg:w-2/3 mx-auto"
   >
+    <Button
+      variant="outline"
+      :disabled="!canGoBack"
+      @click="router.back"
+    >
+      <Icon
+        name="heroicons:arrow-left"
+        class="w-4 h-4 mr-2"
+      />
+      Zurück
+    </Button>
     <!-- Experiment Name -->
     <div class="flex items-center">
       <h1 class="text-4xl font-extrabold mr-2">
@@ -59,7 +94,7 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
       <DropdownMenu
         v-if="showDropdown"
       >
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger as-child>
           <Button
             variant="outline"
             size="sm"
@@ -95,8 +130,23 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
               Zur Überarbeitung
             </span>
           </DropdownMenuItem>
+          <DropdownMenuItem
+            v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
+            class="text-destructive"
+            @click="showDeleteDialog = true"
+          >
+            <span>
+              Löschen
+            </span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <ConfirmDeleteAlertDialogBool
+        v-model="showDeleteDialog"
+        :on-delete="() => deleteExperiment(experiment)"
+        header="Experiment löschen?"
+      />
     </div>
 
     <!-- Preview Image -->

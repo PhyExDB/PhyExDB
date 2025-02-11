@@ -13,12 +13,11 @@ const emailVerified = user.value?.emailVerified
 
 const loading = ref(false)
 
-const route = useRoute()
-const experimentId = route.params.id as string
+const experimentId = getId()
 const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${experimentId}`)
 
 if (!experiment.value) {
-  showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+  throw showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
 }
 if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECTED") {
   await navigateTo(`/experiments/${experimentId}`)
@@ -58,6 +57,31 @@ const form = useForm({
       }
     }) ?? [],
   },
+})
+
+let formValuesClone = JSON.stringify(form.values)
+const formChanged = toRef(() => {
+  return formValuesClone !== JSON.stringify(form.values)
+})
+
+let interval: string | number | NodeJS.Timeout | null | undefined = null
+
+onMounted(() => {
+  interval = setInterval(() => {
+    if (formChanged.value) {
+      onSubmit()
+    }
+  }, 1000 * 60)
+})
+
+onUnmounted(() => {
+  if (interval !== null) {
+    clearInterval(interval)
+  }
+})
+
+onBeforeRouteLeave(async () => {
+  await onSubmit()
 })
 
 const { handleFileInput, files } = useFileStorage()
@@ -178,6 +202,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
   const response = await saveForm(values)
   experiment.value = response
+  formValuesClone = JSON.stringify(form.values)
 
   loading.value = false
 
@@ -222,11 +247,6 @@ async function submitForReview() {
     variant: "success",
   })
 }
-
-async function previewExperiment() {
-  await onSubmit()
-  await navigateTo(`/experiments/${experimentId}`)
-}
 </script>
 
 <template>
@@ -237,7 +257,10 @@ async function previewExperiment() {
     <div v-if="!emailVerified">
       Bitte bestätige deine E-Mail-Adresse, um ein Experiment zu erstellen.
     </div>
-    <div v-else>
+    <div
+      v-else
+      class="flex flex-col lg:flex-row"
+    >
       <form
         class="grid gap-4 lg:w-2/3"
         @submit="onSubmit"
@@ -475,27 +498,37 @@ async function previewExperiment() {
             </template>
           </DraggableList>
         </template>
-
-        <Button
-          type="submit"
-        >
-          Speichern
-        </Button>
-        <Button
-          variant="secondary"
-          @click.prevent
-          @click="previewExperiment"
-        >
-          Vorschau anzeigen
-        </Button>
-        <Button
-          variant="secondary"
-          @click.prevent
-          @click="submitForReview"
-        >
-          Veröffentlichen
-        </Button>
       </form>
+      <div class="lg:relative lg:w-1/3">
+        <div class="flex flex-col gap-2 lg:sticky lg:top-5 lg:pl-4">
+          <Button
+            type="submit"
+            class="w-full"
+            :disabled="!formChanged"
+            @click="onSubmit()"
+          >
+            Speichern
+          </Button>
+          <NuxtLink
+            :to="`/experiments/${experimentId}`"
+            class="text-primary w-full"
+          >
+            <Button
+              variant="secondary"
+              class="w-full"
+            >
+              Vorschau anzeigen
+            </Button>
+          </NuxtLink>
+          <Button
+            variant="secondary"
+            class="w-full"
+            @click="submitForReview"
+          >
+            Veröffentlichen
+          </Button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
