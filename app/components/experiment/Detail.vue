@@ -225,8 +225,8 @@ async function deleteExperiment(experiment: ExperimentList) {
         >
           <!-- Main Carousel Item -->
           <template #item="{ item }">
-            <Card class="m-2">
-              <CardContent class="relative h-80 flex items-center justify-center p-0">
+            <Card>
+              <CardContent class="h-80 flex items-center justify-center p-0">
                 <!-- Image File -->
                 <template v-if="isImageFile(item.file.mimeType)">
                   <NuxtImg
@@ -268,15 +268,13 @@ async function deleteExperiment(experiment: ExperimentList) {
                   </NuxtLink>
                 </template>
               </CardContent>
-              <CardFooter
-                v-if="item.description"
-                class="flex flex-col items-start p-0"
+              <Separator class="mb-3" />
+              <p
+                class="w-full whitespace-normal text-center text-muted-foreground pb-3"
+                style="overflow-wrap: anywhere;"
               >
-                <Separator />
-                <p class="text-center text-muted-foreground m-3">
-                  {{ item.description }}
-                </p>
-              </CardFooter>
+                {{ item.description }}
+              </p>
             </Card>
           </template>
 
