@@ -53,33 +53,26 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
     <div v-else>
       <!-- Main Carousel -->
       <Carousel
-        class="max-w-full max-h-96"
         @init-api="(val) => emblaMainApi = val"
       >
-        <CarouselContent class="!-ml-0 shrink">
+        <CarouselContent class="-ml-4">
           <CarouselItem
             v-for="(item, index) in items"
             :key="item.id"
-            class="!pl-0 !basis-full min-w-0"
+            class="pl-4"
           >
-            <div class="w-full h-full">
-              <div class="w-full max-w-full">
-                <slot
-                  name="item"
-                  :item="item"
-                  :index="index"
-                />
-              </div>
-            </div>
+            <slot
+              name="item"
+              :item="item"
+              :index="index"
+            />
           </CarouselItem>
         </CarouselContent>
-        <!-- <CarouselPrevious />
-        <CarouselNext /> -->
         <div class="absolute top-1/2 left-2 flex items-center justify-center">
-          <CarouselPrevious class="relative left-0 translate-x-0 hover:translate-x-0 hover:bg-primary/90 ml-2" />
+          <CarouselPrevious class="relative left-0 translate-x-0 hover:translate-x-0 hover:bg-primary/90" />
         </div>
         <div class="absolute top-1/2 right-2 flex items-center justify-center">
-          <CarouselNext class="relative right-0 translate-x-0 hover:translate-x-0 hover:bg-primary/90 mr-2" />
+          <CarouselNext class="relative right-0 translate-x-0 hover:translate-x-0 hover:bg-primary/90" />
         </div>
       </Carousel>
 
@@ -89,11 +82,11 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
         class="relative w-full mt-4 max-h-24"
         @init-api="(val) => emblaThumbnailApi = val"
       >
-        <CarouselContent class="flex gap-1 m-2">
+        <CarouselContent class="flex gap-1 m-1">
           <CarouselItem
             v-for="(item, index) in items"
             :key="item.id"
-            class="pl-0 basis-1/6 cursor-pointer"
+            class="basis-20 sm:basis-24 md:basis-28 cursor-pointer pl-0"
             @click="onThumbClick(index)"
           >
             <div
