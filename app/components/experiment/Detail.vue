@@ -44,6 +44,13 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
     }
   }
 }
+
+const router = useRouter()
+const canGoBack = ref(false)
+
+onMounted(() => {
+  canGoBack.value = window.history.length > 1
+})
 </script>
 
 <template>
@@ -51,6 +58,17 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
     v-if="experiment"
     class="grid gap-6 lg:w-2/3 mx-auto"
   >
+    <Button
+      variant="outline"
+      :disabled="!canGoBack"
+      @click="router.back"
+    >
+      <Icon
+        name="heroicons:arrow-left"
+        class="w-4 h-4 mr-2"
+      />
+      Zurück
+    </Button>
     <!-- Experiment Name -->
     <div class="flex items-center">
       <h1 class="text-4xl font-extrabold mr-2">
