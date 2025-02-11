@@ -225,7 +225,7 @@ async function submitForReview() {
 
 async function previewExperiment() {
   await onSubmit()
-  navigateTo(`/experiments/${experimentId}`)
+  await navigateTo(`/experiments/${experimentId}`)
 }
 </script>
 

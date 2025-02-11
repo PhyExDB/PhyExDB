@@ -82,7 +82,7 @@ const openForm = (event: boolean) => {
           </FormItem>
         </FormField>
       </form>
-      <DialogFooter>
+      <DialogFooter class="flex flex-col sm:flex-row gap-2">
         <Button
           type="submit"
           @click="open = false"

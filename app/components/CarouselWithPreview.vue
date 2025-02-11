@@ -53,23 +53,34 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
     <div v-else>
       <!-- Main Carousel -->
       <Carousel
-        class="relative w-full max-h-96"
+        class="max-w-full max-h-96"
         @init-api="(val) => emblaMainApi = val"
       >
-        <CarouselContent>
+        <CarouselContent class="!-ml-0 shrink">
           <CarouselItem
             v-for="(item, index) in items"
             :key="item.id"
+            class="!pl-0 !basis-full min-w-0"
           >
-            <slot
-              name="item"
-              :item="item"
-              :index="index"
-            />
+            <div class="w-full h-full">
+              <div class="w-full max-w-full">
+                <slot
+                  name="item"
+                  :item="item"
+                  :index="index"
+                />
+              </div>
+            </div>
           </CarouselItem>
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <!-- <CarouselPrevious />
+        <CarouselNext /> -->
+        <div class="absolute top-1/2 left-2 flex items-center justify-center">
+          <CarouselPrevious class="relative left-0 translate-x-0 hover:translate-x-0 hover:bg-primary/90 ml-2" />
+        </div>
+        <div class="absolute top-1/2 right-2 flex items-center justify-center">
+          <CarouselNext class="relative right-0 translate-x-0 hover:translate-x-0 hover:bg-primary/90 mr-2" />
+        </div>
       </Carousel>
 
       <!-- Thumbnails (optional) -->
