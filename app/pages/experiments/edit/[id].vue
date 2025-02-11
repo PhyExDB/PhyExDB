@@ -248,7 +248,10 @@ async function submitForReview() {
     <div v-if="!emailVerified">
       Bitte bestätige deine E-Mail-Adresse, um ein Experiment zu erstellen.
     </div>
-    <div v-else>
+    <div
+      v-else
+      class="flex flex-col lg:flex-row"
+    >
       <form
         class="grid gap-4 lg:w-2/3"
         @submit="onSubmit"
@@ -486,32 +489,36 @@ async function submitForReview() {
             </template>
           </DraggableList>
         </template>
-
-        <Button
-          type="submit"
-        >
-          Speichern
-        </Button>
-        <NuxtLink
-          :to="`/experiments/${experimentId}`"
-          class="text-primary w-full"
-        >
+      </form>
+      <div class="lg:relative lg:w-1/3">
+        <div class="flex flex-col gap-2 lg:sticky lg:top-5 lg:pl-4">
+          <Button
+            type="submit"
+            class="w-full"
+            @click="onSubmit"
+          >
+            Speichern
+          </Button>
+          <NuxtLink
+            :to="`/experiments/${experimentId}`"
+            class="text-primary w-full"
+          >
+            <Button
+              variant="secondary"
+              class="w-full"
+            >
+              Vorschau anzeigen
+            </Button>
+          </NuxtLink>
           <Button
             variant="secondary"
             class="w-full"
+            @click="submitForReview"
           >
-
-            Vorschau anzeigen
+            Veröffentlichen
           </Button>
-        </NuxtLink>
-        <Button
-          variant="secondary"
-          @click.prevent
-          @click="submitForReview"
-        >
-          Veröffentlichen
-        </Button>
-      </form>
+        </div>
+      </div>
     </div>
   </div>
 </template>
