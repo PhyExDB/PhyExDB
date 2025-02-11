@@ -60,6 +60,18 @@ const form = useForm({
   },
 })
 
+let interval: string | number | NodeJS.Timeout | null | undefined = null
+
+onMounted(() => {
+  interval = setInterval(onSubmit, 1000 * 60)
+})
+
+onUnmounted(() => {
+  if (interval !== null) {
+    clearInterval(interval)
+  }
+})
+
 onBeforeRouteLeave(async () => {
   await onSubmit()
 })
