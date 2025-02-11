@@ -13,8 +13,7 @@ const emailVerified = user.value?.emailVerified
 
 const loading = ref(false)
 
-const route = useRoute()
-const experimentId = route.params.id as string
+const experimentId = getId()
 const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${experimentId}`)
 
 if (!experiment.value) {
