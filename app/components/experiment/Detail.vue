@@ -51,6 +51,22 @@ const canGoBack = ref(false)
 onMounted(() => {
   canGoBack.value = window.history.length > 1
 })
+
+async function deleteExperiment(experiment: ExperimentList) {
+  try {
+    await $fetch(`/api/experiments/delete/${experiment.id}`, {
+      method: "DELETE",
+    })
+    await navigateTo("/experiments")
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const status = (error as any).response?.status
+    if (status === 401) {
+      await navigateTo("/login")
+    }
+    throw error
+  }
+}
 </script>
 
 <template>
@@ -77,7 +93,7 @@ onMounted(() => {
       <DropdownMenu
         v-if="showDropdown"
       >
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger as-child>
           <Button
             variant="outline"
             size="sm"
@@ -113,6 +129,18 @@ onMounted(() => {
               Zur Überarbeitung
             </span>
           </DropdownMenuItem>
+          <DropdownMenuItem as-child>
+              <ConfirmDeleteAlertDialog
+                v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
+                header="Experiment löschen"
+                message="Möchtest du das Experiment wirklich löschen?"
+                :onDelete="() => deleteExperiment(experiment)"
+              >
+                <span>
+                  Löschen
+                </span>
+              </ConfirmDeleteAlertDialog>
+            </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
