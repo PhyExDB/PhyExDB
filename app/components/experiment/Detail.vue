@@ -52,6 +52,7 @@ onMounted(() => {
   canGoBack.value = window.history.length > 1
 })
 
+const showDeleteDialog = ref(false)
 async function deleteExperiment(experiment: ExperimentList) {
   try {
     await $fetch(`/api/experiments/delete/${experiment.id}`, {
@@ -129,20 +130,23 @@ async function deleteExperiment(experiment: ExperimentList) {
               Zur Überarbeitung
             </span>
           </DropdownMenuItem>
-          <DropdownMenuItem as-child>
-              <ConfirmDeleteAlertDialog
-                v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
-                header="Experiment löschen"
-                message="Möchtest du das Experiment wirklich löschen?"
-                :onDelete="() => deleteExperiment(experiment)"
-              >
-                <span>
-                  Löschen
-                </span>
-              </ConfirmDeleteAlertDialog>
-            </DropdownMenuItem>
+          <DropdownMenuItem
+            v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
+            @click="showDeleteDialog = true"
+            class="text-destructive" 
+          >
+            <span>
+              Löschen
+            </span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      
+      <ConfirmDeleteAlertDialogBool
+        :onDelete="() => deleteExperiment(experiment)"
+        header="Experiment löschen?"
+        v-model="showDeleteDialog"
+      />
     </div>
 
     <!-- Preview Image -->
