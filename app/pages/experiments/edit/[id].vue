@@ -18,7 +18,7 @@ const experimentId = route.params.id as string
 const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${experimentId}`)
 
 if (!experiment.value) {
-  showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+  throw showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
 }
 if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECTED") {
   await navigateTo(`/experiments/${experimentId}`)
@@ -60,10 +60,19 @@ const form = useForm({
   },
 })
 
+let formValuesClone = JSON.stringify(form.values)
+const formChanged = toRef(() => {
+  return formValuesClone !== JSON.stringify(form.values)
+})
+
 let interval: string | number | NodeJS.Timeout | null | undefined = null
 
 onMounted(() => {
-  interval = setInterval(onSubmit, 1000 * 60)
+  interval = setInterval(() => {
+    if (formChanged.value) {
+      onSubmit()
+    }
+  }, 1000 * 60)
 })
 
 onUnmounted(() => {
@@ -194,6 +203,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
   const response = await saveForm(values)
   experiment.value = response
+  formValuesClone = JSON.stringify(form.values)
 
   loading.value = false
 
@@ -495,7 +505,8 @@ async function submitForReview() {
           <Button
             type="submit"
             class="w-full"
-            @click="onSubmit"
+            :disabled="!formChanged"
+            @click="onSubmit()"
           >
             Speichern
           </Button>
