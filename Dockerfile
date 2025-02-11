@@ -42,10 +42,11 @@ COPY --chown=nuxtuser:nuxtuser --from=build /build/move_nuxt_public_files.sh ./m
 # Allow execution of the move nuxt public files script
 RUN chmod +x /app/move_nuxt_public_files.sh
 
-RUN mv ./public/_nuxt ./_nuxt_tmp
+# Move the public files to the root of the app
+RUN mv ./public ./_public_tmp
 
 # Change ownership and set restrictive permissions
-RUN chmod -R 755 /app/public
+RUN mkdir /app/public && chmod -R 755 /app/public
 
 # Expose 8080 on the container
 EXPOSE 8080
