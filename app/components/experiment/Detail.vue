@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-let user: globalThis.Ref<globalThis.UserDetail, globalThis.UserDetail>
-try {
-  user = await useUserOrThrowError()
-} catch { /* not logged in -> user is undefined */ }
+const user = await useUser()
 
 const { experiment, showDropdown } = defineProps({
   experiment: {
