@@ -1,4 +1,4 @@
-import { describe, expectTypeOf, vi } from "vitest"
+import { describe, expectTypeOf } from "vitest"
 import { detailDb } from "../data"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"

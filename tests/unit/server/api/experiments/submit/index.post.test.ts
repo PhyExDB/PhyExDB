@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, vi } from "vitest"
-import { detail, detailDb } from "../data"
+import { detailDb } from "../data"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
@@ -16,6 +16,7 @@ describe("Api Route /api/experiments/submit/[id].post", () => {
     sections: [],
     attributes: [],
   }
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   const expected: void = undefined
 
   const context = u.getTestContext({
