@@ -32,8 +32,8 @@ const visible = defineModel<boolean>()
         <AlertDialogCancel @click="visible = false">
           Abbrechen
         </AlertDialogCancel>
-        <AlertDialogAction 
-          class="hover:bg-destructive hover:text-destructive-foreground"  
+        <AlertDialogAction
+          class="hover:bg-destructive hover:text-destructive-foreground"
           @click="visible = false; onDelete()"
         >
           Löschen

@@ -132,8 +132,8 @@ async function deleteExperiment(experiment: ExperimentList) {
           </DropdownMenuItem>
           <DropdownMenuItem
             v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
+            class="text-destructive"
             @click="showDeleteDialog = true"
-            class="text-destructive" 
           >
             <span>
               Löschen
@@ -141,11 +141,11 @@ async function deleteExperiment(experiment: ExperimentList) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      
+
       <ConfirmDeleteAlertDialogBool
-        :onDelete="() => deleteExperiment(experiment)"
-        header="Experiment löschen?"
         v-model="showDeleteDialog"
+        :on-delete="() => deleteExperiment(experiment)"
+        header="Experiment löschen?"
       />
     </div>
 
