@@ -98,7 +98,7 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
           >
             <div
               class="p-1"
-              :class="index === selectedIndex ? 'ring-2 ring-blue-500 rounded' : 'opacity-50'"
+              :class="index === selectedIndex ? 'ring-2 ring-accent rounded' : 'opacity-50'"
             >
               <slot
                 name="thumbnail"
