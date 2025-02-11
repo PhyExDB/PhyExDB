@@ -4,7 +4,7 @@ const experimentSlug = route.params.slug as string
 const { data: experiment } = useFetch<ExperimentDetail>(`/api/experiments/${experimentSlug}`)
 
 if (!experiment) {
-  showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+  throw showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
 }
 </script>
 
