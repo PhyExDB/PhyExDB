@@ -60,6 +60,10 @@ const form = useForm({
   },
 })
 
+onBeforeRouteLeave(async () => {
+  await onSubmit()
+})
+
 const { handleFileInput, files } = useFileStorage()
 const { toast } = useToast()
 
@@ -221,11 +225,6 @@ async function submitForReview() {
     description: "Das Experiment wurde zur Überprüfung eingereicht.",
     variant: "success",
   })
-}
-
-async function previewExperiment() {
-  await onSubmit()
-  await navigateTo(`/experiments/${experimentId}`)
 }
 </script>
 
@@ -481,13 +480,18 @@ async function previewExperiment() {
         >
           Speichern
         </Button>
-        <Button
-          variant="secondary"
-          @click.prevent
-          @click="previewExperiment"
+        <NuxtLink
+          :to="`/experiments/${experimentId}`"
+          class="text-primary w-full"
         >
-          Vorschau anzeigen
-        </Button>
+          <Button
+            variant="secondary"
+            class="w-full"
+          >
+
+            Vorschau anzeigen
+          </Button>
+        </NuxtLink>
         <Button
           variant="secondary"
           @click.prevent
