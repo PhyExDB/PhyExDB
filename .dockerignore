@@ -5,3 +5,4 @@ public/uploads
 
 .gitignore
 README.md
+**.DS_Store

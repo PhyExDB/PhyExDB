@@ -507,7 +507,7 @@ async function submitForReview() {
             :disabled="!formChanged"
             @click="onSubmit()"
           >
-            Speichern
+            {{ formChanged? "Speichern" : "Alles Gespeichert" }}
           </Button>
           <NuxtLink
             :to="`/experiments/${experimentId}`"

@@ -284,25 +284,21 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
                   </div>
                 </div>
               </div>
-
-              <Separator />
-
-              <!-- Bottom Content -->
-              <div class="flex flex-col items-left p-4 gap-2 w-full">
-                <CardTitle class="text-primary/80">
-                  {{ experiment.name }}
-                </CardTitle>
-                <CardDescription>
-                  <Badge>
-                    <Icon
-                      name="heroicons:clock"
-                      class="mr-2 h-4 w-4"
-                    />
-                    {{ experiment.duration }} Min.
-                  </Badge>
-                </CardDescription>
-              </div>
             </CardContent>
+            <Separator />
+            <!-- Bottom Content -->
+            <CardFooter class="flex flex-col items-start p-4 gap-2 w-full">
+              <CardTitle class="text-primary/80 text-left">
+                {{ experiment.name }}
+              </CardTitle>
+              <Badge class="text-left">
+                <Icon
+                  name="heroicons:clock"
+                  class="mr-2 h-4 w-4"
+                />
+                {{ experiment.duration }} Min.
+              </Badge>
+            </CardFooter>
           </Card>
         </NuxtLink>
       </div>
