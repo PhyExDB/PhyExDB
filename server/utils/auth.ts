@@ -14,6 +14,12 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+    sendResetPassword: async (user, url) => {
+      await userNodeMailer().sendMail({
+        to: user.email,
+        subject: "Setze dein PhyExDB Passwort zurück",
+      })
+    },
   },
   emailVerification: {
     sendOnSignUp: true,

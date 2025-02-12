@@ -27,6 +27,7 @@
     "@tiptap/extension-link": "^2.11.5",
     "@types/jsonwebtoken": "^9.0.8",
     "@vee-validate/zod": "^4.15.0",
+    "@vue-email/components": "^0.0.21",
     "@vueuse/core": "^12.5.0",
     "@vueuse/nuxt": "^12.5.0",
     "bcrypt": "^5.1.1",
