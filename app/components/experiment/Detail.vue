@@ -145,7 +145,7 @@ async function deleteExperiment(experiment: ExperimentList) {
       <ConfirmDeleteAlertDialogBool
         v-model="showDeleteDialog"
         :on-delete="() => deleteExperiment(experiment)"
-        header="Experiment löschen?"
+        header="Versuch löschen?"
       />
     </div>
 

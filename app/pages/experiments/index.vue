@@ -209,7 +209,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
       <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">
-        {{ isLoading ? "..." : data?.pagination.total }} Experimente gefunden
+        {{ isLoading ? "..." : data?.pagination.total }} Versuche gefunden
       </div>
       <div class="w-full sm:w-64 order-1 sm:order-2">
         <MultiSelect
