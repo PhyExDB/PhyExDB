@@ -139,7 +139,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
 <template>
   <div class="grid grid-cols-1 gap-3">
     <div class="w-full sm:max-w-sm items-center">
-      <ExperimentsSearch
+      <ExperimentSearch
         :search="search"
         @update:search="search = $event"
       />
