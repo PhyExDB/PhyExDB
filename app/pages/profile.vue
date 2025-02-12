@@ -151,7 +151,7 @@ function numberOfExperimentsToReview(): string {
     >
       <CardContent class="p-6 text-center sm:text-start">
         <div class="text-xl">
-          Experimente überprüfen
+          Versuche überprüfen
         </div>
         <p class="text-muted-foreground mt-2">
           Es gibt {{ numberOfExperimentsToReview() }} zur Überprüfung.
@@ -164,7 +164,7 @@ function numberOfExperimentsToReview(): string {
             class="mt-4"
             variant="outline"
           >
-            Experimente überprüfen
+            Versuche überprüfen
           </Button>
         </NuxtLink>
       </CardContent>
@@ -174,7 +174,7 @@ function numberOfExperimentsToReview(): string {
     <Card class="mt-4">
       <CardContent class="p-6">
         <div class="text-xl">
-          Meine Experimente
+          Meine Versuche
         </div>
         <template
           v-for="experiment in ownExperiments?.items ?? []"
@@ -201,7 +201,7 @@ function numberOfExperimentsToReview(): string {
             :loading="loadingNewExperiment"
             @click="createExperiment"
           >
-            Neues Experiment erstellen
+            Neuen Versuch erstellen
           </Button>
           <NuxtLink to="/experiments/mine">
             <Button
@@ -216,7 +216,7 @@ function numberOfExperimentsToReview(): string {
           v-else
           class="mt-4 text-muted-foreground"
         >
-          Bitte verifiziere deine E-Mail-Adresse, um ein Experiment zu erstellen.
+          Bitte verifiziere deine E-Mail-Adresse, um einen Versuch zu erstellen.
         </p>
       </CardContent>
     </Card>

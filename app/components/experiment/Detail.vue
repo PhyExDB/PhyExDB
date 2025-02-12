@@ -115,7 +115,7 @@ const showDeleteDialog = ref(false)
       <ConfirmDeleteAlertDialogBool
         v-model="showDeleteDialog"
         :on-delete="() => deleteExperiment(experiment.id).then(async () => await navigateTo('/experiments'))"
-        header="Experiment löschen?"
+        header="Versuch löschen?"
       />
     </div>
 
