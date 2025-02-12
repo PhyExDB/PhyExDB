@@ -5,7 +5,7 @@
  * @returns {string} The name of the experiment or "Unbenanntes Experiment" if the name is not defined.
  */
 export function nameOrPlaceholderForExperiment(experiment: Pick<ExperimentList, "name">): string {
-  return experiment.name || "Unbenanntes Experiment"
+  return experiment.name || "Unbenannter Versuch"
 }
 
 /**
