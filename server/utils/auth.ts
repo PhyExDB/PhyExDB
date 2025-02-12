@@ -3,7 +3,9 @@ import { betterAuth } from "better-auth"
 import { APIError } from "better-auth/api"
 import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma"
+import { render } from "@vue-email/render"
 import prisma from "../lib/prisma"
+import verifyEmail from "./emailTemplates/reset-password-email.vue"
 
 /**
  * betterAuth config
@@ -14,10 +16,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
-    sendResetPassword: async (user, url) => {
-      await userNodeMailer().sendMail({
+    sendResetPassword: async ({ user, url }, _) => {
+      await useNodeMailer().sendMail({
         to: user.email,
         subject: "Setze dein PhyExDB Passwort zurück",
+        text: `Klicke auf den folgenden Link um dein Passwort zurückzusetzen: ${url}`,
+        html: await render(verifyEmail, {
+          url,
+          appName: "PhyExDB" }, {
+          pretty: true,
+        }),
       })
     },
   },
@@ -25,60 +33,12 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }, _) => {
-      const runtimeConfig = useRuntimeConfig()
+      const _runtimeConfig = useRuntimeConfig()
       await useNodeMailer().sendMail({
         subject: "Verifying PHYEXDB email-address",
         text: `Bitte klicke auf den folgenden Link um deinen PhyExDB Account zu verifizieren: ${url}.`,
         to: user.email,
-        html: `<!DOCTYPE html>
-      <html lang="de">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Verifiziere deine E-Mail</title>
-          <style>
-              body {
-                  font-family: Arial, sans-serif;
-                  background-color: #ffffff;
-                  color: #e2e8f0;
-                  text-align: center;
-                  padding: 20px;
-              }
-              .container {
-                  max-width: 600px;
-                  background-color: #1e293b;
-                  padding: 20px;
-                  border-radius: 10px;
-                  margin: auto;
-                  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-              }
-              .button {
-                  display: inline-block;
-                  padding: 10px 20px;
-                  background-color: #ffffff;
-                  color: #1e293b;
-                  text-decoration: none;
-                  font-weight: bold;
-                  border-radius: 5px;
-                  margin-top: 20px;
-              }
-              .footer {
-                  margin-top: 20px;
-                  font-size: 12px;
-                  color: #94a3b8;
-              }
-          </style>
-      </head>
-      <body>
-          <div class="container">
-              <h1>Willkommen bei ${runtimeConfig.appName}!</h1>
-              <p>Um dein Konto zu aktivieren, bestätige bitte deine E-Mail-Adresse, indem du auf den Button unten klickst.</p>
-              <a href="${url}" class="button">E-Mail bestätigen</a>
-              <p class="footer">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
-          </div>
-      </body>
-      </html>
-      `,
+        html: ``,
       })
     },
   },

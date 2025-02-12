@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Html, Button } from "@vue-email/components"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
 definePageMeta({
   title: "Reset Password",
   description: "Reset your password",

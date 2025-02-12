@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import vue from "@vitejs/plugin-vue"
 import { copyPrismaAssets } from "./server/utils/copy-prisma-assets"
 
 export default defineNuxtConfig({
@@ -53,6 +54,9 @@ export default defineNuxtConfig({
       dirs: [
         "server/lib",
       ],
+    },
+    rollupConfig: {
+      plugins: [vue()],
     },
   },
 
