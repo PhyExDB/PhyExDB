@@ -105,6 +105,7 @@ watch(checked, () => {
   ).join(",")
 })
 
+const router = useRouter()
 /* Update the URL */
 watch([sort, attributeFilter, page, pageSize, search], () => {
   const query:
@@ -131,7 +132,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
     query.search = search.value
   }
   const newUrl = { path: route.path, query }
-  useRouter().replace(newUrl)
+  router.replace(newUrl)
 })
 </script>
 
