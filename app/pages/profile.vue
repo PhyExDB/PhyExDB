@@ -8,7 +8,12 @@ definePageMeta({
 })
 const user = await useUserOrThrowError()
 
-const { data: ownExperiments, refresh } = await useLazyFetch("/api/experiments/mine")
+const { data: ownExperiments, refresh } = await useLazyFetch("/api/experiments/mine", {
+  query: {
+    page: 1,
+    pageSize: 4,
+  },
+})
 const { data: experimentsToReview } = await useFetch("/api/experiments/in-review?pageSize=0")
 
 const emailVerifiedPopoverOpen = ref(false)
@@ -21,37 +26,12 @@ const verifiedValue = user.value?.emailVerified
 const canCreateExperiment = await allows(experimentAbilities.post)
 const canReviewExperiments = await allows(experimentAbilities.review)
 
-function nameOrPlaceholderForExperiment(experiment: ExperimentList) {
-  return experiment.name || "Unbenanntes Experiment"
-}
-
-function badgeTitleForExperimentStatus(status: string) {
-  switch (status) {
-    case "DRAFT":
-      return "Entwurf"
-    case "IN_REVIEW":
-      return "In Überprüfung"
-    case "PUBLISHED":
-      return "Veröffentlicht"
-    case "REJECTED":
-      return "Abgelehnt"
-  }
-}
-
 async function sendVerificationEmail() {
   await useAuth().client.sendVerificationEmail({
     email: user.value!.email,
     callbackURL: "/profile",
   })
   emailVerifiedPopoverOpen.value = false
-}
-
-async function deleteExperiment(id: string) {
-  await $fetch(`/api/experiments/delete/${id}`, {
-    method: "DELETE",
-  })
-
-  await refresh()
 }
 
 async function createExperiment() {
@@ -68,13 +48,6 @@ function numberOfExperimentsToReview(): string {
   return numberOfExperimentsToReview === 1
     ? "1 Experiment"
     : `${numberOfExperimentsToReview} Experimente`
-}
-
-async function duplicateExperiment(experiment: ExperimentList, isRevision: boolean) {
-  await $fetch(`/api/experiments/clone/${experiment.id}?revision=${isRevision}`, {
-    method: "PUT",
-  })
-  await refresh()
 }
 </script>
 
@@ -214,22 +187,31 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
             <CardContent class="p-4">
               <ExperimentRow
                 :experiment="experiment"
-                :name-or-placeholder-for-experiment="nameOrPlaceholderForExperiment"
-                :badge-title-for-experiment-status="badgeTitleForExperimentStatus"
-                :delete-experiment="deleteExperiment"
+                :delete-experiment="(id: string) => deleteExperiment(id).then(() => refresh())"
                 :duplicate-experiment="duplicateExperiment"
               />
             </CardContent>
           </Card>
         </template>
-        <Button
+        <div
           v-if="canCreateExperiment"
-          class="mt-4"
-          :loading="loadingNewExperiment"
-          @click="createExperiment"
+          class="mt-4 flex flex-col sm:flex-row gap-2"
         >
-          Neues Experiment erstellen
-        </Button>
+          <Button
+            :loading="loadingNewExperiment"
+            @click="createExperiment"
+          >
+            Neues Experiment erstellen
+          </Button>
+          <NuxtLink to="/experiments/mine">
+            <Button
+              variant="outline"
+              class="w-full sm:w-auto"
+            >
+              Alle eigenen Versuche anzeigen
+            </Button>
+          </NuxtLink>
+        </div>
         <p
           v-else
           class="mt-4 text-muted-foreground"
