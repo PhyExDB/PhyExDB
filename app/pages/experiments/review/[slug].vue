@@ -12,7 +12,7 @@ const experimentSlug = route.params.slug as string
 const { data: experiment } = useFetch<ExperimentDetail>(`/api/experiments/${experimentSlug}`)
 
 if (!experiment) {
-  showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+  showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
 }
 
 if (experiment.value && experiment.value.status !== "IN_REVIEW") {
@@ -30,8 +30,8 @@ async function onApprove() {
   })
 
   toast({
-    title: "Experiment bestätigt",
-    description: "Das Experiment wurde erfolgreich bestätigt.",
+    title: "Versuch bestätigt",
+    description: "Der Versuch wurde erfolgreich bestätigt.",
     variant: "success",
   })
 
@@ -45,8 +45,8 @@ async function onDelete(message: string) {
   })
 
   toast({
-    title: "Experiment beanstandet",
-    description: "Das Experiment wurde erfolgreich beanstandet.",
+    title: "Versuch beanstandet",
+    description: "Der Versuch wurde erfolgreich beanstandet.",
     variant: "success",
   })
 
@@ -57,7 +57,7 @@ async function onDelete(message: string) {
 <template>
   <div>
     <h2 class="text-4xl font-extrabold pb-4">
-      Zu überprüfendes Experiment
+      Zu überprüfender Versuch
     </h2>
     <h3
       v-if="experiment?.revisionOf"

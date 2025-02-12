@@ -22,7 +22,7 @@ const canCreateExperiment = await allows(experimentAbilities.post)
 const canReviewExperiments = await allows(experimentAbilities.review)
 
 function nameOrPlaceholderForExperiment(experiment: ExperimentList) {
-  return experiment.name || "Unbenanntes Experiment"
+  return experiment.name || "Unbenannter Versuch"
 }
 
 function badgeTitleForExperimentStatus(status: string) {
@@ -178,7 +178,7 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
     >
       <CardContent class="p-6 text-center sm:text-start">
         <div class="text-xl">
-          Experimente überprüfen
+          Versuche überprüfen
         </div>
         <p class="text-muted-foreground mt-2">
           Es gibt {{ numberOfExperimentsToReview() }} zur Überprüfung.
@@ -191,7 +191,7 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
             class="mt-4"
             variant="outline"
           >
-            Experimente überprüfen
+            Versuche überprüfen
           </Button>
         </NuxtLink>
       </CardContent>
@@ -201,7 +201,7 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
     <Card class="mt-4">
       <CardContent class="p-6">
         <div class="text-xl">
-          Meine Experimente
+          Meine Versuche
         </div>
         <template
           v-for="experiment in ownExperiments?.items ?? []"
@@ -228,13 +228,13 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
           :loading="loadingNewExperiment"
           @click="createExperiment"
         >
-          Neues Experiment erstellen
+          Neuen Versuch erstellen
         </Button>
         <p
           v-else
           class="mt-4 text-muted-foreground"
         >
-          Bitte verifiziere deine E-Mail-Adresse, um ein Experiment zu erstellen.
+          Bitte verifiziere deine E-Mail-Adresse, um einen Versuch zu erstellen.
         </p>
       </CardContent>
     </Card>
