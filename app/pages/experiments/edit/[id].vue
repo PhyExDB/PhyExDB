@@ -20,7 +20,7 @@ if (!experiment.value) {
   throw showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
 }
 if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECTED") {
-  await navigateTo(`/experiments/${experimentId}`)
+  await navigateTo(`/experiments/${experimentId}`, {replace: true})
 }
 
 const { data: sections } = await useFetch("/api/experiments/sections")
@@ -240,7 +240,7 @@ async function submitForReview() {
     method: "POST",
   })
 
-  await navigateTo(`/experiments/${experimentId}`)
+  await navigateTo(`/experiments/${experimentId}`, { replace: true })
   toast({
     title: "Versuch zur Überprüfung eingereicht",
     description: "Der Versuch wurde zur Überprüfung eingereicht.",
