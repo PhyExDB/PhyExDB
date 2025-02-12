@@ -32,11 +32,11 @@ export interface ExperimentList extends SlugList {
   /**
    * The id of the experiment this experiment revises
    */
-  revisionOf: ExperimentList | undefined
+  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes"> | undefined
   /**
    * The id of the experiment this experiment is revised by
    */
-  revisedBy: ExperimentList | undefined
+  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes"> | undefined
 }
 
 /**
