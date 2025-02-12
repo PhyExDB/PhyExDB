@@ -16,7 +16,6 @@ const route = useRoute()
 const slug = route.params.slug as string
 
 const { data: legal } = await useFetch(`/api/legal/${slug}`)
-
 const form = useForm({ validationSchema: formSchema, initialValues: {
   name: legal.value?.name,
   text: legal.value?.text,
@@ -61,7 +60,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       <h1>
         {{ legal!.name }}
       </h1>
-      <p>{{ legal!.text }}</p>
+      <div v-html="legal!.text" />
     </div>
     <AuthCan
       :ability="legalAbilities.put"
@@ -114,11 +113,12 @@ const onSubmit = form.handleSubmit(async (values) => {
               <FormItem>
                 <FormLabel>Inhalt</FormLabel>
                 <FormControl>
-                  <Input
+                  <TipTapEditor
                     id="text"
                     :default-value="legal?.text"
                     v-bind="componentField"
-                    type="text"
+                    :show-headings="false"
+                    @click.prevent
                   />
                 </FormControl>
                 <FormMessage />
