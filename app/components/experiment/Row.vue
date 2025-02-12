@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   experiment: {
-    type: Object as PropType<Partial<Pick<ExperimentList, "revisedBy">> & Pick<ExperimentList, "id" | "name" | "status" | "slug">>,
+    type: Object as PropType<
+      Partial<Pick<ExperimentList, "revisedBy">> &
+      Pick<ExperimentList, "id" | "name" | "status" | "slug">
+    >,
     required: true,
   },
   revision: {
