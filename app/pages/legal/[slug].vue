@@ -79,7 +79,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             Bearbeiten
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent class="max-w-[800px]">
           <DialogHeader>
             <DialogTitle>
               Ändern des Dokuments
@@ -117,7 +117,7 @@ const onSubmit = form.handleSubmit(async (values) => {
                     id="text"
                     :default-value="legal?.text"
                     v-bind="componentField"
-                    :show-headings="false"
+                    :show-headings="true"
                     @click.prevent
                   />
                 </FormControl>
