@@ -33,12 +33,17 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }, _) => {
-      const _runtimeConfig = useRuntimeConfig()
+      const runtimeConfig = useRuntimeConfig()
       await useNodeMailer().sendMail({
-        subject: "Verifying PHYEXDB email-address",
-        text: `Bitte klicke auf den folgenden Link um deinen PhyExDB Account zu verifizieren: ${url}.`,
+        subject: `Verifiziere deinen ${runtimeConfig.appName} Account`,
+        text: `Bitte klicke auf den folgenden Link um deinen ${runtimeConfig.appName} Account zu verifizieren: ${url}.`,
         to: user.email,
-        html: ``,
+        html: await render(verifyEmail, {
+          url,
+          appName: runtimeConfig.appName,
+        }, {
+          pretty: true,
+        }),
       })
     },
   },

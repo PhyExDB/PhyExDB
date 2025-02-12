@@ -39,6 +39,10 @@ export default defineNuxtConfig({
     },
   },
 
+  // build: {
+  //   transpile: ["@vue-email/components"], // Ensure Vue Email is compiled
+  // },
+
   future: {
     compatibilityVersion: 4,
   },
@@ -56,7 +60,9 @@ export default defineNuxtConfig({
       ],
     },
     rollupConfig: {
-      plugins: [vue()],
+      plugins: [
+        vue(),
+      ],
     },
   },
 
