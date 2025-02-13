@@ -11,6 +11,9 @@ const user = await useUser()
 
 const { page, pageSize } = getRequestPageMeta()
 const search = ref<string>("")
+watch(search, () => {
+  page.value = 1
+})
 
 const { data, refresh } = useLazyFetch("/api/users", {
   query: {
@@ -19,6 +22,7 @@ const { data, refresh } = useLazyFetch("/api/users", {
     search: search,
   },
 })
+
 
 async function updateRow(_index: number, _user: UserDetailAdmin) {
   refresh()
@@ -78,4 +82,5 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
       :page-meta="data?.pagination"
     />
   </div>
+  {{ page }}
 </template>
