@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
-import * as u from "~~/tests/helpers/utils"
 import { v4 as uuidv4 } from "uuid"
+import * as u from "~~/tests/helpers/utils"
 import { getUser } from "~~/server/utils/auth"
 
 describe("Test mocking event", async () => {
