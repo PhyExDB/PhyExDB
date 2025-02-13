@@ -18,7 +18,7 @@ describe("Test mocking event", async () => {
   it("params", () => {
     const params = { id: "123" }
     expect(getRouterParam(u.getEvent({ params }), "id")).toStrictEqual(params.id)
-    expect(getValidatedRouterParams(u.getEvent({ params }), a => a)).toStrictEqual(params.id)
+    expect(getValidatedRouterParams(u.getEvent({ params }), a => a)).toStrictEqual(params)
   })
 
   it("user", async () => {
