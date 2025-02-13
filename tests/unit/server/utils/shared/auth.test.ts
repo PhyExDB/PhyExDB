@@ -20,6 +20,16 @@ describe("Test shared auth", async () => {
         allowGuests: false,
     }
 
+    it("sessionToUserDetail", () => {
+        expect(a.sessionToUserDetail(null)).toBe(null)
+        expect(a.sessionToUserDetail({ user: {
+            ...users.admin,
+            banned: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        } })).toBe(users.admin)
+    })
+
     it("evaluateAbility", () => {
         expect(a.evaluateAbility(users.admin, ability)).toBe(users.admin)
         expect(a.evaluateAbility(users.user, ability)).toBe("Not authorized")
