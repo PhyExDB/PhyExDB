@@ -4,7 +4,6 @@ import * as u from "~~/tests/helpers/utils"
 
 import { defineAbility } from "~~/shared/utils/auth"
 import * as a from "~~/server/utils/authorization"
-import { statusCode } from "better-auth"
 
 describe("Test utils authorization", async () => {
     const ability = defineAbility(true, (user) => user === users.admin)
