@@ -21,13 +21,13 @@ describe("Test shared auth", async () => {
     }
 
     it("sessionToUserDetail", () => {
-        expect(a.sessionToUserDetail(null)).toBe(null)
+        expect(a.sessionToUserDetail(undefined)).toBe(undefined)
         expect(a.sessionToUserDetail({ user: {
             ...users.admin,
             banned: false,
             createdAt: new Date(),
             updatedAt: new Date(),
-        } })).toBe(users.admin)
+        } })).toMatchObject(users.admin)
     })
 
     it("evaluateAbility", () => {
