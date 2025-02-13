@@ -14,13 +14,14 @@ function update(newPage: number) {
   >
     <Pagination
       v-slot="{ page }"
+      :key="model"
+      :default-page="model"
+      @update:page="update"
       :items-per-page="pageMeta?.pageSize"
       :total="pageMeta?.total"
       :sibling-count="1"
       show-edges
-      :default-page="pageMeta?.page"
       class="flex flex-row grow gap-4 justify-center items-center"
-      @update:page="update"
     >
       <PaginationList
         v-slot="{ items }"
