@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import { users } from "~~/tests/helpers/auth"
 import * as u from "~~/tests/helpers/utils"
 
