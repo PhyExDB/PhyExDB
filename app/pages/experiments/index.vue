@@ -31,6 +31,10 @@ const { data } = useLazyFetch("/api/experiments", {
   },
 })
 
+watch([searchApiInput, sort, attributeFilter], () => {
+  page.value = 1
+})
+
 // Search
 let searchTimeout: NodeJS.Timeout
 watch(search, () => {
