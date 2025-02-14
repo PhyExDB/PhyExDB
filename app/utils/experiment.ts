@@ -34,6 +34,18 @@ export function badgeTitleForExperimentStatus(status: string) {
 }
 
 /**
+ * Asynchronously creates a new experiment by sending a POST request to the server.
+ *
+ * @returns {Promise<void>} A promise that resolves when the experiment is created and navigation is complete.
+ */
+export async function createExperiment(): Promise<void> {
+  const experiment = await $fetch("/api/experiments", {
+    method: "POST",
+  })
+  await navigateTo(`/experiments/edit/${experiment.id}`)
+}
+
+/**
  * Deletes an experiment by its ID and navigates to the experiments page.
  * If the user is not authenticated (status 401), navigates to the login page.
  *

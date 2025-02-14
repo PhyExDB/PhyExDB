@@ -17,13 +17,11 @@ const { data: ownExperiments, refresh } = await useLazyFetch("/api/experiments/m
 const { data: experimentsToReview } = await useFetch("/api/experiments/in-review?pageSize=0")
 
 const emailVerifiedPopoverOpen = ref(false)
-const loadingNewExperiment = ref(false)
 
 const verifiedValue = user.value?.emailVerified
   ? "verifiziert"
   : "nicht verifiziert"
 
-const canCreateExperiment = await allows(experimentAbilities.post)
 const canReviewExperiments = await allows(experimentAbilities.review)
 
 async function sendVerificationEmail() {
@@ -32,15 +30,6 @@ async function sendVerificationEmail() {
     callbackURL: "/profile",
   })
   emailVerifiedPopoverOpen.value = false
-}
-
-async function createExperiment() {
-  loadingNewExperiment.value = true
-  const experiment = await $fetch("/api/experiments", {
-    method: "POST",
-  })
-  await navigateTo(`/experiments/edit/${experiment.id}`)
-  loadingNewExperiment.value = false
 }
 
 function numberOfExperimentsToReview(): string {
@@ -176,48 +165,12 @@ function numberOfExperimentsToReview(): string {
         <div class="text-xl">
           Meine Versuche
         </div>
-        <template
-          v-for="experiment in ownExperiments?.items ?? []"
-          :key="experiment.id"
-        >
-          <Card
-            v-if="!experiment.revisionOf"
-            class="mt-4"
-          >
-            <CardContent class="p-4">
-              <ExperimentRow
-                :experiment="experiment"
-                :delete-experiment="(id: string) => deleteExperiment(id).then(() => refresh())"
-                :duplicate-experiment="duplicateExperiment"
-              />
-            </CardContent>
-          </Card>
-        </template>
-        <div
-          v-if="canCreateExperiment"
-          class="mt-4 flex flex-col sm:flex-row gap-2"
-        >
-          <Button
-            :loading="loadingNewExperiment"
-            @click="createExperiment"
-          >
-            Neuen Versuch erstellen
-          </Button>
-          <NuxtLink to="/experiments/mine">
-            <Button
-              variant="outline"
-              class="w-full sm:w-auto"
-            >
-              Alle eigenen Versuche anzeigen
-            </Button>
-          </NuxtLink>
-        </div>
-        <p
-          v-else
-          class="mt-4 text-muted-foreground"
-        >
-          Bitte verifiziere deine E-Mail-Adresse, um einen Versuch zu erstellen.
-        </p>
+        <ExperimentOwnList
+          v-if="ownExperiments"
+          :own-experiments="ownExperiments!"
+          :delete-experiment="(id: string) => deleteExperiment(id).then(() => refresh())"
+          :show-show-all-experiments-button="true"
+        />
       </CardContent>
     </Card>
   </div>

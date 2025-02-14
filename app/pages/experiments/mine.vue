@@ -42,30 +42,12 @@ async function customRefresh() {
     <!-- Experiments to show -->
     <div v-if="ownExperiments && ownExperiments.pagination.total > 0">
       <h2 class="text-4xl font-extrabold">
-        Eigene Versuche
+        Meine Versuche
       </h2>
-      <template
-        v-for="experiment in ownExperiments.items"
-        :key="experiment.id"
-      >
-        <NuxtLink
-          :to="`/experiments/${experiment.slug}`"
-          class="no-underline"
-        >
-          <Card
-            v-if="!experiment.revisionOf"
-            class="mt-4"
-          >
-            <CardContent class="p-4">
-              <ExperimentRow
-                :experiment="experiment"
-                :delete-experiment="(id: string) => deleteExperiment(id).then(() => customRefresh())"
-                :duplicate-experiment="duplicateExperiment"
-              />
-            </CardContent>
-          </Card>
-        </NuxtLink>
-      </template>
+      <ExperimentOwnList
+        :own-experiments="ownExperiments"
+        :delete-experiment="(id: string) => deleteExperiment(id).then(() => customRefresh())"
+      />
     </div>
     <MyPagination
       v-model="page"

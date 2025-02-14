@@ -26,6 +26,12 @@ const allowed = await allows(userAbilities.getAll)
         </NuxtLink>
       </DropdownMenuItem>
 
+      <DropdownMenuItem as-child>
+        <NuxtLink href="/experiments/mine">
+          <span>Meine Versuche</span>
+        </NuxtLink>
+      </DropdownMenuItem>
+
       <DropdownMenuItem
         v-if="data?.session.impersonatedBy"
         @click="stopImpersonating"
