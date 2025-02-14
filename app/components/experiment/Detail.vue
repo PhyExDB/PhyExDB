@@ -1,14 +1,10 @@
 <script lang="ts" setup>
 const user = await useUser()
 
-const { experiment, showDropdown } = defineProps({
+const { experiment } = defineProps({
   experiment: {
     type: Object as PropType<ExperimentDetail>,
     required: false,
-  },
-  showDropdown: {
-    type: Boolean,
-    default: true,
   },
 })
 
@@ -62,7 +58,7 @@ const showDeleteDialog = ref(false)
         {{ experiment.name }}
       </h1>
       <DropdownMenu
-        v-if="showDropdown"
+        v-if="user"
       >
         <DropdownMenuTrigger as-child>
           <Button
