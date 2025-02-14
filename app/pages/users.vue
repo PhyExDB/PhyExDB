@@ -23,7 +23,6 @@ const { data, refresh } = useLazyFetch("/api/users", {
   },
 })
 
-
 async function updateRow(_index: number, _user: UserDetailAdmin) {
   refresh()
 }
@@ -82,5 +81,4 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
       :page-meta="data?.pagination"
     />
   </div>
-  {{ page }}
 </template>
