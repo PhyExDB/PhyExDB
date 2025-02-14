@@ -20,7 +20,7 @@ if (!experiment.value) {
   throw showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
 }
 if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECTED") {
-  await navigateTo(`/experiments/${experimentId}`, {replace: true})
+  await navigateTo(`/experiments/${experimentId}`, { replace: true })
 }
 
 const { data: sections } = await useFetch("/api/experiments/sections")
