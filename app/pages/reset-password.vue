@@ -11,6 +11,10 @@ const user = await useUser()
 if (user.value) {
   followRedirect()
 }
+
+// Get reset token from the url
+const route = useRoute()
+const token = route.query.token as string | undefined
 </script>
 
 <template>
@@ -20,17 +24,22 @@ if (user.value) {
         Passwort zurücksetzen
       </CardTitle>
       <CardDescription>
-        Gib deine E-Mail Adresse ein.
+        {{ token? "Gib hier dein neues Passwort an und bestätige es anschließend." : "Gib deine E-Mail Adresse ein, um einen Link zum Zurücksetzen deines Passworts zu erhalten." }}
       </CardDescription>
     </CardHeader>
     <CardContent class="grid gap-4">
+      <UserResetPasswordForm
+        v-if="token"
+        :token="token"
+      />
+      <UserRequestResetPasswordForm v-else />
       <div class="text-center text-sm">
-        Noch kein Account?
+        Du kennst dein Passwort?
         <NuxtLink
-          href="/register"
+          href="/login"
           class="underline"
         >
-          Registrieren
+          Anmelden
         </NuxtLink>
       </div>
     </CardContent>

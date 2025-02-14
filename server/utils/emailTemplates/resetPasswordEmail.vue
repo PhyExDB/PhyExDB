@@ -4,12 +4,13 @@ import { Tailwind, Button, Head, Container, Text, Heading } from "@vue-email/com
 defineProps({
   url: String,
   appName: String,
+  username: String,
 })
 </script>
 
 <template>
   <Head>
-    <title>Verifiziere deine E-Mail</title>
+    <title>Setze dein Password zurück</title>
   </Head>
   <Tailwind
     :config="{
@@ -27,19 +28,19 @@ defineProps({
   >
     <Container class="max-w-2xl mx-auto bg-background p-8 rounded-lg shadow-lg font-sans text-white pt-8 text-center">
       <Heading as="h1">
-        Willkommen bei {{ appName }}!
+        Hallo {{ username }}!
       </Heading>
       <Text>
-        Um dein Konto zu aktivieren, bestätige bitte deine E-Mail-Adresse, indem du auf den Button unten klickst.
+        Um dein Password zurückzusetzen, klicke bitte auf den Button und setze dein neues Passwort!
       </Text>
       <Button
-        href="{{ url }}"
+        :href="url"
         class="bg-accent text-accent-foreground rounded-lg px-4 py-2 mt-4"
       >
-        E-Mail bestätigen
+        Password zurücksetzen
       </Button>
       <Text class="mt-4 text-sm text-muted">
-        Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.
+        Falls du keine Anfrage zum Zurücksetzen deines Passwortes gemacht hast, kannst du diese E-Mail ignorieren.
       </Text>
     </Container>
   </Tailwind>

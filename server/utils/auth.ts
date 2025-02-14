@@ -5,7 +5,8 @@ import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { render } from "@vue-email/render"
 import prisma from "../lib/prisma"
-import verifyEmail from "./emailTemplates/reset-password-email.vue"
+import verifyAccountEmail from "./emailTemplates/verifyAccountEmail.vue"
+import resetPasswordEmail from "./emailTemplates/resetPasswordEmail.vue"
 
 /**
  * betterAuth config
@@ -17,13 +18,22 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false,
     sendResetPassword: async ({ user, url }, _) => {
+      const runtimeConfig = useRuntimeConfig()
       await useNodeMailer().sendMail({
         to: user.email,
-        subject: "Setze dein PhyExDB Passwort zurück",
-        text: `Klicke auf den folgenden Link um dein Passwort zurückzusetzen: ${url}`,
-        html: await render(verifyEmail, {
+        subject: `Setze dein ${runtimeConfig.appName} Passwort zurück`,
+        text: await render(resetPasswordEmail, {
           url,
-          appName: "PhyExDB" }, {
+          appName: runtimeConfig.appName,
+          username: user.name,
+        }, {
+          plainText: true,
+        }),
+        html: await render(resetPasswordEmail, {
+          url,
+          appName: runtimeConfig.appName,
+          username: user.name,
+        }, {
           pretty: true,
         }),
       })
@@ -36,9 +46,14 @@ export const auth = betterAuth({
       const runtimeConfig = useRuntimeConfig()
       await useNodeMailer().sendMail({
         subject: `Verifiziere deinen ${runtimeConfig.appName} Account`,
-        text: `Bitte klicke auf den folgenden Link um deinen ${runtimeConfig.appName} Account zu verifizieren: ${url}.`,
+        text: await render(verifyAccountEmail, {
+          url,
+          appName: runtimeConfig.appName,
+        }, {
+          pretty: true,
+        }),
         to: user.email,
-        html: await render(verifyEmail, {
+        html: await render(verifyAccountEmail, {
           url,
           appName: runtimeConfig.appName,
         }, {
