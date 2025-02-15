@@ -11,6 +11,9 @@ const user = await useUser()
 
 const { page, pageSize } = getRequestPageMeta()
 const search = ref<string>("")
+watch(search, () => {
+  page.value = 1
+})
 
 const { data, refresh } = useLazyFetch("/api/users", {
   query: {
