@@ -8,10 +8,9 @@ definePageMeta({
 })
 const user = await useUserOrThrowError()
 
-const { data: ownExperiments, refresh } = await useLazyFetch("/api/experiments/mine", {
+const { data: ownExperiments } = await useLazyFetch("/api/experiments/mine", {
   query: {
-    page: 1,
-    pageSize: 4,
+    pageSize: 0,
   },
 })
 const { data: experimentsToReview } = await useFetch("/api/experiments/in-review?pageSize=0")
@@ -37,6 +36,13 @@ function numberOfExperimentsToReview(): string {
   return numberOfExperimentsToReview === 1
     ? "1 Experiment"
     : `${numberOfExperimentsToReview} Experimente`
+}
+
+function numberOfOwnExperiments(): string {
+  const numberOfOwnExperiments = ownExperiments?.value?.pagination.total ?? 0
+  return numberOfOwnExperiments === 1
+    ? "1 Experiment"
+    : `${numberOfOwnExperiments} Experimente`
 }
 </script>
 
@@ -165,12 +171,19 @@ function numberOfExperimentsToReview(): string {
         <div class="text-xl">
           Meine Versuche
         </div>
-        <ExperimentOwnList
-          v-if="ownExperiments"
-          :own-experiments="ownExperiments!"
-          :delete-experiment="(id: string) => deleteExperiment(id).then(() => refresh())"
-          :show-show-all-experiments-button="true"
-        />
+        <p class="text-muted-foreground mt-2">
+          Du hast {{ numberOfOwnExperiments() }} erstellt.
+        </p>
+        <NuxtLink
+          to="/experiments/mine"
+        >
+          <Button
+            class="mt-4"
+            variant="outline"
+          >
+            Meine Versuche
+          </Button>
+        </NuxtLink>
       </CardContent>
     </Card>
   </div>

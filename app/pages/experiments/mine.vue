@@ -35,6 +35,8 @@ async function customRefresh() {
     await refresh()
   }
 }
+
+const canCreateExperiment = await allows(experimentAbilities.post)
 </script>
 
 <template>
@@ -63,8 +65,11 @@ async function customRefresh() {
         <h1 class="text-2xl">
           Du hast noch keine Versuche erstellt
         </h1>
-        <Button>
-          <NuxtLink to="/profile">Zurück zum Profil</NuxtLink>
+        <Button
+          v-if="canCreateExperiment"
+          @click="createExperiment"
+        >
+          Neuen Versuch erstellen
         </Button>
       </div>
     </div>
