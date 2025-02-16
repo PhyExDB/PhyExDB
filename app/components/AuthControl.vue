@@ -9,7 +9,8 @@ async function stopImpersonating() {
   await navigateTo("/users")
 }
 
-const allowed = await allows(userAbilities.getAll)
+const canSeeUsers = await allows(userAbilities.getAll)
+const canReviewExperiments = await allows(experimentAbilities.review)
 </script>
 
 <template>
@@ -20,33 +21,46 @@ const allowed = await allows(userAbilities.getAll)
       </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
-      <DropdownMenuItem as-child>
-        <NuxtLink href="/profile">
+      <NuxtLink href="/profile">
+        <DropdownMenuItem as-child>
           <span>Profil</span>
-        </NuxtLink>
-      </DropdownMenuItem>
+        </DropdownMenuItem>
+      </NuxtLink>
 
-      <DropdownMenuItem as-child>
-        <NuxtLink href="/experiments/mine">
+      <NuxtLink href="/experiments/mine">
+        <DropdownMenuItem as-child>
           <span>Meine Versuche</span>
-        </NuxtLink>
-      </DropdownMenuItem>
+        </DropdownMenuItem>
+      </NuxtLink>
 
+      <DropdownMenuSeparator v-if="canSeeUsers || canReviewExperiments" />
       <DropdownMenuItem
         v-if="data?.session.impersonatedBy"
         @click="stopImpersonating"
       >
         <span>Imitieren beenden</span>
       </DropdownMenuItem>
-      <DropdownMenuItem
-        v-if="allowed"
-      >
-        <NuxtLink href="/users">
-          <span>Nutzerverwaltung</span>
-        </NuxtLink>
-      </DropdownMenuItem>
+      <NuxtLink href="/users">
 
-      <DropdownMenuItem @click="useAuth().client.signOut()">
+        <DropdownMenuItem
+          v-if="canSeeUsers"
+        >
+          <span>Nutzerverwaltung</span>
+        </DropdownMenuItem>
+      </NuxtLink>
+      <NuxtLink href="/experiments/review">
+        <DropdownMenuItem
+          v-if="canReviewExperiments"
+        >
+          <span>Experimente überprüfen</span>
+        </DropdownMenuItem>
+      </NuxtLink>
+
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
+        @click="useAuth().client.signOut()"
+      >
         <span>Abmelden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
