@@ -19,8 +19,8 @@ const canCreateExperiment = await allows(experimentAbilities.post)
 
 <template>
   <div>
-    <div class="flex flex-col sm:flex-row justify-between items-center pt-4 text-muted-foreground">
-      <p>
+    <div class="flex flex-col sm:flex-row justify-between items-center pt-4">
+      <p class="text-muted-foreground">
         {{ ownExperiments.pagination.total }} Versuche gefunden
       </p>
       <div class="flex flex-col sm:flex-row gap-2 pt-2 sm:pt-0">
