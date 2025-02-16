@@ -109,6 +109,7 @@ watch(checked, () => {
   ).join(",")
 })
 
+const router = useRouter()
 /* Update the URL */
 watch([sort, attributeFilter, page, pageSize, search], () => {
   const query:
@@ -135,14 +136,14 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
     query.search = search.value
   }
   const newUrl = { path: route.path, query }
-  useRouter().replace(newUrl)
+  router.replace(newUrl)
 })
 </script>
 
 <template>
   <div class="grid grid-cols-1 gap-3">
     <div class="w-full sm:max-w-sm items-center">
-      <ExperimentsSearch
+      <ExperimentSearch
         :search="search"
         @update:search="search = $event"
       />

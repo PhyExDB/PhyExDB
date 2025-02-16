@@ -13,6 +13,24 @@ const { data: experimentsToReview } = await useLazyFetch("/api/experiments/in-re
     pageSize: pageSize,
   },
 })
+
+// Update the URL
+const route = useRoute()
+const router = useRouter()
+watch([page, pageSize], () => {
+  const query: {
+    page?: number
+    pageSize?: number
+  } = {}
+  if (page.value !== defaultPage) {
+    query.page = page.value
+  }
+  if (pageSize.value !== defaultPageSize) {
+    query.pageSize = pageSize.value
+  }
+  const newUrl = { path: route.path, query }
+  router.replace(newUrl)
+})
 </script>
 
 <template>

@@ -8,35 +8,20 @@ definePageMeta({
 })
 const user = await useUserOrThrowError()
 
-const { data: ownExperiments, refresh } = await useLazyFetch("/api/experiments/mine")
+const { data: ownExperiments } = await useLazyFetch("/api/experiments/mine", {
+  query: {
+    pageSize: 0,
+  },
+})
 const { data: experimentsToReview } = await useFetch("/api/experiments/in-review?pageSize=0")
 
 const emailVerifiedPopoverOpen = ref(false)
-const loadingNewExperiment = ref(false)
 
 const verifiedValue = user.value?.emailVerified
   ? "verifiziert"
   : "nicht verifiziert"
 
-const canCreateExperiment = await allows(experimentAbilities.post)
 const canReviewExperiments = await allows(experimentAbilities.review)
-
-function nameOrPlaceholderForExperiment(experiment: ExperimentList) {
-  return experiment.name || "Unbenannter Versuch"
-}
-
-function badgeTitleForExperimentStatus(status: string) {
-  switch (status) {
-    case "DRAFT":
-      return "Entwurf"
-    case "IN_REVIEW":
-      return "In Überprüfung"
-    case "PUBLISHED":
-      return "Veröffentlicht"
-    case "REJECTED":
-      return "Abgelehnt"
-  }
-}
 
 async function sendVerificationEmail() {
   await useAuth().client.sendVerificationEmail({
@@ -46,23 +31,6 @@ async function sendVerificationEmail() {
   emailVerifiedPopoverOpen.value = false
 }
 
-async function deleteExperiment(id: string) {
-  await $fetch(`/api/experiments/delete/${id}`, {
-    method: "DELETE",
-  })
-
-  await refresh()
-}
-
-async function createExperiment() {
-  loadingNewExperiment.value = true
-  const experiment = await $fetch("/api/experiments", {
-    method: "POST",
-  })
-  await navigateTo(`/experiments/edit/${experiment.id}`)
-  loadingNewExperiment.value = false
-}
-
 function numberOfExperimentsToReview(): string {
   const numberOfExperimentsToReview = experimentsToReview?.value?.pagination.total ?? 0
   return numberOfExperimentsToReview === 1
@@ -70,11 +38,11 @@ function numberOfExperimentsToReview(): string {
     : `${numberOfExperimentsToReview} Experimente`
 }
 
-async function duplicateExperiment(experiment: ExperimentList, isRevision: boolean) {
-  await $fetch(`/api/experiments/clone/${experiment.id}?revision=${isRevision}`, {
-    method: "PUT",
-  })
-  await refresh()
+function numberOfOwnExperiments(): string {
+  const numberOfOwnExperiments = ownExperiments?.value?.pagination.total ?? 0
+  return numberOfOwnExperiments === 1
+    ? "1 Experiment"
+    : `${numberOfOwnExperiments} Experimente`
 }
 </script>
 
@@ -203,39 +171,19 @@ async function duplicateExperiment(experiment: ExperimentList, isRevision: boole
         <div class="text-xl">
           Meine Versuche
         </div>
-        <template
-          v-for="experiment in ownExperiments?.items ?? []"
-          :key="experiment.id"
-        >
-          <Card
-            v-if="!experiment.revisionOf"
-            class="mt-4"
-          >
-            <CardContent class="p-4">
-              <ExperimentRow
-                :experiment="experiment"
-                :name-or-placeholder-for-experiment="nameOrPlaceholderForExperiment"
-                :badge-title-for-experiment-status="badgeTitleForExperimentStatus"
-                :delete-experiment="deleteExperiment"
-                :duplicate-experiment="duplicateExperiment"
-              />
-            </CardContent>
-          </Card>
-        </template>
-        <Button
-          v-if="canCreateExperiment"
-          class="mt-4"
-          :loading="loadingNewExperiment"
-          @click="createExperiment"
-        >
-          Neuen Versuch erstellen
-        </Button>
-        <p
-          v-else
-          class="mt-4 text-muted-foreground"
-        >
-          Bitte verifiziere deine E-Mail-Adresse, um einen Versuch zu erstellen.
+        <p class="text-muted-foreground mt-2">
+          Du hast {{ numberOfOwnExperiments() }} erstellt.
         </p>
+        <NuxtLink
+          to="/experiments/mine"
+        >
+          <Button
+            class="mt-4"
+            variant="outline"
+          >
+            Meine Versuche
+          </Button>
+        </NuxtLink>
       </CardContent>
     </Card>
   </div>

@@ -26,21 +26,6 @@ function attributeValuesString(attribute: ExperimentAttributeDetail) {
 const isImageFile = (mimeType: string) => mimeType.startsWith("image/")
 const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
 
-async function duplicateExperiment(experiment: ExperimentList, isRevision: boolean) {
-  try {
-    const duplicate = await $fetch(`/api/experiments/clone/${experiment.id}?revision=${isRevision}`, {
-      method: "PUT",
-    })
-    await navigateTo(`/experiments/edit/${duplicate.id}`)
-  } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const status = (error as any).response?.status
-    if (status === 401 || status === 403) {
-      await navigateTo("/login")
-    }
-  }
-}
-
 const router = useRouter()
 const canGoBack = ref(false)
 
@@ -49,21 +34,6 @@ onMounted(() => {
 })
 
 const showDeleteDialog = ref(false)
-async function deleteExperiment(experiment: ExperimentList) {
-  try {
-    await $fetch(`/api/experiments/delete/${experiment.id}`, {
-      method: "DELETE",
-    })
-    await navigateTo("/experiments")
-  } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const status = (error as any).response?.status
-    if (status === 401) {
-      await navigateTo("/login")
-    }
-    throw error
-  }
-}
 </script>
 
 <template>
@@ -140,7 +110,7 @@ async function deleteExperiment(experiment: ExperimentList) {
 
       <ConfirmDeleteAlertDialogBool
         v-model="showDeleteDialog"
-        :on-delete="() => deleteExperiment(experiment)"
+        :on-delete="() => deleteExperiment(experiment.id).then(async () => await navigateTo('/experiments'))"
         header="Versuch löschen?"
       />
     </div>
