@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
       {
         status: "desc",
       }, {
-        createdAt: "asc",
+        createdAt: "desc",
       },
     ],
     include: experimentIncludeForToList,
