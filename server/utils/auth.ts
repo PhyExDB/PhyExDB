@@ -7,6 +7,7 @@ import { render } from "@vue-email/render"
 import prisma from "../lib/prisma"
 import verifyAccountEmail from "./emailTemplates/verifyAccountEmail.vue"
 import resetPasswordEmail from "./emailTemplates/resetPasswordEmail.vue"
+import UpdatedEmailVerificationTemplate from "./emailTemplates/updatedEmailVerificationTemplate.vue"
 
 /**
  * betterAuth config
@@ -81,9 +82,26 @@ export const auth = betterAuth({
     },
     changeEmail: {
       enabled: true,
-      sendChangeEmailVerification: async ({ user, newEmail, url, token }, _) => {
-        const devUrl = url.replace("http://localhost", "http://localhost:3000")
-        authLogger.alert("cha^ngeEmail", { user, newEmail, devUrl, token })
+      sendChangeEmailVerification: async ({ user, newEmail, url }, _) => {
+        const runtimeConfig = useRuntimeConfig()
+        await useNodeMailer().sendMail({
+          subject: `Verifiziere deine neue Email Adresse für ${runtimeConfig.appName}`,
+          text: await render(UpdatedEmailVerificationTemplate, {
+            url,
+            username: user.name,
+            newEmail,
+          }, {
+            pretty: true,
+          }),
+          to: user.email,
+          html: await render(UpdatedEmailVerificationTemplate, {
+            url,
+            username: user.name,
+            newEmail,
+          }, {
+            pretty: true,
+          }),
+        })
       },
     },
   },
