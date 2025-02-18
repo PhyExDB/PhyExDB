@@ -1,6 +1,6 @@
 import { validate as uuidValidate } from "uuid"
-import type { Event } from "./utils"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
+import type { Event } from "./utils"
 
 /**
  * Generates a Prisma where clause based on a slug or ID parameter from the event.

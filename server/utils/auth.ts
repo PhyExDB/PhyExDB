@@ -1,10 +1,10 @@
-import type { Event } from "./utils"
 import { betterAuth } from "better-auth"
 import { APIError } from "better-auth/api"
 import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { render } from "@vue-email/render"
 import prisma from "../lib/prisma"
+import type { Event } from "./utils"
 import verifyAccountEmail from "./emailTemplates/verifyAccountEmail.vue"
 import resetPasswordEmail from "./emailTemplates/resetPasswordEmail.vue"
 

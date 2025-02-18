@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     prisma.legalDocument.update({
       where,
       data: updateContent,
-    })
+    }),
   )
 
   return updatedDocument as LegalDocumentDetail

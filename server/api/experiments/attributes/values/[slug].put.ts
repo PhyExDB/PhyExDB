@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   const content = await readValidatedBody(event, body => experimentAttributeValueUpdateSchema.parse(body))
 
   const result = await prismaRecordNotFoundTo404(async () =>
-      await untilSlugUnique(
+    await untilSlugUnique(
       (slug: string) => {
         return prisma.experimentAttributeValue.update({
           where: whereClause,
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         })
       },
       slugify(content.value),
-    )
+    ),
   )
 
   if (!result) {
