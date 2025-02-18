@@ -13,6 +13,24 @@ const { data: experimentsToReview } = await useLazyFetch("/api/experiments/in-re
     pageSize: pageSize,
   },
 })
+
+// Update the URL
+const route = useRoute()
+const router = useRouter()
+watch([page, pageSize], () => {
+  const query: {
+    page?: number
+    pageSize?: number
+  } = {}
+  if (page.value !== defaultPage) {
+    query.page = page.value
+  }
+  if (pageSize.value !== defaultPageSize) {
+    query.pageSize = pageSize.value
+  }
+  const newUrl = { path: route.path, query }
+  router.replace(newUrl)
+})
 </script>
 
 <template>
@@ -20,7 +38,7 @@ const { data: experimentsToReview } = await useLazyFetch("/api/experiments/in-re
     <!-- Experiments to show -->
     <div v-if="experimentsToReview && experimentsToReview.pagination.total > 0">
       <h2 class="text-4xl font-extrabold">
-        Zu überprüfende Experimente
+        Zu überprüfende Versuche
       </h2>
       <template
         v-for="experiment in experimentsToReview.items"
@@ -63,7 +81,7 @@ const { data: experimentsToReview } = await useLazyFetch("/api/experiments/in-re
     >
       <div class="flex flex-col items-center space-y-4 text-gray-400">
         <h1 class="text-2xl">
-          Es gibt keine Experimente mehr zu überprüfen
+          Es gibt keine Versuche mehr zu überprüfen
         </h1>
         <Button>
           <NuxtLink to="/profile">Zurück zum Profil</NuxtLink>

@@ -2,7 +2,7 @@
 const { data: experiment } = useFetch<ExperimentDetail>(`/api/experiments/${getSlug()}`)
 
 if (!experiment) {
-  throw showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+  throw showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
 }
 </script>
 

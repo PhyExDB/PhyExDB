@@ -10,7 +10,7 @@ export type Event = H3Event<EventHandlerRequest>
 /** Endpoint */
 export type Endpoint<T> = (event: Event) => Promise<T>
 /** Params of Events */
-export type Params = Record<string, string>
+export type Params = Record<string, any>
 /** Query of Events */
 export type Query = Record<string, any>
 /** Body of Events */

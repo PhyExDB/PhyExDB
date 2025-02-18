@@ -17,10 +17,10 @@ const experimentId = getId()
 const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${experimentId}`)
 
 if (!experiment.value) {
-  throw showError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+  throw showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
 }
 if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECTED") {
-  await navigateTo(`/experiments/${experimentId}`)
+  await navigateTo(`/experiments/${experimentId}`, { replace: true })
 }
 
 const { data: sections } = await useFetch("/api/experiments/sections")
@@ -207,8 +207,8 @@ const onSubmit = form.handleSubmit(async (values) => {
   loading.value = false
 
   toast({
-    title: "Experiment gespeichert",
-    description: "Das Experiment wurde erfolgreich gespeichert.",
+    title: "Versuch gespeichert",
+    description: "Der Versuch wurde erfolgreich gespeichert.",
     variant: "success",
   })
 })
@@ -240,10 +240,10 @@ async function submitForReview() {
     method: "POST",
   })
 
-  await navigateTo(`/experiments/${experimentId}`)
+  await navigateTo(`/experiments/${experimentId}`, { replace: true })
   toast({
-    title: "Experiment zur Überprüfung eingereicht",
-    description: "Das Experiment wurde zur Überprüfung eingereicht.",
+    title: "Versuch zur Überprüfung eingereicht",
+    description: "Der Versuch wurde zur Überprüfung eingereicht.",
     variant: "success",
   })
 }
@@ -252,10 +252,10 @@ async function submitForReview() {
 <template>
   <div>
     <div class="text-4xl font-bold mb-8">
-      Experiment bearbeiten
+      Versuch bearbeiten
     </div>
     <div v-if="!emailVerified">
-      Bitte bestätige deine E-Mail-Adresse, um ein Experiment zu erstellen.
+      Bitte bestätige deine E-Mail-Adresse, um einen Versuch zu erstellen.
     </div>
     <div
       v-else
@@ -387,7 +387,7 @@ async function submitForReview() {
                 :step="5"
               />
               <FormDescription class="flex justify-between">
-                <span>Wie lange dauert die Durchführung des Experiments ungefähr?</span>
+                <span>Wie lange dauert die Durchführung des Versuchs ungefähr?</span>
                 <span>ca. {{ durationToMinAndHourString(value?.[0]) }}</span>
               </FormDescription>
             </FormControl>

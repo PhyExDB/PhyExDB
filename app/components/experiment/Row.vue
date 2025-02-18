@@ -1,20 +1,15 @@
 <script lang="ts" setup>
-const { experiment } = defineProps({
+const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   experiment: {
-    type: Object as PropType<ExperimentList>,
+    type: Object as PropType<
+      Partial<Pick<ExperimentList, "revisedBy">> &
+      Pick<ExperimentList, "id" | "name" | "status" | "slug">
+    >,
     required: true,
   },
   revision: {
     type: Object as PropType<ExperimentList>,
     required: false,
-  },
-  nameOrPlaceholderForExperiment: {
-    type: Function,
-    required: true,
-  },
-  badgeTitleForExperimentStatus: {
-    type: Function,
-    required: true,
   },
   deleteExperiment: {
     type: Function,
@@ -90,8 +85,6 @@ const { experiment } = defineProps({
     />
     <ExperimentRow
       :experiment="experiment.revisedBy"
-      :name-or-placeholder-for-experiment="nameOrPlaceholderForExperiment"
-      :badge-title-for-experiment-status="badgeTitleForExperimentStatus"
       :delete-experiment="deleteExperiment"
       :duplicate-experiment="duplicateExperiment"
     />
