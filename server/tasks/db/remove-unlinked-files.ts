@@ -42,10 +42,10 @@ export default defineTask({
     const filesInDb = await prisma.file.findMany()
 
     if (allFiles.length === filesInDb.length) {
-      logger.info(`Number of files in file mount matches number of files in database: files in db: ${filesInDb.length}, files in mount: ${allFiles.length}`)
+      logger.info(`Number of files in file mount (${allFiles.length}) matches number of files in database`)
       return { result: true }
     }
-    logger.error("Number of files in file mount does not match number of files in database")
+    logger.error(`Number of files in file mount (${allFiles.length}) does not match number of files in database (${filesInDb.length})`)
 
     const filesInDbPaths = new Set(filesInDb.map(file => file.path))
 
