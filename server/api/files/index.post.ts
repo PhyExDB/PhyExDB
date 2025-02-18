@@ -2,7 +2,7 @@ import type { File, FileDetail } from "~~/shared/types"
 import { fileAbilities } from "~~/shared/utils/abilities"
 import { authorizeUser } from "~~/server/utils/authorization"
 
-const relativeFileUploadDirectory = "/uploads"
+export const relativeFileUploadDirectory = "/uploads"
 
 export default defineEventHandler(async (event) => {
   const user = await authorizeUser(event, fileAbilities.post)
