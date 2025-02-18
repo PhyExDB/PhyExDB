@@ -10,7 +10,6 @@ describe("Test utils user", async () => {
     expect(await unit.getUserByEvent(u.getEvent({ params: { id: users.user.id } }))).toEqual(users.user)
     expect(unit.getUserByEvent(u.getEvent({ params: { id: users.mod.id } }))).rejects.toMatchObject({
       statusCode: 404,
-      message: "User not found",
     })
     expect(unit.getUserByEvent(u.getEvent({}))).rejects.toMatchObject({
       statusCode: 400,

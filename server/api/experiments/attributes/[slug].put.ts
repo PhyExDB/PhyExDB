@@ -15,15 +15,17 @@ export default defineEventHandler(async (event) => {
 
   const content = await readValidatedBody(event, body => experimentAttributeUpdateSchema.parse(body))
 
-  const result = await untilSlugUnique(
-    (slug: string) => {
-      return prisma.experimentAttribute.update({
-        where: whereClause,
-        data: { name: content.name, slug: slug },
-        include: { values: true },
-      })
-    },
-    slugify(content.name),
+  const result = await prismaRecordNotFoundTo404(async () =>
+      await untilSlugUnique(
+      (slug: string) => {
+        return prisma.experimentAttribute.update({
+          where: whereClause,
+          data: { name: content.name, slug: slug },
+          include: { values: true },
+        })
+      },
+      slugify(content.name),
+    )
   )
 
   if (!result) {
