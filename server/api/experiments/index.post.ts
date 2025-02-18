@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 import { experimentAbilities } from "~~/shared/utils/abilities"
-import { untilSlugUnique } from "~~/server/utils/utils"
+import { untilSlugUnique } from "~~/server/utils/prisma"
 import { authorizeUser } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {

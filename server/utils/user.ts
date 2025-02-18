@@ -1,5 +1,5 @@
-import type { Event } from "./utils"
-import { getIdPrismaWhereClause } from "./utils"
+import type { Event } from "./prisma"
+import { getIdPrismaWhereClause } from "./prisma"
 
 /**
  * Retrieves a user based on the id provided in the event.

@@ -1,6 +1,6 @@
 import { fileAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
-import { getIdPrismaWhereClause } from "~~/server/utils/utils"
+import { getIdPrismaWhereClause } from "~~/server/utils/prisma"
 import { myDeleteFile } from "~~/server/utils/files"
 
 export default defineEventHandler(async (event) => {

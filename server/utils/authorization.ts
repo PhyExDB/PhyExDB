@@ -1,4 +1,4 @@
-import type { H3Event, EventHandlerRequest } from "h3"
+import type { Event } from "./utils"
 import { getUser, getUserOrThrowError } from "./auth"
 import type { Ability, UserAbility } from "~~/shared/utils/auth"
 import { evaluateAbility, evaluateUserAbility } from "~~/shared/utils/auth"
@@ -9,7 +9,7 @@ import { evaluateAbility, evaluateUserAbility } from "~~/shared/utils/auth"
  * Authorizes a user based on the provided ability and parameters.
  */
 export async function authorize<T extends any[]>(
-  event: H3Event<EventHandlerRequest>,
+  event: Event,
   ability: Ability<T>,
   ...param: T
 ): Promise<UserDetail | null> {
@@ -26,7 +26,7 @@ export async function authorize<T extends any[]>(
  * Can't be used with abillities allowing guests to prevent the strengthening of requirements.
  */
 export async function authorizeUser<T extends any[]>(
-  event: H3Event<EventHandlerRequest>,
+  event: Event,
   ability: UserAbility<T>,
   ...param: T
 ): Promise<UserDetail> {

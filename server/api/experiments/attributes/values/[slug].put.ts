@@ -3,7 +3,7 @@ import { experimentAttributeValueUpdateSchema } from "~~/shared/types"
 import {
   getSlugOrIdPrismaWhereClause,
   untilSlugUnique,
-} from "~~/server/utils/utils"
+} from "~~/server/utils/prisma"
 import slugify from "~~/server/utils/slugify"
 import { experimentAttributeValueAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
