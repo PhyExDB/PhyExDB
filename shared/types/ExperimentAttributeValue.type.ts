@@ -25,7 +25,7 @@ export interface ExperimentAttributeValueDetail extends ExperimentAttributeValue
  *
  * This schema validates that the object has the following properties:
  * - `id`: A string representing the id of the value.
- * - `name`: A string representing the value of the attribute.
+ * - `value`: A string representing the value of the attribute.
  */
 export const experimentAttributeValueCreateSchema = z.object({
   attribute: z.string(),
@@ -36,7 +36,7 @@ export const experimentAttributeValueCreateSchema = z.object({
  * Schema for updating an ExperimentAttributeValue.
  *
  * This schema validates that the object has the following property:
- * - `name`: A string representing the value of the attribute.
+ * - `value`: A string representing the value of the attribute.
  */
 export const experimentAttributeValueUpdateSchema = z.object({
   value: z.string(),

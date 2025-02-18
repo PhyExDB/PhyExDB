@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Update an Experiment Attribute",
+    description: "Update the name of an experiment attribute",
     tags: ["ExperimentAttribute"],
     requestBody: {
       content: {
@@ -52,7 +52,7 @@ defineRouteMeta({
     },
     responses: {
       200: {
-        description: "The updated Attribute",
+        description: "The updated attributes new name",
         content: {
           "application/json": {
             schema: {
@@ -60,14 +60,12 @@ defineRouteMeta({
               properties: {
                 id: { type: "string", format: "uuid" },
                 name: { type: "string" },
+                slug: { type: "string" },
+                valueList: { type: "array" },
               },
-              required: ["id", "name"],
             },
           },
         },
-      },
-      400: {
-        description: "Invalid body",
       },
       404: {
         description: "Attribute not found",

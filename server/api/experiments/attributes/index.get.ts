@@ -18,11 +18,11 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Get a List with Attributes and their Values",
+    description: "Get a list of all attributes and their values",
     tags: ["ExperimentAttribute"],
     responses: {
       200: {
-        description: "A list of Experiment Attributes and their Values",
+        description: "A list of experiment attributes and their values",
         content: {
           "application/json": {
             schema: {
