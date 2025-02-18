@@ -2,6 +2,9 @@ import type { File, FileDetail } from "~~/shared/types"
 import { fileAbilities } from "~~/shared/utils/abilities"
 import { authorizeUser } from "~~/server/utils/authorization"
 
+/**
+ * The directory where the files are stored relative to the public directory
+ */
 export const relativeFileUploadDirectory = "/uploads"
 
 export default defineEventHandler(async (event) => {
