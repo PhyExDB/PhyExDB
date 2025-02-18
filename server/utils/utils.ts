@@ -3,16 +3,6 @@ import type { H3Event, EventHandlerRequest } from "h3"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 
 /**
- * Consumes a value of type T without performing any operations.
- * This is a no-op function that essentially ignores its input.
- *
- * @param _ - The value to consume.
- */
-export function consume<T>(_: T) {
-  // empty
-}
-
-/**
  * Type of Event given to Endpoints
  */
 export type Event = H3Event<EventHandlerRequest>
@@ -84,4 +74,26 @@ export async function untilSlugUnique<T>(
     slugSuffix++
   }
   return result
+}
+
+/**
+ * Executes a given asynchronous function and catches Prisma P2025 record not found errors,
+ * throwing a 404 error instead.
+ */
+export async function prismaRecordNotFoundTo404<T>(
+  call: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await call()
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw createError({ status: 404, message: "Not found" })
+      } else {
+        throw error
+      }
+    } else {
+      throw error
+    }
+  }
 }
