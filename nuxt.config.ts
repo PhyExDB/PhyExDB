@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import vue from "@vitejs/plugin-vue"
 import { copyPrismaAssets } from "./server/utils/copy-prisma-assets"
 
 export default defineNuxtConfig({
@@ -38,6 +39,10 @@ export default defineNuxtConfig({
     },
   },
 
+  // build: {
+  //   transpile: ["@vue-email/components"], // Ensure Vue Email is compiled
+  // },
+
   future: {
     compatibilityVersion: 4,
   },
@@ -52,6 +57,11 @@ export default defineNuxtConfig({
     imports: {
       dirs: [
         "server/lib",
+      ],
+    },
+    rollupConfig: {
+      plugins: [
+        vue(),
       ],
     },
   },

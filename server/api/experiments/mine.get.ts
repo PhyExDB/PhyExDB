@@ -4,6 +4,7 @@ export default defineEventHandler(async (event) => {
   const totalExperiments = await prisma.experiment.count({
     where: {
       userId: user.id,
+      revisionOf: null,
     },
   })
 
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
       {
         status: "desc",
       }, {
-        createdAt: "asc",
+        createdAt: "desc",
       },
     ],
     include: experimentIncludeForToList,

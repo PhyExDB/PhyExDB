@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const updateContent = await readValidatedBody(event, body => legalDocumentUpdateSchema.parse(body))
-
+  updateContent.text = sanitizeHTML(updateContent.text)
   const updatedDocument = await prisma.legalDocument.update({
     where: whereClause,
     data: updateContent,

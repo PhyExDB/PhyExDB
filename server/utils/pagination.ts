@@ -20,7 +20,7 @@ export function getPageMeta(event: H3Event<EventHandlerRequest>, total: number):
 /**
  * Generates pagination parameters for Prisma queries.
  */
-export function getPaginationPrismaParam(meta: PageMeta): { skip: number, take: number } {
+export function getPaginationPrismaParam(meta: Pick<PageMeta, "page" | "pageSize">): { skip: number, take: number } {
   return {
     skip: (meta.page - 1) * meta.pageSize,
     take: meta.pageSize,

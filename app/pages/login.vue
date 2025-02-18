@@ -33,6 +33,14 @@ if (user.value) {
         >
           Registrieren
         </NuxtLink>
+        <div class="text-center text-sm">
+          <NuxtLink
+            href="/reset-password"
+            class="underline"
+          >
+            Passwort vergessen?
+          </NuxtLink>
+        </div>
       </div>
     </CardContent>
   </Card>
