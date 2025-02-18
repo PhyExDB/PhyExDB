@@ -198,7 +198,7 @@ const userUpdatePasswordSchema = z.object({
 })
 
 /**
- * Validates that the password and confirmPassword fields match.
+ * Validates that the password and confirmPassword fields match for updating a user's password.
  */
 export const userUpdatePasswordValidateSchema = validatePasswordForSchema(userUpdatePasswordSchema)
 
@@ -206,5 +206,7 @@ const userResetPasswordSchema = z.object({
   ...passwordSchema,
   ...confirmPasswordSchema,
 })
-
+/**
+ * Validates that the password and confirmPassword fields match for reset password.
+ */
 export const userResetPasswordValidateSchema = validatePasswordForSchema(userResetPasswordSchema)

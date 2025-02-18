@@ -24,7 +24,11 @@ const token = route.query.token as string | undefined
         Passwort zurücksetzen
       </CardTitle>
       <CardDescription>
-        {{ token? "Gib hier dein neues Passwort an und bestätige es anschließend." : "Gib deine E-Mail Adresse ein, um einen Link zum Zurücksetzen deines Passworts zu erhalten." }}
+        {{
+          token
+            ? "Gib hier dein neues Passwort an und bestätige es anschließend."
+            : "Gib deine E-Mail Adresse ein, um einen Link zum Zurücksetzen deines Passworts zu erhalten."
+        }}
       </CardDescription>
     </CardHeader>
     <CardContent class="grid gap-4">
