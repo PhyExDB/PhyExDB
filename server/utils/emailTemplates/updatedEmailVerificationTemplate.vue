@@ -4,6 +4,7 @@ import { Tailwind, Button, Head, Container, Text, Heading } from "@vue-email/com
 defineProps({
   url: String,
   username: String,
+  newEmail: String,
 })
 </script>
 
@@ -30,7 +31,7 @@ defineProps({
         Hallo {{ username }}!
       </Heading>
       <Text>
-        Verifiziere deine neue Email indem du auf den Button unten klickst.
+        Verifiziere deine neue E-Mail "{{newEmail}}", indem du auf den Button unten klickst.
       </Text>
       <Button
         :href="url"
