@@ -31,7 +31,7 @@ defineProps({
         Hallo {{ username }}!
       </Heading>
       <Text>
-        Verifiziere deine neue E-Mail "{{newEmail}}", indem du auf den Button unten klickst.
+        Verifiziere deine neue E-Mail "{{ newEmail }}", indem du auf den Button unten klickst.
       </Text>
       <Button
         :href="url"
