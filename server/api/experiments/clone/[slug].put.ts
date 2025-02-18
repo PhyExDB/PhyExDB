@@ -1,4 +1,4 @@
-import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/utils"
+import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/prisma"
 import slugify from "~~/server/utils/slugify"
 
 export default defineEventHandler(async (event) => {

@@ -3,7 +3,7 @@ import { experimentAttributeValueUpdateSchema } from "~~/shared/types"
 import {
   getSlugOrIdPrismaWhereClause,
   untilSlugUnique,
-} from "~~/server/utils/utils"
+} from "~~/server/utils/prisma"
 import slugify from "~~/server/utils/slugify"
 import { experimentAttributeValueAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
@@ -15,14 +15,16 @@ export default defineEventHandler(async (event) => {
 
   const content = await readValidatedBody(event, body => experimentAttributeValueUpdateSchema.parse(body))
 
-  const result = await untilSlugUnique(
-    (slug: string) => {
-      return prisma.experimentAttributeValue.update({
-        where: whereClause,
-        data: { value: content.value, slug: slug },
-      })
-    },
-    slugify(content.value),
+  const result = await prismaRecordNotFoundTo404(async () =>
+    await untilSlugUnique(
+      (slug: string) => {
+        return prisma.experimentAttributeValue.update({
+          where: whereClause,
+          data: { value: content.value, slug: slug },
+        })
+      },
+      slugify(content.value),
+    ),
   )
 
   if (!result) {

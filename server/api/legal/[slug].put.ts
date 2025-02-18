@@ -1,27 +1,17 @@
-import type { LegalDocumentDetail } from "~~/shared/types"
-import { legalDocumentUpdateSchema } from "~~/shared/types"
-import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
-import { legalAbilities } from "~~/shared/utils/abilities"
-import { authorize } from "~~/server/utils/authorization"
-
 export default defineEventHandler(async (event) => {
   await authorize(event, legalAbilities.put)
 
-  const whereClause = getSlugOrIdPrismaWhereClause(event)
-  const document = await prisma.legalDocument.findFirst({
-    where: whereClause,
-  })
+  const where = getSlugOrIdPrismaWhereClause(event)
 
-  if (!document) {
-    throw createError({ status: 404, message: "Document not found" })
-  }
-
-  const updateContent = await readValidatedBody(event, body => legalDocumentUpdateSchema.parse(body))
+  const updateContent = await readValidatedBody(event, legalDocumentUpdateSchema.parse)
   updateContent.text = sanitizeHTML(updateContent.text)
-  const updatedDocument = await prisma.legalDocument.update({
-    where: whereClause,
-    data: updateContent,
-  })
+
+  const updatedDocument = await prismaRecordNotFoundTo404(async () =>
+    prisma.legalDocument.update({
+      where,
+      data: updateContent,
+    }),
+  )
 
   return updatedDocument as LegalDocumentDetail
 })

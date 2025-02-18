@@ -1,9 +1,9 @@
-import type { H3Event, EventHandlerRequest } from "h3"
+import type { Event } from "./utils"
 
 /**
  * Generates pagination metadata for a given event and total number of items.
  */
-export function getPageMeta(event: H3Event<EventHandlerRequest>, total: number): PageMeta {
+export function getPageMeta(event: Event, total: number): PageMeta {
   const query = getQuery(event)
   const page = parseInt(query.page as string) || 1
   const pageSize = parseInt(query.pageSize as string) || 12
