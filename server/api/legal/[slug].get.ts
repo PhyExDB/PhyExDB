@@ -1,4 +1,4 @@
-import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/utils"
+import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/prisma"
 import type { LegalDocumentDetail } from "~~/shared/types"
 import { legalAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"

@@ -1,10 +1,10 @@
-import type { H3Event, EventHandlerRequest } from "h3"
 import { betterAuth } from "better-auth"
 import { APIError } from "better-auth/api"
 import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { render } from "@vue-email/render"
 import prisma from "../lib/prisma"
+import type { Event } from "./utils"
 import verifyAccountEmail from "./emailTemplates/verifyAccountEmail.vue"
 import resetPasswordEmail from "./emailTemplates/resetPasswordEmail.vue"
 import UpdatedEmailVerificationTemplate from "./emailTemplates/updatedEmailVerificationTemplate.vue"
@@ -116,7 +116,7 @@ export const auth = betterAuth({
 /**
  * getUserDetail()
  */
-export async function getUser(event: H3Event<EventHandlerRequest>): Promise<UserDetail | null> {
+export async function getUser(event: Event): Promise<UserDetail | null> {
   const session = await auth.api.getSession({
     headers: event.headers,
   })
@@ -126,7 +126,7 @@ export async function getUser(event: H3Event<EventHandlerRequest>): Promise<User
 /**
  * getUserDetailOrThrowError()
  */
-export async function getUserOrThrowError(event: H3Event<EventHandlerRequest>): Promise<UserDetail> {
+export async function getUserOrThrowError(event: Event): Promise<UserDetail> {
   const user = await getUser(event)
   if (!user) {
     throw createError({ statusCode: 401, statusMessage: "Not logged in" })

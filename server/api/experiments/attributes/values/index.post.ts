@@ -1,4 +1,4 @@
-import { untilSlugUnique } from "~~/server/utils/utils"
+import { untilSlugUnique } from "~~/server/utils/prisma"
 import slugify from "~~/server/utils/slugify"
 import type { ExperimentAttributeValueList } from "~~/shared/types"
 import { experimentAttributeValueAbilities } from "~~/shared/utils/abilities"

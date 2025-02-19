@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { vi } from "vitest"
 import type { TestContext } from "./utils"
 
@@ -79,7 +80,17 @@ export function mockPrismaForPut<Data, Exp>(
 ) {
   mockPrismaForGet(c, table, checkWhereClause)
 
-  prisma[table].update = prismaMockResolvedCheckingWhereClause(c.expected, checkWhereClause)
+  prisma[table].update = vi.fn().mockImplementation(({ where }) => {
+    if (!checkWhereClause(where)) {
+      const error = new PrismaClientKnownRequestError("", {
+        code: "P2025",
+        meta: {},
+        clientVersion: "test",
+      })
+      throw error
+    }
+    return Promise.resolve(c.expected)
+  })
 }
 /**
  * Mocks the Prisma client methods for a specific table to simulate a request.
