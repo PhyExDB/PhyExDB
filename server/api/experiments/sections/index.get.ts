@@ -14,11 +14,11 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Get a List with Experiment Sections",
+    description: "Get a list of the sections in an experiment",
     tags: ["ExperimentSection"],
     responses: {
       200: {
-        description: "A list of Experiment Sections",
+        description: "A list of the sections in an experiment",
         content: {
           "application/json": {
             schema: {
@@ -30,6 +30,8 @@ defineRouteMeta({
                   name: { type: "string" },
                   slug: { type: "string" },
                   order: { type: "number" },
+                  createdAt: { type: "string", format: "date-time" },
+                  updatedAt: { type: "string", format: "date-time" },
                 },
               },
             },

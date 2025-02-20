@@ -38,11 +38,11 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Create new Value to an existing attribute",
+    description: "Create a new experiment attribute with values for the attribute",
     tags: ["ExperimentAttribute"],
     responses: {
       200: {
-        description: "A list of the attribute with the addition of the created value",
+        description: "The newly created attribute with its values",
         content: {
           "application/json": {
             schema: {
@@ -52,14 +52,20 @@ defineRouteMeta({
                 properties: {
                   id: { type: "string", format: "uuid" },
                   name: { type: "string" },
+                  slug: { type: "string" },
                   order: { type: "number" },
                   multipleSelection: { type: "boolean" },
+                  createdAt: { type: "string", format: "date-time" },
+                  updatedAt: { type: "string", format: "date-time" },
                   valueList: { type: "array" },
                 },
               },
             },
           },
         },
+      },
+      400: {
+        description: "Invalid request/JSON body",
       },
     },
   },

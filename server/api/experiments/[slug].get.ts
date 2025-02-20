@@ -49,6 +49,39 @@ defineRouteMeta({
                   enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"],
                 },
                 duration: { type: "number" },
+                previewImageId: { type: "string" },
+                revisionOfId: { type: "string", format: "uuid" },
+                changeRequest: { type: "string" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
+                previewImage: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      originalName: { type: "string" },
+                      path: { type: "string" },
+                      mimeType: { type: "string" },
+                      createdById: { type: "string", format: "uuid" },
+                      createdAt: { type: "string", format: "date-time" },
+                      updatedAt: { type: "string", format: "date-time" },
+                    },
+                  },
+                },
+                attributes: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      values: {
+                        type: "array",
+                        items: { type: "string", format: "uuid" },
+                      },
+                    },
+                  },
+                },
                 sections: {
                   type: "array",
                   items: {
@@ -62,20 +95,21 @@ defineRouteMeta({
                         items: {
                           type: "object",
                           properties: {
-                            fileId: { type: "string" },
+                            id: { type: "string" },
+                            description: { type: "string" },
+                            order: { type: "number" },
+                            file: {
+                              type: "object",
+                              properties: {
+                                id: { type: "string" },
+                                mimeType: { type: "string" },
+                                path: { type: "string" },
+                                originalName: { type: "string" },
+                              },
+                            },
                           },
                         },
                       },
-                    },
-                  },
-                },
-                attributes: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      id: { type: "string", format: "uuid" },
-                      name: { type: "string" },
                     },
                   },
                 },
@@ -86,9 +120,6 @@ defineRouteMeta({
       },
       400: {
         description: "Invalid slug or ID",
-      },
-      401: {
-        description: "No user is logged in",
       },
       403: {
         description: "Unauthorized",

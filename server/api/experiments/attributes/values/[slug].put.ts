@@ -38,6 +38,18 @@ defineRouteMeta({
   openAPI: {
     description: "Update the name of an attributes value (e.g. Demoversuch changed to KeinDemoversuch)",
     tags: ["ExperimentAttributeValues"],
+    parameters: [
+      {
+        name: "slug",
+        in: "path",
+        required: true,
+        description: "The ID or slug of the attribute value",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
     requestBody: {
       content: {
         "application/json": {

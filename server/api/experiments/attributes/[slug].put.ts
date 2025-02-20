@@ -39,6 +39,18 @@ defineRouteMeta({
   openAPI: {
     description: "Update the name of an experiment attribute",
     tags: ["ExperimentAttribute"],
+    parameters: [
+      {
+        name: "slug",
+        in: "path",
+        required: true,
+        description: "The ID or slug of the experiment attribute",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
     requestBody: {
       content: {
         "application/json": {
@@ -68,6 +80,9 @@ defineRouteMeta({
             },
           },
         },
+      },
+      401: {
+        description: "Not logged in",
       },
       404: {
         description: "Attribute not found",

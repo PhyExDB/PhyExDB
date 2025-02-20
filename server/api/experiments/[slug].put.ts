@@ -120,8 +120,19 @@ defineRouteMeta({
   openAPI: {
     description: "Updates an experiment",
     tags: ["Experiment"],
+    parameters: [
+      {
+        name: "slug",
+        in: "path",
+        required: true,
+        description: "The id or slug of the experiment to update",
+        schema: {
+          type: "string",
+        },
+      },
+    ],
     requestBody: {
-      description: "Experiment data",
+      description: "the updated experiment data",
       required: true,
       content: {
         "application/json": {
@@ -130,31 +141,17 @@ defineRouteMeta({
             properties: {
               name: { type: "string" },
               duration: { type: "number" },
-              sections: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    experimentSectionPositionInOrder: { type: "number" },
-                    text: { type: "string" },
-                    files: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          fileId: { type: "string" },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
+              previewImageId: { type: "string" },
               attributes: {
                 type: "array",
                 items: {
                   type: "object",
                   properties: {
-                    valueId: { type: "string" },
+                    id: { type: "string", format: "uuid" },
+                    values: {
+                      type: "array",
+                      items: { type: "string", format: "uuid" },
+                    },
                   },
                 },
               },
@@ -181,6 +178,36 @@ defineRouteMeta({
                   enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"],
                 },
                 duration: { type: "number" },
+                previewImageId: { type: "string", format: "uuid" },
+                revisedBy: { type: "string", format: "uuid" },
+                revisionOfId: { type: "string", format: "uuid" },
+                changeRequest: { type: "string" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
+                attributes: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      slug: { type: "string" },
+                      name: { type: "string" },
+                      order: { type: "number" },
+                      multipleSelection: { type: "boolean" },
+                      values: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "string", format: "uuid" },
+                            slug: { type: "string" },
+                            value: { type: "string" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
                 sections: {
                   type: "array",
                   items: {
@@ -188,26 +215,26 @@ defineRouteMeta({
                     properties: {
                       id: { type: "string", format: "uuid" },
                       text: { type: "string" },
-                      order: { type: "number" },
                       files: {
                         type: "array",
                         items: {
                           type: "object",
                           properties: {
-                            fileId: { type: "string" },
+                            id: { type: "string" },
+                            description: { type: "string" },
+                            order: { type: "number" },
+                            file: {
+                              type: "object",
+                              properties: {
+                                id: { type: "string" },
+                                mimeType: { type: "string" },
+                                path: { type: "string" },
+                                originalName: { type: "string" },
+                              },
+                            },
                           },
                         },
                       },
-                    },
-                  },
-                },
-                attributes: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      id: { type: "string", format: "uuid" },
-                      name: { type: "string" },
                     },
                   },
                 },

@@ -58,18 +58,18 @@ defineRouteMeta({
     tags: ["Experiment"],
     parameters: [
       {
-        name: "id",
+        name: "slug",
         in: "path",
         required: true,
-        description: "The ID of the experiment",
+        description: "The ID or slug of the experiment",
         schema: {
           type: "string",
-          format: "uuid",
+          format: "uuid", // Format not for slug, how to document?
         },
       },
     ],
     requestBody: {
-      description: "Review content",
+      description: "If the experiment is approved, it will be published. If it is rejected, a message must be provided.",
       required: true,
       content: {
         "application/json": {
@@ -85,7 +85,7 @@ defineRouteMeta({
       },
     },
     responses: {
-      200: {
+      204: {
         description: "Experiment submitted successfully",
       },
       400: {

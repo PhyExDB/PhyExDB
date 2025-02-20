@@ -26,6 +26,18 @@ defineRouteMeta({
   openAPI: {
     description: "Get the values of an attribute (e.g. Versuchsart -> [Freihand, Qualitativ....]",
     tags: ["ExperimentAttribute"],
+    parameters: [
+      {
+        name: "slug",
+        in: "path",
+        required: true,
+        description: "The ID or slug of the attribute",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
     responses: {
       200: {
         description: "The values",

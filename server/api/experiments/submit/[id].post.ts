@@ -48,14 +48,14 @@ defineRouteMeta({
       },
     ],
     responses: {
-      200: {
+      204: {
         description: "Experiment submitted successfully",
       },
       400: {
-        description: "Invalid slug or ID",
+        description: "Invalid slug or ID or the experiment to submit is not in draft or rejected",
       },
       401: {
-        description: "No user is logged in",
+        description: "Not logged in",
       },
       403: {
         description: "Unauthorized",

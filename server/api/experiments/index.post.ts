@@ -68,8 +68,11 @@ defineRouteMeta({
                   items: {
                     type: "object",
                     properties: {
-                      name: { type: "string" },
                       id: { type: "string", format: "uuid" },
+                      values: {
+                        type: "array",
+                        items: { type: "string", format: "uuid" },
+                      },
                     },
                   },
                 },
