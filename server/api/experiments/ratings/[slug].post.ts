@@ -17,21 +17,22 @@ export default defineEventHandler(async (event) => {
         value: content.value,
       },
     }),
-  "compoundId",
+  "userId",
   )
   if (rating === "NOTUNIQUE") {
     throw createError({ status: 400, message: "Rating already exists" })
   }
-  prisma.experiment.update({
-    where: { id: experiment.id },
-    data: {
-      ratingsCount: {
-        increment: 1,
+
+  prisma.$transaction(async (prisma) => {
+    const where = { id: experiment.id }
+    const exp = await prisma.experiment.findUniqueOrThrow({ where })
+    await prisma.experiment.update({
+      where,
+      data: {
+        ratingsCount: exp.ratingsCount + 1,
+        ratingsSum: exp.ratingsSum + rating.value,
       },
-      ratingsSum: {
-        increment: content.value,
-      },
-    },
+    })
   })
 
   return rating as ExperimentRating
@@ -40,7 +41,7 @@ export default defineEventHandler(async (event) => {
 defineRouteMeta({
   openAPI: {
     description: "Rate an experiment",
-    tags: ["Experiment"],
+    tags: ["ExperimentRating"],
     parameters: [
       {
         name: "slug",

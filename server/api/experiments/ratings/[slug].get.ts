@@ -7,8 +7,8 @@ export default defineEventHandler(async (event) => {
     }),
   )
 
-  const rating = await prismaRecordNotFoundTo404(async () =>
-    await prisma.rating.delete({
+  const rating = await nullTo404(async () =>
+    prisma.rating.findUnique({
       where: {
         compoundId: {
           experimentId: experiment.id,
@@ -18,23 +18,13 @@ export default defineEventHandler(async (event) => {
     }),
   )
 
-  prisma.experiment.update({
-    where: { id: experiment.id },
-    data: {
-      ratingsCount: {
-        decrement: 1,
-      },
-      ratingsSum: {
-        decrement: rating.value,
-      },
-    },
-  })
+  return rating as ExperimentRating
 })
 
 defineRouteMeta({
   openAPI: {
-    description: "Delete Rating of an experiment",
-    tags: ["Experiment"],
+    description: "Rate an experiment",
+    tags: ["ExperimentRating"],
     parameters: [
       {
         name: "slug",
@@ -47,12 +37,27 @@ defineRouteMeta({
         },
       },
     ],
+    requestBody: {
+      description: "Rated value",
+      required: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              value: { type: "number" },
+            },
+            required: ["value"],
+          },
+        },
+      },
+    },
     responses: {
       200: {
-        description: "Rating deleted successfully",
+        description: "Rating created successfully",
       },
       400: {
-        description: "Invalid slug or ID",
+        description: "Invalid slug or ID or allready rated",
       },
       401: {
         description: "No user is logged in",

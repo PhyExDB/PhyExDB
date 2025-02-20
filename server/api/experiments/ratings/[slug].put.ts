@@ -32,13 +32,15 @@ export default defineEventHandler(async (event) => {
     return { oldRating, rating }
   })
 
-  prisma.experiment.update({
-    where: { id: experiment.id },
-    data: {
-      ratingsSum: {
-        increment: content.value - oldRating.value,
+  prisma.$transaction(async (prisma) => {
+    const where = { id: experiment.id }
+    const exp = await prisma.experiment.findUniqueOrThrow({ where })
+    await prisma.experiment.update({
+      where,
+      data: {
+        ratingsSum: exp.ratingsSum + content.value - oldRating.value,
       },
-    },
+    })
   })
 
   return rating as ExperimentRating
@@ -47,7 +49,7 @@ export default defineEventHandler(async (event) => {
 defineRouteMeta({
   openAPI: {
     description: "Update the rating of an experiment",
-    tags: ["Experiment"],
+    tags: ["ExperimentRating"],
     parameters: [
       {
         name: "slug",
