@@ -211,7 +211,7 @@ model Verification {
 }
 
 model Rating {
-  id           String      @id
+  id           String      @id @default(uuid())
   value        Int
   user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId       String?
@@ -222,7 +222,7 @@ model Rating {
 }
 
 model Comment {
-  id           String      @id
+  id           String      @id @default(uuid())
   text         String
   user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId       String?
