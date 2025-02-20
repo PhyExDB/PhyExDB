@@ -64,6 +64,9 @@ export default defineNuxtConfig({
         vue(),
       ],
     },
+    scheduledTasks: {
+      "0 0 * * 0": "db:remove-unlinked-files", // Every week at midnight on Sunday
+    },
   },
 
   vite: {
