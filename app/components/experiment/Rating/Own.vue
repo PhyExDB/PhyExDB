@@ -1,84 +1,52 @@
 <script lang="ts" setup>
-import { useForm } from "vee-validate"
-import { toTypedSchema } from "@vee-validate/zod"
-
-const props = defineProps<{ 
-  experiment: Pick<ExperimentList, "id">,
+const props = defineProps<{
+  experiment: Pick<ExperimentList, "id">
 }>()
 const id = computed(() => props.experiment.id)
 
 const canRate = await allows(experimentAbilities.rate)
 
-const { data: ownRating, refresh } = await useFetch<ExperimentRating>(`/api/experiments/ratings/${id.value}`)
+const { data: ownRating } = await useFetch<ExperimentRating>(`/api/experiments/ratings/${id.value}`)
 
-async function deleteRating(){
+async function deleteRating() {
   await $fetch(`/api/experiments/ratings/${id.value}`, {
     method: "DELETE",
   })
   ownRating.value = undefined
 }
 
-const loading = ref(false)
-const formSchema = toTypedSchema(experimentRatingSchema)
-const form = useForm({ validationSchema: formSchema })
-const onSubmit = form.handleSubmit(async (values) => {
-  if (loading.value) return
-  loading.value = true
-
+async function submitRating(newRating: number) {
   await $fetch(`/api/experiments/ratings/${id.value}`, {
-    method: "POST",
-    body: values,
+    method: ownRating.value ? "PUT" : "POST",
+    body: {
+      value: newRating,
+    },
   })
-  ownRating.value = values
-  
-  loading.value = false
-})
-
+  ownRating.value = { value: newRating }
+}
 </script>
 
 <template>
-  <div v-if="canRate">
-    <div v-if="ownRating">
-      Eigene Bewertung:
-      <ExperimentRatingStars      
-        :stars="ownRating.value"
+  <div
+    v-if="canRate"
+    class="flex flex-col sm:flex-row items-center space-x-3 space-y-2 sm:space-y-0"
+  >
+    <div>
+      <h1 class="text-4xl font-extrabold mr-2 pb-4">
+        Versuch Bewerten
+      </h1>
+
+      <ExperimentRatingStars
+        :selected="ownRating?.value ?? 0"
+        :editable="true"
+        @update:selected="submitRating"
       />
       <Button
         variant="outline"
         @click="deleteRating"
       >
-        Bewertung löschen
+        Eigene Bewertung löschen
       </Button>
-    </div>
-
-    <div v-else>
-      <form
-        class="grid gap-4"
-        @submit="onSubmit"
-      >
-        <FormField
-          v-slot="{ componentField }"
-          name="value"
-        >
-          <FormItem>
-            <FormLabel>Rating</FormLabel>
-            <FormControl>
-              <Input
-                id="value"
-                v-bind="componentField"
-                type="number"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        </FormField>
-        <Button
-          :loading="loading"
-          type="submit"
-        >
-          Bewertung abgeben
-        </Button>
-      </form>
     </div>
   </div>
 </template>

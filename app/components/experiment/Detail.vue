@@ -112,6 +112,12 @@ const showDeleteDialog = ref(false)
       />
     </div>
 
+    <!-- Rating -->
+    <ExperimentRating
+      class="-mt-3 -mb-3"
+      :experiment="experiment"
+    />
+
     <!-- Preview Image -->
     <Card
       v-if="experiment.previewImage"
@@ -135,11 +141,6 @@ const showDeleteDialog = ref(false)
         Durchführung: ca. {{ durationToMinAndHourString(experiment.duration) }}
       </span>
     </div>
-
-    <!-- Rating -->
-    <ExperimentRating
-      :experiment="experiment"
-    />
 
     <!-- Attributes Section -->
     <Card class="px-4 py-2 space-y-4 shadow-lg">
@@ -275,8 +276,11 @@ const showDeleteDialog = ref(false)
     </div>
 
     <!-- Own rating -->
-    <ExperimentRatingOwn
-      :experiment="experiment"
-    />
+    <Separator />
+    <div>
+      <ExperimentRatingOwn
+        :experiment="experiment"
+      />
+    </div>
   </div>
 </template>
