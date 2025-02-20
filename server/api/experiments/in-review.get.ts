@@ -1,5 +1,3 @@
-import { create } from "domain"
-
 export default defineEventHandler(async (event) => {
   await authorizeUser(event, experimentAbilities.review)
 

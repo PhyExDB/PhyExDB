@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client"
-import { id } from "happy-dom/lib/PropertySymbol.js"
 import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
