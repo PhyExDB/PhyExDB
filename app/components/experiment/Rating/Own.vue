@@ -40,7 +40,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   <div v-if="canRate">
     <div v-if="ownRating">
       Eigene Bewertung:
-      <ExperimentRatingsStars      
+      <ExperimentRatingStars      
         :stars="ownRating.value"
       />
       <Button

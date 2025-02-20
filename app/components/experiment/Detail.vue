@@ -137,7 +137,7 @@ const showDeleteDialog = ref(false)
     </div>
 
     <!-- Rating -->
-    <ExperimentRatings
+    <ExperimentRating
       :experiment="experiment"
     />
 
@@ -275,7 +275,7 @@ const showDeleteDialog = ref(false)
     </div>
 
     <!-- Own rating -->
-    <ExperimentRatingsOwn
+    <ExperimentRatingOwn
       :experiment="experiment"
     />
   </div>

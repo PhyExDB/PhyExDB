@@ -6,7 +6,7 @@ const ratingsCount = computed(() => props.experiment.ratingsCount)
 </script>
 
 <template>
-  <ExperimentRatingsStars
+  <ExperimentRatingStars
     v-if="ratingsCount"
     :stars="ratingsSum / ratingsCount"
   />

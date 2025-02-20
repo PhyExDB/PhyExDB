@@ -9,8 +9,12 @@
   <div>
     {{ stars }}
     <Icon
-      name="heroicons:star"
+      name="heroicons:star-solid"
       class="w-4 h-4"
     />
+
+    <div>
+    
+    </div>
   </div>
 </template>
