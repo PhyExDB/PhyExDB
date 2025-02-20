@@ -1,12 +1,9 @@
 <script lang="ts" setup>
 const user = await useUser()
 
-const { experiment } = defineProps({
-  experiment: {
-    type: Object as PropType<ExperimentDetail>,
-    required: false,
-  },
-})
+const { experiment } = defineProps<{
+  experiment?: ExperimentDetail
+}>()
 
 const attributesWithoutDuration = computed(() => {
   return experiment?.attributes.filter(
@@ -138,6 +135,11 @@ const showDeleteDialog = ref(false)
         Durchführung: ca. {{ durationToMinAndHourString(experiment.duration) }}
       </span>
     </div>
+
+    <!-- Rating -->
+    <ExperimentRatings
+      :experiment="experiment"
+    />
 
     <!-- Attributes Section -->
     <Card class="px-4 py-2 space-y-4 shadow-lg">
@@ -271,5 +273,10 @@ const showDeleteDialog = ref(false)
         </CarouselWithPreview>
       </div>
     </div>
+
+    <!-- Own rating -->
+    <ExperimentRatingsOwn
+      :experiment="experiment"
+    />
   </div>
 </template>
