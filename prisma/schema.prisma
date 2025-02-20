@@ -211,14 +211,15 @@ model Verification {
 }
 
 model Rating {
-  id           String      @id @default(uuid())
   value        Int
-  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId       String?
-  experiment   Experiment @relation(fields: [experimentId], references: [id])
+  user         User        @relation(fields: [userId], references: [id])
+  userId       String
+  experiment   Experiment  @relation(fields: [experimentId], references: [id])
   experimentId String
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+
+  @@id(name: "compoundId", [userId, experimentId])
 }
 
 model Comment {
