@@ -54,6 +54,38 @@ defineRouteMeta({
     responses: {
       200: {
         description: "The file has been uploaded",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                originalName: { type: "string" },
+                path: { type: "string" },
+                mimeType: { type: "string" },
+                createdById: { type: "string", format: "uuid" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
+                createdBy: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string", format: "uuid" },
+                    role: { type: "string", enum: ["ADMIN", "MODERATOR", "USER"]},
+                    createdAt: { type: "string", format: "date-time" },
+                    updatedAt: { type: "string", format: "date-time" },
+                    name: { type: "string" },
+                    email: { type: "string", format: "email" },
+                    emailVerified: { type: "boolean" },
+                    image: { type: "string" },
+                    banned: { type: "boolean" },
+                    banReason: { type: "string" },
+                    banExpiresAt: { type: "string", format: "date-time" },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       401: {
         description: "Unauthorized",
