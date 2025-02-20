@@ -1,52 +1,29 @@
 export default defineEventHandler(async (event) => {
   const user = await authorizeUser(event, experimentAbilities.rate)
 
-  const content = await readValidatedBody(event, experimentRatingSchema.parse)
-
   const experiment = await nullTo404(async () =>
     await prisma.experiment.findFirst({
       where: getSlugOrIdPrismaWhereClause(event),
     }),
   )
 
-  const where = {
-    compoundId: {
-      experimentId: experiment.id,
-      userId: user.id,
-    },
-  }
-
-  const { oldRating, rating } = await prisma.$transaction(async (prisma) => {
-    const oldRating = await nullTo404(async () =>
-      await prisma.rating.findUnique({
-        where,
-      }),
-    )
-    const rating = await prisma.rating.update({
-      where,
-      data: {
-        value: content.value,
+  const rating = await nullTo404(async () =>
+    prisma.rating.findUnique({
+      where: {
+        compoundId: {
+          experimentId: experiment.id,
+          userId: user.id,
+        },
       },
-    })
-
-    return { oldRating, rating }
-  })
-
-  prisma.experiment.update({
-    where: { id: experiment.id },
-    data: {
-      ratingsSum: {
-        increment: content.value - oldRating.value,
-      },
-    },
-  })
+    }),
+  )
 
   return rating as ExperimentRating
 })
 
 defineRouteMeta({
   openAPI: {
-    description: "Update the rating of an experiment",
+    description: "Rate an experiment",
     tags: ["Experiment"],
     parameters: [
       {
@@ -77,10 +54,10 @@ defineRouteMeta({
     },
     responses: {
       200: {
-        description: "Rating updated successfully",
+        description: "Rating created successfully",
       },
       400: {
-        description: "Invalid slug or ID",
+        description: "Invalid slug or ID or allready rated",
       },
       401: {
         description: "No user is logged in",

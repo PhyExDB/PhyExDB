@@ -33,6 +33,8 @@ export default defineEventHandler(async (event) => {
       },
     },
   })
+
+  return rating as ExperimentRating
 })
 
 defineRouteMeta({
