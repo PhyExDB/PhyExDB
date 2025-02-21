@@ -1,13 +1,9 @@
-<script setup lang="ts">
-const selected = ref(3)
-</script>
-
 <template>
   <div>
-    <ExperimentRatingStars
-      :selected="selected"
-      :editable="true"
-      @update:selected="selected = $event"
-    />
+    <h1>Hello world</h1>
   </div>
 </template>
+
+<script setup>
+await navigateTo("/experiments", { replace: true })
+</script>

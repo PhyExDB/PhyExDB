@@ -303,6 +303,10 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
                 />
                 {{ experiment.duration }} Min.
               </Badge>
+              <ExperimentRating
+                :experiment="experiment"
+                small=true
+              />
             </CardFooter>
           </Card>
         </NuxtLink>
