@@ -70,7 +70,7 @@ const sortOptions = [
   { id: "none", label: "Keine Sortierung" },
   { id: "alphabetical", label: "Alphabetisch" },
   { id: "duration", label: "Durchführungsdauer" },
-  { id: "ratingsAvg", label: "Bewertung"},
+  { id: "ratingsAvg", label: "Bewertung" },
 ]
 
 const checked = ref<string[][]>([])
@@ -310,7 +310,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
                 <div>
                   <ExperimentRating
                     :experiment="experiment"
-                    small=true
+                    small="true"
                   />
                 </div>
               </div>

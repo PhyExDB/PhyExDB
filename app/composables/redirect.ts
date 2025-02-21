@@ -7,7 +7,7 @@
  */
 export function followRedirect() {
   const path = useRoute().query.redirect as string || "/profile"
-  navigateTo(path, {replace: true})
+  navigateTo(path, { replace: true })
 }
 
 /**

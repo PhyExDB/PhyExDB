@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       where,
       data: {
         ratingsSum: exp.ratingsSum + content.value - oldRating.value,
-        ratingsAvg: (exp.ratingsSum + content.value - oldRating.value) / (exp.ratingsCount)
+        ratingsAvg: (exp.ratingsSum + content.value - oldRating.value) / (exp.ratingsCount),
       },
     })
   })

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  experiment: Pick<ExperimentList, "ratingsSum" | "ratingsCount">,
+  experiment: Pick<ExperimentList, "ratingsSum" | "ratingsCount">
   small?: boolean
 }>()
 const ratingsSum = computed(() => props.experiment.ratingsSum)
@@ -35,12 +35,12 @@ function ratingsString() {
     v-if="small"
     class="flex flex-row space-x-2 text-muted-foreground"
   >
-    <div 
+    <div
       v-if="ratingsCount !== 0"
       class="mr-1"
     >
       <Icon
-        name=heroicons:star
+        name="heroicons:star"
         class="w-4 h-4"
       />
       {{ ratingsAvg }}
