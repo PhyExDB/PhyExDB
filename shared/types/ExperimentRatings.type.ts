@@ -4,6 +4,9 @@ import { z } from "zod"
  * Type for an ExperimentRating
  */
 export interface ExperimentRating {
+  /**
+   * Value form 1 to 5
+   */
   value: number
 }
 
