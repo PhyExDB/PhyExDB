@@ -3,6 +3,7 @@ const user = await useUser()
 
 const { experiment } = defineProps<{
   experiment?: ExperimentDetail
+  preview?: boolean
 }>()
 
 const attributesWithoutDuration = computed(() => {
@@ -114,6 +115,7 @@ const showDeleteDialog = ref(false)
 
     <!-- Rating -->
     <ExperimentRating
+      v-if="!preview"
       class="-mt-3 -mb-3"
       :experiment="experiment"
     />
@@ -276,8 +278,8 @@ const showDeleteDialog = ref(false)
     </div>
 
     <!-- Own rating -->
-    <Separator />
-    <div>
+    <div v-if="!preview">
+      <Separator />
       <ExperimentRatingOwn
         :experiment="experiment"
       />

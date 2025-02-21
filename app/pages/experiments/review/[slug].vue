@@ -76,6 +76,7 @@ async function onDelete(message: string) {
         <ExperimentDetail
           :experiment="experiment"
           :show-dropdown="false"
+          preview=true
         />
       </CardContent>
     </Card>
