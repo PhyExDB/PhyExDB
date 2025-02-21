@@ -32,19 +32,22 @@ function ratingsString() {
     </p>
   </div>
   <div
-    v-if="small"
-    class="flex flex-row space-x-2 text-muted-foreground"
+    v-else
+    class="flex flex-row space-x-1 text-muted-foreground items-center"
   >
-    <div
+    <template
       v-if="ratingsCount !== 0"
-      class="mr-1"
     >
       <Icon
         name="heroicons:star"
         class="w-4 h-4"
       />
-      {{ ratingsAvg }}
-    </div>
-    ({{ ratingsString() }})
+      <p>
+        {{ ratingsAvg }}
+      </p>
+    </template>
+    <p>
+      ({{ ratingsString() }})
+    </p>
   </div>
 </template>
