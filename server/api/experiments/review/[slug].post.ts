@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
   if (reviewContent.approve) {
     // Delete old version if revision
     const revisionOf = experiment.revisionOf
-    if (revisionOf !== null) {
+    if (revisionOf !== null && revisionOf !== undefined) {
       // fix ratings
       // delete ratings that where made on the draft
       await prisma.$transaction(async () => {
