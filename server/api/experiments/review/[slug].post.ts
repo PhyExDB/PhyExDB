@@ -33,40 +33,42 @@ export default defineEventHandler(async (event) => {
   if (reviewContent.approve) {
     // Delete old version if revision
     const isRevision = experiment.revisionOf !== null
-    let ratings = {}
     if (isRevision) {
       // fix ratings
       // delete ratings that where made on the draft
-      await prisma.rating.deleteMany({
-        where: {
-          experimentId: experiment.id,
-        },
-      })
-      // copy ratings from previous version
-      await prisma.rating.updateMany({
-        where: {
-          experimentId: experiment.revisionOf!.id,
-        },
-        data: {
-          experimentId: experiment.id,
-        },
-      })
-      ratings = {
-        ratingsSum: experiment.revisionOf!.ratingsSum,
-        ratingsCount: experiment.revisionOf!.ratingsCount,
-      }
-
-      await prisma.experiment.delete({
-        where: {
-          id: experiment.revisionOf!.id,
-        },
+      await prisma.$transaction(async () => {
+        await prisma.rating.deleteMany({
+          where: {
+            experimentId: experiment.id,
+          },
+        })
+        // copy ratings from previous version
+        await prisma.rating.updateMany({
+          where: {
+            experimentId: experiment.revisionOf!.id,
+          },
+          data: {
+            experimentId: experiment.id,
+          },
+        })
+        const exp = await prisma.experiment.delete({
+          where: {
+            id: experiment.revisionOf!.id,
+          },
+        })
+        await prisma.experiment.update({
+          where: { id: experiment.id },
+          data: {
+            ratingsSum: exp.ratingsSum,
+            ratingsCount: exp.ratingsCount,
+          },
+        })
       })
     }
     // Publish new version under same slug if the title is the same
     await prisma.experiment.update({
       where: { id: experiment.id },
       data: {
-        ...ratings,
         status: "PUBLISHED",
         slug: experiment.name === experiment.revisionOf?.name
           ? experiment.revisionOf?.slug
