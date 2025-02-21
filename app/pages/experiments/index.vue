@@ -297,17 +297,23 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
               <CardTitle class="text-primary/80 text-left">
                 {{ experiment.name }}
               </CardTitle>
-              <Badge class="text-left">
-                <Icon
-                  name="heroicons:clock"
-                  class="mr-2 h-4 w-4"
-                />
-                {{ experiment.duration }} Min.
-              </Badge>
-              <ExperimentRating
-                :experiment="experiment"
-                small=true
-              />
+              <div class="flex flex-col justify-between sm:flex-row gap-2 w-full">
+                <div>
+                  <Badge class="text-left">
+                    <Icon
+                      name="heroicons:clock"
+                      class="mr-2 h-4 w-4"
+                    />
+                    {{ experiment.duration }} Min.
+                  </Badge>
+                </div>
+                <div>
+                  <ExperimentRating
+                    :experiment="experiment"
+                    small=true
+                  />
+                </div>
+              </div>
             </CardFooter>
           </Card>
         </NuxtLink>

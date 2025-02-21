@@ -33,7 +33,7 @@ function ratingsString() {
   </div>
   <div
     v-if="small"
-    class="flex flex-col sm:flex-row items-center space-x-2 text-muted-foreground"
+    class="flex flex-row space-x-2 text-muted-foreground"
   >
     <div 
       v-if="ratingsCount !== 0"
