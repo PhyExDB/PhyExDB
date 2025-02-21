@@ -32,8 +32,8 @@ export default defineEventHandler(async (event) => {
 
   if (reviewContent.approve) {
     // Delete old version if revision
-    const isRevision = experiment.revisionOf !== null
-    if (isRevision) {
+    const revisionOf = experiment.revisionOf
+    if (revisionOf !== null) {
       // fix ratings
       // delete ratings that where made on the draft
       await prisma.$transaction(async () => {
@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
         // copy ratings from previous version
         await prisma.rating.updateMany({
           where: {
-            experimentId: experiment.revisionOf!.id,
+            experimentId: revisionOf.id,
           },
           data: {
             experimentId: experiment.id,
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
         })
         const exp = await prisma.experiment.delete({
           where: {
-            id: experiment.revisionOf!.id,
+            id: revisionOf.id,
           },
         })
         await prisma.experiment.update({
