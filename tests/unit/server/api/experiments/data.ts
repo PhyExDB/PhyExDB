@@ -36,6 +36,10 @@ export const lists: ExperimentList[] = [
       path: "previewImage path",
       mimeType: "img/png",
     },
+    revisedBy: undefined,
+    revisionOf: undefined,
+    ratingsSum: 0,
+    ratingsCount: 0,
   },
   {
     id: uuidv4(),
@@ -46,8 +50,12 @@ export const lists: ExperimentList[] = [
     duration: 1,
     attributes: [],
     previewImage: undefined,
+    revisedBy: undefined,
+    revisionOf: undefined,
+    ratingsSum: 0,
+    ratingsCount: 0,
   },
-]
+] as ExperimentList[]
 
 /** A resource detail */
 export const detail: ExperimentDetail = {

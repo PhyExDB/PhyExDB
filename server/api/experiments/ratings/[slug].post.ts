@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
         value: content.value,
       },
     }),
-  "userId",
+    "userId",
   )
   if (rating === "NOTUNIQUE") {
     throw createError({ status: 400, message: "Rating already exists" })
