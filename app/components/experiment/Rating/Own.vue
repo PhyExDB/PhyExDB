@@ -29,13 +29,13 @@ async function submitRating(newRating: number) {
 <template>
   <div
     v-if="canRate"
-    class="flex flex-col sm:flex-row items-center space-x-3 space-y-2 sm:space-y-0"
+    class="flex flex-col"
   >
-    <div>
-      <h1 class="text-4xl font-extrabold mr-2 pb-4">
-        Versuch Bewerten
-      </h1>
+    <h1 class="text-4xl font-extrabold mr-2 pb-4">
+      Versuch Bewerten
+    </h1>
 
+    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
       <ExperimentRatingStars
         :selected="ownRating?.value ?? 0"
         :editable="true"
@@ -45,7 +45,7 @@ async function submitRating(newRating: number) {
         variant="outline"
         @click="deleteRating"
       >
-        Eigene Bewertung löschen
+        Eigene Bewertung entfernen
       </Button>
     </div>
   </div>
