@@ -1,5 +1,6 @@
 -- AlterTable
-ALTER TABLE "Experiment" ADD COLUMN     "ratingsCount" INTEGER NOT NULL DEFAULT 0,
+ALTER TABLE "Experiment" ADD COLUMN     "ratingsAvg" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "ratingsCount" INTEGER NOT NULL DEFAULT 0,
 ADD COLUMN     "ratingsSum" INTEGER NOT NULL DEFAULT 0;
 
 -- CreateTable

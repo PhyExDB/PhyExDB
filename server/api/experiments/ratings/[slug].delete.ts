@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
       data: {
         ratingsCount: exp.ratingsCount - 1,
         ratingsSum: exp.ratingsSum - rating.value,
+        ratingsAvg: (exp.ratingsSum - rating.value) / (exp.ratingsCount - 1)
       },
     })
   })

@@ -65,6 +65,7 @@ model Experiment {
   ratings        Rating[]
   ratingsCount   Int                        @default(0)
   ratingsSum     Int                        @default(0)
+  ratingsAvg     Float                      @default(0)
   comments       Comment[]
   revisionOf     Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
   revisedBy      Experiment?                @relation("Revision")
