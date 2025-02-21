@@ -25,12 +25,11 @@ describe("Api Route /api/experiments/ratings/[slug].post", () => {
   // mocks
   u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
   u.mockPrismaForPost(context, "rating")
-  u.mockPrismaForGet(context, "rating", 
-    (where: {compoundId?: {experimentId?: string, userId?: string}}) => 
+  u.mockPrismaForGet(context, "rating",
+    (where: { compoundId?: { experimentId?: string, userId?: string } }) =>
       where.compoundId?.experimentId === experiment.id
-      && where.compoundId?.userId === context.user.id
+      && where.compoundId?.userId === context.user.id,
   )
-
 
   // tests
   {
@@ -40,7 +39,7 @@ describe("Api Route /api/experiments/ratings/[slug].post", () => {
     u.testSuccess(context)
 
     u.testZodFailWithEmptyBody(context)
-  
+
     u.testAuthFail(context, [users.guest, users.unverified])
   }
 })

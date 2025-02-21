@@ -20,10 +20,10 @@ describe("Api Route /api/experiments/ratings/[slug].get", () => {
 
   // mocks
   u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
-  u.mockPrismaForGet(context, "rating", 
-    (where: {compoundId?: {experimentId?: string, userId?: string}}) => 
+  u.mockPrismaForGet(context, "rating",
+    (where: { compoundId?: { experimentId?: string, userId?: string } }) =>
       where.compoundId?.experimentId === experiment.id
-      && where.compoundId?.userId === context.user.id
+      && where.compoundId?.userId === context.user.id,
   )
 
   // tests

@@ -9,6 +9,7 @@ import endpoint from "~~/server/api/experiments/ratings/[slug].delete"
 describe("Api Route /api/experiments/ratings/[slug].delete", () => {
   // definitions
   const data = rating
+  /* eslint-disable @typescript-eslint/no-invalid-void-type */
   const expected: void = undefined
 
   const context = u.getTestContext({
@@ -20,12 +21,11 @@ describe("Api Route /api/experiments/ratings/[slug].delete", () => {
 
   // mocks
   u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
-  u.mockPrismaForDelete(context, "rating", 
-    (where: {compoundId?: {experimentId?: string, userId?: string}}) => 
+  u.mockPrismaForDelete(context, "rating",
+    (where: { compoundId?: { experimentId?: string, userId?: string } }) =>
       where.compoundId?.experimentId === experiment.id
-      && where.compoundId?.userId === context.user.id
+      && where.compoundId?.userId === context.user.id,
   )
-
 
   // tests
   {
@@ -33,7 +33,7 @@ describe("Api Route /api/experiments/ratings/[slug].delete", () => {
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
     u.testSuccess(context)
-  
+
     u.testAuthFail(context, [users.guest, users.unverified])
   }
 })
