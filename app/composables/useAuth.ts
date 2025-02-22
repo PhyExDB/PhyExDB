@@ -8,7 +8,7 @@ type Client = ReturnType<typeof createAuthClient<{
 
 let auth: {
   client: Client,
-  session: ReturnType<Client["useSession"]>
+  // session: ReturnType<Client["useSession"]>
 }
 
 /**
@@ -24,7 +24,7 @@ export const useAuth = () => {
 
     const session = client.useSession(useFetch)
 
-    auth = { client, session }
+    auth = { client }
     // return { client, session }
   }
   return auth
