@@ -7,6 +7,10 @@ import { createDomPurify } from "~~/server/utils/dompurify"
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
 
+prisma.$transaction = ((func: (prisma: any) => Promise<any>) => {
+  return func(prisma)
+}) as unknown as typeof prisma.$transaction
+
 vitest.mock(import("~~/server/lib/loggers"))
 
 vitest.stubGlobal("useNitroApp", () => {

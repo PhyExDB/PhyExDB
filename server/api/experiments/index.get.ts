@@ -23,6 +23,8 @@ export default defineEventHandler(async (event) => {
     sortOption = { name: "asc" as const }
   } else if (sort === "duration") {
     sortOption = { duration: "asc" as const }
+  } else if (sort === "ratingsAvg") {
+    sortOption = { ratingsAvg: "desc" as const }
   } else {
     sortOption = undefined
   }

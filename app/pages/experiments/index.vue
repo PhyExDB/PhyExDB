@@ -70,6 +70,7 @@ const sortOptions = [
   { id: "none", label: "Keine Sortierung" },
   { id: "alphabetical", label: "Alphabetisch" },
   { id: "duration", label: "Durchführungsdauer" },
+  { id: "ratingsAvg", label: "Bewertung" },
 ]
 
 const checked = ref<string[][]>([])
@@ -296,13 +297,19 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
               <CardTitle class="text-primary/80 text-left">
                 {{ experiment.name }}
               </CardTitle>
-              <Badge class="text-left">
-                <Icon
-                  name="heroicons:clock"
-                  class="mr-2 h-4 w-4"
+              <div class="flex flex-col sm:flex-row gap-2 w-full">
+                <Badge class="text-left">
+                  <Icon
+                    name="heroicons:clock"
+                    class="mr-2 h-4 w-4"
+                  />
+                  {{ experiment.duration }} Min.
+                </Badge>
+                <ExperimentRating
+                  :experiment="experiment"
+                  :small="true"
                 />
-                {{ experiment.duration }} Min.
-              </Badge>
+              </div>
             </CardFooter>
           </Card>
         </NuxtLink>

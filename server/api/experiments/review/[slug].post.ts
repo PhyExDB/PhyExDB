@@ -11,7 +11,17 @@ export default defineEventHandler(async (event) => {
 
   const experiment = await prisma.experiment.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
-    include: experimentIncludeForToDetail,
+    include: {
+      revisionOf: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          ratingsSum: true,
+          ratingsCount: true,
+        },
+      },
+    },
   })
 
   if (!experiment) {
@@ -22,12 +32,37 @@ export default defineEventHandler(async (event) => {
 
   if (reviewContent.approve) {
     // Delete old version if revision
-    const isRevision = experiment.revisionOf !== null
-    if (isRevision) {
-      await prisma.experiment.delete({
-        where: {
-          id: experiment.revisionOf?.id,
-        },
+    const revisionOf = experiment.revisionOf
+    if (revisionOf !== null && revisionOf !== undefined) {
+      // fix ratings
+      // delete ratings that where made on the draft
+      await prisma.$transaction(async () => {
+        await prisma.rating.deleteMany({
+          where: {
+            experimentId: experiment.id,
+          },
+        })
+        // copy ratings from previous version
+        await prisma.rating.updateMany({
+          where: {
+            experimentId: revisionOf.id,
+          },
+          data: {
+            experimentId: experiment.id,
+          },
+        })
+        const exp = await prisma.experiment.delete({
+          where: {
+            id: revisionOf.id,
+          },
+        })
+        await prisma.experiment.update({
+          where: { id: experiment.id },
+          data: {
+            ratingsSum: exp.ratingsSum,
+            ratingsCount: exp.ratingsCount,
+          },
+        })
       })
     }
     // Publish new version under same slug if the title is the same

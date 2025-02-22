@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 const user = await useUser()
 
-const { experiment } = defineProps({
-  experiment: {
-    type: Object as PropType<ExperimentDetail>,
-    required: false,
-  },
-})
+const { experiment } = defineProps<{
+  experiment?: ExperimentDetail
+  preview?: boolean
+}>()
 
 const attributesWithoutDuration = computed(() => {
   return experiment?.attributes.filter(
@@ -114,6 +112,12 @@ const showDeleteDialog = ref(false)
         header="Versuch löschen?"
       />
     </div>
+
+    <!-- Rating -->
+    <ExperimentRating
+      v-if="!preview"
+      :experiment="experiment"
+    />
 
     <!-- Preview Image -->
     <Card
@@ -271,5 +275,13 @@ const showDeleteDialog = ref(false)
         </CarouselWithPreview>
       </div>
     </div>
+
+    <!-- Own rating -->
+    <!-- <div v-if="!preview"> -->
+    <Separator />
+    <ExperimentRatingOwn
+      :experiment="experiment"
+    />
+    <!-- </div> -->
   </div>
 </template>

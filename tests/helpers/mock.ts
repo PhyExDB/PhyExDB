@@ -47,7 +47,9 @@ export function mockPrismaForGet<Data, Exp>(
   checkWhereClause: CheckWhereClause,
 ) {
   prisma[table].findFirst = prismaMockResolvedCheckingWhereClause(c.data, checkWhereClause)
+  prisma[table].findFirstOrThrow = prismaMockResolvedCheckingWhereClause(c.data, checkWhereClause)
   prisma[table].findUnique = prismaMockResolvedCheckingWhereClause(c.data, checkWhereClause)
+  prisma[table].findUniqueOrThrow = prismaMockResolvedCheckingWhereClause(c.data, checkWhereClause)
 }
 /**
  * Mocks the Prisma client methods for a specific table to simulate a request.

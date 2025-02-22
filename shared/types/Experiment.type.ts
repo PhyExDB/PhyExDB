@@ -37,6 +37,15 @@ export interface ExperimentList extends SlugList {
    * The id of the experiment this experiment is revised by
    */
   revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes"> | undefined
+
+  /**
+   * The count of all ratings
+   */
+  ratingsCount: number
+  /**
+   * The sum of all ratings
+   */
+  ratingsSum: number
 }
 
 /**

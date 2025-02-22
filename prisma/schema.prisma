@@ -21,6 +21,7 @@ model User {
   image         String?
   sessions      Session[]
   accounts      Account[]
+  ratings       Rating[]
   comments      Comment[]
   files         File[]
   userFile      UserFile?
@@ -61,6 +62,10 @@ model Experiment {
   previewImageId String?
   sections       ExperimentSectionContent[]
   attributes     ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
+  ratings        Rating[]
+  ratingsCount   Int                        @default(0)
+  ratingsSum     Int                        @default(0)
+  ratingsAvg     Float                      @default(0)
   comments       Comment[]
   revisionOf     Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
   revisedBy      Experiment?                @relation("Revision")
@@ -206,8 +211,20 @@ model Verification {
   @@map("verification")
 }
 
+model Rating {
+  value        Int
+  user         User        @relation(fields: [userId], references: [id])
+  userId       String
+  experiment   Experiment  @relation(fields: [experimentId], references: [id])
+  experimentId String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@id(name: "compoundId", [userId, experimentId])
+}
+
 model Comment {
-  id           String      @id
+  id           String      @id @default(uuid())
   text         String
   user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId       String?
