@@ -14,7 +14,6 @@ export async function authorize<T extends any[]>(
   const user = await useUser()
   const result = evaluateAbility(user.value, ability, ...param)
   if (result === "Not logged in") {
-    // navigateToWithRedirect("/login")
     throw showError({ statusCode: 401, statusMessage: "Not logged in" })
   } else if (result === "Not authorized") {
     throw showError({ statusCode: 403, statusMessage: "Not authorized" })
