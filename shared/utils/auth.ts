@@ -36,6 +36,9 @@ export function evaluateAbility<T extends any[]>(
   ability: Ability<T>,
   ...param: T
 ): UserDetail | null | "Not authorized" | "Not logged in" {
+  if(user === undefined){
+    user = null
+  }
   const isAuthorized = ability(user, ...param)
   if (!isAuthorized) {
     return user === null ? "Not logged in" : "Not authorized"
@@ -51,9 +54,11 @@ export function evaluateUserAbility<T extends any[]>(
   ability: Ability<T>,
   ...param: T
 ): UserDetail | "Not authorized" {
-  const isAuthorized = ability(user, ...param)
-  if (!isAuthorized) {
-    return "Not authorized"
+  if(user !== undefined){
+    const isAuthorized = ability(user, ...param)
+    if (!isAuthorized) {
+      return "Not authorized"
+    }
   }
   return user
 }
