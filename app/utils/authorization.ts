@@ -11,32 +11,15 @@ export async function authorize<T extends any[]>(
   ability: Ability<T>,
   ...param: T
 ): Promise<Ref<UserDetail | null>> {
-  const func = async () => {
-    const user = await useUser()
-    const result = evaluateAbility(user.value, ability, ...param)
-    if (result === "Not logged in") {
-      navigateToWithRedirect("/login")
-      throw createError({ statusCode: 401, statusMessage: "Not logged in" })
-    } else if (result === "Not authorized") {
-      throw showError({ statusCode: 403, statusMessage: "Not authorized" })
-    }
+  const user = await useUser()
+  const result = evaluateAbility(user.value, ability, ...param)
+  if (result === "Not logged in") {
+    // navigateToWithRedirect("/login")
+    throw showError({ statusCode: 401, statusMessage: "Not logged in" })
+  } else if (result === "Not authorized") {
+    throw showError({ statusCode: 403, statusMessage: "Not authorized" })
   }
-  func()
-  if (import.meta.client) {
-    const user = await useUser()
-    const func = async () => {
-      const result = evaluateAbility(user.value, ability, ...param)
-      if (result === "Not logged in") {
-        navigateToWithRedirect("/login")
-        throw createError({ statusCode: 401, statusMessage: "Not logged in" })
-      } else if (result === "Not authorized") {
-        throw showError({ statusCode: 403, statusMessage: "Not authorized" })
-      }
-    }
-    const stop = watch(user, func)
-    onUnmounted(() => stop())
-  }
-  return useUser()
+  return user
 }
 
 /**
