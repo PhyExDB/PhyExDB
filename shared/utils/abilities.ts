@@ -76,11 +76,15 @@ export const experimentAbilities = {
     func: user => minModerator(user),
     allowGuests: false,
   },
+  rate: {
+    func: user => user.emailVerified,
+    allowGuests: false,
+  },
   delete: {
     func: (user, experiment) => user.role === "ADMIN" || user.id === experiment.userId,
     allowGuests: false,
   },
-} satisfies CRUD<Experiment> & { listOwn?: Ability<[]> } & { review?: Ability<[]> }
+} satisfies CRUD<Experiment> & { listOwn?: Ability<[]> } & { review?: Ability<[]> } & { rate?: Ability<[]> }
 
 /** Abilities for files */
 export const fileAbilities = {
