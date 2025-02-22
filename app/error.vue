@@ -6,7 +6,7 @@ const props = defineProps({
 })
 
 if(props.error?.statusCode === 401) {
-  await navigateTo("/login")
+  navigateToWithRedirect("/login")
 }
 </script>
 
@@ -31,7 +31,7 @@ if(props.error?.statusCode === 401) {
       <Button
         v-if="props.error?.statusCode === 401"
       >
-        <NuxtLink to="/login">Anmelden</NuxtLink>
+        <NuxtLink @click.prevent="navigateToWithRedirect('/login')">Anmelden</NuxtLink>
       </Button>
       <Button>
         <NuxtLink to="/">Zurück zur Startseite</NuxtLink>
