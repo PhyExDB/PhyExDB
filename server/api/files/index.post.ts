@@ -1,3 +1,7 @@
+import path from "path"
+import fs from "fs"
+import { exec } from "child_process"
+import { promisify } from "util"
 import type { File, FileDetail } from "~~/shared/types"
 import { fileAbilities } from "~~/shared/utils/abilities"
 import { authorizeUser } from "~~/server/utils/authorization"
@@ -6,6 +10,16 @@ import { authorizeUser } from "~~/server/utils/authorization"
  * The directory where the files are stored relative to the public directory
  */
 export const relativeFileUploadDirectory = "/uploads"
+
+const execAsync = promisify(exec)
+
+async function convertMovToMp4(inputPath: string, outputPath: string) {
+  await execAsync(
+    `ffmpeg -i "${inputPath}" -vcodec h264 -acodec aac "${outputPath}"`,
+  )
+  // Delete the original .mov file
+  fs.unlinkSync(inputPath)
+}
 
 export default defineEventHandler(async (event) => {
   const user = await authorizeUser(event, fileAbilities.post)
@@ -21,9 +35,26 @@ export default defineEventHandler(async (event) => {
       relativeFileUploadDirectory,
     )
     const newFileLocation = `${relativeFileUploadDirectory}/${newRelativeFileLocation}`
+
+    let finalFilePath = newFileLocation
+
+    if (file.type === "video/quicktime") {
+      const inputPath = path.join("public", newFileLocation)
+      const outputPath = inputPath.replace(/\.mov$/, ".mp4")
+      file.type = "video/mp4"
+
+      try {
+        // Perform the conversion in the background
+        event.waitUntil(convertMovToMp4(inputPath, outputPath))
+        finalFilePath = outputPath.replace("public", "")
+      } catch (error) {
+        console.error("Error converting .mov to .mp4:", error)
+      }
+    }
+
     const dbFile = await prisma.file.create({
       data: {
-        path: newFileLocation,
+        path: finalFilePath,
         originalName: file.name,
         mimeType: file.type,
         createdBy: { connect: { id: user.id } },
