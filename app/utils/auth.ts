@@ -1,40 +1,16 @@
 import { toRef } from "vue"
 
-// singleton
-let user: Ref<UserDetail | null> | undefined = undefined
-let impersonatedBy: Ref<string | null | undefined> | undefined = undefined
-
-async function init(){
-  // const { data: session } = await useAuth().client.useSession(useFetch)
-  const { data: session } = await useAuth().session
-
-  user = toRef(() => {
-    return sessionToUserDetail(session?.value)
-  })
-  impersonatedBy = toRef(() => {
-    return session?.value?.session.impersonatedBy
-  })
-  return { user, impersonatedBy }
-}
-
 /**
  * Hook to get the current user session.
+ *
+ * @returns {Promise<Ref<UserDetail | null>>} A reference to the user details derived from the session.
  */
 export async function useUser(): Promise<Ref<UserDetail | null>> {
-  if(user === undefined) {
-    return (await init()).user
-  }
+  const { data: session } = await useAuth().session
+  const user = toRef(() => {
+    return sessionToUserDetail(session?.value)
+  })
   return user
-}
-
-/**
- * Hook to get the current user session.
- */
-export async function useImpersonatedBy(): Promise<Ref<string | null | undefined>> {
-  if(impersonatedBy === undefined) {
-    return (await init()).impersonatedBy
-  }
-  return impersonatedBy
 }
 
 /**

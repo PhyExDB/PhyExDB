@@ -13,5 +13,5 @@ export const useAuth = () => {
 
   const session = client.useSession(useFetch)
 
-  return { client, session }
+  return { session, client }
 }

@@ -1,12 +1,9 @@
 <script lang="ts" setup>
 import getInitials from "~~/shared/utils/initials"
 
-// const user = await useUser()
-console.log("loaded auth control")
-
 const user = await useUser()
-const impersonatedBy = await useImpersonatedBy()
 
+const { data } = await useAuth().session
 async function stopImpersonating() {
   await useAuth().client.admin.stopImpersonating()
   await navigateTo("/users")
@@ -38,7 +35,7 @@ const canReviewExperiments = await allows(experimentAbilities.review)
 
       <DropdownMenuSeparator v-if="canSeeUsers || canReviewExperiments" />
       <DropdownMenuItem
-        v-if="impersonatedBy"
+        v-if="data?.session.impersonatedBy"
         @click="stopImpersonating"
       >
         <span>Imitieren beenden</span>
