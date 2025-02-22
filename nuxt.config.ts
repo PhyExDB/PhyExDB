@@ -32,7 +32,7 @@ export default defineNuxtConfig({
     trustedOrigins: "http://localhost:3000",
     appName: "PhyExDB",
     public: {
-      sectionFileAccepts: "image/jpeg,image/png,image/webp,application/pdf,video/mp4",
+      sectionFileAccepts: "image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime",
       fileStorage: {
         mount: "public",
       },
