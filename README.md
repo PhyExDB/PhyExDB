@@ -10,6 +10,8 @@ npm ci
 
 Only use `npm install` if you want to update the dependencies or add new ones.
 
+For the file upload to work, you also need to install `ffmpeg` on your system. In the Docker container, `ffmpeg` is already installed.
+
 ### Environment Variables
 
 Create a `.env`, `.env.test` and `.env.development` file in the root directory of the project. Fill them with the values of the `.env.example` file.
