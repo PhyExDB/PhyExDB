@@ -14,12 +14,6 @@ import UpdatedEmailVerificationTemplate from "./emailTemplates/updatedEmailVerif
  */
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
-  session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60, // Cache duration in seconds
-    },
-  },
   trustedOrigins: useRuntimeConfig().trustedOrigins.split(","),
   emailAndPassword: {
     enabled: true,
