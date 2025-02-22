@@ -6,9 +6,9 @@ import { toRef } from "vue"
  * @returns {Promise<Ref<UserDetail | null>>} A reference to the user details derived from the session.
  */
 export async function useUser(): Promise<Ref<UserDetail | null>> {
-  const { data: session } = await useAuth().session
+  const session = await useAuth().client.useSession(useFetch)
   const user = toRef(() => {
-    return sessionToUserDetail(session?.value)
+    return sessionToUserDetail(session?.data?.value)
   })
   return user
 }
