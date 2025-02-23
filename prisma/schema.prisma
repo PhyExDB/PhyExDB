@@ -73,6 +73,8 @@ model Experiment {
   changeRequest  String?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
+
+  search Unsupported("tsvector")?@default(dbgenerated("''::tsvector"))
 }
 
 enum ExperimentStatus {
