@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { Level } from "@tiptap/extension-heading"
+import { Subscript as TiptapSubscript } from "@tiptap/extension-subscript"
+import { Superscript as TiptapSuperscript } from "@tiptap/extension-superscript"
 
 const { modelValue, showHeadings } = defineProps({
   modelValue: {
@@ -30,6 +32,8 @@ const editorExtensions = [
     openOnClick: false,
     defaultProtocol: "https",
   }),
+  TiptapSubscript.configure({}),
+  TiptapSuperscript.configure({}),
 ]
 const editor = useEditor({
   content: modelValue,
@@ -121,6 +125,24 @@ onBeforeUnmount(() => {
               @click="editor.chain().focus().toggleStrike().run()"
             >
               <s>S</s>
+            </Button>
+            <Button
+              variant="outline"
+              class="btn aspect-square"
+              :class="{ 'btn-active': editor.isActive('subscript') }"
+              :disabled="!editor.can().chain().focus().toggleSubscript().run()"
+              @click="editor.chain().focus().toggleSubscript().run()"
+            >
+              <p>x<sub>2</sub></p>
+            </Button>
+            <Button
+              variant="outline"
+              class="btn aspect-square"
+              :class="{ 'btn-active': editor.isActive('superscript') }"
+              :disabled="!editor.can().chain().focus().toggleSuperscript().run()"
+              @click="editor.chain().focus().toggleSuperscript().run()"
+            >
+              <p>x<sup>2</sup></p>
             </Button>
             <DropdownMenu v-model:open="isLinkDropdownOpen">
               <DropdownMenuTrigger as-child>

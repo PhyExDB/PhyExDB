@@ -25,6 +25,8 @@
     "@nuxtjs/color-mode": "^3.5.2",
     "@tanstack/vue-table": "^8.21.2",
     "@tiptap/extension-link": "^2.11.5",
+    "@tiptap/extension-subscript": "^2.11.5",
+    "@tiptap/extension-superscript": "^2.11.5",
     "@types/jsonwebtoken": "^9.0.8",
     "@vee-validate/zod": "^4.15.0",
     "@vitejs/plugin-vue": "^5.2.1",
