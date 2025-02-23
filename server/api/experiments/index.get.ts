@@ -2,6 +2,20 @@ import { Prisma } from "@prisma/client"
 import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
+
+
+//   -- SELECT to_tsquery(string_agg(lexeme || ':*', ' & ' ORDER BY positions)) AS q FROM unnest(to_tsvector("Test"))
+
+// WITH query AS (SELECT to_tsquery( string_agg(lexeme || ':*', ' & ' ORDER BY positions)) AS q FROM unnest(to_tsvector('Te')))
+//     SELECT
+//       id, name, ts_rank(search, query.q) AS rank, search, query.q
+//     FROM
+//       "Experiment", query WHERE search @@ query.q
+//     ORDER BY
+//       rank
+//     LIMIT 10
+
+
   // Attribute Filter
   const query = getQuery(event)
   const attributes = (typeof query.attributes === "string" && query.attributes.length > 0)
