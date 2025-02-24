@@ -45,7 +45,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
 
-  legal.value = await $fetch(`/api/legal/${slug}`, {
+  legal.value = await $fetch<LegalDocumentDetail>(`/api/legal/${slug}`, {
     method: "PUT",
     body: values,
   })
@@ -84,6 +84,9 @@ const onSubmit = form.handleSubmit(async (values) => {
             <DialogTitle>
               Ändern des Dokuments
             </DialogTitle>
+            <DialogDescription>
+              Hier können Sie das Dokument bearbeiten.
+            </DialogDescription>
           </DialogHeader>
           <form
             class="grid gap-4"
