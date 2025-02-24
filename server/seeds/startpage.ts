@@ -22,8 +22,8 @@ export default class StartpageSeed extends Seed {
         },
         {
           id: false,
-          text: "",
-          description: "",
+          text: "Welcome to the dark side.",
+          description: "--- --- ---",
         },
       ],
     })
