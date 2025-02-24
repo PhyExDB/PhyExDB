@@ -6,6 +6,7 @@ type Experiment = Pick<ExperimentList, "userId" | "status">
 type File = { createdById: string | null }
 type ExperimentFile = { experimentSection: { experiment: Experiment } }
 type UserFile = { userId: string | null }
+type Comment = { userId: string | null, experiment: { userId: string | null } | null }
 
 type CRUD<T> = {
   getAll?: Ability<[]> // warning: logic often is in db request instead
@@ -25,8 +26,11 @@ const everyone = defineAbility(_ => true)
 function userId<T>(extractUserId: (t: T) => string | null) {
   return defineAbility((user, t: T) => user?.id === extractUserId(t))
 }
-function adminOrUserId<T>(extractUserId: (t: T) => string | null) {
+function adminOrUserId<T>(extractUserId: (t: T) => string | null): Ability<[T]> {
   return defineAbility((user, t: T) => isAdmin(user) || user?.id === extractUserId(t))
+}
+function modOrUserId<T>(extractUserId: (t: T) => string | null): Ability<[T]> {
+  return defineAbility((user, t: T) => minModerator(user) || user?.id === extractUserId(t))
 }
 
 const isAdminCRUD = {
@@ -58,6 +62,25 @@ export const experimentAttributeAbilities = everyoneSeeAdminEditCRUD
 
 /** Abilities for experimentAttributeValues */
 export const experimentAttributeValueAbilities = everyoneSeeAdminEditCRUD
+
+/** Abilities for experimentComments */
+export const experimentCommentAbilities = {
+  getAll: everyone,
+  post: ((user, experiment) =>
+    notNull(user) && (
+      user.emailVerified
+      && experiment.commentsEnabled === true
+    )
+  ) satisfies Ability<[{ commentsEnabled: boolean }]>,
+  delete: ((user, comment) =>
+    notNull(user) && (
+      minModerator(user)
+      || user.id === comment.experiment?.userId
+      || user.id === comment.userId
+    )
+  ) satisfies Ability<[Comment]>,
+  enable: modOrUserId(e => e.userId) satisfies Ability<[Experiment]>,
+}
 
 /** Abilities for experimentSections */
 export const experimentSectionAbilities = everyoneSeeAdminEditCRUD

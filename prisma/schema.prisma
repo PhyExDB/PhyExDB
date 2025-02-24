@@ -76,6 +76,7 @@ model Experiment {
   ratingsSum     Int                        @default(0)
   ratingsAvg     Float                      @default(0)
   comments       Comment[]
+  commentsEnabled Boolean                   @default(true)
   revisionOf     Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
   revisedBy      Experiment?                @relation("Revision")
   revisionOfId   String?                    @unique
@@ -237,10 +238,10 @@ model Rating {
 model Comment {
   id           String      @id @default(uuid())
   text         String
-  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId       String?
-  experiment   Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
-  experimentId String?
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experimentId String
   parent       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: SetNull)
   parentId     String?
   children     Comment[]   @relation("CommentToComment")

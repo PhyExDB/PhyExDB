@@ -72,6 +72,14 @@ const showDeleteDialog = ref(false)
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
+            v-if="user !== null && (user.role === 'ADMIN')"
+            @click="navigateTo(`/users?search=${experiment.userId}`)"
+          >
+            <span>
+              zu Ersteller
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
             @click="duplicateExperiment(experiment, false)"
           >
             <span>
@@ -280,6 +288,9 @@ const showDeleteDialog = ref(false)
     <!-- <div v-if="!preview"> -->
     <Separator />
     <ExperimentRatingOwn
+      :experiment="experiment"
+    />
+    <ExperimentComment
       :experiment="experiment"
     />
     <!-- </div> -->

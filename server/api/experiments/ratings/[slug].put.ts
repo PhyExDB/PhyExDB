@@ -81,6 +81,17 @@ defineRouteMeta({
     responses: {
       200: {
         description: "Rating updated successfully",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                value: { type: "number" },
+              },
+              required: ["value"],
+            },
+          },
+        },
       },
       400: {
         description: "Invalid slug or ID",

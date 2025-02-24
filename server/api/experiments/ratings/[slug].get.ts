@@ -7,23 +7,21 @@ export default defineEventHandler(async (event) => {
     }),
   )
 
-  const rating = await nullTo404(async () =>
-    prisma.rating.findUnique({
-      where: {
-        compoundId: {
-          experimentId: experiment.id,
-          userId: user.id,
-        },
+  const rating = await prisma.rating.findUnique({
+    where: {
+      compoundId: {
+        experimentId: experiment.id,
+        userId: user.id,
       },
-    }),
-  )
+    },
+  })
 
   return rating as ExperimentRating
 })
 
 defineRouteMeta({
   openAPI: {
-    description: "Rate an experiment",
+    description: "Get experiment rating of the logged in user",
     tags: ["ExperimentRating"],
     parameters: [
       {
@@ -55,6 +53,17 @@ defineRouteMeta({
     responses: {
       200: {
         description: "Rating created successfully",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                value: { type: "number" },
+              },
+              required: ["value"],
+            },
+          },
+        },
       },
       400: {
         description: "Invalid slug or ID or allready rated",
