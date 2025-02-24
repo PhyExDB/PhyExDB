@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
-  const id: boolean = getQuery(event).hasOwnProperty("darkSide") || true
+  const query = getQuery(event)
+  const id: boolean = "darkSide" in query || true
 
   const result = await prisma.startpage.findUnique({
     where: { id },
