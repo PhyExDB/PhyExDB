@@ -42,8 +42,6 @@ export default defineEventHandler(async (event) => {
   } else {
     shouldSearchSections = true
   }
-  console.log(shouldSearchSections)
-  console.log(shouldSearchTitle)
 
   const searchTitle = shouldSearchTitle
     ? {
@@ -85,8 +83,6 @@ export default defineEventHandler(async (event) => {
   } else {
     searchCondition = undefined
   }
-
-  console.log(searchCondition)
 
   // Total Number of Experiments
   const totalExperiments = await prisma.experiment.count({
