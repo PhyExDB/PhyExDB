@@ -1,29 +1,27 @@
 export default defineEventHandler(async (event) => {
-  const user = await authorizeUser(event, experimentAbilities.rate)
-
+  const content = await readValidatedBody(event, experimentCommentCreateSchema.parse)
+  
   const experiment = await nullTo404(async () =>
     await prisma.experiment.findFirst({
       where: getSlugOrIdPrismaWhereClause(event),
     }),
   )
+  const user = await authorizeUser(event, experimentCommentAbilities.post, experiment)
 
-  const rating = await nullTo404(async () =>
-    prisma.rating.findUnique({
-      where: {
-        compoundId: {
-          experimentId: experiment.id,
-          userId: user.id,
-        },
-      },
-    }),
-  )
+  const result = await prisma.comment.create({
+    data: {
+      experimentId: experiment.id,
+      userId: user.id,
+      text: content.text,
+    },
+  })
 
-  return rating as ExperimentRating
+  return result as ExperimentComment
 })
 
 defineRouteMeta({
   openAPI: {
-    description: "Get experiment rating of the logged in user",
+    description: "Rate an experiment",
     tags: ["ExperimentRating"],
     parameters: [
       {

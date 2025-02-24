@@ -6,6 +6,7 @@ type Experiment = Pick<ExperimentList, "userId" | "status">
 type File = { createdById: string | null }
 type ExperimentFile = { experimentSection: { experiment: Experiment } }
 type UserFile = { userId: string | null }
+type Comment = { userId: string | null, experiment: { userId: string | null } | null }
 
 type CRUD<T> = {
   getAll?: Ability<[]> // warning: logic often is in db request instead
@@ -55,6 +56,22 @@ export const experimentAttributeAbilities = everyoneSeeAdminEditCRUD
 
 /** Abilities for experimentAttributeValues */
 export const experimentAttributeValueAbilities = everyoneSeeAdminEditCRUD
+
+export const experimentCommentAbilities = {
+  getAll: everyone,
+  post: (user: UserDetail | null, experiment: Experiment) => 
+    notNull(user) && (
+      user.emailVerified
+      && experiment.status === "PUBLISHED"
+    ),
+  delete: ((user: UserDetail | null, comment: Comment) => 
+    notNull(user) && (
+      isAdmin(user)
+      || user.id === comment.experiment?.userId 
+      || user.id === comment.userId
+    )
+  ),
+}
 
 /** Abilities for experimentSections */
 export const experimentSectionAbilities = everyoneSeeAdminEditCRUD
