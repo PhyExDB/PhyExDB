@@ -18,11 +18,11 @@ const { data, refresh } = useLazyFetch<Page<ExperimentComment> | null>(`/api/exp
 })
 
 const user = await useUser()
-const canComment = data.value && allowsUser(
+const canComment = computed(() => data.value && allowsUser(
   user.value,
   experimentCommentAbilities.post,
   { ...props.experiment, commentsEnabled: true },
-)
+))
 const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, props.experiment)
 
 async function deleteComment(commentId: string) {
@@ -38,6 +38,7 @@ async function deleteComment(commentId: string) {
 const formSchema = toTypedSchema(experimentCommentCreateSchema)
 const form = useForm({ validationSchema: formSchema })
 const loading = ref(false)
+const commented = ref(0)
 
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
@@ -48,6 +49,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     body: values,
   })
   form.resetForm()
+  commented.value = 1 - commented.value
   page.value = 1
   await refresh()
 
@@ -71,20 +73,23 @@ async function enableComments(enable: boolean) {
       v-if="canComment"
     >
       <form
-        class="flex flex-col sm:flex-row gap-4"
+        class="flex flex-col gap-4"
         @submit="onSubmit"
       >
         <FormField
           v-slot="{ componentField }"
           name="text"
         >
-          <FormItem class="w-full">
+          <FormItem>
+            <FormLabel>Kommentar schreiben</FormLabel>
             <FormControl>
-              <Input
+              <TipTapEditor
                 id="text"
                 default-value=""
                 v-bind="componentField"
-                type="text"
+                :show-headings="false"
+                @click.prevent
+                :key="commented"
               />
             </FormControl>
             <FormMessage />

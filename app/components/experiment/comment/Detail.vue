@@ -23,7 +23,9 @@ const emit = defineEmits<{
     <CardContent class="flex justify-between flex-col sm:flex-row p-4">
       <p class="break-words">
         {{ comment.user.name }}:
-        {{ comment.text }}
+        <div
+          v-html="comment.text"
+        />
       </p>
 
       <DropdownMenu

@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
   const content = await readValidatedBody(event, experimentCommentCreateSchema.parse)
+  content.text = sanitizeHTML(content.text)
 
   const experiment = await nullTo404(async () =>
     await prisma.experiment.findFirst({
