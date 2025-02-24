@@ -30,15 +30,70 @@ export default defineEventHandler(async (event) => {
   }
 
   // Searching
-  const searchString = query.search as string || undefined
-  const search = searchString ? { name: { contains: searchString, mode: Prisma.QueryMode.insensitive } } : undefined
+  const querySearchString = query.search as string || undefined
+  const querySearchSections = (typeof query.sections === "string" && query.sections.length > 0)
+    ? query.sections.split(",")
+    : undefined
+  let shouldSearchTitle = false
+  let shouldSearchSections = false
+  if (querySearchSections?.includes("titel")) {
+    shouldSearchTitle = true
+    shouldSearchSections = querySearchSections.length > 1 ? true : false
+  } else {
+    shouldSearchSections = true
+  }
+  console.log(shouldSearchSections)
+  console.log(shouldSearchTitle)
+
+  const searchTitle = shouldSearchTitle
+    ? {
+        name: {
+          contains: querySearchString,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      }
+    : undefined
+
+  const searchSections = shouldSearchSections
+    ? {
+        sections: {
+          some: {
+            experimentSection: {
+              slug: {
+                in: shouldSearchSections ? querySearchSections : undefined,
+              },
+            },
+            text: {
+              contains: querySearchString,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        },
+      }
+    : undefined
+
+  let searchCondition
+  if ((shouldSearchTitle && shouldSearchSections) || (!shouldSearchTitle && shouldSearchSections)) {
+    searchCondition = {
+      OR: [
+        { ...searchTitle },
+        { ...searchSections },
+      ],
+    }
+  } else if (shouldSearchTitle) {
+    searchCondition = { ...searchTitle }
+  } else {
+    searchCondition = undefined
+  }
+
+  console.log(searchCondition)
 
   // Total Number of Experiments
   const totalExperiments = await prisma.experiment.count({
     where: {
       status: "PUBLISHED",
       ...attributeFilter,
-      ...search,
+      ...searchCondition,
     },
   })
 
@@ -51,7 +106,7 @@ export default defineEventHandler(async (event) => {
     where: {
       status: "PUBLISHED",
       ...attributeFilter,
-      ...search,
+      ...searchCondition,
     },
     include: experimentIncludeForToList,
     orderBy: sortOption,
