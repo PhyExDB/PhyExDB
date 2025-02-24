@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
     where: { id },
     data: {
       text: content.text,
+      description: content.description,
     },
     include: {
       files: true,
