@@ -107,7 +107,7 @@ async function enableComments(enable: boolean){
         variant="outline"
         @click="enableComments(false)"
       >
-        Kommentare verbieten
+        Kommentare für diesen Versuch verbieten
       </Button>
       <div
         v-for="comment in data?.items"
@@ -142,7 +142,7 @@ async function enableComments(enable: boolean){
       @click="enableComments(true)"
       class="self-start m-2"
     >
-      Kommentare erlauben
+      Kommentare für diesen Versuch erlauben
     </Button>
   </div>
 </template>
