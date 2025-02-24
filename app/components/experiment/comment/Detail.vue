@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import getInitials from "~~/shared/utils/initials"
+
 const props = defineProps<{
   experiment: Pick<ExperimentList, "id" | "userId" | "status">
   comment: ExperimentComment
@@ -21,12 +23,17 @@ const emit = defineEmits<{
 <template>
   <Card class="mt-4">
     <CardContent class="flex justify-between flex-col sm:flex-row p-4">
-      <p class="break-words">
-        {{ comment.user.name }}:
+      <div class="flex flex-col space-y-2">
+        <div class="flex flex-row items-center space-x-2">
+          <Avatar>
+            <AvatarFallback>{{ getInitials(comment.user.name) }}</AvatarFallback>
+          </Avatar>
+          <p> {{ comment.user.name }}: </p>
+        </div>
         <div
           v-html="comment.text"
         />
-      </p>
+      </div>
 
       <DropdownMenu
         v-if="user"
