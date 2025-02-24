@@ -90,7 +90,7 @@ watch(search, () => {
 
 function updateSectionSearchList(slug: string, add: boolean) {
   if (!temporarySearchSections.value.includes(slug) && add) {
-    temporarySearchSections.value = temporarySearchSections.value.filter(_ => 1 === 1) //this somehow fixes an issue
+    temporarySearchSections.value = temporarySearchSections.value.filter(_ => 1 === 1)
     temporarySearchSections.value.push(slug)
   } else if (!add) {
     temporarySearchSections.value = temporarySearchSections.value.filter(sectionSlug => sectionSlug !== slug)
