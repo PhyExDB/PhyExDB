@@ -14,6 +14,14 @@ export default defineEventHandler(async (event) => {
       userId: user.id,
       text: content.text,
     },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+        }
+      }
+    }
   })
 
   return result as ExperimentComment
@@ -21,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Crate comment for an experiment",
+    description: "Create comment for an experiment",
     tags: ["ExperimentComment"],
     parameters: [
       {
@@ -36,26 +44,46 @@ defineRouteMeta({
       },
     ],
     requestBody: {
-      description: "Rated value",
+      description: "Comment to create",
       required: true,
       content: {
         "application/json": {
           schema: {
             type: "object",
             properties: {
-              value: { type: "number" },
+              text: { type: "string" },
             },
-            required: ["value"],
+            required: ["text"],
           },
         },
       },
     },
     responses: {
       200: {
-        description: "Rating created successfully",
+        description: "Comment created successfully",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                text: { type: "string" },
+                user: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string", format: "uuid" },
+                    name: { type: "string" },
+                  },
+                  required: ["id", "name"],
+                },
+              },
+              required: ["id", "text", "user"],
+            },
+          },
+        },
       },
       400: {
-        description: "Invalid slug or ID or allready rated",
+        description: "Invalid slug or comment data",
       },
       401: {
         description: "No user is logged in",

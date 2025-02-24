@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Crate comment for an experiment",
+    description: "Enable or disable comments for an experiment",
     tags: ["ExperimentComment"],
     parameters: [
       {
@@ -37,26 +37,26 @@ defineRouteMeta({
       },
     ],
     requestBody: {
-      description: "Rated value",
+      description: "Enable or disable comments",
       required: true,
       content: {
         "application/json": {
           schema: {
             type: "object",
             properties: {
-              value: { type: "number" },
+              enable: { type: "boolean" },
             },
-            required: ["value"],
+            required: ["enable"],
           },
         },
       },
     },
     responses: {
       200: {
-        description: "Rating created successfully",
+        description: "Comments disabled or enabled successfully",
       },
       400: {
-        description: "Invalid slug or ID or allready rated",
+        description: "Invalid slug or body",
       },
       401: {
         description: "No user is logged in",

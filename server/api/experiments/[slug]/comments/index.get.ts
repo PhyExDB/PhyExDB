@@ -55,10 +55,50 @@ defineRouteMeta({
     ],
     responses: {
       200: {
-        description: "Comments returned successfully",
+        description: "Comments returned successfully or null if comments are disabled",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                items: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      text: { type: "string" },
+                      createdAt: { type: "string", format: "date-time" },
+                      user: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string", format: "uuid" },
+                          name: { type: "string" },
+                        },
+                        required: ["id", "name"],
+                      },
+                    },
+                    required: ["id", "text", "createdAt", "user"],
+                  },
+                },
+                pagination: {
+                  type: "object",
+                  properties: {
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    total: { type: "integer" },
+                    totalPages: { type: "integer" },
+                  },
+                  required: ["page", "pageSize", "total"],
+                },
+              },
+              required: ["items", "pagination"],
+            },
+          },
+        }
       },
       400: {
-        description: "Invalid slug or ID",
+        description: "Invalid slug",
       },
       401: {
         description: "No user is logged in",

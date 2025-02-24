@@ -47,7 +47,7 @@ defineRouteMeta({
     ],
     responses: {
       200: {
-        description: "Rating deleted successfully",
+        description: "Comment deleted successfully",
       },
       400: {
         description: "Invalid slug or ID",
@@ -59,7 +59,7 @@ defineRouteMeta({
         description: "Unauthorized",
       },
       404: {
-        description: "Experiment not found",
+        description: "Experiment or Comment not found",
       },
     },
   },
