@@ -17,9 +17,9 @@ export const comment = {
  * Experiement
  */
 export const experiment = {
-    id: uuidv4(),
-    slug: "slug",
-    userId: users.user.id,
-    commentsEnabled: true,
-    comments: [comment],
+  id: uuidv4(),
+  slug: "slug",
+  userId: users.user.id,
+  commentsEnabled: true,
+  comments: [comment],
 } as unknown as ExperimentList

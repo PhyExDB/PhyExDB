@@ -27,7 +27,7 @@ describe("Api Route api/experiments/[slug]/comments/index.get", () => {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<Page<ExperimentComment> | null>()
 
-    u.testSlugFails({ ...context,data: experiment })
+    u.testSlugFails({ ...context, data: experiment })
 
     u.testSuccessWithPagination(context, data)
   }
