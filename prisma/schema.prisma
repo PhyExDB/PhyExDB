@@ -144,8 +144,8 @@ model File {
   mimeType              String
   experimentFile        ExperimentFile[]
   experimentPreviewFile Experiment[]
-  startPage             Startpage       @relation(fields: [startpageId], references: [id])
-  startpageId           Boolean
+  startpage             Startpage?       @relation(fields: [startpageId], references: [id])
+  startpageId           Boolean?
   userFile              UserFile?
   createdBy             User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById           String?
