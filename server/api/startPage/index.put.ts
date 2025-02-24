@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
 
   const content = await readValidatedBody(event, startpageSchema.parse)
   const query = getQuery(event)
-  const id: boolean = "darkSide" in query || true
+  const id: boolean = !("darkSide" in query) || true
 
   await prisma.file.updateMany({
     where: {
@@ -33,6 +33,26 @@ defineRouteMeta({
   openAPI: {
     description: "Update the startpage",
     tags: ["Startpage"],
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              text: { type: "string" },
+              files: {
+                type: "array",
+                items: {
+                  type: "string",
+                  format: "uuid",
+                },
+              },
+            },
+            required: ["text", "files"],
+          },
+        },
+      },
+    },
     responses: {
       200: {
         description: "The startpage",
@@ -58,6 +78,9 @@ defineRouteMeta({
             },
           },
         },
+      },
+      400: {
+        description: "Invalid body",
       },
     },
   },
