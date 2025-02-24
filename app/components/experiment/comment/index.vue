@@ -1,14 +1,12 @@
 <script lang="ts" setup>
-import { ExperimentCommentDetail } from "#components";
 import { toTypedSchema } from "@vee-validate/zod"
-import { enableCompileCache } from "module";
 import { useForm } from "vee-validate"
+import { ExperimentCommentDetail } from "#components"
 
 const props = defineProps<{
   experiment: Pick<ExperimentList, "id" | "userId" | "status">
 }>()
 const id = computed(() => props.experiment.id)
-
 
 const { page, pageSize } = getRequestPageMeta()
 
@@ -19,14 +17,15 @@ const { data, refresh } = useLazyFetch<Page<ExperimentComment> | null>(`/api/exp
   },
 })
 
-const canComment = data.value && await allows(experimentCommentAbilities.post, { ...props.experiment, commentsEnabled: true })
-const canEnable = await allows(experimentCommentAbilities.enable, props.experiment)
+const user = await useUser()
+const canComment = data.value && allowsUser(user.value, experimentCommentAbilities.post, { ...props.experiment, commentsEnabled: true })
+const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, props.experiment)
 
 async function deleteComment(commentId: string) {
   await useFetch(`/api/experiments/${id.value}/comments/${commentId}`, {
     method: "DELETE",
   })
-  if(data.value?.items.length === 1 && page.value > 1) {
+  if (data.value?.items.length === 1 && page.value > 1) {
     page.value = page.value - 1
   }
   await refresh()
@@ -39,7 +38,7 @@ const loading = ref(false)
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
-  
+
   await $fetch(`/api/experiments/${id.value}/comments`, {
     method: "POST",
     body: values,
@@ -51,14 +50,13 @@ const onSubmit = form.handleSubmit(async (values) => {
   loading.value = false
 })
 
-async function enableComments(enable: boolean){
+async function enableComments(enable: boolean) {
   await $fetch(`/api/experiments/${id.value}/comments/enable`, {
     method: "PUT",
     body: { enable },
   })
   refresh()
 }
-
 </script>
 
 <template>
@@ -111,11 +109,13 @@ async function enableComments(enable: boolean){
       </Button>
       <div
         v-for="comment in data?.items"
+        :key="comment.id"
       >
         <ExperimentCommentDetail
           :experiment="experiment"
           :comment="comment"
-          @deleteComment="deleteComment"
+          :user="user"
+          @delete-comment="deleteComment"
         />
       </div>
 
@@ -139,8 +139,8 @@ async function enableComments(enable: boolean){
 
     <Button
       v-if="canEnable"
-      @click="enableComments(true)"
       class="self-start m-2"
+      @click="enableComments(true)"
     >
       Kommentare für diesen Versuch erlauben
     </Button>

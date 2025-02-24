@@ -62,20 +62,20 @@ export const experimentAttributeValueAbilities = everyoneSeeAdminEditCRUD
 
 export const experimentCommentAbilities = {
   getAll: everyone,
-  post: ((user, experiment) => 
+  post: ((user, experiment) =>
     notNull(user) && (
       user.emailVerified
       && experiment.commentsEnabled === true
     )
   ) satisfies Ability<[{ commentsEnabled: boolean }]>,
-  delete: ((user, comment) => 
+  delete: ((user, comment) =>
     notNull(user) && (
       minModerator(user)
-      || user.id === comment.experiment?.userId 
+      || user.id === comment.experiment?.userId
       || user.id === comment.userId
     )
   ) satisfies Ability<[Comment]>,
-  enable: modOrUserId(e => e.userId) satisfies Ability<[Experiment]>
+  enable: modOrUserId(e => e.userId) satisfies Ability<[Experiment]>,
 }
 
 /** Abilities for experimentSections */

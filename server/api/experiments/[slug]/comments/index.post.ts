@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const content = await readValidatedBody(event, experimentCommentCreateSchema.parse)
-  
+
   const experiment = await nullTo404(async () =>
     await prisma.experiment.findFirst({
       where: getSlugOrIdPrismaWhereClause(event),

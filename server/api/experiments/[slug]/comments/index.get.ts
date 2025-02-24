@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
       where: getSlugOrIdPrismaWhereClause(event),
     }),
   )
-  if(!experiment.commentsEnabled){
+  if (!experiment.commentsEnabled) {
     return null
   }
 
@@ -23,12 +23,12 @@ export default defineEventHandler(async (event) => {
         select: {
           id: true,
           name: true,
-        }
-      }
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
-    }
+    },
   })
 
   return {

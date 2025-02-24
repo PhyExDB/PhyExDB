@@ -3,17 +3,17 @@ import { z } from "zod"
 /**
  * Type for an ExperimentComment
  */
-export interface ExperimentComment extends BaseList{
+export interface ExperimentComment extends BaseList {
   /** Text */
   text: string
   /** User who wrote the comment */
   user: {
-    id: string,
-    name: string,
+    id: string
+    name: string
   }
 }
 
-export interface ExperimentCommentEnabled{
+export interface ExperimentCommentEnabled {
   /** enabled */
   enable: boolean
 }

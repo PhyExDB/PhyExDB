@@ -6,10 +6,10 @@ export default defineEventHandler(async (event) => {
       include: {
         experiment: {
           select: {
-            userId: true
-          }
-        }
-      }
+            userId: true,
+          },
+        },
+      },
     }),
   )
   await authorize(event, experimentCommentAbilities.delete, comment)
