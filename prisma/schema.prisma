@@ -51,11 +51,12 @@ model LegalDocument {
 }
 
 model Startpage {
-  id        Boolean   @id @default(true)
-  text      String
-  files     File[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Boolean   @id @default(true)
+  text        String
+  description String
+  files       File[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Experiment {

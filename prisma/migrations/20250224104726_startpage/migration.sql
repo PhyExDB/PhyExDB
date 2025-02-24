@@ -11,6 +11,7 @@ ALTER TABLE "File" ADD COLUMN     "startpageId" BOOLEAN NOT NULL;
 CREATE TABLE "Startpage" (
     "id" BOOLEAN NOT NULL DEFAULT true,
     "text" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

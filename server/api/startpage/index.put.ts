@@ -40,6 +40,7 @@ defineRouteMeta({
             type: "object",
             properties: {
               text: { type: "string" },
+              description: { type: "string" },
               files: {
                 type: "array",
                 items: {
@@ -62,6 +63,7 @@ defineRouteMeta({
               type: "object",
               properties: {
                 text: { type: "string" },
+                description: { type: "string" },
                 files: {
                   type: "array",
                   items: {

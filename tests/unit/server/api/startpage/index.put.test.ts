@@ -10,6 +10,7 @@ describe("Api Route PUT /api/startpage/index", () => {
   // definitions
   const body = {
     text: "new startpage",
+    description: "new description",
     files: [],
   }
 
