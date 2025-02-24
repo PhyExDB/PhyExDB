@@ -45,6 +45,9 @@ export const userAbilities = onlyAdminCRUD
 /** Abilities for legal */
 export const legalAbilities = everyoneSeeAdminEditCRUD
 
+/** Abilities for startpage */
+export const startpageAbilities = everyoneSeeAdminEditCRUD
+
 /** Abilities for experimentAttributes */
 export const experimentAttributeAbilities = everyoneSeeAdminEditCRUD
 

@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  // await authorize(event, startpageAbilities.put)
+  await authorize(event, startpageAbilities.put)
 
   const content = await readValidatedBody(event, startpageSchema.parse)
   const query = getQuery(event)

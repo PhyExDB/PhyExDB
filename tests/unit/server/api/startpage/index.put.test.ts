@@ -4,21 +4,27 @@ import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
-import endpoint from "~~/server/api/startpage/index.get"
+import endpoint from "~~/server/api/startpage/index.put"
 
-describe("Api Route GET /api/startpage/index", () => {
+describe("Api Route PUT /api/startpage/index", () => {
   // definitions
+  const body = {
+    text: "new startpage",
+    files: [],
+  }
+
   const data = startpage
-  const expected = data
+  const expected = { ...data, ...body }
 
   const context = u.getTestContext({
     data, expected, endpoint,
 
-    user: users.guest,
+    body: body,
+    user: users.admin,
   })
 
   // mocks
-  u.mockPrismaForGet(context, "startpage", () => true)
+  u.mockPrismaForPut(context, "startpage", () => true)
 
   // tests
   {
@@ -26,5 +32,12 @@ describe("Api Route GET /api/startpage/index", () => {
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
     u.testSuccess(context)
+    u.testZodFail(context, [
+      {
+        body: {},
+      },
+    ])
+    // needs to be last, because it changes the user mock
+    u.testAuthFail(context, [users.guest, users.user, users.mod])
   }
 })
