@@ -2,7 +2,7 @@ import prisma from "../lib/prisma"
 import Seed from "./seed"
 
 /**
- * Legal seed.
+ * Startpage seed.
  */
 export default class StartpageSeed extends Seed {
   constructor() {
@@ -10,7 +10,7 @@ export default class StartpageSeed extends Seed {
   }
 
   /**
-   * Seeds the database with legal documents.
+   * Seeds the database with the startpage.
    */
   async seed() {
     await prisma.startpage.createMany({
