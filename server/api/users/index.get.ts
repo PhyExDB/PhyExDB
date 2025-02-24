@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
         { name: { contains: search, mode: "insensitive" } },
         { email: { contains: search, mode: "insensitive" } },
         ...roleFilter,
+        { id: { equals: search } },
       ],
     }
   }
