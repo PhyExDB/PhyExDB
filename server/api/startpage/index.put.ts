@@ -2,6 +2,8 @@ export default defineEventHandler(async (event) => {
   await authorize(event, startpageAbilities.put)
 
   const content = await readValidatedBody(event, startpageSchema.parse)
+  content.text = sanitizeHTML(content.text)
+  content.description = sanitizeHTML(content.description)
   const query = getQuery(event)
   const id: boolean = !("darkSide" in query) || true
 
