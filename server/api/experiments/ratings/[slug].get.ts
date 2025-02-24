@@ -7,16 +7,14 @@ export default defineEventHandler(async (event) => {
     }),
   )
 
-  const rating = await nullTo404(async () =>
-    prisma.rating.findUnique({
-      where: {
-        compoundId: {
-          experimentId: experiment.id,
-          userId: user.id,
-        },
+  const rating = await prisma.rating.findUnique({
+    where: {
+      compoundId: {
+        experimentId: experiment.id,
+        userId: user.id,
       },
-    }),
-  )
+    },
+  })
 
   return rating as ExperimentRating
 })

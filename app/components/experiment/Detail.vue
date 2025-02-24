@@ -282,6 +282,9 @@ const showDeleteDialog = ref(false)
     <ExperimentRatingOwn
       :experiment="experiment"
     />
+    <ExperimentComment
+      :experiment="experiment"
+    />
     <!-- </div> -->
   </div>
 </template>

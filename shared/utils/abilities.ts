@@ -59,10 +59,9 @@ export const experimentAttributeValueAbilities = everyoneSeeAdminEditCRUD
 
 export const experimentCommentAbilities = {
   getAll: everyone,
-  post: (user: UserDetail | null, experiment: Experiment) => 
+  post: (user: UserDetail | null, _: Experiment) => 
     notNull(user) && (
       user.emailVerified
-      && experiment.status === "PUBLISHED"
     ),
   delete: ((user: UserDetail | null, comment: Comment) => 
     notNull(user) && (

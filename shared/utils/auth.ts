@@ -49,6 +49,20 @@ export function evaluateAbility<T extends any[]>(
 /**
  * Evaluates the ability of a user to perform a certain action.
  */
+export function allowsUser<T extends any[]>(
+  user: UserDetail | null,
+  ability: Ability<T>,
+  ...param: T
+): boolean {
+  if (user === undefined) {
+    user = null
+  }
+  return ability(user, ...param)
+}
+
+/**
+ * Evaluates the ability of a user to perform a certain action.
+ */
 export function evaluateUserAbility<T extends any[]>(
   user: UserDetail,
   ability: Ability<T>,

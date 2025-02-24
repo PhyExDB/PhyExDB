@@ -21,14 +21,24 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Delete Rating of an experiment",
-    tags: ["ExperimentRating"],
+    description: "Delete comments of an experiment",
+    tags: ["ExperimentComment"],
     parameters: [
       {
         name: "slug",
         in: "path",
         required: true,
-        description: "The ID of the experiment",
+        description: "The slug of the experiment",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        description: "The id of the comment",
         schema: {
           type: "string",
           format: "uuid",

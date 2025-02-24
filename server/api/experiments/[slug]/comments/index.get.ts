@@ -14,6 +14,14 @@ export default defineEventHandler(async (event) => {
   const result = await prisma.comment.findMany({
     ...getPaginationPrismaParam(pageMeta),
     where,
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+        }
+      }
+    },
     orderBy: {
       createdAt: "desc",
     }
@@ -27,41 +35,26 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Rate an experiment",
-    tags: ["ExperimentRating"],
+    description: "Get comments of an experiment",
+    tags: ["ExperimentComment"],
     parameters: [
       {
         name: "slug",
         in: "path",
         required: true,
-        description: "The ID of the experiment",
+        description: "The slug of the experiment",
         schema: {
           type: "string",
           format: "uuid",
         },
       },
     ],
-    requestBody: {
-      description: "Rated value",
-      required: true,
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              value: { type: "number" },
-            },
-            required: ["value"],
-          },
-        },
-      },
-    },
     responses: {
       200: {
-        description: "Rating created successfully",
+        description: "Comments returned successfully",
       },
       400: {
-        description: "Invalid slug or ID or allready rated",
+        description: "Invalid slug or ID",
       },
       401: {
         description: "No user is logged in",

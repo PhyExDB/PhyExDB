@@ -21,14 +21,14 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Rate an experiment",
-    tags: ["ExperimentRating"],
+    description: "Crate comment for an experiment",
+    tags: ["ExperimentComment"],
     parameters: [
       {
         name: "slug",
         in: "path",
         required: true,
-        description: "The ID of the experiment",
+        description: "The slug of the experiment",
         schema: {
           type: "string",
           format: "uuid",
