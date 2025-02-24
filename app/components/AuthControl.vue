@@ -59,7 +59,7 @@ const canReviewExperiments = await allows(experimentAbilities.review)
       <DropdownMenuSeparator />
       <DropdownMenuItem
         class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
-        @click="useAuth().client.signOut()"
+        @click="useAuth().client.signOut(); navigateTo('/')"
       >
         <span>Abmelden</span>
       </DropdownMenuItem>
