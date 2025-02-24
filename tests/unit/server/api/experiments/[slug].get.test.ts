@@ -15,7 +15,7 @@ describe("Api Route /api/experiments/[slug].get", () => {
     data, expected, endpoint,
 
     params: { slug: data.slug },
-    user: users.guest,
+    user: users.user,
   })
 
   // mocks

@@ -15,32 +15,37 @@ type CRUD<T> = {
   delete?: Ability<[T]>
 }
 
-const isAdmin = (user: UserDetail) => user.role === "ADMIN"
-const minModerator = (user: User) => user.role === "MODERATOR" || user.role === "ADMIN"
-const onlyAdminAbility = defineAbility(false, isAdmin)
-const noGuestsAbility = defineAbility(false, _ => true)
-const everyoneAbility = defineAbility(true, _ => true)
-function abillityRequiringUserId<T>(extractUserId: (t: T) => string | null) {
-  return defineAbility(false, (user, t: T) => user.id === extractUserId(t))
+function notNull<T>(a: T | null) {
+  return a !== null
+}
+const isAdmin = (user: UserDetail | null) => notNull(user) && user.role === "ADMIN"
+const minModerator = (user: User | null) => notNull(user) && (user.role === "MODERATOR" || user.role === "ADMIN")
+const verified = (user: User | null) => notNull(user) && user.emailVerified
+const everyone = defineAbility(_ => true)
+function userId<T>(extractUserId: (t: T) => string | null) {
+  return defineAbility((user, t: T) => user?.id === extractUserId(t))
+}
+function adminOrUserId<T>(extractUserId: (t: T) => string | null) {
+  return defineAbility((user, t: T) => isAdmin(user) || user?.id === extractUserId(t))
 }
 
-const onlyAdminCRUD = {
-  getAll: onlyAdminAbility,
-  get: onlyAdminAbility,
-  put: onlyAdminAbility,
-  delete: onlyAdminAbility,
-  post: onlyAdminAbility,
+const isAdminCRUD = {
+  getAll: isAdmin,
+  get: isAdmin,
+  put: isAdmin,
+  delete: isAdmin,
+  post: isAdmin,
 } satisfies CRUD<never>
 
 const everyoneSeeAdminEditCRUD = {
-  getAll: everyoneAbility,
-  get: everyoneAbility,
-  put: onlyAdminAbility,
-  delete: onlyAdminAbility,
-  post: onlyAdminAbility,
+  getAll: everyone,
+  get: everyone,
+  put: isAdmin,
+  delete: isAdmin,
+  post: isAdmin,
 } satisfies CRUD<never>
 
-export const userAbilities = onlyAdminCRUD
+export const userAbilities = isAdminCRUD
 
 /** Abilities for legal */
 export const legalAbilities = everyoneSeeAdminEditCRUD
@@ -56,63 +61,48 @@ export const experimentSectionAbilities = everyoneSeeAdminEditCRUD
 
 /** Abilities for experiments */
 export const experimentAbilities = {
-  get: {
-    func: (user, experiment) =>
-      experiment.status === "PUBLISHED"
-      || user.id === experiment.userId
-      || (minModerator(user) && experiment.status === "IN_REVIEW"),
-    allowGuests: true,
-  },
-  put: {
-    func: (user, experiment) => user.role === "ADMIN" || user.id === experiment.userId,
-    allowGuests: false,
-  },
-  post: {
-    func: user => user.emailVerified,
-    allowGuests: false,
-  },
-  listOwn: noGuestsAbility,
-  review: {
-    func: user => minModerator(user),
-    allowGuests: false,
-  },
-  rate: {
-    func: user => user.emailVerified,
-    allowGuests: false,
-  },
-  delete: {
-    func: (user, experiment) => user.role === "ADMIN" || user.id === experiment.userId,
-    allowGuests: false,
-  },
-} satisfies CRUD<Experiment> & { listOwn?: Ability<[]> } & { review?: Ability<[]> } & { rate?: Ability<[]> }
+  get: (user, experiment) =>
+    experiment.status === "PUBLISHED"
+    || (
+      notNull(user) && (
+        user.id === experiment.userId
+        || (minModerator(user) && experiment.status === "IN_REVIEW")
+      )
+    ),
+  put: (user, experiment) => notNull(user) && (
+    user.role === "ADMIN" || user.id === experiment.userId
+  ),
+  post: verified,
+  listOwn: notNull,
+  review: minModerator,
+  rate: verified,
+  delete: adminOrUserId(experiment => experiment.userId),
+} satisfies CRUD<Experiment>
+& { listOwn?: Ability<[]> }
+& { review?: Ability<[]> }
+& { rate?: Ability<[]> }
 
 /** Abilities for files */
 export const fileAbilities = {
-  post: {
-    func: user => user.emailVerified,
-    allowGuests: false,
-  },
-  delete: {
-    func: (user, file) => user.id === file.createdById,
-    allowGuests: false,
-  },
+  post: verified,
+  delete: userId(file => file.createdById),
 } satisfies CRUD<File>
 
 /** Abilities for experimentFiles */
 export const experimentFileAbilities = {
-  post: experimentAbilities.put satisfies Ability<[Experiment]>,
-  put: abilityMapFunction(
-    experimentAbilities.put,
-    f => (u, e) => f(u, e.experimentSection.experiment),
+  post: (
+    experimentAbilities.put
+  ) satisfies Ability<[Experiment]>,
+  put: (
+    (user, expFile) => experimentAbilities.put(user, expFile.experimentSection.experiment)
   ) satisfies Ability<[ExperimentFile]>,
-  get: abilityMapFunction(
-    experimentAbilities.get,
-    f => (u, e) => f(u, e.experimentSection.experiment),
+  get: (
+    (user, expFile) => experimentAbilities.get(user, expFile.experimentSection.experiment)
   ) satisfies Ability<[ExperimentFile]>,
 }
 
 /** Abilities for userFiles */
 export const userFileAbilities = {
-  post: abillityRequiringUserId(file => file.createdById) satisfies Ability<[File]>,
-  delete: abillityRequiringUserId(userFile => userFile.userId) satisfies Ability<[UserFile]>,
+  post: userId(file => file.createdById) satisfies Ability<[File]>,
+  delete: userId(userFile => userFile.userId) satisfies Ability<[UserFile]>,
 }

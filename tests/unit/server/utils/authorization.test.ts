@@ -6,8 +6,8 @@ import { defineAbility } from "~~/shared/utils/auth"
 import * as a from "~~/server/utils/authorization"
 
 describe("Test utils authorization", async () => {
-  const ability = defineAbility(true, user => user === users.admin)
-  const userAbility = defineAbility(false, user => user === users.admin)
+  const ability = defineAbility(user => user === null || user === users.admin)
+  const userAbility = defineAbility(user => user === users.admin)
 
   it("authorize", async () => {
     expect(await a.authorize(u.getEvent({ user: users.admin }), ability)).toBe(users.admin)
