@@ -18,7 +18,11 @@ const { data, refresh } = useLazyFetch<Page<ExperimentComment> | null>(`/api/exp
 })
 
 const user = await useUser()
-const canComment = data.value && allowsUser(user.value, experimentCommentAbilities.post, { ...props.experiment, commentsEnabled: true })
+const canComment = data.value && allowsUser(
+  user.value,
+  experimentCommentAbilities.post,
+  { ...props.experiment, commentsEnabled: true },
+)
 const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, props.experiment)
 
 async function deleteComment(commentId: string) {

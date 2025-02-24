@@ -13,6 +13,9 @@ export interface ExperimentComment extends BaseList {
   }
 }
 
+/**
+ * Type for an en-/disabling comments
+ */
 export interface ExperimentCommentEnabled {
   /** enabled */
   enable: boolean
@@ -22,7 +25,9 @@ export interface ExperimentCommentEnabled {
  * Schema for an ExperimentComment
  */
 export const experimentCommentCreateSchema = z.object({
-  text: z.string({ message: "Bitte geben Sie einen Kommentar ein." }).trim().nonempty("Bitte geben Sie einen Kommentar ein."),
+  text: z
+    .string({ message: "Bitte geben Sie einen Kommentar ein." })
+    .trim().nonempty("Bitte geben Sie einen Kommentar ein."),
 })
 
 /**

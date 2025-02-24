@@ -6,7 +6,11 @@ const props = defineProps<{
 }>()
 
 const user = props.user
-const canDelete = allowsUser(user, experimentCommentAbilities.delete, { userId: props.comment.user.id, experiment: props.experiment })
+const canDelete = allowsUser(
+  user,
+  experimentCommentAbilities.delete,
+  { userId: props.comment.user.id, experiment: props.experiment },
+)
 const canViewUser = allowsUser(user, userAbilities.getAll)
 
 const emit = defineEmits<{

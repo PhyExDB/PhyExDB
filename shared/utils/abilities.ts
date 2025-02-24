@@ -60,6 +60,7 @@ export const experimentAttributeAbilities = everyoneSeeAdminEditCRUD
 /** Abilities for experimentAttributeValues */
 export const experimentAttributeValueAbilities = everyoneSeeAdminEditCRUD
 
+/** Abilities for experimentComments */
 export const experimentCommentAbilities = {
   getAll: everyone,
   post: ((user, experiment) =>
