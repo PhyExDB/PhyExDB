@@ -95,7 +95,7 @@ defineRouteMeta({
               required: ["items", "pagination"],
             },
           },
-        }
+        },
       },
       400: {
         description: "Invalid slug",

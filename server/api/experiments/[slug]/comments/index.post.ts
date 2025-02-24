@@ -19,9 +19,9 @@ export default defineEventHandler(async (event) => {
         select: {
           id: true,
           name: true,
-        }
-      }
-    }
+        },
+      },
+    },
   })
 
   return result as ExperimentComment
