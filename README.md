@@ -159,3 +159,17 @@ To enable the Teamscale extension, add the following to your `settings.json`:
     }
 ],
 ```
+
+## SoftwareStack
+
+- fullstack framework: nuxt
+- authentictaion: betterAuth
+- tests: vitest
+- validation: zod
+- backend:
+    - logger: winston
+    - orm: prisma
+    - mail: ???
+- frontend:
+    - ui: shadcn-vue
+    - form-validation: vee-validate
