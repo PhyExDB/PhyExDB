@@ -108,6 +108,7 @@ async function enableComments(enable: boolean) {
         v-if="canEnable"
         variant="outline"
         @click="enableComments(false)"
+        class="my-4"
       >
         Kommentare für diesen Versuch verbieten
       </Button>
@@ -125,6 +126,7 @@ async function enableComments(enable: boolean) {
 
       <div
         v-if="data?.pagination.total === 0"
+        class="text-muted-foreground"
       >
         Bisher gibt es keine Kommentare.
       </div>
@@ -137,13 +139,13 @@ async function enableComments(enable: boolean) {
   </div>
   <div
     v-else
-    class="flex flex-col"
+    class="flex flex-col text-muted-foreground"
   >
     Für diesen Versuch sind Kommentare deaktiviert.
 
     <Button
       v-if="canEnable"
-      class="self-start m-2"
+      class="self-start my-4"
       @click="enableComments(true)"
     >
       Kommentare für diesen Versuch erlauben

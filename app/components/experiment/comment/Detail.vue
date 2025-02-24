@@ -33,7 +33,7 @@ const emit = defineEmits<{
           <Button
             variant="outline"
             size="sm"
-            class="rounded-full p-1"
+            class="rounded-full p-1 mt-2 sm:mt-1"
           >
             <Icon
               name="heroicons:ellipsis-horizontal"
