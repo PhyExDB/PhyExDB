@@ -1,0 +1,29 @@
+import prisma from "../lib/prisma"
+import Seed from "./seed"
+
+/**
+ * Legal seed.
+ */
+export default class StartpageSeed extends Seed {
+  constructor() {
+    super("startpage")
+  }
+
+  /**
+   * Seeds the database with legal documents.
+   */
+  async seed() {
+    await prisma.startpage.createMany({
+      data: [
+        {
+          id: true,
+          text: "Startpage",
+        },
+        {
+          id: false,
+          text: "",
+        },
+      ],
+    })
+  }
+}
