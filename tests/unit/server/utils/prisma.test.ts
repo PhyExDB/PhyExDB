@@ -38,7 +38,7 @@ describe("Test utils prisma", async () => {
       expect(await unit.catchPrismaUniqueError(async () => {
         throw error
       }, "slug")).toEqual("NOTUNIQUE")
-      expect(unit.catchPrismaUniqueError(async () => {
+      await expect(unit.catchPrismaUniqueError(async () => {
         throw new Error()
       }, "attribute")).rejects.toThrowError()
     })
@@ -62,7 +62,7 @@ describe("Test utils prisma", async () => {
     })
     it("prismaRecordNotFoundTo404", async () => {
       expect(await unit.prismaRecordNotFoundTo404(async () => "result")).toEqual("result")
-      expect(unit.prismaRecordNotFoundTo404(async () => {
+      await expect(unit.prismaRecordNotFoundTo404(async () => {
         throw error
       })).rejects.toThrow(expect.objectContaining({ statusCode: 404 }))
     })

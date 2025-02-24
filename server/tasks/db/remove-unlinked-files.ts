@@ -14,6 +14,7 @@ export default defineTask({
         experimentFile: { none: {} },
         experimentPreviewFile: { none: {} },
         userFile: { is: null },
+        startpage: { is: null },
       },
     })
 

@@ -50,6 +50,15 @@ model LegalDocument {
   updatedAt DateTime @updatedAt
 }
 
+model Startpage {
+  id          Boolean   @id @default(true)
+  text        String
+  description String
+  files       File[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Experiment {
   id             String                     @id @default(uuid())
   name           String
@@ -136,6 +145,8 @@ model File {
   mimeType              String
   experimentFile        ExperimentFile[]
   experimentPreviewFile Experiment[]
+  startpage             Startpage?       @relation(fields: [startpageId], references: [id])
+  startpageId           Boolean?
   userFile              UserFile?
   createdBy             User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById           String?
