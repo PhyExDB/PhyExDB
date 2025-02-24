@@ -85,11 +85,11 @@ async function enableComments(enable: boolean) {
             <FormControl>
               <TipTapEditor
                 id="text"
-                default-value=""
                 v-bind="componentField"
+                :key="commented"
+                default-value=""
                 :show-headings="false"
                 @click.prevent
-                :key="commented"
               />
             </FormControl>
             <FormMessage />
@@ -112,8 +112,8 @@ async function enableComments(enable: boolean) {
       <Button
         v-if="canEnable"
         variant="outline"
-        @click="enableComments(false)"
         class="my-4"
+        @click="enableComments(false)"
       >
         Kommentare für diesen Versuch verbieten
       </Button>
