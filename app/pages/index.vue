@@ -97,6 +97,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     body: values,
     query,
   })
+
   open.value = false
   loading.value = false
 })

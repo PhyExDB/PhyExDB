@@ -11,12 +11,12 @@ export default defineEventHandler(async (event) => {
           path: true,
           mimeType: true,
           originalName: true,
-        }
+        },
       },
     },
   })
 
-  if(!result){
+  if (!result) {
     throw createError({ status: 404, message: "Startpage not found" })
   }
 
