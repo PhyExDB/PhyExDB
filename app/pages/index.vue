@@ -10,7 +10,7 @@
     <div class="h-96" />
     <div class="py-8 text-center">
       <h3 class="mb-4 text-3xl font-semibold md:mb-5 md:text-4xl">
-        PhyExDB
+        <span class="font-bold">PhyEx</span><span class="text-accent">DB</span>
       </h3>
       <p class="text-lg text-muted-foreground md:text-xl">
         Datenbank für Versuche im Physikunterricht.
