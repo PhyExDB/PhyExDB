@@ -5,7 +5,7 @@ const props = defineProps({
   error: Object as () => NuxtError,
 })
 
-if(props.error?.statusCode === 401) {
+if (props.error?.statusCode === 401) {
   navigateToWithRedirect("/login")
 }
 </script>
