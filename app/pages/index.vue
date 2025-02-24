@@ -11,7 +11,8 @@ const formSchema = toTypedSchema(startpageSchema)
 
 const previewImageAccepts = ["image/png", "image/jpeg", "image/webp"]
 
-const { data: startpage } = await useFetch(`/api/startpage`)
+const query = useRoute().query
+const { data: startpage } = await useFetch("/api/startpage", { query })
 const form = useForm({ validationSchema: formSchema, initialValues: {
   text: startpage.value?.text,
   description: startpage.value?.description,
@@ -94,6 +95,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   startpage.value = await $fetch<Startpage>(`/api/startpage`, {
     method: "PUT",
     body: values,
+    query,
   })
   open.value = false
   loading.value = false
@@ -102,12 +104,16 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 <template>
   <div>
-    <NuxtImg
-      src="/experiment_placeholder.png"
-      alt="Background Image"
-      class="absolute top-[65px] left-0 w-full h-96 object-cover"
-    />
-    <div class="h-96" />
+    <div
+      v-if="startpage?.files[0]?.path"
+    >
+      <NuxtImg
+        :src="startpage!.files[0]!.path"
+        alt="Hintergrundbild"
+        class="absolute top-[65px] left-0 w-full h-96 object-cover"
+      />
+      <div class="h-96" />
+    </div>
     <div class="py-8 text-center">
       <h3 class="mb-4 text-3xl font-semibold md:mb-5 md:text-4xl">
         <span class="font-bold">PhyEx</span><span class="text-accent">DB</span>
@@ -139,9 +145,9 @@ const onSubmit = form.handleSubmit(async (values) => {
       <h4 class="mb-4 text-2xl font-semibold md:mb-5 md:text-3xl">
         Über diese Webseite
       </h4>
-      <p
+      <div
         class="text-lg md:text-xl"
-        v-html="startpage?.text"
+        v-html="startpage!.text"
       />
     </div>
     <div
@@ -210,7 +216,7 @@ const onSubmit = form.handleSubmit(async (values) => {
               name="files[0]"
             >
               <FormItem>
-                <FormLabel>Vorschaubild</FormLabel>
+                <FormLabel>Hintergrundbild</FormLabel>
                 <FormControl>
                   <Dropfile
                     title="Vorschaubild"

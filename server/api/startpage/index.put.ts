@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   content.text = sanitizeHTML(content.text)
   content.description = sanitizeHTML(content.description)
   const query = getQuery(event)
-  const id: boolean = !("darkSide" in query) || true
+  const id: boolean = !("darkSide" in query)
 
   await prisma.file.updateMany({
     where: {

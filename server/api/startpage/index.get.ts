@@ -1,13 +1,24 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const id: boolean = !("darkSide" in query) || true
+  const id: boolean = !("darkSide" in query)
 
   const result = await prisma.startpage.findUnique({
     where: { id },
     include: {
-      files: true,
+      files: {
+        select: {
+          id: true,
+          path: true,
+          mimeType: true,
+          originalName: true,
+        }
+      },
     },
   })
+
+  if(!result){
+    throw createError({ status: 404, message: "Startpage not found" })
+  }
 
   return result as Startpage
 })
