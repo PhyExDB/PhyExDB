@@ -18,10 +18,12 @@ export default class StartpageSeed extends Seed {
         {
           id: true,
           text: "Startpage",
+          description: "Description",
         },
         {
           id: false,
           text: "",
+          description: "",
         },
       ],
     })
