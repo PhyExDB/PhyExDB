@@ -26,8 +26,11 @@ const everyone = defineAbility(_ => true)
 function userId<T>(extractUserId: (t: T) => string | null) {
   return defineAbility((user, t: T) => user?.id === extractUserId(t))
 }
-function adminOrUserId<T>(extractUserId: (t: T) => string | null) {
+function adminOrUserId<T>(extractUserId: (t: T) => string | null): Ability<[T]> {
   return defineAbility((user, t: T) => isAdmin(user) || user?.id === extractUserId(t))
+}
+function modOrUserId<T>(extractUserId: (t: T) => string | null): Ability<[T]> {
+  return defineAbility((user, t: T) => minModerator(user) || user?.id === extractUserId(t))
 }
 
 const isAdminCRUD = {
@@ -59,17 +62,20 @@ export const experimentAttributeValueAbilities = everyoneSeeAdminEditCRUD
 
 export const experimentCommentAbilities = {
   getAll: everyone,
-  post: (user: UserDetail | null, _: Experiment) => 
+  post: ((user, experiment) => 
     notNull(user) && (
       user.emailVerified
-    ),
-  delete: ((user: UserDetail | null, comment: Comment) => 
+      && experiment.commentsEnabled === true
+    )
+  ) satisfies Ability<[{ commentsEnabled: boolean }]>,
+  delete: ((user, comment) => 
     notNull(user) && (
-      isAdmin(user)
+      minModerator(user)
       || user.id === comment.experiment?.userId 
       || user.id === comment.userId
     )
-  ),
+  ) satisfies Ability<[Comment]>,
+  enable: modOrUserId(e => e.userId) satisfies Ability<[Experiment]>
 }
 
 /** Abilities for experimentSections */

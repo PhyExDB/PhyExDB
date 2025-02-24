@@ -6,6 +6,10 @@ export default defineEventHandler(async (event) => {
       where: getSlugOrIdPrismaWhereClause(event),
     }),
   )
+  if(!experiment.commentsEnabled){
+    return null
+  }
+
   const where = { experimentId: experiment.id }
 
   const total = await prisma.comment.count({ where })

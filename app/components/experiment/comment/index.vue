@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ExperimentCommentDetail } from "#components";
 import { toTypedSchema } from "@vee-validate/zod"
+import { enableCompileCache } from "module";
 import { useForm } from "vee-validate"
 
 const props = defineProps<{
@@ -8,16 +9,18 @@ const props = defineProps<{
 }>()
 const id = computed(() => props.experiment.id)
 
-const canComment = await allows(experimentCommentAbilities.post, props.experiment)
 
 const { page, pageSize } = getRequestPageMeta()
 
-const { data, refresh } = useLazyFetch(`/api/experiments/${id.value}/comments`, {
+const { data, refresh } = useLazyFetch<Page<ExperimentComment> | null>(`/api/experiments/${id.value}/comments`, {
   query: {
     page: page,
     pageSize: pageSize,
   },
 })
+
+const canComment = data.value && await allows(experimentCommentAbilities.post, { ...props.experiment, commentsEnabled: true })
+const canEnable = await allows(experimentCommentAbilities.enable, props.experiment)
 
 async function deleteComment(commentId: string) {
   await useFetch(`/api/experiments/${id.value}/comments/${commentId}`, {
@@ -48,10 +51,20 @@ const onSubmit = form.handleSubmit(async (values) => {
   loading.value = false
 })
 
+async function enableComments(enable: boolean){
+  await $fetch(`/api/experiments/${id.value}/comments/enable`, {
+    method: "PUT",
+    body: { enable },
+  })
+  refresh()
+}
+
 </script>
 
 <template>
-  <div>
+  <div
+    v-if="data"
+  >
     <div
       v-if="canComment"
     >
@@ -89,6 +102,13 @@ const onSubmit = form.handleSubmit(async (values) => {
       <h1 class="text-4xl font-extrabold mr-2 pb-4 mt-6">
         Kommentare
       </h1>
+      <Button
+        v-if="canEnable"
+        variant="outline"
+        @click="enableComments(false)"
+      >
+        Kommentare verbieten
+      </Button>
       <div
         v-for="comment in data?.items"
       >
@@ -110,5 +130,19 @@ const onSubmit = form.handleSubmit(async (values) => {
         :page-meta="data?.pagination"
       />
     </div>
+  </div>
+  <div
+    v-else
+    class="flex flex-col"
+  >
+    Für diesen Versuch sind Kommentare deaktiviert.
+
+    <Button
+      v-if="canEnable"
+      @click="enableComments(true)"
+      class="self-start m-2"
+    >
+      Kommentare erlauben
+    </Button>
   </div>
 </template>

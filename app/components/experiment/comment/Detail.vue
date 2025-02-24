@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
-
 const props = defineProps<{
   experiment: Pick<ExperimentList, "id" | "userId" | "status">
   comment: ExperimentComment
