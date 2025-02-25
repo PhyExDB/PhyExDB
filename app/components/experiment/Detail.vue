@@ -76,7 +76,7 @@ const showDeleteDialog = ref(false)
             @click="navigateTo(`/users?search=${experiment.userId}`)"
           >
             <span>
-              zu Ersteller
+              Zur Ersteller:in
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -186,7 +186,7 @@ const showDeleteDialog = ref(false)
         </h2>
         <div
           v-if="section.text && section.text.length && section.text != '<p></p>'"
-          class="prose dark:prose-invert"
+          class="prose dark:prose-invert max-w-full"
           v-html="section.text"
         />
         <p

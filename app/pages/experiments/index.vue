@@ -179,7 +179,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
           </Button>
         </DialogTrigger>
         <DialogContent
-          class="sm:max-w-[425px]"
+          class="sm:max-w-[425px] max-h-full overflow-auto"
         >
           <div
             class="flex flex-col gap-4 justify-items-stretch items-center content-center justify-self-stretch w-full"

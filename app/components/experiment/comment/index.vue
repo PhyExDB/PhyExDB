@@ -81,7 +81,7 @@ async function enableComments(enable: boolean) {
           name="text"
         >
           <FormItem>
-            <FormLabel>Kommentar schreiben</FormLabel>
+            <FormLabel class="text-4xl font-extrabold mr-2 pb-4">Kommentar schreiben</FormLabel>
             <FormControl>
               <TipTapEditor
                 id="text"

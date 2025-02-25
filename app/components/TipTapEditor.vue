@@ -249,7 +249,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Editor Content -->
-        <div class="p-4">
+        <div class="p-4 h-96 overflow-auto">
           <TiptapEditorContent
             :editor="editor"
             class="prose dark:prose-invert max-w-full"
