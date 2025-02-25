@@ -136,7 +136,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           <Button
             size="lg"
             class="w-full md:w-48"
-            >
+          >
             Versuche durchsuchen
           </Button>
         </NuxtLink>

@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  if(!rating) {
+  if (!rating) {
     return false
   }
 

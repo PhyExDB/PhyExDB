@@ -81,7 +81,9 @@ async function enableComments(enable: boolean) {
           name="text"
         >
           <FormItem>
-            <FormLabel class="text-4xl font-extrabold mr-2 pb-4">Kommentar schreiben</FormLabel>
+            <FormLabel class="text-4xl font-extrabold mr-2 pb-4">
+              Kommentar schreiben
+            </FormLabel>
             <FormControl>
               <TipTapEditor
                 id="text"
@@ -89,7 +91,7 @@ async function enableComments(enable: boolean) {
                 :key="commented"
                 default-value=""
                 :show-headings="false"
-                editorClass="p-4 h-40 overflow-auto"
+                editor-class="p-4 h-40 overflow-auto"
                 @click.prevent
               />
             </FormControl>
