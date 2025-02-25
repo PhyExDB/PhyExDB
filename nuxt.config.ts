@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     "nuxt-nodemailer",
     "@nuxtjs/sitemap",
     "@nuxtjs/robots",
+    "nuxt-schema-org",
   ],
 
   devtools: { enabled: true },
