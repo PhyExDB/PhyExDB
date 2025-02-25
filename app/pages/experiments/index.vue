@@ -257,6 +257,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                 <label
                   for="title"
                   class="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  @click="temporarySearchTitle = !temporarySearchTitle"
                 >
                   Titel
                 </label>
@@ -273,6 +274,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                 />
                 <label
                   class="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  @click="updateSectionSearchList(section.slug, !temporarySearchSections.includes(section.slug))"
                 >
                   {{ section.name }}
                 </label>
