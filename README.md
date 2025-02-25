@@ -159,3 +159,19 @@ To enable the Teamscale extension, add the following to your `settings.json`:
     }
 ],
 ```
+
+## Software Stack
+
+- Fullstack framework: nuxt
+- Authentication: betterAuth
+- Tests: vitest, playwright
+- Validation: zod
+- Backend:
+    - Logger: winston
+    - ORM: prisma
+    - Files: nuxt-file-storage
+    - Mail: vue-email, nodemailer
+- Frontend:
+    - UI: shadcn-vue, tailwindcss, heroicons
+    - Editor: nuxt-tiptap-editor
+    - Form-validation: vee-validate
