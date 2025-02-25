@@ -15,6 +15,9 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "nuxt-tiptap-editor",
     "nuxt-nodemailer",
+    "@nuxtjs/sitemap",
+    "@nuxtjs/robots",
+    "nuxt-schema-org",
   ],
 
   devtools: { enabled: true },
@@ -38,10 +41,6 @@ export default defineNuxtConfig({
       },
     },
   },
-
-  // build: {
-  //   transpile: ["@vue-email/components"], // Ensure Vue Email is compiled
-  // },
 
   future: {
     compatibilityVersion: 4,
@@ -112,5 +111,11 @@ export default defineNuxtConfig({
 
   shadcn: {
     componentDir: "./app/components/ui",
+  },
+
+  sitemap: {
+    sources: [
+      "/api/experiments/sitemap-urls",
+    ],
   },
 })

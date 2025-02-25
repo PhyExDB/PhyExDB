@@ -10,7 +10,8 @@
       class="text-xl font-medium transition-colors hover:text-primary"
     >
       <div class="flex flex-row items-center space-x-2">
-        <NuxtImg
+        <NuxtPicture
+          format="webp,avif"
           src="/Logo.png"
           alt="Logo"
           width="40"
