@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /users
+Disallow: /profile
+Disallow: /experiments/edit/*
+Disallow: /experiments/mine
+Disallow: /experiments/review
+
+Disallow: /*?page=
+Disallow: /*?pageSize=
+Disallow: /*?search=
+Disallow: /*?sort=
+Disallow: /*?attributes=

@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     "nuxt-tiptap-editor",
     "nuxt-nodemailer",
     "@nuxtjs/sitemap",
+    "@nuxtjs/robots",
   ],
 
   devtools: { enabled: true },
