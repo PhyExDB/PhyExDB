@@ -89,6 +89,7 @@ async function enableComments(enable: boolean) {
                 :key="commented"
                 default-value=""
                 :show-headings="false"
+                editorClass="p-4 h-40 overflow-auto"
                 @click.prevent
               />
             </FormControl>
