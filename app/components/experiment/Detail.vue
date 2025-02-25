@@ -288,6 +288,7 @@ const showDeleteDialog = ref(false)
     <!-- <div v-if="!preview"> -->
     <Separator />
     <ExperimentRatingOwn
+      v-if="user"
       :experiment="experiment"
     />
     <ExperimentComment
