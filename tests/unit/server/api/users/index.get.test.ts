@@ -26,5 +26,43 @@ describe("Api Route GET /api/users/index", () => {
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
     u.testSuccessWithPagination(context, data)
+
+    it("search by name", async () => {
+      const c = u.extendContext(context, 
+        { 
+          query: { search: "user" }, 
+          expected: u.page(
+            data
+              .filter(user => user.name.includes("user"))
+              .map(user => ({ ...user, banned: false }))
+          ),
+        }
+      )
+      u.expectSuccess(c)
+    })
+    it("search by id", async () => {
+      const c = u.extendContext(context, 
+        { 
+          query: { search: users.user.id }, 
+          expected: u.page(
+            [users.user]
+              .map(user => ({ ...user, banned: false }))
+          ),
+        }
+      )
+      u.expectSuccess(c)
+    })
+    it("search by role", async () => {
+      const c = u.extendContext(context, 
+        { 
+          query: { search: "moderator administrator" }, 
+          expected: u.page(
+            [users.mod, users.admin]
+              .map(user => ({ ...user, banned: false }))
+          ),
+        }
+      )
+      u.expectSuccess(c)
+    })
   }
 })
