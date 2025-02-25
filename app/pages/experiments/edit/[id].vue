@@ -315,10 +315,13 @@ async function submitForReview() {
                   v-if="experiment?.previewImage?.path"
                   #message
                 >
-                  <NuxtImg
+                  <NuxtPicture
+                    format="webp,avif"
+                    height="800"
+                    fit="inside"
                     :src="experiment!.previewImage!.path"
                     alt="Vorschaubild"
-                    class="max-h-80 object-contain"
+                    :img-attrs="{ class: 'h-80 object-contain' }"
                   />
                 </template>
               </Dropfile>
@@ -437,11 +440,14 @@ async function submitForReview() {
               <Card
                 class="flex items-center"
               >
-                <NuxtImg
+                <NuxtPicture
                   v-if="item.file.mimeType.startsWith('image')"
+                  format="webp,avif"
+                  fit="inside"
+                  height="100"
                   :src="item.file.path"
                   :alt="item.description ?? 'Datei'"
-                  class="max-h-24 w-40 object-contain"
+                  :img-attrs="{ class: 'max-h-24 w-40 object-contain' }"
                 />
                 <Separator
                   v-if="item.file.mimeType.startsWith('image')"

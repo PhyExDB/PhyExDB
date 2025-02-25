@@ -254,11 +254,12 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
               <!-- Image + Overlay Container (size determined by overlay) -->
               <div class="relative w-full min-h-[150px] flex flex-col items-center justify-center h-full">
                 <!-- Image that adjusts to overlay size -->
-                <NuxtImg
+                <NuxtPicture
+                  format="webp,avif"
+                  width="470"
                   :src="experiment.previewImage?.path ?? 'experiment_placeholder.png'"
                   alt="Preview Image"
-                  class="absolute inset-0 w-full h-full"
-                  :class="experiment.previewImage?.path ? 'object-contain' : 'object-cover'"
+                  :img-attrs="{ class: 'absolute inset-0 w-full h-full ' + (experiment.previewImage?.path ? 'object-contain' : 'object-cover') }"
                 />
 
                 <!-- Overlay Content (Defines Section Size) -->

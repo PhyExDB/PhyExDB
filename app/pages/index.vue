@@ -108,10 +108,13 @@ const onSubmit = form.handleSubmit(async (values) => {
     <div
       v-if="startpage?.files[0]?.path"
     >
-      <NuxtImg
+      <NuxtPicture
+        format="webp,avif"
+        width="100vw"
+        fit="cover"
         :src="startpage!.files[0]!.path"
         alt="Hintergrundbild"
-        class="absolute top-[65px] left-0 w-full h-96 object-cover"
+        :img-attrs="{ class: 'absolute top-[65px] left-0 w-full h-96 object-cover' }"
       />
       <div class="h-96" />
     </div>
@@ -231,10 +234,12 @@ const onSubmit = form.handleSubmit(async (values) => {
                       v-if="startpage?.files[0]?.path"
                       #message
                     >
-                      <NuxtImg
+                      <NuxtPicture
+                        format="webp,avif"
+                        sizes="800px"
                         :src="startpage!.files[0]!.path"
                         alt="Vorschaubild"
-                        class="max-h-80 object-contain"
+                        :img-attrs="{ class: 'max-h-80 object-contain' }"
                       />
                     </template>
                   </Dropfile>
