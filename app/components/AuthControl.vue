@@ -48,11 +48,12 @@ const canReviewExperiments = await allows(experimentAbilities.review)
           <span>Nutzerverwaltung</span>
         </DropdownMenuItem>
       </NuxtLink>
-      <NuxtLink href="/experiments/review">
-        <DropdownMenuItem
-          v-if="canReviewExperiments"
-        >
-          <span>Experimente überprüfen</span>
+      <NuxtLink
+        v-if="canReviewExperiments"
+        href="/experiments/review"
+      >
+        <DropdownMenuItem>
+          <span>Versuche überprüfen</span>
         </DropdownMenuItem>
       </NuxtLink>
 
@@ -65,11 +66,11 @@ const canReviewExperiments = await allows(experimentAbilities.review)
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-  <Button v-if="!user">
-    <NuxtLink
-      @click.prevent="navigateToWithRedirect('/login')"
-    >
+  <NuxtLink
+    to="/login"
+  >
+    <Button v-if="!user">
       Anmelden
-    </NuxtLink>
-  </Button>
+    </Button>
+  </NuxtLink>
 </template>

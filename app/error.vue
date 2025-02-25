@@ -28,14 +28,18 @@ if (props.error?.statusCode === 401) {
           </p>
         </div>
       </div>
-      <Button
-        v-if="props.error?.statusCode === 401"
-      >
-        <NuxtLink @click.prevent="navigateToWithRedirect('/login')">Anmelden</NuxtLink>
-      </Button>
-      <Button>
-        <NuxtLink to="/">Zurück zur Startseite</NuxtLink>
-      </Button>
+      <NuxtLink to="/login">
+        <Button
+          v-if="props.error?.statusCode === 401"
+        >
+          Anmelden
+        </Button>
+      </NuxtLink>
+      <NuxtLink to="/">
+        <Button>
+          Zurück zur Startseite
+        </Button>
+      </NuxtLink>
     </div>
   </div>
 </template>
