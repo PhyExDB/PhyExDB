@@ -23,6 +23,7 @@
     "@nuxt/icon": "^1.10.3",
     "@nuxt/image": "^1.9.0",
     "@nuxtjs/color-mode": "^3.5.2",
+    "@nuxtjs/sitemap": "^7.2.6",
     "@tanstack/vue-table": "^8.21.2",
     "@tiptap/extension-link": "^2.11.5",
     "@tiptap/extension-subscript": "^2.11.5",
