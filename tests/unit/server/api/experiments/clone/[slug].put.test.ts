@@ -1,5 +1,4 @@
 import { describe, expectTypeOf, it } from "vitest"
-import { generateMock } from "@anatine/zod-mock"
 import { detailDb, detail } from "../data"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
