@@ -148,8 +148,8 @@ const reset = () => {
         class="w-full flex justify-center pb-2"
       >
         <Button
+          class="w-[90%]"
           @click="reset()"
-          class = "w-[90%]"
         >
           Zurücksetzen
         </Button>
