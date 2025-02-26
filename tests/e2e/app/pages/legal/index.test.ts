@@ -46,6 +46,7 @@ test.describe("Legal Page", () => {
       const editor = page.locator(".ProseMirror")
       editor.click()
       editor.fill(newContent)
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
       const proseContent2 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
@@ -72,6 +73,7 @@ test.describe("Legal Page", () => {
       const editor = page.locator(".ProseMirror")
       editor.click()
       editor.fill(newContent)
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
       const proseContent2 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
@@ -88,6 +90,7 @@ test.describe("Legal Page", () => {
       const editor2 = page.locator(".ProseMirror")
       editor2.click()
       editor2.fill(newContent2)
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
       const proseContent3 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
@@ -96,6 +99,7 @@ test.describe("Legal Page", () => {
       await expect(page.getByRole("heading")).toContainText(newTitle2)
       await expect(page.getByRole("main")).toContainText(newContent2)
     })
+
     test(`should update the legal documents for Title and Content and updates the legal document with only text/title for ${slug}`, async ({ page }) => {
       await page.goto("/login", { waitUntil: "networkidle" })
       // log in as administrator
@@ -113,6 +117,7 @@ test.describe("Legal Page", () => {
       const editor = page.locator(".ProseMirror")
       editor.click()
       editor.fill(newContent)
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
       const proseContent2 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
@@ -127,6 +132,7 @@ test.describe("Legal Page", () => {
       const editor2 = page.locator(".ProseMirror")
       editor2.click()
       editor2.fill(newContent2)
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
       const proseContent3 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
@@ -140,6 +146,7 @@ test.describe("Legal Page", () => {
       const newTitle2 = `test2 content ${uuidv4()}`
 
       await page.locator("#name").fill(newTitle2)
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
       const proseContent4 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
@@ -150,6 +157,7 @@ test.describe("Legal Page", () => {
 
       // no changes at all
       await page.getByRole("button", { name: "Bearbeiten" }).click()
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
       const proseContent5 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
