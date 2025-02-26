@@ -20,7 +20,7 @@ const { header, message, onDelete } = defineProps({
     <AlertDialogTrigger as-child>
       <slot />
     </AlertDialogTrigger>
-    <AlertDialogContent>
+    <AlertDialogContent class="max-h-full overflow-auto">
       <AlertDialogHeader>
         <AlertDialogTitle>{{ header }}</AlertDialogTitle>
         <AlertDialogDescription>

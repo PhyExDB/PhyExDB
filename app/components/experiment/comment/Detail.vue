@@ -31,6 +31,7 @@ const emit = defineEmits<{
           <p> {{ comment.user.name }}: </p>
         </div>
         <div
+          class="prose dark:prose-invert max-w-full"
           v-html="comment.text"
         />
       </div>
@@ -56,7 +57,7 @@ const emit = defineEmits<{
             @click="navigateTo(`/users?search=${comment.user.id}`)"
           >
             <span>
-              zu Verfasser
+              Zur Verfasser:in
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem

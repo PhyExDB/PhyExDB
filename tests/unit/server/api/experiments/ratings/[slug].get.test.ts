@@ -29,7 +29,7 @@ describe("Api Route /api/experiments/ratings/[slug].get", () => {
   // tests
   {
     // type test
-    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<ExperimentRating | false>()
 
     u.testSuccess(context)
 

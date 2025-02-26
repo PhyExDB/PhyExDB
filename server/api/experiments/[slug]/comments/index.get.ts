@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     }),
   )
   if (!experiment.commentsEnabled) {
-    return null
+    return false
   }
 
   const where = { experimentId: experiment.id }

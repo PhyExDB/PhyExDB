@@ -16,6 +16,10 @@ export default defineEventHandler(async (event) => {
     },
   })
 
+  if (!rating) {
+    return false
+  }
+
   return rating as ExperimentRating
 })
 
