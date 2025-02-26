@@ -125,13 +125,49 @@ export default defineEventHandler(async (event) => {
     index: "experiments",
     body: {
       query: {
+        "nested": {
+          "path": "attributes.values",  // Path to the nested field
+          "query": {
+            "bool": {
+              "should": [
+                { "terms": { "attributes.values.value.keyword": attributes } }
+              ]
+            }
+          }
+        }
+        // bool: {
+        //   must: [
+        //     {
+        //       // match_all: {},
+        //       term: {
+        //         status: "PUBLISHED",
+        //       },
+        //     },
+        //     {
+        //       nested: {
+        //         path: "attributes.values",
+        //         query: {
+        //           bool: {
+        //             must: 
+        //               attributes.map((attribute) => ({
+        //                     term: {
+        //                       "attributes.values.value": attribute,
+        //                     },
+        //               }))
+        //             ,
+        //           },
+        //         },
+        //       }
+        //     }
+        //   ]
+        // }
         // match_all: {},
-        fuzzy: {
-          name: {
-            value: querySearchString || "",
-            fuzziness: "AUTO",
-          },
-        },
+        // fuzzy: {
+        //   name: {
+        //     value: querySearchString || "",
+        //     fuzziness: "AUTO",
+        //   },
+        // },
         // match: {
         //   name: querySearchString || ""
         // }

@@ -1,48 +1,12 @@
-import { elasticsearch } from '../lib/elasticSearch';
+import { attributes } from 'happy-dom/lib/PropertySymbol.js';
+import { elasticsearch } from '../lib/elasticsearch';
 
 export default defineNitroPlugin(async () => {
     try{
         await elasticsearch.indices.delete({ index: 'experiments' });
     } catch(e){}
     await elasticsearch.indices.create({
-        index: 'experiments', // The name of the index
-        // body: {
-        //     settings: {
-        //     analysis: {
-        //         tokenizer: {
-        //         // Optional: You can customize the tokenizer here if needed
-        //         },
-        //         filter: {
-        //         // German stop word filter
-        //         german_stop: {
-        //             type: 'stop',
-        //             stopwords: '_german_', // Automatically uses a list of German stopwords
-        //         },
-        //         // German stemmer filter
-        //         german_stemmer: {
-        //             type: 'stemmer',
-        //             language: 'german', // Automatically applies stemming rules for German
-        //         },
-        //         },
-        //         analyzer: {
-        //         // Define the custom analyzer
-        //             german_analyzer: {
-        //                 type: 'custom',
-        //                 tokenizer: 'standard', //'standard' "edge_ngram_tokenizer" "compound_tokenizer",
-        //                 filter: ['german_stop', 'german_stemmer'], // Apply stop word removal and stemming
-        //             },
-        //         },
-        //     },
-        //     },
-        //     mappings: {
-        //         properties: {
-        //             text: {
-        //             type: 'text',
-        //             analyzer: 'german_analyzer', // Use the German analyzer for this field
-        //             },
-        //         },
-        //     },
-        // },
+        index: 'experiments',
         body: {
             settings: {
               analysis: {
@@ -50,7 +14,7 @@ export default defineNitroPlugin(async () => {
                   ngram_tokenizer: {
                     type: 'ngram',
                     min_gram: 2, // Minimum length of n-gram (e.g., "la")
-                    max_gram: 3, // Maximum length of n-gram (e.g., "laptop")
+                    max_gram: 3, // Maximum length of n-gram (e.g., "lap")
                   },
                 },
                 analyzer: {
@@ -63,10 +27,55 @@ export default defineNitroPlugin(async () => {
             },
             mappings: {
               properties: {
-                name: {
-                  type: 'text',
-                  analyzer: 'ngram_analyzer', // Apply the custom ngram analyzer
+                "name": { "type": "text", "analyzer": "ngram_analyzer" },
+                "slug": { "type": "keyword" },
+                "userId": { "type": "keyword" },
+                "status": { "type": "keyword" },
+                "duration": { "type": "integer" },
+                "previewImageId": { "type": "keyword" },
+                "ratingsCount": { "type": "integer" },
+                "ratingsSum": { "type": "integer" },
+                "ratingsAvg": { "type": "float" },
+                "commentsEnabled": { "type": "boolean" },
+                "revisionOfId": { "type": "keyword" },
+                "changeRequest": { "type": "keyword" },
+                "createdAt": { "type": "date" },
+                "updatedAt": { "type": "date" },
+                "previewImage": { "type": "keyword" },
+                "attributes": {
+                  "type": "nested",  // This makes attributes an array of nested objects
+                  "properties": {
+                    "id": { "type": "keyword" },
+                    "slug": { "type": "keyword" },
+                    "name": { "type": "text" },
+                    "order": { "type": "integer" },
+                    "multipleSelection": { "type": "boolean" },
+                    "values": {
+                      "type": "nested",  // Values inside attributes are also nested
+                      "properties": {
+                        "id": { "type": "keyword" },
+                        "slug": { "type": "keyword" },
+                        "value": { "type": "keyword" }
+                      }
+                    }
+                  }
                 },
+                sections: {
+                  type: 'nested',
+                  properties: {
+                    text: {
+                      type: 'text',
+                      analyzer: 'ngram_analyzer',
+                    },
+                    experimentSection: {
+                      properties: {
+                        name: {
+                          type: 'keyword',
+                        },
+                      },
+                    },
+                  },
+                }
               },
             },
         },
