@@ -88,7 +88,6 @@ test.describe("Legal Page", () => {
 
       await page.locator("#name").fill(newTitle2)
       const editor2 = page.locator(".ProseMirror")
-      await editor2.scrollIntoViewIfNeeded()
       editor2.click()
       editor2.fill(newContent2)
       await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
