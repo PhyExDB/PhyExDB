@@ -27,7 +27,7 @@
     >
       <Button
         variant="link"
-        class="text-muted-foreground"
+        class="text-muted-foreground hidden sm:block"
       >
         Versuche entdecken
       </Button>
