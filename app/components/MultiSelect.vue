@@ -143,12 +143,17 @@ const reset = () => {
           </CommandGroup>
         </CommandList>
       </Command>
-      <Button
+      <div
         v-if="showResetButton && (multiple || allowNone)"
-        @click="reset()"
+        class="w-full flex justify-center pb-2"
       >
-        Reset
-      </Button>
+        <Button
+          @click="reset()"
+          class = "w-[90%]"
+        >
+          Zurücksetzen
+        </Button>
+      </div>
     </PopoverContent>
   </Popover>
 </template>
