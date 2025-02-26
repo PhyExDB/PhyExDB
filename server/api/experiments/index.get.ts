@@ -93,23 +93,67 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  // Pagination
-  const pageMeta = getPageMeta(event, totalExperiments)
-
   // Experiment Data
-  const experiments = await prisma.experiment.findMany({
-    ...getPaginationPrismaParam(pageMeta),
+  const result = await prisma.experiment.findMany({
+    // ...getPaginationPrismaParam(pageMeta),
     where: {
       status: "PUBLISHED",
-      ...attributeFilter,
-      ...searchCondition,
+      // ...attributeFilter,
+      // ...searchCondition,
     },
     include: experimentIncludeForToList,
     orderBy: sortOption,
   })
 
+  const experiments = result.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList))
+
+  elasticsearch.bulk({
+    body: experiments.flatMap(experiment => [
+      {
+        index: {
+          _index: "experiments",
+          _id: experiment.id,
+        },
+      },
+      experiment,
+    ]),
+  })
+
+  elasticsearch.indices.refresh({ index: "experiments" })
+
+  const res = await elasticsearch.search({
+    index: "experiments",
+    body: {
+      query: {
+        // match_all: {},
+        fuzzy: {
+          name: {
+            value: querySearchString || "",
+            fuzziness: "AUTO",
+          },
+        },
+        // match: {
+        //   name: querySearchString || ""
+        // }
+        // multi_match: {
+        //   query: querySearchString || "",
+        //   fields: ["name"],
+        //   fuzziness: "AUTO",
+        //   prefix_length: 1,
+        // },
+      },
+      // from: (pageMeta.page - 1) * pageMeta.pageSize,
+      // size: pageMeta.pageSize,
+    }
+  })
+
+  const exps = res.hits.hits.map((hit: any) => hit._source)
+  const total = (res.hits.total as unknown as {value: number}).value
+  // Pagination
+  const pageMeta = getPageMeta(event, total)
+
   return {
-    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
+    items:  exps,
     pagination: pageMeta,
   } as Page<ExperimentList>
 })
