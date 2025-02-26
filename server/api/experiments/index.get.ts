@@ -125,15 +125,19 @@ export default defineEventHandler(async (event) => {
     index: "experiments",
     body: {
       query: {
-        "nested": {
-          "path": "attributes.values",  // Path to the nested field
-          "query": {
-            "bool": {
-              "should": [
-                { "terms": { "attributes.values.value.keyword": attributes } }
-              ]
+        "bool": {
+          "must": attributes.map((slug) => ({
+            "nested": {
+              "path": "attributes.values",  // Path to the nested field
+              "query": {
+                "bool": {
+                  "should": [
+                    { "term": { "attributes.values.slug": slug } },
+                  ]
+                }
+              }
             }
-          }
+          }))
         }
         // bool: {
         //   must: [
