@@ -29,6 +29,11 @@ const { modelValue, options, multiple, valueForOption, allowNone } = defineProps
     required: false,
     default: true,
   },
+  showResetButton: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const emit = defineEmits<{
@@ -56,6 +61,19 @@ const toggle = (option: T) => {
       selected.value = []
     } else {
       selected.value = [option.id]
+    }
+    open.value = false
+  }
+
+  emit("update:modelValue", selected.value)
+}
+
+const reset = () => {
+  if (multiple) {
+    selected.value = []
+  } else {
+    if (allowNone) {
+      selected.value = []
     }
     open.value = false
   }
@@ -125,6 +143,17 @@ const toggle = (option: T) => {
           </CommandGroup>
         </CommandList>
       </Command>
+      <div
+        v-if="showResetButton && (multiple || allowNone)"
+        class="w-full flex justify-center pb-2"
+      >
+        <Button
+          class="w-[90%]"
+          @click="reset()"
+        >
+          Zurücksetzen
+        </Button>
+      </div>
     </PopoverContent>
   </Popover>
 </template>
