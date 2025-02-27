@@ -186,25 +186,8 @@ export default defineEventHandler(async (event) => {
                 }
               }
             }
-            // {
-            //   "field_value_factor": {
-            //     "field": "ratingsAvg",  // Boost based on the average rating
-            //     "factor": 0.1,
-            //     "modifier": "none",  // No modifier
-            //     "missing": 2  // Default value if `ratingsAvg` is missing
-            //   }
-            // },
-            // {
-            //   "field_value_factor": {
-            //     "field": "ratingsCount",  // Boost based on the number of ratings
-            //     "factor": 0.001,  // Apply a smaller scaling factor to the count
-            //     "modifier": "log1p",  // Logarithmic scaling to avoid large counts dominating
-            //     "missing": 1  // Default value if `ratingsCount` is missing
-            //   }
-            // }
           ],
-          "boost_mode": "sum",  // Multiply the base score by the function score
-          // "score_mode": "sum"  // Sum the query score and function scores
+          "boost_mode": "sum",
         }
       }
       // from: (pageMeta.page - 1) * pageMeta.pageSize,
