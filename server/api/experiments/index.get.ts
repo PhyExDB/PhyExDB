@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client"
 import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
@@ -7,14 +6,6 @@ export default defineEventHandler(async (event) => {
   const attributes = (typeof query.attributes === "string" && query.attributes.length > 0)
     ? query.attributes.split(",")
     : []
-  const attributeFilters = attributes.map(slug => ({
-    attributes: {
-      some: {
-        slug: slug,
-      },
-    },
-  }))
-  const attributeFilter = attributeFilters.length > 0 ? { AND: attributeFilters } : {}
 
   // Sorting
   const sort = query.sort as string || undefined
@@ -30,96 +21,10 @@ export default defineEventHandler(async (event) => {
   }
 
   // Searching
-  const querySearchString = query.search as string || undefined
+  const querySearchString = query.search as string || ""
   const querySearchSections = (typeof query.sections === "string" && query.sections.length > 0)
     ? query.sections.split(",")
     : []
-  let shouldSearchTitle = false
-  let shouldSearchSections = false
-  if (querySearchSections?.includes("titel")) {
-    shouldSearchTitle = true
-    shouldSearchSections = querySearchSections.length > 1 ? true : false
-  } else {
-    shouldSearchSections = true
-  }
-
-  const searchTitle = shouldSearchTitle
-    ? {
-        name: {
-          contains: querySearchString,
-          mode: Prisma.QueryMode.insensitive,
-        },
-      }
-    : undefined
-
-  const searchSections = shouldSearchSections
-    ? {
-        sections: {
-          some: {
-            experimentSection: {
-              slug: {
-                in: shouldSearchSections ? querySearchSections : undefined,
-              },
-            },
-            text: {
-              contains: querySearchString,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          },
-        },
-      }
-    : undefined
-
-  let searchCondition
-  if ((shouldSearchTitle && shouldSearchSections) || (!shouldSearchTitle && shouldSearchSections)) {
-    searchCondition = {
-      OR: [
-        { ...searchTitle },
-        { ...searchSections },
-      ],
-    }
-  } else if (shouldSearchTitle) {
-    searchCondition = { ...searchTitle }
-  } else {
-    searchCondition = undefined
-  }
-
-  // Total Number of Experiments
-  const totalExperiments = await prisma.experiment.count({
-    where: {
-      status: "PUBLISHED",
-      ...attributeFilter,
-      ...searchCondition,
-    },
-  })
-
-  // Experiment Data
-  const result = await prisma.experiment.findMany({
-    // ...getPaginationPrismaParam(pageMeta),
-    where: {
-      status: "PUBLISHED",
-      // ...attributeFilter,
-      // ...searchCondition,
-    },
-    include: experimentIncludeForToList,
-    orderBy: sortOption,
-  })
-
-  const experiments = result.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList))
-
-  elasticsearch.bulk({
-    body: experiments.flatMap(experiment => [
-      {
-        index: {
-          _index: "experiments",
-          _id: experiment.id,
-        },
-      },
-      experiment,
-    ]),
-  })
-
-  elasticsearch.indices.refresh({ index: "experiments" })
 
   const pageQuery = getPageQuery(event)
 
@@ -143,7 +48,7 @@ export default defineEventHandler(async (event) => {
               ],
               "should": [
                 // only search if there are at least two characters
-                ...(querySearchString && /[a-zA-Z].*[a-zA-Z]/.test(querySearchString) ?
+                ...(/[a-zA-Z].*[a-zA-Z]/.test(querySearchString) ?
                   [
                     ...(
                       querySearchSections.includes("titel") ? 
@@ -197,9 +102,9 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  const exps = res.hits.hits.map((hit: any) => hit._source)
+  const exps = res.hits.hits.map((hit: any) => mapExperimentDetailToList(hit._source))
+
   const total = (res.hits.total as unknown as {value: number}).value
-  // Pagination
   const pageMeta = getPageMeta(event, total)
 
   return {

@@ -117,3 +117,12 @@ export function mapExperimentToDetail(experiment: ExperimentIncorrectDetail): Ex
     ...listObject,
   } as ExperimentDetail
 }
+
+/**
+ * Removes the sections and change request from an experiment detail object
+ */
+export function mapExperimentDetailToList(experiment: ExperimentDetail): ExperimentList {
+  const { sections, changeRequest, ...experimentList } = experiment
+  
+  return experimentList
+}

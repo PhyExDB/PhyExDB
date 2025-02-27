@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
       })
     }
     // Publish new version under same slug if the title is the same
-    await prisma.experiment.update({
+    const exp = await prisma.experiment.update({
       where: { id: experiment.id },
       data: {
         status: "PUBLISHED",
@@ -74,7 +74,9 @@ export default defineEventHandler(async (event) => {
           ? experiment.revisionOf?.slug
           : experiment.slug,
       },
+      include: experimentIncludeForToDetail,
     })
+    esIndexExperiment(mapExperimentToDetail(exp as ExperimentIncorrectDetail))
   } else {
     // Reject experiment with change request
     await prisma.experiment.update({
