@@ -10,19 +10,19 @@ const timeFilter = ref<string>(route.query.time as string || "")
 const timeFilterInit = (route.query.time as string || "").split("-")
 
 const minPossibleTime = 5
-const maxPossibleTime = 2*60
+const maxPossibleTime = 2 * 60
 const minTime = ref<number[]>([timeFilterInit[0] ? parseInt(timeFilterInit[0]) : minPossibleTime])
 const maxTime = ref<number[]>([timeFilterInit[1] ? parseInt(timeFilterInit[1]) : maxPossibleTime])
 
 watch([minTime], () => {
-  if(minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+  if (minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
     if (minTime.value[0]! > maxTime.value[0]!) {
       maxTime.value = minTime.value
     }
   }
 })
 watch([maxTime], () => {
-  if(minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+  if (minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
     if (minTime.value[0]! > maxTime.value[0]!) {
       minTime.value = maxTime.value
     }
@@ -33,12 +33,11 @@ watch([minTime, maxTime], () => {
   isLoading.value = true
   clearTimeout(timeFilterTimeout)
   timeFilterTimeout = setTimeout(() => {
-    if(minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+    if (minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
       timeFilter.value = `${minTime.value[0]}-${maxTime.value[0]}`
     }
   }, 500)
 })
-
 
 const { page, pageSize } = getRequestPageMeta()
 
@@ -375,11 +374,11 @@ watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, section
             </DialogFooter>
           </div>
         </DialogContent>
-      </Dialog>    
+      </Dialog>
       <ExperimentUndoFilters
-      :checked="checked"
-      class="w-full sm:w-auto mt-2 sm:mt-0"
-      @update:checked="checked = $event"
+        :checked="checked"
+        class="w-full sm:w-auto mt-2 sm:mt-0"
+        @update:checked="checked = $event"
       />
     </div>
 
@@ -392,7 +391,7 @@ watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, section
       :max="maxPossibleTime"
       :step="5"
     />
-      <span>ca. {{ durationToMinAndHourString(minTime?.[0] || 0) }}</span>
+    <span>ca. {{ durationToMinAndHourString(minTime?.[0] || 0) }}</span>
     max. Durchführungsdauer
     <Slider
       id="duration"
@@ -402,8 +401,8 @@ watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, section
       :max="maxPossibleTime"
       :step="5"
     />
-      <span>ca. {{ durationToMinAndHourString(maxTime?.[0] || 0) }}</span>
-    
+    <span>ca. {{ durationToMinAndHourString(maxTime?.[0] || 0) }}</span>
+
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
       <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">

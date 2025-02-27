@@ -123,6 +123,6 @@ export function mapExperimentToDetail(experiment: ExperimentIncorrectDetail): Ex
  */
 export function mapExperimentDetailToList(experiment: ExperimentDetail): ExperimentList {
   const { sections, changeRequest, ...experimentList } = experiment
-  
+
   return experimentList
 }

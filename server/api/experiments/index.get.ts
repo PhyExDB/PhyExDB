@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 
   // Time Filter
   const minPossibleTime = 5
-  const maxPossibleTime = 2*60
+  const maxPossibleTime = 2 * 60
   const timeFilterTmp = (typeof query.time === "string" && query.time.length > 0)
     ? query.time.split("-")
     : []
@@ -29,54 +29,54 @@ export default defineEventHandler(async (event) => {
       query: {
         function_score: {
           query: {
-            "bool": {
-              "must": [
-                { "term": { "status": "PUBLISHED" } },
-                { "range": { "duration": { "gte": timeFilter[0], "lte": timeFilter[1] } } },
-                ...attributes.map((slug) => ({
-                  "nested": {
-                    "path": "attributes.values",  // Path to the nested field
-                    "query": {
-                      "term": { "attributes.values.slug": slug }
-                    }
-                  }
+            bool: {
+              must: [
+                { term: { status: "PUBLISHED" } },
+                { range: { duration: { gte: timeFilter[0], lte: timeFilter[1] } } },
+                ...attributes.map(slug => ({
+                  nested: {
+                    path: "attributes.values", // Path to the nested field
+                    query: {
+                      term: { "attributes.values.slug": slug },
+                    },
+                  },
                 })),
               ],
-              "should": [
+              should: [
                 // only search if there are at least two characters
-                ...(/[a-zA-Z].*[a-zA-Z]/.test(querySearchString) ?
-                  [
-                    ...(
-                      querySearchSections.includes("titel") ? 
-                        [{ "match": { "name": { query: querySearchString, boost: 2 } } }]
-                        : []
-                    ),
-                    ...(
-                      querySearchSections.filter(v => v!=="titel").map((section) => ({
-                        "nested": {
-                          "path": "sections",
-                          "query": {
-                            "bool": {
-                              "must": [
-                                { "term": { "sections.experimentSection.slug": section } },
-                                { "match": { "sections.text": querySearchString } }
-                              ]
-                            }
-                          }
-                        }
-                      }))
-                    )
-                  ]
+                ...(/[a-zA-Z].*[a-zA-Z]/.test(querySearchString)
+                  ? [
+                      ...(
+                        querySearchSections.includes("titel")
+                          ? [{ match: { name: { query: querySearchString, boost: 2 } } }]
+                          : []
+                      ),
+                      ...(
+                        querySearchSections.filter(v => v !== "titel").map(section => ({
+                          nested: {
+                            path: "sections",
+                            query: {
+                              bool: {
+                                must: [
+                                  { term: { "sections.experimentSection.slug": section } },
+                                  { match: { "sections.text": querySearchString } },
+                                ],
+                              },
+                            },
+                          },
+                        }))
+                      ),
+                    ]
                   : []
                 ),
               ],
-            }
+            },
           },
           functions: [
             {
-              "script_score": {
-                "script": {
-                  "source": `
+              script_score: {
+                script: {
+                  source: `
                     if (doc['ratingsCount'].value > 0) {
                       // Use ratingsAvg directly for the average rating
                       double avgRating = doc['ratingsAvg'].value;
@@ -85,26 +85,26 @@ export default defineEventHandler(async (event) => {
                     } else {
                       return 2;
                     }
-                  `
-                }
-              }
-            }
+                  `,
+                },
+              },
+            },
           ],
-          "boost_mode": "sum",
-        }
+          boost_mode: "sum",
+        },
       },
       from: (pageQuery.page - 1) * pageQuery.pageSize,
       size: pageQuery.pageSize,
-    }
+    },
   })
 
-  const exps = res.hits.hits.map((hit: any) => mapExperimentDetailToList(hit._source))
+  const exps = res.hits.hits.map(hit => mapExperimentDetailToList(hit._source as ExperimentDetail))
 
-  const total = (res.hits.total as unknown as {value: number}).value
+  const total = (res.hits.total as unknown as { value: number }).value
   const pageMeta = getPageMeta(event, total)
 
   return {
-    items:  exps,
+    items: exps,
     pagination: pageMeta,
   } as Page<ExperimentList>
 })

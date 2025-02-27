@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
         ratingsSum: exp.ratingsSum - rating.value,
         ratingsAvg: (exp.ratingsSum - rating.value) / (exp.ratingsCount - 1) || 0,
       },
-      include: experimentIncludeForToDetail
+      include: experimentIncludeForToDetail,
     })
   })
   esIndexExperiment(mapExperimentToDetail(exp as ExperimentIncorrectDetail))
