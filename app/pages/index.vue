@@ -126,31 +126,31 @@ const onSubmit = form.handleSubmit(async (values) => {
         {{ startpage?.description }}
       </p>
       <div class="mt-8 flex w-full flex-col-reverse justify-center gap-3 md:w-auto md:flex-row">
-        <NuxtLink to="/experiments">
+        <NuxtLink to="/experiments/mine">
           <Button
             size="lg"
             class="w-full md:w-48"
             variant="outline"
           >
-            Versuche durchsuchen
+            Versuch erstellen
           </Button>
         </NuxtLink>
-        <NuxtLink to="/experiments/mine">
+        <NuxtLink to="/experiments">
           <Button
             size="lg"
             class="w-full md:w-48"
           >
-            Versuch erstellen
+            Versuche durchsuchen
           </Button>
         </NuxtLink>
       </div>
     </div>
-    <div class="py-8 text-center">
-      <h4 class="mb-4 text-2xl font-semibold md:mb-5 md:text-3xl">
+    <div class="py-8">
+      <h4 class="mb-4 text-2xl text-center font-semibold md:mb-5 md:text-3xl">
         Über diese Webseite
       </h4>
       <div
-        class="text-lg md:text-xl"
+        class="prose dark:prose-invert max-w-none w-full"
         v-html="startpage!.text"
       />
     </div>
@@ -170,7 +170,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             Startseite Bearbeiten
           </Button>
         </DialogTrigger>
-        <DialogContent class="max-w-[800px]">
+        <DialogContent class="max-w-[800px] max-h-full overflow-auto">
           <DialogHeader>
             <DialogTitle>
               Ändern des Dokuments

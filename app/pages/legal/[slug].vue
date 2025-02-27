@@ -56,7 +56,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 <template>
   <div>
-    <div class="prose dark:prose-invert">
+    <div class="prose dark:prose-invert max-w-full">
       <h1>
         {{ legal!.name }}
       </h1>
@@ -79,7 +79,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             Bearbeiten
           </Button>
         </DialogTrigger>
-        <DialogContent class="max-w-[800px]">
+        <DialogContent class="max-w-[800px] max-h-full overflow-auto">
           <DialogHeader>
             <DialogTitle>
               Ändern des Dokuments

@@ -25,7 +25,7 @@ describe("Api Route api/experiments/[slug]/comments/index.get", () => {
   // tests
   {
     // type test
-    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<Page<ExperimentComment> | null>()
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<Page<ExperimentComment> | false>()
 
     u.testSlugFails({ ...context, data: experiment })
 

@@ -51,6 +51,15 @@ export default defineEventHandler(async (event) => {
             experimentId: experiment.id,
           },
         })
+        // copy comments
+        await prisma.comment.updateMany({
+          where: {
+            experimentId: revisionOf.id,
+          },
+          data: {
+            experimentId: experiment.id,
+          },
+        })
         const exp = await prisma.experiment.delete({
           where: {
             id: revisionOf.id,
