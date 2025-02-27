@@ -10,10 +10,13 @@ export default defineEventHandler(async (event) => {
   // Time Filter
   const minPossibleTime = 5
   const maxPossibleTime = 2 * 60
-  const timeFilterTmp = (typeof query.time === "string" && query.time.length > 0)
+  const timeFilterTmp = typeof query.time === "string"
     ? query.time.split("-")
     : []
-  const timeFilter: [number, number] = [parseInt(timeFilterTmp[0]) || minPossibleTime, parseInt(timeFilterTmp[1]) || maxPossibleTime]
+  const timeFilter: [number, number] = [
+    parseInt(timeFilterTmp[0]) || minPossibleTime,
+    parseInt(timeFilterTmp[1]) || maxPossibleTime,
+  ]
 
   // Searching
   const querySearchString = query.search as string || ""
