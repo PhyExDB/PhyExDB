@@ -12,13 +12,17 @@ const maxPossibleTime = 2*60
 const minTime = ref<number[]>([0])
 const maxTime = ref<number[]>([maxPossibleTime])
 watch([minTime], () => {
-  if (minTime.value[0]! > maxTime.value[0]!) {
-    maxTime.value = minTime.value
+  if(minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+    if (minTime.value[0]! > maxTime.value[0]!) {
+      maxTime.value = minTime.value
+    }
   }
 })
 watch([maxTime], () => {
-  if (minTime.value[0]! > maxTime.value[0]!) {
-    minTime.value = maxTime.value
+  if(minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+    if (minTime.value[0]! > maxTime.value[0]!) {
+      minTime.value = maxTime.value
+    }
   }
 })
 let timeFilterTimeout: NodeJS.Timeout
