@@ -23,7 +23,7 @@ describe("Api Route /api/experiments/ratings/[slug].post", () => {
   })
 
   // mocks
-  u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
+  u.mockPrismaForSlugOrIdPut({ data: experiment, expected: experiment }, "experiment")
   u.mockPrismaForPost(context, "rating")
   u.mockPrismaForGet(context, "rating",
     (where: { compoundId?: { experimentId?: string, userId?: string } }) =>

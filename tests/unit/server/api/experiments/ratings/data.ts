@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from "uuid"
 export const experiment = {
   id: uuidv4(),
   slug: "slug",
+  attributes: [],
+  sections: [],
   ratingsSum: 0,
   ratingsCount: 0,
 } as unknown as ExperimentList
