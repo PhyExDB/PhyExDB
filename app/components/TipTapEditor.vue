@@ -14,6 +14,11 @@ const { modelValue, showHeadings } = defineProps({
     required: false,
     default: true,
   },
+  editorClass: {
+    type: String,
+    required: false,
+    default: "h-96 overflow-auto",
+  },
 })
 
 // Emit event for two-way binding
@@ -249,7 +254,10 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Editor Content -->
-        <div class="p-4">
+        <div
+          class="p-4"
+          :class="editorClass"
+        >
           <TiptapEditorContent
             :editor="editor"
             class="prose dark:prose-invert max-w-full"
