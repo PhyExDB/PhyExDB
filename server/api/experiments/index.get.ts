@@ -7,6 +7,14 @@ export default defineEventHandler(async (event) => {
     ? query.attributes.split(",")
     : []
 
+  // Time Filter
+  const minPossibleTime = 5
+  const maxPossibleTime = 2*60
+  const timeFilterTmp = (typeof query.time === "string" && query.time.length > 0)
+    ? query.time.split("-")
+    : []
+  const timeFilter: [number, number] = [parseInt(timeFilterTmp[0]) || minPossibleTime, parseInt(timeFilterTmp[1]) || maxPossibleTime]
+
   // Searching
   const querySearchString = query.search as string || ""
   const querySearchSections = (typeof query.sections === "string" && query.sections.length > 0)
@@ -24,6 +32,7 @@ export default defineEventHandler(async (event) => {
             "bool": {
               "must": [
                 { "term": { "status": "PUBLISHED" } },
+                { "range": { "duration": { "gte": timeFilter[0], "lte": timeFilter[1] } } },
                 ...attributes.map((slug) => ({
                   "nested": {
                     "path": "attributes.values",  // Path to the nested field
