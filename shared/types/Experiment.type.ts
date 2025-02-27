@@ -258,6 +258,7 @@ export function getExperimentReadyForReviewSchema(
 export const experimentReviewSchema = z.object({
   approve: z.boolean({ message: "Entscheidung wird benötigt" }),
   message: z.string({ message: "Nachricht wird benötigt" }).nonempty("Nachricht wird benötigt").optional(),
+  deleteRatingsAndComments: z.boolean({ message: "Angabe wird benötigt"}),
 }).refine((value) => {
   if (!value.approve) {
     return value.message !== undefined

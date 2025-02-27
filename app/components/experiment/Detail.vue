@@ -123,7 +123,6 @@ const showDeleteDialog = ref(false)
 
     <!-- Rating -->
     <ExperimentRating
-      v-if="!preview"
       :experiment="experiment"
     />
 

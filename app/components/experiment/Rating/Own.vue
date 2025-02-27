@@ -32,7 +32,7 @@ async function submitRating(newRating: number) {
     class="flex flex-col"
   >
     <h1 class="text-4xl font-extrabold mr-2 pb-4">
-      Versuch Bewerten
+      Reproduzierbarkeit des Versuchs bewerten
     </h1>
 
     <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">

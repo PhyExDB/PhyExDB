@@ -21,23 +21,6 @@ if (experiment.value && experiment.value.status !== "IN_REVIEW") {
 
 const { toast } = useToast()
 
-async function onApprove() {
-  await $fetch(`/api/experiments/review/${experimentSlug}`, {
-    method: "POST",
-    body: {
-      approve: true,
-    },
-  })
-
-  toast({
-    title: "Versuch bestätigt",
-    description: "Der Versuch wurde erfolgreich bestätigt.",
-    variant: "success",
-  })
-
-  await navigateTo("/experiments/review")
-}
-
 async function onDelete(message: string) {
   await $fetch(`/api/experiments/review/${experimentSlug}`, {
     method: "POST",
@@ -76,17 +59,14 @@ async function onDelete(message: string) {
         <ExperimentDetail
           :experiment="experiment"
           :show-dropdown="false"
-          preview="true"
+          :preview="true"
         />
       </CardContent>
     </Card>
     <div class="mt-4 flex flex-col sm:flex-row gap-2">
-      <Button
-        class="flex-1"
-        @click="onApprove"
-      >
-        Bestätigen
-      </Button>
+      <ExperimentReviewAcceptDialog
+        :experiment="experiment"
+      />
       <ExperimentReviewRejectDialog
         :on-delete="onDelete"
       >
