@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
   const querySearchString = query.search as string || undefined
   const querySearchSections = (typeof query.sections === "string" && query.sections.length > 0)
     ? query.sections.split(",")
-    : undefined
+    : []
   let shouldSearchTitle = false
   let shouldSearchSections = false
   if (querySearchSections?.includes("titel")) {
@@ -125,63 +125,88 @@ export default defineEventHandler(async (event) => {
     index: "experiments",
     body: {
       query: {
-        "bool": {
-          "must": attributes.map((slug) => ({
-            "nested": {
-              "path": "attributes.values",  // Path to the nested field
-              "query": {
-                "bool": {
-                  "should": [
-                    { "term": { "attributes.values.slug": slug } },
+        function_score: {
+          query: {
+            "bool": {
+              "must": [
+                { "term": { "status": "PUBLISHED" } },
+                ...attributes.map((slug) => ({
+                  "nested": {
+                    "path": "attributes.values",  // Path to the nested field
+                    "query": {
+                      "term": { "attributes.values.slug": slug }
+                    }
+                  }
+                })),
+              ],
+              "should": [
+                // only search if there are at least two characters
+                ...(querySearchString && /[a-zA-Z].*[a-zA-Z]/.test(querySearchString) ?
+                  [
+                    ...(
+                      querySearchSections.includes("titel") ? 
+                        [{ "match": { "name": { query: querySearchString, boost: 2 } } }]
+                        : []
+                    ),
+                    ...(
+                      querySearchSections.filter(v => v!=="titel").map((section) => ({
+                        "nested": {
+                          "path": "sections",
+                          "query": {
+                            "bool": {
+                              "must": [
+                                { "term": { "sections.experimentSection.slug": section } },
+                                { "match": { "sections.text": querySearchString } }
+                              ]
+                            }
+                          }
+                        }
+                      }))
+                    )
                   ]
+                  : []
+                ),
+              ],
+            }
+          },
+          functions: [
+            {
+              "script_score": {
+                "script": {
+                  "source": `
+                    if (doc['ratingsCount'].value > 0) {
+                      // Use ratingsAvg directly for the average rating
+                      double avgRating = doc['ratingsAvg'].value;
+                      // Boost by the average rating and apply a logarithmic boost based on the ratingsCount
+                      return avgRating * Math.log(1 + doc['ratingsCount'].value);
+                    } else {
+                      return 2;
+                    }
+                  `
                 }
               }
             }
-          }))
+            // {
+            //   "field_value_factor": {
+            //     "field": "ratingsAvg",  // Boost based on the average rating
+            //     "factor": 0.1,
+            //     "modifier": "none",  // No modifier
+            //     "missing": 2  // Default value if `ratingsAvg` is missing
+            //   }
+            // },
+            // {
+            //   "field_value_factor": {
+            //     "field": "ratingsCount",  // Boost based on the number of ratings
+            //     "factor": 0.001,  // Apply a smaller scaling factor to the count
+            //     "modifier": "log1p",  // Logarithmic scaling to avoid large counts dominating
+            //     "missing": 1  // Default value if `ratingsCount` is missing
+            //   }
+            // }
+          ],
+          "boost_mode": "sum",  // Multiply the base score by the function score
+          // "score_mode": "sum"  // Sum the query score and function scores
         }
-        // bool: {
-        //   must: [
-        //     {
-        //       // match_all: {},
-        //       term: {
-        //         status: "PUBLISHED",
-        //       },
-        //     },
-        //     {
-        //       nested: {
-        //         path: "attributes.values",
-        //         query: {
-        //           bool: {
-        //             must: 
-        //               attributes.map((attribute) => ({
-        //                     term: {
-        //                       "attributes.values.value": attribute,
-        //                     },
-        //               }))
-        //             ,
-        //           },
-        //         },
-        //       }
-        //     }
-        //   ]
-        // }
-        // match_all: {},
-        // fuzzy: {
-        //   name: {
-        //     value: querySearchString || "",
-        //     fuzziness: "AUTO",
-        //   },
-        // },
-        // match: {
-        //   name: querySearchString || ""
-        // }
-        // multi_match: {
-        //   query: querySearchString || "",
-        //   fields: ["name"],
-        //   fuzziness: "AUTO",
-        //   prefix_length: 1,
-        // },
-      },
+      }
       // from: (pageMeta.page - 1) * pageMeta.pageSize,
       // size: pageMeta.pageSize,
     }
