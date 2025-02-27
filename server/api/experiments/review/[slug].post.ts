@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     // Delete old version if revision
     const revisionOf = experiment.revisionOf
     if (revisionOf !== null && revisionOf !== undefined) {
-      if(!reviewContent.deleteRatingsAndComments){
+      if (!reviewContent.deleteRatingsAndComments) {
         // adopt ratings and comments from old version
         await prisma.$transaction(async () => {
           // delete ratings that where made on the draft

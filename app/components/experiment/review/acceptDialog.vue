@@ -25,7 +25,7 @@ async function onAccept(deleteRatingsAndComments: boolean) {
     method: "POST",
     body: {
       approve: true,
-      deleteRatingsAndComments
+      deleteRatingsAndComments,
     },
   })
 
@@ -87,10 +87,10 @@ const openForm = (event: boolean) => {
         @submit="onSubmit"
       >
         <FormField
+          v-if="experiment?.revisionOf"
           v-slot="{ value, handleChange }"
           type="checkbox"
           name="deleteRatingsAndComments"
-          v-if="experiment?.revisionOf"
         >
           <FormItem class="flex flex-row items-start gap-x-3 space-y-0">
             <FormControl>
