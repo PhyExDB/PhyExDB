@@ -121,6 +121,8 @@ export default defineEventHandler(async (event) => {
 
   elasticsearch.indices.refresh({ index: "experiments" })
 
+  const pageQuery = getPageQuery(event)
+
   const res = await elasticsearch.search({
     index: "experiments",
     body: {
@@ -189,9 +191,9 @@ export default defineEventHandler(async (event) => {
           ],
           "boost_mode": "sum",
         }
-      }
-      // from: (pageMeta.page - 1) * pageMeta.pageSize,
-      // size: pageMeta.pageSize,
+      },
+      from: (pageQuery.page - 1) * pageQuery.pageSize,
+      size: pageQuery.pageSize,
     }
   })
 
