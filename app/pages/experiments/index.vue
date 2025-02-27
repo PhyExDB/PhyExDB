@@ -7,10 +7,13 @@ const searchApiInput = ref<string>(search.value)
 const attributeFilter = ref<string>(route.query.attributes as string || "")
 const timeFilter = ref<string>(route.query.time as string || "")
 
-const minPossibleTime = 0
+const timeFilterInit = (route.query.time as string || "").split("-")
+
+const minPossibleTime = 5
 const maxPossibleTime = 2*60
-const minTime = ref<number[]>([0])
-const maxTime = ref<number[]>([maxPossibleTime])
+const minTime = ref<number[]>([timeFilterInit[0] ? parseInt(timeFilterInit[0]) : minPossibleTime])
+const maxTime = ref<number[]>([timeFilterInit[0] ? parseInt(timeFilterInit[0]) : minPossibleTime])
+
 watch([minTime], () => {
   if(minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
     if (minTime.value[0]! > maxTime.value[0]!) {
@@ -206,7 +209,7 @@ watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, section
     sort?: string
     search?: string
     sections?: string
-    timeFilter?: string
+    time?: string
   } = {}
   if (attributeFilter.value !== "") {
     query.attributes = attributeFilter.value
@@ -218,7 +221,7 @@ watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, section
     query.pageSize = pageSize.value
   }
   if (timeFilter.value !== "none") {
-    query.timeFilter = timeFilter.value
+    query.time = timeFilter.value
   }
   if (search.value !== "") {
     query.search = search.value
@@ -385,8 +388,8 @@ watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, section
       id="duration"
       v-model="minTime"
       :default-value="[20]"
-      :min="5"
-      :max="120"
+      :min="minPossibleTime"
+      :max="maxPossibleTime"
       :step="5"
     />
       <span>ca. {{ durationToMinAndHourString(minTime?.[0] || 0) }}</span>
@@ -395,8 +398,8 @@ watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, section
       id="duration"
       v-model="maxTime"
       :default-value="[20]"
-      :min="5"
-      :max="120"
+      :min="minPossibleTime"
+      :max="maxPossibleTime"
       :step="5"
     />
       <span>ca. {{ durationToMinAndHourString(maxTime?.[0] || 0) }}</span>
