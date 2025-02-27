@@ -12,7 +12,7 @@ const timeFilterInit = (route.query.time as string || "").split("-")
 const minPossibleTime = 5
 const maxPossibleTime = 2*60
 const minTime = ref<number[]>([timeFilterInit[0] ? parseInt(timeFilterInit[0]) : minPossibleTime])
-const maxTime = ref<number[]>([timeFilterInit[0] ? parseInt(timeFilterInit[0]) : minPossibleTime])
+const maxTime = ref<number[]>([timeFilterInit[1] ? parseInt(timeFilterInit[1]) : maxPossibleTime])
 
 watch([minTime], () => {
   if(minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
