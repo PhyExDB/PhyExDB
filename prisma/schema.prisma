@@ -225,9 +225,9 @@ model Verification {
 
 model Rating {
   value        Int
-  user         User        @relation(fields: [userId], references: [id])
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  experiment   Experiment  @relation(fields: [experimentId], references: [id])
+  experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
