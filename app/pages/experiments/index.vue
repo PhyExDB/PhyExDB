@@ -361,26 +361,6 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
       <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">
         {{ isLoading ? "..." : data?.pagination.total }} Versuche gefunden
       </div>
-      <div class="w-full sm:w-64 order-1 sm:order-2">
-        <MultiSelect
-          :model-value="sort"
-          :options="sortOptions"
-          :value-for-option="option => option.label"
-          search-placeholder="Sortierung"
-          :allow-none="false"
-          @update:model-value="sort = $event"
-        >
-          <template #empty>
-            Sortierung
-          </template>
-          <template #preview="{ selected }">
-            {{ sortOptions.find(option => option.id === selected[0])?.label }}
-          </template>
-          <template #option="{ option }">
-            {{ option.label }}
-          </template>
-        </MultiSelect>
-      </div>
     </div>
     <!-- Experiments -->
     <div

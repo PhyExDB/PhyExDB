@@ -7,19 +7,6 @@ export default defineEventHandler(async (event) => {
     ? query.attributes.split(",")
     : []
 
-  // Sorting
-  const sort = query.sort as string || undefined
-  let sortOption
-  if (sort === "alphabetical") {
-    sortOption = { name: "asc" as const }
-  } else if (sort === "duration") {
-    sortOption = { duration: "asc" as const }
-  } else if (sort === "ratingsAvg") {
-    sortOption = { ratingsAvg: "desc" as const }
-  } else {
-    sortOption = undefined
-  }
-
   // Searching
   const querySearchString = query.search as string || ""
   const querySearchSections = (typeof query.sections === "string" && query.sections.length > 0)
