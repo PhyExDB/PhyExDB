@@ -4,8 +4,34 @@ const search = ref<string>(route.query.search as string || "")
 const sectionSearch = ref<string>(route.query.sections as string || "")
 const fetched = ref<boolean>(false)
 const searchApiInput = ref<string>(search.value)
-const sort = ref<string[]>([route.query.sort as string || "none"])
 const attributeFilter = ref<string>(route.query.attributes as string || "")
+const timeFilter = ref<string>(route.query.time as string || "")
+
+const minPossibleTime = 0
+const maxPossibleTime = 2*60
+const minTime = ref<number[]>([0])
+const maxTime = ref<number[]>([maxPossibleTime])
+watch([minTime], () => {
+  if (minTime.value[0]! > maxTime.value[0]!) {
+    maxTime.value = minTime.value
+  }
+})
+watch([maxTime], () => {
+  if (minTime.value[0]! > maxTime.value[0]!) {
+    minTime.value = maxTime.value
+  }
+})
+let timeFilterTimeout: NodeJS.Timeout
+watch([minTime, maxTime], () => {
+  isLoading.value = true
+  clearTimeout(timeFilterTimeout)
+  timeFilterTimeout = setTimeout(() => {
+    if(minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+      timeFilter.value = `${minTime.value[0]}-${maxTime.value[0]}`
+    }
+  }, 500)
+})
+
 
 const { page, pageSize } = getRequestPageMeta()
 
@@ -14,7 +40,7 @@ const { data } = useLazyFetch("/api/experiments", {
   query: {
     page: page,
     pageSize: pageSize,
-    sort: sort,
+    time: timeFilter,
     attributes: attributeFilter,
     search: searchApiInput,
     sections: sectionSearch,
@@ -33,7 +59,7 @@ const { data } = useLazyFetch("/api/experiments", {
   },
 })
 
-watch([searchApiInput, sort, attributeFilter], () => {
+watch([searchApiInput, timeFilter, attributeFilter], () => {
   page.value = 1
 })
 
@@ -128,13 +154,6 @@ function initializeFilterChecklist(list: string[][]) {
   })
 }
 
-const sortOptions = [
-  { id: "none", label: "Keine Sortierung" },
-  { id: "alphabetical", label: "Alphabetisch" },
-  { id: "duration", label: "Durchführungsdauer" },
-  { id: "ratingsAvg", label: "Bewertung" },
-]
-
 const checked = ref<string[][]>([])
 initializeFilterChecklist(checked.value)
 
@@ -174,7 +193,7 @@ watch(checked, () => {
 
 const router = useRouter()
 /* Update the URL */
-watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch], () => {
+watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, sectionSearch], () => {
   const query:
   {
     attributes?: string
@@ -183,6 +202,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
     sort?: string
     search?: string
     sections?: string
+    timeFilter?: string
   } = {}
   if (attributeFilter.value !== "") {
     query.attributes = attributeFilter.value
@@ -193,8 +213,8 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
   if (pageSize.value !== defaultPageSize) {
     query.pageSize = pageSize.value
   }
-  if (sort.value[0] !== "none") {
-    query.sort = sort.value[0]
+  if (timeFilter.value !== "none") {
+    query.timeFilter = timeFilter.value
   }
   if (search.value !== "") {
     query.search = search.value
@@ -348,14 +368,35 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
             </DialogFooter>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog>    
       <ExperimentUndoFilters
-        :checked="checked"
-        class="w-full sm:w-auto mt-2 sm:mt-0"
-        @update:checked="checked = $event"
+      :checked="checked"
+      class="w-full sm:w-auto mt-2 sm:mt-0"
+      @update:checked="checked = $event"
       />
     </div>
 
+    min. Durchführungsdauer
+    <Slider
+      id="duration"
+      v-model="minTime"
+      :default-value="[20]"
+      :min="5"
+      :max="120"
+      :step="5"
+    />
+      <span>ca. {{ durationToMinAndHourString(minTime?.[0] || 0) }}</span>
+    max. Durchführungsdauer
+    <Slider
+      id="duration"
+      v-model="maxTime"
+      :default-value="[20]"
+      :min="5"
+      :max="120"
+      :step="5"
+    />
+      <span>ca. {{ durationToMinAndHourString(maxTime?.[0] || 0) }}</span>
+    
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
       <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">
