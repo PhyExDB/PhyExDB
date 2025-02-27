@@ -73,6 +73,7 @@ export default defineEventHandler(async (event) => {
           },
         })
       })
+      esDeleteExperiment({ id: revisionOf.id })
     }
     // Publish new version under same slug if the title is the same
     const exp = await prisma.experiment.update({
