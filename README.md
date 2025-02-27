@@ -169,6 +169,7 @@ To enable the Teamscale extension, add the following to your `settings.json`:
 - Backend:
     - Logger: winston
     - ORM: prisma
+    - Search: Elasticsearch
     - Files: nuxt-file-storage
     - Mail: vue-email, nodemailer
 - Frontend:

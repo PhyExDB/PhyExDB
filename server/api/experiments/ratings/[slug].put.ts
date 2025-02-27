@@ -32,17 +32,19 @@ export default defineEventHandler(async (event) => {
     return { oldRating, rating }
   })
 
-  prisma.$transaction(async (prisma) => {
+  const exp = await prisma.$transaction(async (prisma) => {
     const where = { id: experiment.id }
     const exp = await prisma.experiment.findUniqueOrThrow({ where })
-    await prisma.experiment.update({
+    return await prisma.experiment.update({
       where,
       data: {
         ratingsSum: exp.ratingsSum + content.value - oldRating.value,
         ratingsAvg: (exp.ratingsSum + content.value - oldRating.value) / (exp.ratingsCount),
       },
+      include: experimentIncludeForToDetail,
     })
   })
+  esIndexExperiment(mapExperimentToDetail(exp as ExperimentIncorrectDetail))
 
   return rating as ExperimentRating
 })

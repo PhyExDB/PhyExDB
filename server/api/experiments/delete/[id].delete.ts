@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
   await prisma.experiment.delete({
     where,
   })
+  esDeleteExperiment({ id: experiment.id })
 
   return setResponseStatus(event, 204)
 })

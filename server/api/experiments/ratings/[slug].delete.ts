@@ -18,18 +18,20 @@ export default defineEventHandler(async (event) => {
     }),
   )
 
-  prisma.$transaction(async (prisma) => {
+  const exp = await prisma.$transaction(async (prisma) => {
     const where = { id: experiment.id }
     const exp = await prisma.experiment.findUniqueOrThrow({ where })
-    await prisma.experiment.update({
+    return await prisma.experiment.update({
       where,
       data: {
         ratingsCount: exp.ratingsCount - 1,
         ratingsSum: exp.ratingsSum - rating.value,
         ratingsAvg: (exp.ratingsSum - rating.value) / (exp.ratingsCount - 1) || 0,
       },
+      include: experimentIncludeForToDetail,
     })
   })
+  esIndexExperiment(mapExperimentToDetail(exp as ExperimentIncorrectDetail))
 })
 
 defineRouteMeta({

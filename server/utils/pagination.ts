@@ -1,12 +1,24 @@
 import type { Event } from "./utils"
 
 /**
- * Generates pagination metadata for a given event and total number of items.
+ * Reads page and pageSize query parameters from an event.
  */
-export function getPageMeta(event: Event, total: number): PageMeta {
+export function getPageQuery(event: Event) {
   const query = getQuery(event)
   const page = parseInt(query.page as string) || 1
   const pageSize = parseInt(query.pageSize as string) || 12
+
+  return {
+    page,
+    pageSize,
+  }
+}
+
+/**
+ * Generates pagination metadata for a given event and total number of items.
+ */
+export function getPageMeta(event: Event, total: number): PageMeta {
+  const { page, pageSize } = getPageQuery(event)
   const totalPages = Math.ceil(total / pageSize)
 
   return {

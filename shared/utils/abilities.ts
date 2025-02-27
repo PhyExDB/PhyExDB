@@ -95,7 +95,7 @@ export const experimentAbilities = {
         || (minModerator(user) && experiment.status === "IN_REVIEW")
       )
     ),
-  put: (user, experiment) => notNull(user) && (
+  put: (user, experiment) => notNull(user) && experiment.status !== "PUBLISHED" && (
     user.role === "ADMIN" || user.id === experiment.userId
   ),
   post: verified,

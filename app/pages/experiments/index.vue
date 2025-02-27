@@ -4,8 +4,40 @@ const search = ref<string>(route.query.search as string || "")
 const sectionSearch = ref<string>(route.query.sections as string || "")
 const fetched = ref<boolean>(false)
 const searchApiInput = ref<string>(search.value)
-const sort = ref<string[]>([route.query.sort as string || "none"])
 const attributeFilter = ref<string>(route.query.attributes as string || "")
+const timeFilter = ref<string>(route.query.time as string || "")
+
+const timeFilterInit = (route.query.time as string || "").split("-")
+
+const minPossibleTime = 5
+const maxPossibleTime = 2 * 60
+const minTime = ref<number[]>([timeFilterInit[0] ? parseInt(timeFilterInit[0]) : minPossibleTime])
+const maxTime = ref<number[]>([timeFilterInit[1] ? parseInt(timeFilterInit[1]) : maxPossibleTime])
+
+watch([minTime], () => {
+  if (minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+    if (minTime.value[0]! > maxTime.value[0]!) {
+      maxTime.value = minTime.value
+    }
+  }
+})
+watch([maxTime], () => {
+  if (minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+    if (minTime.value[0]! > maxTime.value[0]!) {
+      minTime.value = maxTime.value
+    }
+  }
+})
+let timeFilterTimeout: NodeJS.Timeout
+watch([minTime, maxTime], () => {
+  isLoading.value = true
+  clearTimeout(timeFilterTimeout)
+  timeFilterTimeout = setTimeout(() => {
+    if (minTime.value && maxTime.value && minTime.value[0] && maxTime.value[0]) {
+      timeFilter.value = `${minTime.value[0]}-${maxTime.value[0]}`
+    }
+  }, 500)
+})
 
 const { page, pageSize } = getRequestPageMeta()
 
@@ -14,7 +46,7 @@ const { data } = useLazyFetch("/api/experiments", {
   query: {
     page: page,
     pageSize: pageSize,
-    sort: sort,
+    time: timeFilter,
     attributes: attributeFilter,
     search: searchApiInput,
     sections: sectionSearch,
@@ -33,7 +65,7 @@ const { data } = useLazyFetch("/api/experiments", {
   },
 })
 
-watch([searchApiInput, sort, attributeFilter], () => {
+watch([searchApiInput, timeFilter, attributeFilter], () => {
   page.value = 1
 })
 
@@ -128,13 +160,6 @@ function initializeFilterChecklist(list: string[][]) {
   })
 }
 
-const sortOptions = [
-  { id: "none", label: "Keine Sortierung" },
-  { id: "alphabetical", label: "Alphabetisch" },
-  { id: "duration", label: "Durchführungsdauer" },
-  { id: "ratingsAvg", label: "Bewertung" },
-]
-
 const checked = ref<string[][]>([])
 initializeFilterChecklist(checked.value)
 
@@ -174,7 +199,7 @@ watch(checked, () => {
 
 const router = useRouter()
 /* Update the URL */
-watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch], () => {
+watch([timeFilter, attributeFilter, page, pageSize, search, searchTitle, sectionSearch], () => {
   const query:
   {
     attributes?: string
@@ -183,6 +208,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
     sort?: string
     search?: string
     sections?: string
+    time?: string
   } = {}
   if (attributeFilter.value !== "") {
     query.attributes = attributeFilter.value
@@ -193,8 +219,8 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
   if (pageSize.value !== defaultPageSize) {
     query.pageSize = pageSize.value
   }
-  if (sort.value[0] !== "none") {
-    query.sort = sort.value[0]
+  if (timeFilter.value !== "none") {
+    query.time = timeFilter.value
   }
   if (search.value !== "") {
     query.search = search.value
@@ -356,30 +382,31 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
       />
     </div>
 
+    min. Durchführungsdauer
+    <Slider
+      id="duration"
+      v-model="minTime"
+      :default-value="[20]"
+      :min="minPossibleTime"
+      :max="maxPossibleTime"
+      :step="5"
+    />
+    <span>ca. {{ durationToMinAndHourString(minTime?.[0] || 0) }}</span>
+    max. Durchführungsdauer
+    <Slider
+      id="duration"
+      v-model="maxTime"
+      :default-value="[20]"
+      :min="minPossibleTime"
+      :max="maxPossibleTime"
+      :step="5"
+    />
+    <span>ca. {{ durationToMinAndHourString(maxTime?.[0] || 0) }}</span>
+
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
       <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">
         {{ isLoading ? "..." : data?.pagination.total }} Versuche gefunden
-      </div>
-      <div class="w-full sm:w-64 order-1 sm:order-2">
-        <MultiSelect
-          :model-value="sort"
-          :options="sortOptions"
-          :value-for-option="option => option.label"
-          search-placeholder="Sortierung"
-          :allow-none="false"
-          @update:model-value="sort = $event"
-        >
-          <template #empty>
-            Sortierung
-          </template>
-          <template #preview="{ selected }">
-            {{ sortOptions.find(option => option.id === selected[0])?.label }}
-          </template>
-          <template #option="{ option }">
-            {{ option.label }}
-          </template>
-        </MultiSelect>
       </div>
     </div>
     <!-- Experiments -->
