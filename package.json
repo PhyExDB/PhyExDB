@@ -78,7 +78,7 @@
     "dotenv-cli": "^8.0.0",
     "happy-dom": "^16.8.1",
     "nodemailer": "^6.10.0",
-    "nuxt-file-storage": "^0.2.9",
+    "nuxt-file-storage": "^0.3.0",
     "nuxt-nodemailer": "^1.1.2",
     "playwright-core": "^1.49.1",
     "postcss": "^8.5.3",
@@ -86,7 +86,7 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3",
-    "unplugin-auto-import": "^19.1.0",
+    "unplugin-auto-import": "^19.1.1",
     "vitest": "^3.0.0",
     "vitest-mock-extended": "^3.0.1"
   }
