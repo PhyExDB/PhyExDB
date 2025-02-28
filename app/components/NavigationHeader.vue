@@ -18,7 +18,7 @@
           height="40"
         />
         <p>
-          <span class="font-bold">PhyEx</span><span class="text-accent">DB</span>
+          <span class="font-bold">ViP</span><span class="text-accent">DA</span>
         </p>
       </div>
     </NuxtLink>

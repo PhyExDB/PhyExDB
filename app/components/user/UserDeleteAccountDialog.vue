@@ -69,6 +69,7 @@ const openForm = (event: boolean) => {
     form.resetForm()
   }
 }
+const appName = useRuntimeConfig().public.appName
 </script>
 
 <template>
@@ -83,7 +84,7 @@ const openForm = (event: boolean) => {
       <DialogHeader>
         <DialogTitle>Account löschen</DialogTitle>
         <DialogDescription>
-          Lösche deinen PHYEXDB Account.
+          Lösche deinen {{ appName }} Account.
         </DialogDescription>
       </DialogHeader>
       <form

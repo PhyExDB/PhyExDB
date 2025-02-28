@@ -120,7 +120,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     </div>
     <div class="py-8 text-center">
       <h3 class="mb-4 text-3xl font-semibold md:mb-5 md:text-4xl">
-        <span class="font-bold">PhyEx</span><span class="text-accent">DB</span>
+        <span class="font-bold">ViP</span><span class="text-accent">DA</span>
       </h3>
       <p class="text-lg text-muted-foreground md:text-xl">
         {{ startpage?.description }}
