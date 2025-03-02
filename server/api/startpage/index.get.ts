@@ -35,8 +35,11 @@ defineRouteMeta({
             schema: {
               type: "object",
               properties: {
+                id: { type: "string", format: "uuid" },
                 text: { type: "string" },
                 description: { type: "string" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
                 files: {
                   type: "array",
                   items: {

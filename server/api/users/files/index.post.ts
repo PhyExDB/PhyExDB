@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Create a new experiment file",
+    description: "Converts regular file to a user file",
     tags: ["User Files"],
     requestBody: {
       content: {
@@ -63,21 +63,43 @@ defineRouteMeta({
       },
     },
     responses: {
-      200: {
-        description: "The experiment file has been created",
+      201: {
+        description: "The user file has been created",
         content: {
           "application/json": {
             schema: {
               type: "object",
               properties: {
                 id: { type: "string", format: "uuid" },
+                fileId: { type: "string", format: "uuid" },
+                userId: { type: "string", format: "uuid" },
                 file: {
                   type: "object",
                   properties: {
                     id: { type: "string", format: "uuid" },
+                    originalName: { type: "string" },
                     path: { type: "string" },
                     mimeType: { type: "string" },
-                    createdBy: { type: "object" },
+                    startPageId: { type: "string", format: "uuid" },
+                    createdById: { type: "string", format: "uuid" },
+                    createdAt: { type: "string", format: "date-time" },
+                    updatedAt: { type: "string", format: "date-time" },
+                    createdBy: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string", format: "uuid" },
+                        role: { type: "string", enum: ["USER", "MODERATOR", "ADMIN"] },
+                        createdAt: { type: "string", format: "date-time" },
+                        updatedAt: { type: "string", format: "date-time" },
+                        name: { type: "string" },
+                        email: { type: "string" },
+                        emailVerified: { type: "boolean" },
+                        image: { type: "object" },
+                        banned: { type: "boolean" },
+                        banReason: { type: "string" },
+                        banExpires: { type: "string", format: "date-time" },
+                      },
+                    },
                   },
                 },
               },

@@ -32,8 +32,20 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Create a new experiment file",
+    description: "Deletes a user file",
     tags: ["User Files"],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        description: "The user file ID",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
     requestBody: {
       content: {
         "application/json": {
@@ -42,7 +54,6 @@ defineRouteMeta({
             properties: {
               fileId: { type: "string", format: "uuid" },
             },
-            required: ["fileId"],
           },
         },
       },

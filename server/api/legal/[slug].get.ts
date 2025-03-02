@@ -21,6 +21,17 @@ defineRouteMeta({
   openAPI: {
     description: "Get a legal document",
     tags: ["Legal"],
+    parameters: [
+      {
+        name: "slug",
+        in: "path",
+        required: true,
+        description: "The slug or id of the legal document",
+        schema: {
+          type: "string",
+        },
+      },
+    ],
     responses: {
       200: {
         description: "The legal document",
@@ -31,15 +42,17 @@ defineRouteMeta({
               properties: {
                 id: { type: "string", format: "uuid" },
                 name: { type: "string" },
-                content: { type: "string" },
+                slug: { type: "string" },
+                text: { type: "string" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
               },
-              required: ["id", "name", "text"],
             },
           },
         },
       },
       404: {
-        description: "Invalid slug",
+        description: "Document not found",
       },
     },
   },

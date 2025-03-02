@@ -27,6 +27,8 @@ defineRouteMeta({
                   id: { type: "string", format: "uuid" },
                   name: { type: "string" },
                   slug: { type: "string" },
+                  createdAt: { type: "string", format: "date-time" },
+                  updatedAt: { type: "string", format: "date-time" },
                 },
               },
             },
