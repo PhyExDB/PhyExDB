@@ -70,7 +70,7 @@ defineRouteMeta({
                   type: "object",
                   properties: {
                     id: { type: "string", format: "uuid" },
-                    role: { type: "string", enum: ["ADMIN", "MODERATOR", "USER"]},
+                    role: { type: "string", enum: ["ADMIN", "MODERATOR", "USER"] },
                     createdAt: { type: "string", format: "date-time" },
                     updatedAt: { type: "string", format: "date-time" },
                     name: { type: "string" },
