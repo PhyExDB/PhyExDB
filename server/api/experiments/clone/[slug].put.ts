@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 400, message: "There can only be one revision of an experiment!" })
   }
   if (revision && experiment.revisionOf) {
-    throw createError({ status: 400, message: "Cannot create revisions of revisions " })
+    throw createError({ status: 400, message: "Cannot create revisions of revisions" })
   }
   if (revision && experiment.status !== "PUBLISHED") {
     throw createError({ status: 400, message: "Can only revise published experiments" })
@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
   )
 
   setResponseStatus(event, 201)
-  return mapExperimentToDetail(newExperiment as unknown as ExperimentIncorrectDetail)
+  return mapExperimentToDetail(newExperiment as ExperimentIncorrectDetail)
 })
 
 defineRouteMeta({

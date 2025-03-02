@@ -44,6 +44,7 @@ function selectedToString(selected: string[], attribute: ExperimentAttributeDeta
           :multiple="attribute.multipleSelection"
           :model-value="checked[attributeIndex]"
           :value-for-option="option => option.value"
+          :show-reset-button="true"
           @update:model-value="updateModelValueAtIndex(attributeIndex, $event)"
         >
           <template #empty>

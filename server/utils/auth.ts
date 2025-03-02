@@ -22,17 +22,17 @@ export const auth = betterAuth({
       const runtimeConfig = useRuntimeConfig()
       await useNodeMailer().sendMail({
         to: user.email,
-        subject: `Setze dein ${runtimeConfig.appName} Passwort zurück`,
+        subject: `Setze dein ${runtimeConfig.public.appName} Passwort zurück`,
         text: await render(resetPasswordEmail, {
           url,
-          appName: runtimeConfig.appName,
+          appName: runtimeConfig.public.appName,
           username: user.name,
         }, {
           plainText: true,
         }),
         html: await render(resetPasswordEmail, {
           url,
-          appName: runtimeConfig.appName,
+          appName: runtimeConfig.public.appName,
           username: user.name,
         }, {
           pretty: true,
@@ -46,17 +46,17 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }, _) => {
       const runtimeConfig = useRuntimeConfig()
       await useNodeMailer().sendMail({
-        subject: `Verifiziere deinen ${runtimeConfig.appName} Account`,
+        subject: `Verifiziere deinen ${runtimeConfig.public.appName} Account`,
         text: await render(verifyAccountEmail, {
           url,
-          appName: runtimeConfig.appName,
+          appName: runtimeConfig.public.appName,
         }, {
           pretty: true,
         }),
         to: user.email,
         html: await render(verifyAccountEmail, {
           url,
-          appName: runtimeConfig.appName,
+          appName: runtimeConfig.public.appName,
         }, {
           pretty: true,
         }),
@@ -85,7 +85,7 @@ export const auth = betterAuth({
       sendChangeEmailVerification: async ({ user, newEmail, url }, _) => {
         const runtimeConfig = useRuntimeConfig()
         await useNodeMailer().sendMail({
-          subject: `Verifiziere deine neue Email Adresse für ${runtimeConfig.appName}`,
+          subject: `Verifiziere deine neue Email Adresse für ${runtimeConfig.public.appName}`,
           text: await render(UpdatedEmailVerificationTemplate, {
             url,
             username: user.name,

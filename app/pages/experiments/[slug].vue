@@ -4,6 +4,13 @@ const { data: experiment } = useFetch<ExperimentDetail>(`/api/experiments/${getS
 if (!experiment) {
   throw showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
 }
+
+useSchemaOrg([
+  defineArticle({
+    title: experiment.value?.name,
+    description: experiment.value?.sections?.[0]?.text,
+  }),
+])
 </script>
 
 <template>

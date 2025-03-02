@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 const user = await useUser()
 
-const { experiment } = defineProps({
-  experiment: {
-    type: Object as PropType<ExperimentDetail>,
-    required: false,
-  },
-})
+const { experiment } = defineProps<{
+  experiment?: ExperimentDetail
+  preview?: boolean
+}>()
 
 const attributesWithoutDuration = computed(() => {
   return experiment?.attributes.filter(
@@ -74,6 +72,14 @@ const showDeleteDialog = ref(false)
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
+            v-if="user !== null && (user.role === 'ADMIN')"
+            @click="navigateTo(`/users?search=${experiment.userId}`)"
+          >
+            <span>
+              Zur Ersteller:in
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
             @click="duplicateExperiment(experiment, false)"
           >
             <span>
@@ -115,15 +121,22 @@ const showDeleteDialog = ref(false)
       />
     </div>
 
+    <!-- Rating -->
+    <ExperimentRating
+      :experiment="experiment"
+    />
+
     <!-- Preview Image -->
     <Card
       v-if="experiment.previewImage"
       class="flex justify-center shadow-md max-h-200"
     >
-      <NuxtImg
+      <NuxtPicture
+        format="webp,avif"
+        sizes="100vw md:850px"
         :src="experiment.previewImage.path"
         alt="Preview Image"
-        class="object-contain"
+        fit="inside"
       />
     </Card>
 
@@ -174,7 +187,7 @@ const showDeleteDialog = ref(false)
         </h2>
         <div
           v-if="section.text && section.text.length && section.text != '<p></p>'"
-          class="prose dark:prose-invert"
+          class="prose dark:prose-invert max-w-full"
           v-html="section.text"
         />
         <p
@@ -195,9 +208,13 @@ const showDeleteDialog = ref(false)
               <CardContent class="h-80 flex items-center justify-center p-0">
                 <!-- Image File -->
                 <template v-if="isImageFile(item.file.mimeType)">
-                  <NuxtImg
+                  <NuxtPicture
+                    format="webp,avif"
+                    sizes="100vw md:850px"
+                    fit="inside"
                     :src="item.file.path"
                     alt="File Preview"
+                    :img-attrs="{ class: 'object-contain w-full h-full rounded' }"
                     class="object-contain w-full h-full rounded"
                   />
                 </template>
@@ -248,10 +265,13 @@ const showDeleteDialog = ref(false)
           <template #thumbnail="{ item }">
             <Card class="h-20 w-full flex items-center justify-center rounded">
               <template v-if="isImageFile(item.file.mimeType)">
-                <NuxtImg
+                <NuxtPicture
+                  format="webp,avif"
+                  height="100"
+                  fit="inside"
                   :src="item.file.path"
                   alt="Thumbnail"
-                  class="object-contain w-full h-full rounded"
+                  :img-attrs="{ class: 'object-contain w-full h-full' }"
                 />
               </template>
               <template v-else-if="isVideoFile(item.file.mimeType)">
@@ -271,5 +291,17 @@ const showDeleteDialog = ref(false)
         </CarouselWithPreview>
       </div>
     </div>
+
+    <!-- Own rating -->
+    <!-- <div v-if="!preview"> -->
+    <Separator />
+    <ExperimentRatingOwn
+      v-if="user"
+      :experiment="experiment"
+    />
+    <ExperimentComment
+      :experiment="experiment"
+    />
+    <!-- </div> -->
   </div>
 </template>

@@ -14,13 +14,13 @@ export default defineEventHandler(async (event) => {
   let whereClause: Prisma.UserWhereInput = {}
   if (search) {
     const roleFilter: Prisma.UserWhereInput[] = []
-    if ("user".includes(search)) {
+    if ("user".includes(search.toLowerCase())) {
       roleFilter.push({ role: "USER" })
     }
-    if ("moderator".includes(search)) {
+    if ("moderator".includes(search.toLowerCase())) {
       roleFilter.push({ role: "MODERATOR" })
     }
-    if ("administrator".includes(search)) {
+    if ("administrator".includes(search.toLowerCase())) {
       roleFilter.push({ role: "ADMIN" })
     }
 
@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
         { name: { contains: search, mode: "insensitive" } },
         { email: { contains: search, mode: "insensitive" } },
         ...roleFilter,
+        { id: { equals: search } },
       ],
     }
   }

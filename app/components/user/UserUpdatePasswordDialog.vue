@@ -48,7 +48,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     <DialogTrigger as-child>
       <slot />
     </DialogTrigger>
-    <DialogContent class="max-w-[425px]">
+    <DialogContent class="max-w-[425px] max-h-full overflow-auto">
       <DialogHeader>
         <DialogTitle>Passwort ändern</DialogTitle>
         <DialogDescription>

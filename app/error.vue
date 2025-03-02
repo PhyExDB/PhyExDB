@@ -4,6 +4,10 @@ import type { NuxtError } from "#app"
 const props = defineProps({
   error: Object as () => NuxtError,
 })
+
+if (props.error?.statusCode === 401) {
+  navigateToWithRedirect("/login")
+}
 </script>
 
 <template>
@@ -24,9 +28,18 @@ const props = defineProps({
           </p>
         </div>
       </div>
-      <Button>
-        <NuxtLink to="/">Zurück zur Startseite</NuxtLink>
-      </Button>
+      <NuxtLink to="/login">
+        <Button
+          v-if="props.error?.statusCode === 401"
+        >
+          Anmelden
+        </Button>
+      </NuxtLink>
+      <NuxtLink to="/">
+        <Button>
+          Zurück zur Startseite
+        </Button>
+      </NuxtLink>
     </div>
   </div>
 </template>

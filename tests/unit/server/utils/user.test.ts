@@ -8,10 +8,10 @@ describe("Test utils user", async () => {
   it("getUserByEvent", async () => {
     u.mockPrismaForIdGet({ data: users.user }, "user")
     expect(await unit.getUserByEvent(u.getEvent({ params: { id: users.user.id } }))).toEqual(users.user)
-    expect(unit.getUserByEvent(u.getEvent({ params: { id: users.mod.id } }))).rejects.toMatchObject({
+    await expect(unit.getUserByEvent(u.getEvent({ params: { id: users.mod.id } }))).rejects.toMatchObject({
       statusCode: 404,
     })
-    expect(unit.getUserByEvent(u.getEvent({}))).rejects.toMatchObject({
+    await expect(unit.getUserByEvent(u.getEvent({}))).rejects.toMatchObject({
       statusCode: 400,
       message: "Invalid id",
     })

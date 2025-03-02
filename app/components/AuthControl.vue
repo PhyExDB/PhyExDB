@@ -48,28 +48,29 @@ const canReviewExperiments = await allows(experimentAbilities.review)
           <span>Nutzerverwaltung</span>
         </DropdownMenuItem>
       </NuxtLink>
-      <NuxtLink href="/experiments/review">
-        <DropdownMenuItem
-          v-if="canReviewExperiments"
-        >
-          <span>Experimente überprüfen</span>
+      <NuxtLink
+        v-if="canReviewExperiments"
+        href="/experiments/review"
+      >
+        <DropdownMenuItem>
+          <span>Versuche überprüfen</span>
         </DropdownMenuItem>
       </NuxtLink>
 
       <DropdownMenuSeparator />
       <DropdownMenuItem
         class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
-        @click="useAuth().client.signOut()"
+        @click="useAuth().client.signOut(); navigateTo('/')"
       >
         <span>Abmelden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-  <Button v-if="!user">
-    <NuxtLink
-      @click.prevent="navigateToWithRedirect('/login')"
-    >
+  <NuxtLink
+    to="/login"
+  >
+    <Button v-if="!user">
       Anmelden
-    </NuxtLink>
-  </Button>
+    </Button>
+  </NuxtLink>
 </template>

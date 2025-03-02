@@ -32,7 +32,7 @@ export async function validateFooter(page: Page): Promise<void> {
 
   // Verify current year is displayed
   const currentYear = new Date().getFullYear().toString()
-  await expect(footer.locator("p")).toContainText(`© ${currentYear} PhyExDB`)
+  await expect(footer.locator("p")).toContainText(`© ${currentYear} ViPDA`)
 
   // Verify links and their text
   const links = footer.locator("ul li a")

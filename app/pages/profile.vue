@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import UserDeleteAccountDialog from "~/components/user/UserDeleteAccountDialog.vue"
 import getInitials from "~~/shared/utils/initials"
+import { useToast } from "@/components/ui/toast/use-toast"
 
 definePageMeta({
   title: "Profile",
@@ -23,10 +24,16 @@ const verifiedValue = user.value?.emailVerified
 
 const canReviewExperiments = await allows(experimentAbilities.review)
 
+const { toast } = useToast()
 async function sendVerificationEmail() {
   await useAuth().client.sendVerificationEmail({
     email: user.value!.email,
     callbackURL: "/profile",
+  })
+  toast({
+    title: "E-Mail wurde versendet",
+    description: "Bitte überprüfe deinen Posteingang",
+    variant: "success",
   })
   emailVerifiedPopoverOpen.value = false
 }

@@ -11,7 +11,17 @@ export default defineEventHandler(async (event) => {
 
   const experiment = await prisma.experiment.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
-    include: experimentIncludeForToDetail,
+    include: {
+      revisionOf: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          ratingsSum: true,
+          ratingsCount: true,
+        },
+      },
+    },
   })
 
   if (!experiment) {
@@ -22,13 +32,55 @@ export default defineEventHandler(async (event) => {
 
   if (reviewContent.approve) {
     // Delete old version if revision
-    const isRevision = experiment.revisionOf !== null
-    if (isRevision) {
-      await prisma.experiment.delete({
-        where: {
-          id: experiment.revisionOf?.id,
-        },
-      })
+    const revisionOf = experiment.revisionOf
+    if (revisionOf !== null && revisionOf !== undefined) {
+      if (!reviewContent.deleteRatingsAndComments) {
+        // adopt ratings and comments from old version
+        await prisma.$transaction(async () => {
+          // delete ratings that where made on the draft
+          await prisma.rating.deleteMany({
+            where: {
+              experimentId: experiment.id,
+            },
+          })
+          // copy ratings from previous version
+          await prisma.rating.updateMany({
+            where: {
+              experimentId: revisionOf.id,
+            },
+            data: {
+              experimentId: experiment.id,
+            },
+          })
+          // copy comments
+          await prisma.comment.updateMany({
+            where: {
+              experimentId: revisionOf.id,
+            },
+            data: {
+              experimentId: experiment.id,
+            },
+          })
+          const exp = await prisma.experiment.delete({
+            where: {
+              id: revisionOf.id,
+            },
+          })
+          await prisma.experiment.update({
+            where: { id: experiment.id },
+            data: {
+              ratingsSum: exp.ratingsSum,
+              ratingsCount: exp.ratingsCount,
+            },
+          })
+        })
+      } else {
+        await prisma.experiment.delete({
+          where: {
+            id: revisionOf.id,
+          },
+        })
+      }
     }
     // Publish new version under same slug if the title is the same
     await prisma.experiment.update({

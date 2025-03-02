@@ -19,7 +19,6 @@ COPY . .
 
 # Build the application
 RUN npm run build
-RUN npm prune --production
 
 # ================================
 # Run image
@@ -27,7 +26,7 @@ RUN npm prune --production
 FROM node:23-alpine AS run
 
 # Update and install latest dependencies
-RUN apk update && apk upgrade && adduser -D nuxtuser
+RUN apk update && apk upgrade && apk add ffmpeg && adduser -D nuxtuser
 
 # Set non-root user
 USER nuxtuser

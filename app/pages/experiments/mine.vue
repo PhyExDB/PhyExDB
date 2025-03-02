@@ -1,5 +1,9 @@
 <script lang="ts" setup>
+import { useToast } from "@/components/ui/toast/use-toast"
+
 await useUserOrThrowError()
+
+const user = await useUserOrThrowError()
 
 const { page, pageSize } = getRequestPageMeta()
 
@@ -36,6 +40,19 @@ async function customRefresh() {
   }
 }
 
+const { toast } = useToast()
+async function sendVerificationEmail() {
+  await useAuth().client.sendVerificationEmail({
+    email: user.value!.email,
+    callbackURL: "/profile",
+  })
+  toast({
+    title: "E-Mail wurde versendet",
+    description: "Bitte überprüfe deinen Posteingang",
+    variant: "success",
+  })
+}
+
 const canCreateExperiment = await allows(experimentAbilities.post)
 </script>
 
@@ -61,7 +78,7 @@ const canCreateExperiment = await allows(experimentAbilities.post)
       v-if="!ownExperiments || ownExperiments.pagination.total === 0"
       class="flex items-center justify-center min-h-screen"
     >
-      <div class="flex flex-col items-center space-y-4 text-gray-400">
+      <div class="flex flex-col items-center space-y-4 text-center">
         <h1 class="text-2xl">
           Du hast noch keine Versuche erstellt
         </h1>
@@ -71,6 +88,22 @@ const canCreateExperiment = await allows(experimentAbilities.post)
         >
           Neuen Versuch erstellen
         </Button>
+        <div
+          v-else
+          class="flex flex-col items-center space-y-4"
+        >
+          <p class="text-muted-foreground">
+            Bitte verifiziere deine E-Mail-Adresse, um einen Versuch zu erstellen.
+          </p>
+          <Button
+            v-if="!user.emailVerified"
+            variant="outline"
+            class="mt-3"
+            @click="sendVerificationEmail"
+          >
+            E-Mail verifizieren
+          </Button>
+        </div>
       </div>
     </div>
   </div>

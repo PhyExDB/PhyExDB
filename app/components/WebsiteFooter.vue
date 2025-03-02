@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 const currentYear = new Date().getFullYear()
+const runtimeConfig = useRuntimeConfig()
+const appName = runtimeConfig.public.appName
 </script>
 
 <template>
   <footer class="bg-muted text-muted-foreground">
     <div class="container mx-auto px-4 py-4 text-sm flex flex-col md:flex-row justify-between items-center">
       <p class="order-last md:order-1 mb-4 md:mb-0 pt-5 md:pt-0">
-        &copy; {{ currentYear }} PhyExDB
+        &copy; {{ currentYear }} {{ appName }}
       </p>
       <ul class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 items-center order-1 md:order-last">
         <li>

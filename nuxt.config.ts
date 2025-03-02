@@ -15,6 +15,9 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "nuxt-tiptap-editor",
     "nuxt-nodemailer",
+    "@nuxtjs/sitemap",
+    "@nuxtjs/robots",
+    "nuxt-schema-org",
   ],
 
   devtools: { enabled: true },
@@ -30,18 +33,14 @@ export default defineNuxtConfig({
     logLevel: "debug",
     fileMount: "./public",
     trustedOrigins: "http://localhost:3000",
-    appName: "PhyExDB",
     public: {
-      sectionFileAccepts: "image/jpeg,image/png,image/webp,application/pdf,video/mp4",
+      appName: "ViPDA",
+      sectionFileAccepts: "image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime",
       fileStorage: {
         mount: "public",
       },
     },
   },
-
-  // build: {
-  //   transpile: ["@vue-email/components"], // Ensure Vue Email is compiled
-  // },
 
   future: {
     compatibilityVersion: 4,
@@ -63,6 +62,9 @@ export default defineNuxtConfig({
       plugins: [
         vue(),
       ],
+    },
+    scheduledTasks: {
+      "0 0 * * 0": "db:remove-unlinked-files", // Every week at midnight on Sunday
     },
   },
 
@@ -108,6 +110,13 @@ export default defineNuxtConfig({
   },
 
   shadcn: {
+    prefix: "",
     componentDir: "./app/components/ui",
+  },
+
+  sitemap: {
+    sources: [
+      "/api/experiments/sitemap-urls",
+    ],
   },
 })

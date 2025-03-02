@@ -20,17 +20,13 @@ export type ErrorType = {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
- * Type of the function in an abillity.
- */
-export type AbilityFunc<T extends any[]> = (user: UserDetail, ...param: T) => boolean
-/**
  * Type of an abillity.
  */
-export type Ability<T extends any[]> = { func: AbilityFunc<T>, allowGuests: boolean | false }
+export type Ability<T extends any[]> = (user: UserDetail | null, ...param: T) => boolean
 /**
- * Type of an abillity not allowingGuests.
+ * Type of an user abillity.
  */
-export type UserAbility<T extends any[]> = { func: AbilityFunc<T>, allowGuests: false }
+export type UserAbility<T extends any[]> = Ability<T>
 
 /**
  * Evaluates the ability of a user to perform a certain action.
@@ -40,16 +36,12 @@ export function evaluateAbility<T extends any[]>(
   ability: Ability<T>,
   ...param: T
 ): UserDetail | null | "Not authorized" | "Not logged in" {
-  if (!user) {
-    if (ability.allowGuests) {
-      return null
-    } else {
-      return "Not logged in"
-    }
+  if (user === undefined) {
+    user = null
   }
-  const isAuthorized = ability.func(user, ...param)
+  const isAuthorized = ability(user, ...param)
   if (!isAuthorized) {
-    return "Not authorized"
+    return user === null ? "Not logged in" : "Not authorized"
   }
   return user
 }
@@ -57,14 +49,30 @@ export function evaluateAbility<T extends any[]>(
 /**
  * Evaluates the ability of a user to perform a certain action.
  */
+export function allowsUser<T extends any[]>(
+  user: UserDetail | null,
+  ability: Ability<T>,
+  ...param: T
+): boolean {
+  if (user === undefined) {
+    user = null
+  }
+  return ability(user, ...param)
+}
+
+/**
+ * Evaluates the ability of a user to perform a certain action.
+ */
 export function evaluateUserAbility<T extends any[]>(
   user: UserDetail,
-  ability: UserAbility<T>,
+  ability: Ability<T>,
   ...param: T
 ): UserDetail | "Not authorized" {
-  const isAuthorized = ability.func(user, ...param)
-  if (!isAuthorized) {
-    return "Not authorized"
+  if (user !== undefined) {
+    const isAuthorized = ability(user, ...param)
+    if (!isAuthorized) {
+      return "Not authorized"
+    }
   }
   return user
 }
@@ -72,27 +80,14 @@ export function evaluateUserAbility<T extends any[]>(
 /**
  * Defines an ability.
  */
-export function defineAbility<T extends any[], B extends boolean>(allowGuests: B, func: AbilityFunc<T>) {
-  return { func, allowGuests }
+export function defineAbility<T extends any[]>(ability: Ability<T>): Ability<T> {
+  return ability
 }
 /**
  * Defines an ability.
  */
-export function defineAbilityNoGuests<T extends any[]>(func: AbilityFunc<T>): UserAbility<T> {
-  return { func, allowGuests: false }
-}
-/**
- * Defines an ability.
- */
-export function defineAbilityAllowingGuests<T extends any[]>(func: AbilityFunc<T>): Ability<T> {
-  return { func, allowGuests: true }
-}
-/**
- * Maps the function of an ability.
- */
-export function abilityMapFunction<T extends any[], S extends any[]>(
-  ability: Ability<T>,
-  f: (f: AbilityFunc<T>) => AbilityFunc<S>,
-) {
-  return { ...ability, func: f(ability.func) } satisfies Ability<S>
+export function defineAbilityNoGuests<T extends any[]>(
+  func: (user: UserDetail, ...param: T) => boolean,
+): Ability<T> {
+  return (user, ...param) => user !== null && func(user, ...param)
 }

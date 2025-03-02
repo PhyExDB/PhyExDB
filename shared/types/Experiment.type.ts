@@ -37,6 +37,15 @@ export interface ExperimentList extends SlugList {
    * The id of the experiment this experiment is revised by
    */
   revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes"> | undefined
+
+  /**
+   * The count of all ratings
+   */
+  ratingsCount: number
+  /**
+   * The sum of all ratings
+   */
+  ratingsSum: number
 }
 
 /**
@@ -249,6 +258,7 @@ export function getExperimentReadyForReviewSchema(
 export const experimentReviewSchema = z.object({
   approve: z.boolean({ message: "Entscheidung wird benötigt" }),
   message: z.string({ message: "Nachricht wird benötigt" }).nonempty("Nachricht wird benötigt").optional(),
+  deleteRatingsAndComments: z.boolean({ message: "Angabe wird benötigt" }),
 }).refine((value) => {
   if (!value.approve) {
     return value.message !== undefined

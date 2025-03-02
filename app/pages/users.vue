@@ -10,16 +10,33 @@ authorize(userAbilities.getAll)
 const user = await useUser()
 
 const { page, pageSize } = getRequestPageMeta()
-const search = ref<string>("")
+// Search
+const route = useRoute()
+const search = ref<string>(route.query.search as string || "")
+const searchApiInput = ref<string>(search.value)
+
+let searchTimeout: NodeJS.Timeout
 watch(search, () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    searchApiInput.value = search.value
+  }, 500)
+})
+
+watch(searchApiInput, () => {
   page.value = 1
+})
+
+const router = useRouter()
+watch(search, () => {
+  router.replace({ path: route.path, query: { ...route.query, search: search.value } })
 })
 
 const { data, refresh } = useLazyFetch("/api/users", {
   query: {
     page: page,
     pageSize: pageSize,
-    search: search,
+    search: searchApiInput,
   },
 })
 

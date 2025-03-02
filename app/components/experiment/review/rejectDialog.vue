@@ -57,7 +57,7 @@ const openForm = (event: boolean) => {
     </DialogTrigger>
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Versuch Beanstanden</DialogTitle>
+        <DialogTitle>Versuch beanstanden</DialogTitle>
         <DialogDescription>
           Beanstande den Versuch und gib einen Grund an.
         </DialogDescription>

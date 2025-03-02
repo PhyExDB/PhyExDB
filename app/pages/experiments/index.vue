@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 const route = useRoute()
 const search = ref<string>(route.query.search as string || "")
+const sectionSearch = ref<string>(route.query.sections as string || "")
 const fetched = ref<boolean>(false)
 const searchApiInput = ref<string>(search.value)
 const sort = ref<string[]>([route.query.sort as string || "none"])
@@ -16,6 +17,7 @@ const { data } = useLazyFetch("/api/experiments", {
     sort: sort,
     attributes: attributeFilter,
     search: searchApiInput,
+    sections: sectionSearch,
   },
   onRequest: () => {
     fetched.value = false
@@ -35,7 +37,48 @@ watch([searchApiInput, sort, attributeFilter], () => {
   page.value = 1
 })
 
-// Search
+/* Search */
+const { data: sections } = await useFetch(
+  `/api/experiments/sections`,
+)
+
+const searchDialogOpen = ref(false)
+const searchTitle = ref(false)
+const temporarySearchTitle = ref(false)
+const searchSections = ref<string[]>([])
+const temporarySearchSections = ref<string[]>([])
+
+function updateSectionSearch() {
+  sectionSearch.value = (searchTitle.value ? "titel" : "")
+    + (searchSections.value.length > 0 && searchTitle.value ? "," : "")
+    + searchSections.value.join(",")
+  if (sectionSearch.value.length === 0) {
+    sectionSearch.value = "keine"
+  }
+}
+function initializeSearchSections() {
+  if (sectionSearch.value.length > 0) {
+    sectionSearch.value.split(",").forEach((sec) => {
+      if (sec === "titel") {
+        searchTitle.value = true
+      } else {
+        if (sections.value?.map(section => section.slug).includes(sec)) {
+          searchSections.value.push(sec)
+        }
+      }
+    })
+  } else {
+    searchTitle.value = true
+    sections.value?.forEach(section => searchSections.value.push(section.slug))
+    updateSectionSearch()
+  }
+}
+initializeSearchSections()
+
+watch([searchTitle, searchSections], () => {
+  updateSectionSearch()
+})
+
 let searchTimeout: NodeJS.Timeout
 watch(search, () => {
   isLoading.value = true
@@ -44,6 +87,25 @@ watch(search, () => {
     searchApiInput.value = search.value
   }, 500)
 })
+
+function updateSectionSearchList(slug: string, add: boolean) {
+  if (!temporarySearchSections.value.includes(slug) && add) {
+    temporarySearchSections.value = temporarySearchSections.value.filter(_ => 1 === 1)
+    temporarySearchSections.value.push(slug)
+  } else if (!add) {
+    temporarySearchSections.value = temporarySearchSections.value.filter(sectionSlug => sectionSlug !== slug)
+  }
+}
+function openSearchDialog() {
+  searchDialogOpen.value = true
+  temporarySearchSections.value = searchSections.value
+  temporarySearchTitle.value = searchTitle.value
+}
+function submitSearchOptions() {
+  searchDialogOpen.value = false
+  searchSections.value = temporarySearchSections.value
+  searchTitle.value = temporarySearchTitle.value
+}
 
 /* Attributes */
 const { data: attributes } = await useFetch(
@@ -70,21 +132,22 @@ const sortOptions = [
   { id: "none", label: "Keine Sortierung" },
   { id: "alphabetical", label: "Alphabetisch" },
   { id: "duration", label: "Durchführungsdauer" },
+  { id: "ratingsAvg", label: "Bewertung" },
 ]
 
 const checked = ref<string[][]>([])
 initializeFilterChecklist(checked.value)
 
 /* Filter Dialog */
-const dialogOpen = ref(false)
+const filterDialogOpen = ref(false)
 const temporaryChecked = ref<string[][]>([])
 
-function openDialog() {
+function openFilterDialog() {
   temporaryChecked.value = checked.value
-  dialogOpen.value = true
+  filterDialogOpen.value = true
 }
 function submitFilters() {
-  dialogOpen.value = false
+  filterDialogOpen.value = false
   checked.value = temporaryChecked.value
 }
 
@@ -111,7 +174,7 @@ watch(checked, () => {
 
 const router = useRouter()
 /* Update the URL */
-watch([sort, attributeFilter, page, pageSize, search], () => {
+watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch], () => {
   const query:
   {
     attributes?: string
@@ -119,6 +182,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
     pageSize?: number
     sort?: string
     search?: string
+    sections?: string
   } = {}
   if (attributeFilter.value !== "") {
     query.attributes = attributeFilter.value
@@ -135,6 +199,13 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
   if (search.value !== "") {
     query.search = search.value
   }
+  if (sectionSearch.value.split(",").length !== (sections.value?.length || 7) + 1) {
+    if (sectionSearch.value.length === 0) {
+      query.sections = "keine"
+    } else {
+      query.sections = sectionSearch.value
+    }
+  }
   const newUrl = { path: route.path, query }
   router.replace(newUrl)
 })
@@ -142,12 +213,86 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
 
 <template>
   <div class="grid grid-cols-1 gap-3">
-    <div class="w-full sm:max-w-sm items-center">
-      <ExperimentSearch
-        :search="search"
-        @update:search="search = $event"
-      />
+    <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
+      <!-- Search Bar -->
+      <div class="w-full sm:max-w-sm items-center">
+        <ExperimentSearch
+          :search="search"
+          @update:search="search = $event"
+        />
+      </div>
+      <!-- Extended Search -->
+      <Dialog
+        :open="searchDialogOpen"
+        @update:open="searchDialogOpen = $event"
+      >
+        <DialogTrigger as-child>
+          <Button
+            variant="outline"
+            class="w-full sm:w-auto"
+            @click="openSearchDialog"
+          >
+            Erweiterte Sucheinstellungen <Icon
+              name="heroicons:adjustments-horizontal"
+              class="ml-2 h-4 w-4"
+            />
+          </Button>
+        </DialogTrigger>
+        <DialogContent
+          class="sm:max-w-[425px]"
+        >
+          <div
+            class="flex flex-col gap-4 justify-items-stretch items-center content-center justify-self-stretch w-full"
+          >
+            <DialogHeader>
+              <DialogTitle>Erweiterte Sucheinstellungen</DialogTitle>
+            </DialogHeader>
+            <div class="flex flex-col items-start">
+              <div class="flex items-center">
+                <Checkbox
+                  :value="'Titel'"
+                  :checked="temporarySearchTitle"
+                  @update:checked="(isChecked) => temporarySearchTitle = isChecked"
+                />
+                <label
+                  for="title"
+                  class="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  @click="temporarySearchTitle = !temporarySearchTitle"
+                >
+                  Titel
+                </label>
+              </div>
+              <div
+                v-for="section in sections"
+                :key="section.id"
+                class="flex items-center mt-2"
+              >
+                <Checkbox
+                  :value="section.name"
+                  :checked="temporarySearchSections.includes(section.slug)"
+                  @update:checked="(isChecked) => updateSectionSearchList(section.slug, isChecked)"
+                />
+                <label
+                  class="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  @click="updateSectionSearchList(section.slug, !temporarySearchSections.includes(section.slug))"
+                >
+                  {{ section.name }}
+                </label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="submit"
+                @click="submitSearchOptions"
+              >
+                Änderungen speichern
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+
     <!-- Filter -->
     <!-- Filter for Wide Screens -->
     <div class="flex-row gap-2 justify-between items-center hidden xl:flex">
@@ -162,14 +307,14 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center xl:hidden">
       <!-- Filter Dialog for Small Screens -->
       <Dialog
-        :open="dialogOpen"
-        @update:open="dialogOpen = $event"
+        :open="filterDialogOpen"
+        @update:open="filterDialogOpen = $event"
       >
         <DialogTrigger as-child>
           <Button
             variant="outline"
             class="w-full sm:w-auto"
-            @click="openDialog"
+            @click="openFilterDialog"
           >
             Filter <Icon
               name="heroicons:adjustments-horizontal"
@@ -178,7 +323,7 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
           </Button>
         </DialogTrigger>
         <DialogContent
-          class="sm:max-w-[425px]"
+          class="sm:max-w-[425px] max-h-full overflow-auto"
         >
           <div
             class="flex flex-col gap-4 justify-items-stretch items-center content-center justify-self-stretch w-full"
@@ -253,11 +398,12 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
               <!-- Image + Overlay Container (size determined by overlay) -->
               <div class="relative w-full min-h-[150px] flex flex-col items-center justify-center h-full">
                 <!-- Image that adjusts to overlay size -->
-                <NuxtImg
+                <NuxtPicture
+                  format="webp,avif"
+                  width="470"
                   :src="experiment.previewImage?.path ?? 'experiment_placeholder.png'"
                   alt="Preview Image"
-                  class="absolute inset-0 w-full h-full"
-                  :class="experiment.previewImage?.path ? 'object-contain' : 'object-cover'"
+                  :img-attrs="{ class: 'absolute inset-0 w-full h-full ' + (experiment.previewImage?.path ? 'object-contain' : 'object-cover') }"
                 />
 
                 <!-- Overlay Content (Defines Section Size) -->
@@ -296,13 +442,19 @@ watch([sort, attributeFilter, page, pageSize, search], () => {
               <CardTitle class="text-primary/80 text-left">
                 {{ experiment.name }}
               </CardTitle>
-              <Badge class="text-left">
-                <Icon
-                  name="heroicons:clock"
-                  class="mr-2 h-4 w-4"
+              <div class="flex flex-col sm:flex-row gap-2 w-full">
+                <Badge class="text-left">
+                  <Icon
+                    name="heroicons:clock"
+                    class="mr-2 h-4 w-4"
+                  />
+                  {{ experiment.duration }} Min.
+                </Badge>
+                <ExperimentRating
+                  :experiment="experiment"
+                  :small="true"
                 />
-                {{ experiment.duration }} Min.
-              </Badge>
+              </div>
             </CardFooter>
           </Card>
         </NuxtLink>
