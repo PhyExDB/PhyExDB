@@ -97,6 +97,18 @@ defineRouteMeta({
   openAPI: {
     description: "Clones an experiment",
     tags: ["Experiment"],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        description: "The ID of the experiment",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
     responses: {
       201: {
         description: "Experiment cloned successfully",
@@ -114,24 +126,21 @@ defineRouteMeta({
                   enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"],
                 },
                 duration: { type: "number" },
-                sections: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      id: { type: "string", format: "uuid" },
-                      text: { type: "string" },
-                      order: { type: "number" },
-                      files: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          properties: {
-                            fileId: { type: "string" },
-                          },
-                        },
-                      },
-                    },
+                previewImageId: { type: "string", format: "uuid" },
+                revisionOfId: { type: "string", format: "uuid" },
+                changeRequests: { type: "string" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
+                previewImage: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string", format: "uuid" },
+                    originalName: { type: "string" },
+                    path: { type: "string" },
+                    mimeType: { type: "string" },
+                    createdById: { type: "string", format: "uuid" },
+                    createdAt: { type: "string", format: "date-time" },
+                    updatedAt: { type: "string", format: "date-time" },
                   },
                 },
                 attributes: {
@@ -140,7 +149,84 @@ defineRouteMeta({
                     type: "object",
                     properties: {
                       id: { type: "string", format: "uuid" },
+                      slug: { type: "string" },
                       name: { type: "string" },
+                      order: { type: "number" },
+                      multipleSelection: { type: "boolean" },
+                      values: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "string", format: "uuid" },
+                            slug: { type: "string" },
+                            value: { type: "string" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+                revisionOf: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string", format: "uuid" },
+                    name: { type: "string" },
+                    slug: { type: "string" },
+                    userId: { type: "string", format: "uuid" },
+                    status: { type: "string", enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"] },
+                    duration: { type: "number" },
+                    previewImageId: { type: "string", format: "uuid" },
+                    revisionOfId: { type: "string", format: "uuid" },
+                    changeRequest: { type: "string" },
+                    createdAt: { type: "string", format: "date-time" },
+                    updatedAt: { type: "string", format: "date-time" },
+                  },
+                },
+                revisedBy: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string", format: "uuid" },
+                    name: { type: "string" },
+                    slug: { type: "string" },
+                    userId: { type: "string", format: "uuid" },
+                    status: { type: "string", enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"] },
+                    duration: { type: "number" },
+                    previewImageId: { type: "string", format: "uuid" },
+                    revisionOfId: { type: "string", format: "uuid" },
+                    changeRequest: { type: "string" },
+                    createdAt: { type: "string", format: "date-time" },
+                    updatedAt: { type: "string", format: "date-time" },
+                  },
+                },
+                sections: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      text: { type: "string" },
+                      files: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "string", format: "uuid" },
+                            mimeType: { type: "string" },
+                            path: { type: "string" },
+                            originalName: { type: "string" },
+                          },
+                        },
+                      },
+                      experimentSection: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string", format: "uuid" },
+                          slug: { type: "string" },
+                          name: { type: "string" },
+                          order: { type: "number" },
+                        },
+                      },
                     },
                   },
                 },

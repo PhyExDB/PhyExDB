@@ -22,11 +22,26 @@ defineRouteMeta({
   openAPI: {
     description: "Delete an experiment",
     tags: ["Experiment"],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        description: "The ID of the experiment",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
     responses: {
       204: {
         description: "The experiment has been deleted.",
       },
       401: {
+        description: "Not logged in",
+      },
+      403: {
         description: "Unauthorized",
       },
       404: {

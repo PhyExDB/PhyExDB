@@ -38,7 +38,7 @@ defineRouteMeta({
     tags: ["Experiment"],
     responses: {
       200: {
-        description: "A list of experiments",
+        description: "A list of the users experiments",
         content: {
           "application/json": {
             schema: {
@@ -58,14 +58,66 @@ defineRouteMeta({
                         enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"],
                       },
                       duration: { type: "number" },
+                      previewImageId: { type: "string", format: "uuid" },
+                      revisionOfId: { type: "string", format: "uuid" },
+                      changeRequest: { type: "string" },
+                      createdAt: { type: "string", format: "date-time" },
+                      updatedAt: { type: "string", format: "date-time" },
+                      previewImage: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string", format: "uuid" },
+                          originalName: { type: "string" },
+                          path: { type: "string" },
+                          mimeType: { type: "string" },
+                          createdById: { type: "string" },
+                          createdAt: { type: "string", format: "date-time" },
+                          updatedAt: { type: "string", format: "date-time" },
+                        },
+                      },
                       attributes: {
                         type: "array",
                         items: {
                           type: "object",
                           properties: {
-                            name: { type: "string" },
                             id: { type: "string", format: "uuid" },
+                            values: {
+                              type: "array",
+                              items: { type: "string", format: "uuid" },
+                            },
                           },
+                        },
+                      },
+                      revisionOf: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string", format: "uuid" },
+                          name: { type: "string" },
+                          slug: { type: "string" },
+                          userId: { type: "string", format: "uuid" },
+                          status: { type: "string", enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"] },
+                          duration: { type: "number" },
+                          previewImageId: { type: "string", format: "uuid" },
+                          revisionOfId: { type: "string", format: "uuid" },
+                          changeRequest: { type: "string" },
+                          createdAt: { type: "string", format: "date-time" },
+                          updatedAt: { type: "string", format: "date-time" },
+                        },
+                      },
+                      revisedBy: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string", format: "uuid" },
+                          name: { type: "string" },
+                          slug: { type: "string" },
+                          userId: { type: "string", format: "uuid" },
+                          status: { type: "string", enum: ["DRAFT", "IN_REVIEW", "PUBLISHED"] },
+                          duration: { type: "number" },
+                          previewImageId: { type: "string", format: "uuid" },
+                          revisionOfId: { type: "string", format: "uuid" },
+                          changeRequest: { type: "string" },
+                          createdAt: { type: "string", format: "date-time" },
+                          updatedAt: { type: "string", format: "date-time" },
                         },
                       },
                     },
@@ -74,10 +126,10 @@ defineRouteMeta({
                 pagination: {
                   type: "object",
                   properties: {
-                    total: { type: "integer" },
                     page: { type: "integer" },
                     pageSize: { type: "integer" },
                     totalPages: { type: "integer" },
+                    total: { type: "integer" },
                   },
                 },
               },
@@ -89,7 +141,7 @@ defineRouteMeta({
         description: "Bad Request",
       },
       401: {
-        description: "Unauthorized",
+        description: "Not logged in",
       },
     },
   },

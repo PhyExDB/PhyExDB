@@ -20,6 +20,17 @@ defineRouteMeta({
   openAPI: {
     description: "Update a legal document",
     tags: ["Legal"],
+    parameters: [
+      {
+        name: "slug",
+        in: "path",
+        required: true,
+        description: "The slug or id of the legal document",
+        schema: {
+          type: "string",
+        },
+      },
+    ],
     requestBody: {
       content: {
         "application/json": {
@@ -45,14 +56,18 @@ defineRouteMeta({
                 id: { type: "string", format: "uuid" },
                 name: { type: "string" },
                 text: { type: "string" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
               },
-              required: ["id", "name", "text"],
             },
           },
         },
       },
       400: {
         description: "Invalid body",
+      },
+      401: {
+        description: "Unauthorized",
       },
       404: {
         description: "Document not found",

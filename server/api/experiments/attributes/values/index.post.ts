@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Create new Value to an existing attribute",
+    description: "Create new value to an existing attribute (e.g. add Quantenphysik to Themenbereich)",
     tags: ["ExperimentAttributeValues"],
     requestBody: {
       content: {

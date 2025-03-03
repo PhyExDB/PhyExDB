@@ -48,6 +48,18 @@ defineRouteMeta({
   openAPI: {
     description: "Delete a file",
     tags: ["Files"],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        description: "The ID of the file",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
     responses: {
       204: {
         description: "The file has been deleted.",

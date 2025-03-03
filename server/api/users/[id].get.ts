@@ -1,6 +1,7 @@
 import { getUserByEvent } from "~~/server/utils/user"
 import { userAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
+import { createDatabase } from "@prisma/internals"
 
 export default defineEventHandler(async (event) => {
   await authorize(event, userAbilities.get)
@@ -21,28 +22,23 @@ defineRouteMeta({
               type: "object",
               properties: {
                 id: { type: "string" },
-                name: { type: "string" },
                 role: { type: "string" },
-                verified: { type: "string", enum: ["User", "Moderator", "Administrator"] },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
+                name: { type: "string" },
                 email: { type: "string" },
+                emailVerified: { type: "boolean" },
+                image: { type: "object" },
+                banned: { type: "boolean" },
+                banReason: { type: "string" },
+                banExpires: { type: "string", format: "date-time" },
               },
             },
           },
         },
       },
-      400: {
-        description: "Invalid name",
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                statusCode: { type: "number" },
-                message: { type: "string" },
-              },
-            },
-          },
-        },
+      404: {
+        description: "Invalid id",
       },
     },
   },

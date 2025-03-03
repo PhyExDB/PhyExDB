@@ -24,8 +24,20 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Get the values per Attribute",
+    description: "Get the values of an attribute (e.g. Versuchsart -> [Freihand, Qualitativ....]",
     tags: ["ExperimentAttribute"],
+    parameters: [
+      {
+        name: "slug",
+        in: "path",
+        required: true,
+        description: "The ID or slug of the attribute",
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
     responses: {
       200: {
         description: "The values",
@@ -36,9 +48,12 @@ defineRouteMeta({
               properties: {
                 id: { type: "string", format: "uuid" },
                 name: { type: "string" },
+                slug: { type: "string" },
+                order: { type: "number" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
                 valueList: { type: "array" },
               },
-              required: ["id", "name", "valueList"],
             },
           },
         },
