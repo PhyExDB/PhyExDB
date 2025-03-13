@@ -12,9 +12,9 @@ async function stopImpersonating() {
 const canSeeUsers = await allows(userAbilities.getAll)
 const canReviewExperiments = await allows(experimentAbilities.review)
 
-async function signOut(){
+async function signOut() {
   await useAuth().client.signOut()
-  await navigateTo('/')
+  await navigateTo("/")
 }
 </script>
 
