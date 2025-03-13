@@ -11,6 +11,11 @@ async function stopImpersonating() {
 
 const canSeeUsers = await allows(userAbilities.getAll)
 const canReviewExperiments = await allows(experimentAbilities.review)
+
+async function signOut() {
+  await useAuth().client.signOut()
+  await navigateTo("/")
+}
 </script>
 
 <template>
@@ -60,7 +65,7 @@ const canReviewExperiments = await allows(experimentAbilities.review)
       <DropdownMenuSeparator />
       <DropdownMenuItem
         class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
-        @click="useAuth().client.signOut(); navigateTo('/')"
+        @click="signOut"
       >
         <span>Abmelden</span>
       </DropdownMenuItem>
