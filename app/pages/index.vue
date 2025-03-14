@@ -104,7 +104,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div>
+  <div v-if="startpage">
     <div
       v-if="startpage?.files[0]?.path"
     >
