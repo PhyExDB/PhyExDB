@@ -147,19 +147,6 @@ To enable format on save, add the following to your `settings.json`:
 },
 ```
 
-To enable the Teamscale extension, add the following to your `settings.json`:
-
-```json
-"teamscale.teamscaleServers": [
-    {
-        "serverUrl": "https://teamscale.niklhut.de",
-        "username": "<GitHub username>",
-        "accessKey": "<accessToken>",
-        "trustAllCertificates": false
-    }
-],
-```
-
 ## Software Stack
 
 - Fullstack framework: nuxt
