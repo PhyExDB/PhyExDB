@@ -32,15 +32,3 @@ jobs:
 
       - name: Run unit tests with coverage
         run: npm run test:unit:coverage
-
-      - name: Upload coverage to Teamscale
-        uses: cqse/teamscale-upload-action@v2.9.5
-        with:
-          server: https://teamscale.niklhut.de
-          project: phyexdb
-          user: ci
-          partition: Github Action > Vitest
-          accesskey: ${{ secrets.TEAMSCALE_ACCESS_KEY }}
-          revision: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-          format: LCOV
-          files: coverage/lcov.info
