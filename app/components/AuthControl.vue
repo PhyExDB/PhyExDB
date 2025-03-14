@@ -14,7 +14,7 @@ const canReviewExperiments = await allows(experimentAbilities.review)
 
 async function signOut() {
   await useAuth().client.signOut()
-  await navigateTo("/")
+  // await navigateTo("/")
 }
 </script>
 
