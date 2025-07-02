@@ -38,6 +38,7 @@ fi
 
 # Dump the database
 echo "Dumping database from container: $POSTGRES_CONTAINER"
+docker exec -it "$POSTGRES_CONTAINER" mkdir -p /tmp
 docker exec -it "$POSTGRES_CONTAINER" pg_dump -U "$USERNAME" -F c -b -v -f "$CONTAINER_BACKUP_PATH" "$DB_NAME"
 
 # Copy the backup file from the container to the host
