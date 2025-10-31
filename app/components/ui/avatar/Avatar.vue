@@ -15,7 +15,19 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <AvatarRoot :class="cn(avatarVariant({ size, shape }), props.class)">
+  <AvatarRoot :class="cn(avatarVariant({ size, shape }), props.class, 'avatar-hover')">
     <slot />
   </AvatarRoot>
 </template>
+
+<style scoped>
+.avatar-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.avatar-hover:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+</style>
