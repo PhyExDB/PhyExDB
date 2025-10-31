@@ -51,6 +51,87 @@ function numberOfOwnExperiments(): string {
     ? "1 Experiment"
     : `${numberOfOwnExperiments} Experimente`
 }
+
+const twofaStatus = ref<{ enabled: boolean; required: boolean }>({enabled: false, required: false})
+const twofaLoading = ref(false)
+const twofaSetup = ref<{ secret: string; otpauthUrl: string; issuer: string } | null>(null)
+const twofaEnableCode = ref("")
+const twofaRecoveryCodes = ref<string[] | null>(null)
+const twofaDisableCode = ref("")
+
+const { data: twofaStatusData } = await useFetch("/api/2fa/status")
+if (twofaStatusData?.value) {
+  twofaStatus.value = twofaStatusData.value as any
+}
+
+async function startTwofaSetup() {
+  twofaLoading.value = true
+  twofaRecoveryCodes.value = null
+  try {
+    const {data} = await useFetch("/api/2fa/setup")
+    if (data.value) twofaSetup.value = data.value as any
+  } catch (e: any) {
+    console.error(e)
+    toast({
+      title: "2FA-Einrichtung fehlgeschlagen",
+      description: (e?.data?.message || e?.message || "Unbekannter Fehler") + " — bitte Migrationen ausführen und Session prüfen.",
+      variant: "destructive",
+    })
+  } finally {
+    twofaLoading.value = false
+  }
+}
+
+async function confirmTwofaEnable() {
+  if (!twofaEnableCode.value) return
+  twofaLoading.value = true
+  try {
+    const {data} = await useFetch("/api/2fa/enable", {method: "POST", body: {code: twofaEnableCode.value}})
+    if (data.value?.recoveryCodes) {
+      twofaRecoveryCodes.value = data.value.recoveryCodes
+      twofaStatus.value.enabled = true
+    }
+  } catch (e) {
+    console.error(e)
+  } finally {
+    twofaLoading.value = false
+  }
+}
+
+async function regenerateRecoveryCodes() {
+  if (!twofaEnableCode.value) return
+  twofaLoading.value = true
+  try {
+    const {data} = await useFetch("/api/2fa/recoveries", {method: "POST", body: {code: twofaEnableCode.value}})
+    if (data.value?.recoveryCodes) {
+      twofaRecoveryCodes.value = data.value.recoveryCodes
+    }
+  } catch (e) {
+    console.error(e)
+  } finally {
+    twofaLoading.value = false
+  }
+}
+
+async function disableTwofa() {
+  if (!twofaDisableCode.value) return
+  twofaLoading.value = true
+  try {
+    await useFetch("/api/2fa/disable", {
+      method: "POST",
+      body: {code: twofaDisableCode.value || undefined}
+    })
+    twofaStatus.value.enabled = false
+    twofaSetup.value = null
+    twofaRecoveryCodes.value = null
+    twofaEnableCode.value = ""
+    twofaDisableCode.value = ""
+  } catch (e) {
+    console.error(e)
+  } finally {
+    twofaLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -191,6 +272,87 @@ function numberOfOwnExperiments(): string {
             Meine Versuche
           </Button>
         </NuxtLink>
+      </CardContent>
+    </Card>
+
+    <Card class="mt-4">
+      <CardContent class="p-6 space-y-4">
+        <div class="text-xl">Sicherheit</div>
+        <div class="text-muted-foreground">Zwei-Faktor-Authentifizierung</div>
+
+        <div v-if="!twofaStatus.enabled" class="space-y-4">
+          <div class="text-sm">2FA ist aktuell deaktiviert.</div>
+          <div class="space-x-2">
+            <Button :loading="twofaLoading" @click="startTwofaSetup">Einrichtung starten</Button>
+          </div>
+          <div v-if="twofaSetup" class="space-y-3">
+            <div class="text-sm">Scanne diesen QR-Code mit deiner Authenticator-App oder verwende das Secret.</div>
+            <div class="flex items-center space-x-4">
+              <img
+                  :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(twofaSetup.otpauthUrl)}`"
+                  alt="QR" class="border rounded"/>
+              <div class="text-xs break-all">
+                <div><strong>Secret:</strong> {{ twofaSetup.secret }}</div>
+                <div class="mt-1"><a :href="twofaSetup.otpauthUrl" class="underline" target="_blank">otpauth URL
+                  öffnen</a></div>
+              </div>
+            </div>
+            <div class="grid gap-2 max-w-xs">
+              <FormField name="securityCode" v-slot="{ componentField }">
+                <FormItem>
+                  <FormLabel>6-stelliger Code</FormLabel>
+                  <FormControl>
+                    <Input v-model="twofaEnableCode" v-bind="componentField" placeholder="123456" inputmode="numeric" maxlength="6"/>
+                    <Button :loading="twofaLoading" @click="confirmTwofaEnable">2FA aktivieren</Button>
+                  </FormControl>
+                </FormItem>
+              </FormField>
+            </div>
+          </div>
+
+          <div v-if="twofaRecoveryCodes" class="space-y-2">
+            <div class="text-sm font-medium">Wiederherstellungscodes</div>
+            <ul class="text-sm grid grid-cols-2 gap-2">
+              <li v-for="c in twofaRecoveryCodes" :key="c" class="font-mono p-2 border rounded">{{ c }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div v-else class="space-y-4">
+          <div class="text-sm">2FA ist aktiviert.</div>
+          <div class="grid gap-2 max-w-xs">
+            <FormField name="totpCode" v-slot="{ componentField }">
+              <FormItem>
+                <FormLabel>Wiederherstellungscodes neu erzeugen</FormLabel>
+                <FormControl>
+                  <Input v-model="twofaEnableCode" v-bind="componentField" placeholder="2FA-Code" inputmode="numeric" maxlength="6"/>
+                  <div class="text-xs text-muted-foreground">Für das Regenerieren von Wiederherstellungscodes ist ein gültiger
+                    Auth-Code erforderlich.
+                  </div>
+                  <Button variant="outline" :loading="twofaLoading" @click="regenerateRecoveryCodes">Bestätigen</Button>
+                </FormControl>
+              </FormItem>
+            </FormField>
+
+          </div>
+          <div v-if="twofaRecoveryCodes" class="space-y-2">
+            <div class="text-sm font-medium">Neue Wiederherstellungscodes</div>
+            <ul class="text-sm grid grid-cols-2 gap-2">
+              <li v-for="c in twofaRecoveryCodes" :key="c" class="font-mono p-2 border rounded">{{ c }}</li>
+            </ul>
+          </div>
+          <div class="grid gap-2 max-w-xs">
+            <FormField name="totpDeactivate" v-slot="{ componentField }">
+              <FormItem>
+                <FormLabel>2FA deaktivieren</FormLabel>
+                <FormControl>
+                  <Input v-model="twofaDisableCode" v-bind="componentField" placeholder="2FA-Code"/>
+                  <Button variant="destructive" :loading="twofaLoading" @click="disableTwofa">Deaktivieren</Button>
+                </FormControl>
+              </FormItem>
+            </FormField>
+          </div>
+        </div>
       </CardContent>
     </Card>
   </div>
