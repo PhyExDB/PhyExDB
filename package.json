@@ -43,7 +43,7 @@
     "embla-carousel-vue": "^8.6.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-vue-next": "^0.487.0",
-    "nuxt": "^3.16.2",
+    "nuxt": "^3.20.1",
     "nuxt-schema-org": "^5.0.4",
     "nuxt-tiptap-editor": "^2.1.4",
     "radix-vue": "^1.9.17",
