@@ -19,6 +19,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@epic-web/totp": "^4.0.1",
     "@formkit/drag-and-drop": "^0.4.2",
     "@nuxt/icon": "^1.12.0",
     "@nuxt/image": "^1.10.0",

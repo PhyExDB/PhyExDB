@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     if (!record?.twoFactorSecret) throw createError({ statusCode: 400, statusMessage: "2FA not initialized" })
     if (record.twoFactorEnabled) throw createError({ statusCode: 400, statusMessage: "2FA already enabled" })
 
-    if (!verifyTotp(body.code, record.twoFactorSecret)) {
+    if (!(await verifyTotp(body.code, record.twoFactorSecret))) {
         throw createError({ statusCode: 400, statusMessage: "Invalid code" })
     }
 

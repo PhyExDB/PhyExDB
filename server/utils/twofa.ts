@@ -1,87 +1,49 @@
 import crypto from "node:crypto"
+import { generateTOTP, verifyTOTP, getTOTPAuthUri } from "@epic-web/totp"
 
 const DEFAULT_STEP = Number(process.env.TWOFA_STEP ?? 30)
 const DEFAULT_DIGITS = Number(process.env.TWOFA_DIGITS ?? 6)
 const ISSUER = process.env.TWOFA_ISSUER ?? (process.env.NUXT_PUBLIC_APP_NAME ?? "App")
 const COOKIE_SECRET = process.env.TWOFA_COOKIE_SECRET ?? "change-me"
 
-function base32Encode(buffer: Buffer): string {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-  let bits = 0
-  let value = 0
-  let output = ""
-  for (let i = 0; i < buffer.length; i++) {
-    value = (value << 8) | buffer[i]
-    bits += 8
-    while (bits >= 5) {
-      output += alphabet[(value >>> (bits - 5)) & 31]
-      bits -= 5
-    }
-  }
-  if (bits > 0) {
-    output += alphabet[(value << (5 - bits)) & 31]
-  }
-  return output
+export async function generateSecret(): Promise<string> {
+  const { secret } = await generateTOTP({ period: DEFAULT_STEP, digits: DEFAULT_DIGITS })
+  return secret
 }
 
-function base32Decode(str: string): Buffer {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-  const lookup: Record<string, number> = {}
-  for (let i = 0; i < alphabet.length; i++) lookup[alphabet[i]] = i
-  let bits = 0
-  let value = 0
-  const bytes: number[] = []
-  const clean = str.toUpperCase().replace(/=+$/g, "")
-  for (let i = 0; i < clean.length; i++) {
-    const idx = lookup[clean[i]]
-    if (idx === undefined) continue
-    value = (value << 5) | idx
-    bits += 5
-    if (bits >= 8) {
-      bytes.push((value >>> (bits - 8)) & 255)
-      bits -= 8
-    }
-  }
-  return Buffer.from(bytes)
-}
-
-export function generateSecret(length = 20): string {
-  return base32Encode(crypto.randomBytes(length))
-}
-
-function timeCounter(step = DEFAULT_STEP, timestamp = Date.now()): number {
-  return Math.floor(timestamp / 1000 / step)
-}
-
-function hotp(secret: string, counter: number, digits = DEFAULT_DIGITS): string {
-  const key = base32Decode(secret)
-  const counterBuf = Buffer.alloc(8)
-  counterBuf.writeBigUint64BE(BigInt(counter))
-  const hmac = crypto.createHmac("sha1", key).update(counterBuf).digest()
-  const offset = hmac[hmac.length - 1] & 0xf
-  return ((hmac.readUInt32BE(offset) & 0x7fffffff) % 10 ** digits).toString().padStart(digits, "0")
-}
-
-export function totp(secret: string, step = DEFAULT_STEP, digits = DEFAULT_DIGITS, timestamp = Date.now()): string {
-  return hotp(secret, timeCounter(step, timestamp), digits)
-}
-
-export function verifyTotp(code: string, secret: string, opts?: { step?: number; digits?: number; window?: number; timestamp?: number }): boolean {
-  const step = opts?.step ?? DEFAULT_STEP
+export async function verifyTotp(
+  code: string,
+  secret: string,
+  opts?: { step?: number; digits?: number; window?: number },
+): Promise<boolean> {
+  const period = opts?.step ?? DEFAULT_STEP
   const digits = opts?.digits ?? DEFAULT_DIGITS
   const window = opts?.window ?? 1
-  const ts = opts?.timestamp ?? Date.now()
-  const ctr = timeCounter(step, ts)
-  for (let w = -window; w <= window; w++) {
-    if (hotp(secret, ctr + w, digits) === code) return true
-  }
-  return false
+  const result = await verifyTOTP({ otp: code, secret, period, digits, window })
+  return result !== null
 }
 
-export function buildOtpauthUrl({ secret, accountName, issuer = ISSUER, digits = DEFAULT_DIGITS, period = DEFAULT_STEP }: { secret: string; accountName: string; issuer?: string; digits?: number; period?: number }): string {
-  const label = encodeURIComponent(`${issuer}:${accountName}`)
-  const params = new URLSearchParams({ secret, issuer, digits: String(digits), period: String(period) })
-  return `otpauth://totp/${label}?${params.toString()}`
+export function buildOtpauthUrl({
+  secret,
+  accountName,
+  issuer = ISSUER,
+  digits = DEFAULT_DIGITS,
+  period = DEFAULT_STEP,
+}: {
+  secret: string
+  accountName: string
+  issuer?: string
+  digits?: number
+  period?: number
+}): string {
+  return getTOTPAuthUri({
+    secret,
+    accountName,
+    issuer,
+    digits,
+    period,
+    algorithm: "SHA-1",
+  })
 }
 
 export function generateRecoveryCodes(count = 10): string[] {

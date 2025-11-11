@@ -25,7 +25,7 @@ export async function verifyTwofaInput(event: any) {
     let ok = false
 
     if (body.code && record?.twoFactorSecret) {
-        ok = verifyTotp(body.code, record.twoFactorSecret)
+        ok = await verifyTotp(body.code, record.twoFactorSecret)
     } else if (body.recovery && record?.twoFactorRecoveryCodes) {
         const idx = record.twoFactorRecoveryCodes.findIndex(stored =>
             verifyRecoveryCode(body.recovery!, stored),

@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "Not found" })
   }
   const user = await getUserOrThrowError(event)
-  const secret = generateSecret()
+  const secret = await generateSecret()
   await prisma.user.update({ where: { id: user.id }, data: { twoFactorSecret: secret } })
 
   const otpauthUrl = buildOtpauthUrl({ secret, accountName: user.email, issuer: runtime.public.appName })
