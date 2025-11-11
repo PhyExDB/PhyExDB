@@ -86,13 +86,14 @@ async function confirmTwofaEnable() {
   if (!twofaEnableCode.value) return
   twofaLoading.value = true
   try {
-    const {data} = await useFetch("/api/2fa/enable", {method: "POST", body: {code: twofaEnableCode.value}})
+    const {data} = await useFetch("/api/2fa/enable", { method: "POST", body: { code: twofaEnableCode.value } })
     if (data.value?.recoveryCodes) {
       twofaRecoveryCodes.value = data.value.recoveryCodes
       twofaStatus.value.enabled = true
     }
-  } catch (e) {
-    console.error(e)
+  } catch (e: any) {
+    const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Invalid code"
+    toast({ title: "2FA Error", description: message, variant: "destructive" })
   } finally {
     twofaLoading.value = false
   }
@@ -102,12 +103,13 @@ async function regenerateRecoveryCodes() {
   if (!twofaEnableCode.value) return
   twofaLoading.value = true
   try {
-    const {data} = await useFetch("/api/2fa/recoveries", {method: "POST", body: {code: twofaEnableCode.value}})
+    const {data} = await useFetch("/api/2fa/recoveries", { method: "POST", body: { code: twofaEnableCode.value } })
     if (data.value?.recoveryCodes) {
       twofaRecoveryCodes.value = data.value.recoveryCodes
     }
-  } catch (e) {
-    console.error(e)
+  } catch (e: any) {
+    const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Invalid code or 2FA not enabled"
+    toast({ title: "2FA Error", description: message, variant: "destructive" })
   } finally {
     twofaLoading.value = false
   }
@@ -119,15 +121,16 @@ async function disableTwofa() {
   try {
     await useFetch("/api/2fa/disable", {
       method: "POST",
-      body: {code: twofaDisableCode.value || undefined}
+      body: { code: twofaDisableCode.value || undefined }
     })
     twofaStatus.value.enabled = false
     twofaSetup.value = null
     twofaRecoveryCodes.value = null
     twofaEnableCode.value = ""
     twofaDisableCode.value = ""
-  } catch (e) {
-    console.error(e)
+  } catch (e: any) {
+    const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Invalid code"
+    toast({ title: "2FA Error", description: message, variant: "destructive" })
   } finally {
     twofaLoading.value = false
   }
