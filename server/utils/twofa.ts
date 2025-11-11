@@ -1,5 +1,7 @@
 import crypto from "node:crypto"
 import { generateTOTP, verifyTOTP, getTOTPAuthUri } from "@epic-web/totp"
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
 
 const DEFAULT_STEP = Number(process.env.TWOFA_STEP ?? 30)
 const DEFAULT_DIGITS = Number(process.env.TWOFA_DIGITS ?? 6)
@@ -55,39 +57,30 @@ export function generateRecoveryCodes(count = 10): string[] {
   return codes
 }
 
-function sha256(input: string): string {
-  return crypto.createHash("sha256").update(input).digest("hex")
-}
-
 export function hashRecoveryCode(code: string): string {
-  const salt = crypto.randomBytes(8).toString("hex")
-  const hash = sha256(`${salt}:${code}`)
-  return `${salt}:${hash}`
+  return bcrypt.hashSync(code, 10)
 }
 
 export function verifyRecoveryCode(code: string, stored: string): boolean {
-  const [salt, hash] = stored.split(":")
-  if (!salt || !hash) return false
-  const cand = sha256(`${salt}:${code}`)
-  return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(cand, "hex"))
+  try {
+    return bcrypt.compareSync(code, stored)
+  } catch {
+    return false
+  }
+}
+
+export function isTwofaGloballyEnabled(): boolean {
+  return (process.env.TWOFA_ENABLED ?? "true").toLowerCase() !== "false"
 }
 
 export function signTwofaCookie(userId: string): string {
-  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url")
-  const payload = Buffer.from(JSON.stringify({ sub: userId, iat: Math.floor(Date.now() / 1000) })).toString("base64url")
-  const data = `${header}.${payload}`
-  const sig = crypto.createHmac("sha256", COOKIE_SECRET).update(data).digest("base64url")
-  return `${data}.${sig}`
+  return jwt.sign({ sub: userId }, COOKIE_SECRET, { algorithm: "HS256", expiresIn: "12h" })
 }
 
 export function verifyTwofaCookie(token: string, userId: string): boolean {
   try {
-    const [header, payload, sig] = token.split(".")
-    if (!header || !payload || !sig) return false
-    const expected = crypto.createHmac("sha256", COOKIE_SECRET).update(`${header}.${payload}`).digest("base64url")
-    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return false
-    const body = JSON.parse(Buffer.from(payload, "base64url").toString())
-    return body.sub === userId
+    const decoded = jwt.verify(token, COOKIE_SECRET, { algorithms: ["HS256"] }) as { sub?: string }
+    return decoded.sub === userId
   } catch {
     return false
   }

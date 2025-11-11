@@ -1,9 +1,9 @@
 import prisma from "../../lib/prisma"
 import { getUser } from "~~/server/utils/auth"
-import { verifyTwofaCookie } from "~~/server/utils/twofa"
+import { verifyTwofaCookie, isTwofaGloballyEnabled } from "~~/server/utils/twofa"
 
 export default defineEventHandler(async (event) => {
-  const enabledGlobally = (process.env.TWOFA_ENABLED ?? "true").toLowerCase() !== "false"
+  const enabledGlobally = isTwofaGloballyEnabled()
   if (!enabledGlobally) {
     return { enabled: false, required: false }
   }

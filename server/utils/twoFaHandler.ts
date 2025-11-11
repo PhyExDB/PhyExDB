@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma"
 import { getUserOrThrowError } from "~~/server/utils/auth"
-import { verifyRecoveryCode, verifyTotp } from "~~/server/utils/twofa"
+import { verifyRecoveryCode, verifyTotp, isTwofaGloballyEnabled } from "~~/server/utils/twofa"
 
 export async function getTwofaUserRecord(userId: string) {
     return prisma.user.findUnique({
@@ -40,7 +40,7 @@ export async function verifyTwofaInput(event: any) {
 }
 
 export function ensure2faEnabledGlobally() {
-    const enabledGlobally = (process.env.TWOFA_ENABLED ?? "true").toLowerCase() !== "false"
+    const enabledGlobally = isTwofaGloballyEnabled()
     if (!enabledGlobally) {
         throw createError({ statusCode: 404, statusMessage: "Not found" })
     }
