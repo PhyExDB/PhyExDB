@@ -86,9 +86,9 @@ async function confirmTwofaEnable() {
   if (!twofaEnableCode.value) return
   twofaLoading.value = true
   try {
-    const {data} = await useFetch("/api/2fa/enable", { method: "POST", body: { code: twofaEnableCode.value } })
-    if (data.value?.recoveryCodes) {
-      twofaRecoveryCodes.value = data.value.recoveryCodes
+    const res = await $fetch("/api/2fa/enable", { method: "POST", body: { code: twofaEnableCode.value } })
+    if (res?.recoveryCodes) {
+      twofaRecoveryCodes.value = res.recoveryCodes
       twofaStatus.value.enabled = true
     }
   } catch (e: any) {
@@ -103,9 +103,9 @@ async function regenerateRecoveryCodes() {
   if (!twofaEnableCode.value) return
   twofaLoading.value = true
   try {
-    const {data} = await useFetch("/api/2fa/recoveries", { method: "POST", body: { code: twofaEnableCode.value } })
-    if (data.value?.recoveryCodes) {
-      twofaRecoveryCodes.value = data.value.recoveryCodes
+    const res = await $fetch("/api/2fa/recoveries", { method: "POST", body: { code: twofaEnableCode.value } })
+    if (res?.recoveryCodes) {
+      twofaRecoveryCodes.value = res.recoveryCodes
     }
   } catch (e: any) {
     const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Invalid code or 2FA not enabled"
