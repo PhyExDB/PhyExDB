@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const query = getQuery(event)
-  const revision = query.revision === "true" ? true : false
+    const revision = query.revision === "true" ? true : false
 
   const user = await authorizeUser(event, fileAbilities.post)
   authorize(event, experimentAbilities.get, experiment)
