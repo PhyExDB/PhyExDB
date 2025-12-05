@@ -2,6 +2,7 @@
 import type { Level } from "@tiptap/extension-heading"
 import { Subscript as TiptapSubscript } from "@tiptap/extension-subscript"
 import { Superscript as TiptapSuperscript } from "@tiptap/extension-superscript"
+import { PlainTextPaste } from "./PlainTextPaste";
 
 const { modelValue, showHeadings } = defineProps({
   modelValue: {
@@ -39,6 +40,7 @@ const editorExtensions = [
   }),
   TiptapSubscript.configure({}),
   TiptapSuperscript.configure({}),
+  PlainTextPaste,
 ]
 const editor = useEditor({
   content: modelValue,
