@@ -2,7 +2,7 @@
 import type { Level } from "@tiptap/extension-heading"
 import { Subscript as TiptapSubscript } from "@tiptap/extension-subscript"
 import { Superscript as TiptapSuperscript } from "@tiptap/extension-superscript"
-import { PlainTextPaste } from "./PlainTextPaste";
+import { PlainTextPaste } from "./PlainTextPaste"
 
 const { modelValue, showHeadings } = defineProps({
   modelValue: {
