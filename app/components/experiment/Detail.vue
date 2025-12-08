@@ -32,6 +32,10 @@ onMounted(() => {
 })
 
 const showDeleteDialog = ref(false)
+
+function getImageTitle(fileIndex: number) {
+  return `Abb. ${fileIndex + 1}`
+}
 </script>
 
 <template>
@@ -203,7 +207,7 @@ const showDeleteDialog = ref(false)
           :show-thumbnails="true"
         >
           <!-- Main Carousel Item -->
-          <template #item="{ item }">
+          <template #item="{ item, index }">
             <Card>
               <CardContent class="h-80 flex items-center justify-center p-0">
                 <!-- Image File -->
@@ -253,10 +257,16 @@ const showDeleteDialog = ref(false)
               </CardContent>
               <Separator class="mb-3" />
               <p
+                  v-if="isImageFile(item.file.mimeType)"
+                  class="w-full whitespace-normal text-center font-semibold pt-2"
+              >
+                {{ getImageTitle(index) }}
+              </p>
+              <p
                 class="w-full whitespace-normal text-center text-muted-foreground pb-3"
                 style="overflow-wrap: anywhere;"
               >
-                {{ item.description }}
+               {{ item.description }}
               </p>
             </Card>
           </template>
