@@ -69,7 +69,17 @@ export const PlainTextPaste = Extension.create({
             text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
 
             const { state, dispatch } = view
-            const tr = state.tr.insertText(text, state.selection.from, state.selection.to)
+            // Preserving line breaks
+            const paragraphs = text.split(/\r?\n/)
+            const tr = state.tr
+
+            paragraphs.forEach((line, index) => {
+              if (index > 0) {
+                tr.split(tr.selection.to)
+              }
+              tr.insertText(line)
+            })
+
             dispatch(tr)
             return true
           },
