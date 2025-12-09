@@ -6,10 +6,7 @@
  *
  * Removes common markdown-like formatting inject into the "text/plain" clipboard content
  *
- * @result
- *    - No HTML or rich formatting will be pasted
- *    - No markdown markers remains (e.g. bold, italic, heading etc.)
- *    - The user's paste is safely converted to "raw" clean text
+ * Ensures pasted content is inserted as plain text with common markdown stripped.
  */
 import { Extension } from "@tiptap/core"
 import { Plugin } from "prosemirror-state"
@@ -51,10 +48,6 @@ export const PlainTextPaste = Extension.create({
 
             // Remove *italic*
             text = text.replace(/\*(.*?)\*/g, "$1")
-
-            // Remove __bold__ and _italic_
-            text = text.replace(/__(.*?)__/g, "$1")
-            text = text.replace(/_(.*?)_/g, "$1")
 
             // Remove markdown headings (#, ## etc.)
             text = text.replace(/^#+\s+/gm, "")
