@@ -36,30 +36,26 @@ export const PlainTextPaste = Extension.create({
            * @returns boolean indicating whether we handled the paste
            */
           handlePaste(view: EditorView, event: ClipboardEvent) {
-            // xtract raw plaintext. If none exists, allow dafault behavior.
+            // Extract raw plaintext. If none exists, allow default behavior.
             let text = event.clipboardData?.getData("text/plain") ?? ""
             if (!text) return false
 
             // Prevent TipTap from pasting formatted content
             event.preventDefault()
 
-            // Remove **bold**
-            text = text.replace(/\*\*(.*?)\*\*/g, "$1")
-
-            // Remove *italic*
-            text = text.replace(/(^|\W)\*(\S(.*?\S)?)\*(\W|$)/g, "$1$2$4")
-
-            // Remove markdown headings (#, ## etc.)
-            text = text.replace(/^#+\s+/gm, "")
-
-            // Remove bullet markers
-            text = text.replace(/^\s*[-•]\s+/gm, "")
-
-            // Remove numbered list prefixes (1., 2., 3.)
-            text = text.replace(/^\s*\d+\.\s+/gm, "")
-
-            // Remove markdown links
-            text = text.replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+            text = text
+              // **bold**
+              .replace(/\*\*(.*?)\*\*/g, "$1")
+              // *italic*
+              .replace(/(^|\W)\*(\S(.*?\S)?)\*(\W|$)/g, "$1$2$4")
+              // # headings
+              .replace(/^#+\s+/gm, "")
+              // bullet markers
+              .replace(/^\s*[-•]\s+/gm, "")
+              // numbered lists
+              .replace(/^\s*\d+\.\s+/gm, "")
+              // markdown links
+              .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
 
             const { state, dispatch } = view
             // Preserving line breaks
