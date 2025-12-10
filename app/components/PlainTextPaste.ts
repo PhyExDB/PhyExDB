@@ -47,19 +47,19 @@ export const PlainTextPaste = Extension.create({
             text = text.replace(/\*\*(.*?)\*\*/g, "$1")
 
             // Remove *italic*
-            text = text.replace(/\*(.*?)\*/g, "$1")
+            text = text.replace(/(^|\W)\*(\S(.*?\S)?)\*(\W|$)/g, "$1$2$4")
 
             // Remove markdown headings (#, ## etc.)
             text = text.replace(/^#+\s+/gm, "")
 
             // Remove bullet markers
-            text = text.replace(/^[\s]*[-•]\s+/gm, "")
+            text = text.replace(/^\s*[-•]\s+/gm, "")
 
             // Remove numbered list prefixes (1., 2., 3.)
-            text = text.replace(/^[\s]*\d+\.\s+/gm, "")
+            text = text.replace(/^\s*\d+\.\s+/gm, "")
 
             // Remove markdown links
-            text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+            text = text.replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
 
             const { state, dispatch } = view
             // Preserving line breaks
