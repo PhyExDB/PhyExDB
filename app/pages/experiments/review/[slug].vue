@@ -2,6 +2,7 @@
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const user = await useUser()
+const showInput = false
 
 if (!user.value || user.value.role == "USER") {
   await navigateTo("/")
@@ -60,6 +61,7 @@ async function onDelete(message: string) {
           :experiment="experiment"
           :show-dropdown="false"
           :preview="true"
+          :reviewStarted="showInput"
         />
       </CardContent>
     </Card>

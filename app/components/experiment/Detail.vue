@@ -4,6 +4,7 @@ const user = await useUser()
 const { experiment } = defineProps<{
   experiment?: ExperimentDetail
   preview?: boolean
+  reviewStarted?: boolean
 }>()
 
 const attributesWithoutDuration = computed(() => {
@@ -289,6 +290,8 @@ const showDeleteDialog = ref(false)
             </Card>
           </template>
         </CarouselWithPreview>
+        <!-- Hier Textfeld für Review-Modul einfügen -->
+        <input v-if ="reviewStarted"/>
       </div>
     </div>
 

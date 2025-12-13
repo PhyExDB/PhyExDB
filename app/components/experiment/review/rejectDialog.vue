@@ -59,29 +59,9 @@ const openForm = (event: boolean) => {
       <DialogHeader>
         <DialogTitle>Versuch beanstanden</DialogTitle>
         <DialogDescription>
-          Beanstande den Versuch und gib einen Grund an.
+          Hiermit bestätigen Sie die Beanstandung des Versuchs.
         </DialogDescription>
       </DialogHeader>
-      <form
-        class="grid gap-4"
-        @submit="onSubmit"
-      >
-        <FormField
-          v-slot="{ componentField }"
-          name="message"
-        >
-          <FormItem>
-            <FormLabel>Begründung</FormLabel>
-            <FormControl>
-              <Textarea
-                id="name"
-                v-bind="componentField"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        </FormField>
-      </form>
       <DialogFooter class="flex flex-col sm:flex-row gap-2">
         <Button
           type="submit"
@@ -94,7 +74,7 @@ const openForm = (event: boolean) => {
           variant="destructive"
           @click="onSubmit"
         >
-          Beanstanden
+          Senden
         </Button>
       </DialogFooter>
     </DialogContent>
