@@ -247,6 +247,10 @@ async function submitForReview() {
     variant: "success",
   })
 }
+
+function getImageTitle(fileIndex: number) {
+  return `Abb. ${fileIndex + 1}`
+}
 </script>
 
 <template>
@@ -460,6 +464,10 @@ async function submitForReview() {
                   >
                     <FormItem class="flex-1 p-4 w-full">
                       <FormLabel>
+                        <div v-if="item.file.mimeType.startsWith('image')" class="font-semibold">
+                          {{ getImageTitle(index) }}
+                        </div>
+
                         <NuxtLink
                           :to="item.file.path"
                           target="_blank"
@@ -468,9 +476,7 @@ async function submitForReview() {
                           external
                         >
                           {{ item.file.originalName }}
-                          <Icon
-                            name="heroicons:arrow-top-right-on-square"
-                          />
+                          <Icon name="heroicons:arrow-top-right-on-square" />
                         </NuxtLink>
                       </FormLabel>
                       <FormControl>
