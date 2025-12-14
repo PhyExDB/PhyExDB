@@ -291,7 +291,37 @@ const showDeleteDialog = ref(false)
           </template>
         </CarouselWithPreview>
         <!-- Hier Textfeld für Review-Modul einfügen -->
-        <input v-if ="reviewStarted"/>
+        <div
+          v-if ="reviewStarted"
+        >
+          <form
+            class="flex flex-col gap-4"
+            @submit="onSubmit"
+          >
+            <FormField
+              v-slot="{ componentField }"
+              name="text"
+            >
+              <FormItem>
+                <FormLabel class="text-4xl font-extrabold mr-2 pb-4">
+                  Beanstanden:
+                </FormLabel>
+                <FormControl>
+                  <TipTapEditor
+                    id="text"
+                    v-bind="componentField"
+                    :key="commented"
+                    default-value=""
+                    :show-headings="false"
+                    editor-class="p-4 h-40 overflow-auto"
+                    @click.prevent
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+          </form>
+        </div>
       </div>
     </div>
 

@@ -72,7 +72,7 @@ const openForm = (event: boolean) => {
       <Button
         class="flex-1"
       >
-        Bestätigen
+        Akzeptieren <!-- Füherer Bestätigen-Button -->
       </Button>
     </DialogTrigger>
     <DialogContent>

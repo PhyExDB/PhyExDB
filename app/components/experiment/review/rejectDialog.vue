@@ -11,6 +11,7 @@ const { onDelete } = defineProps({
 
 const loading = ref(false)
 const open = ref(false)
+const showConfirmation = ref(false) // für die Bestätigung des Reviews
 
 const schema = experimentReviewSchema
 const formSchema = toTypedSchema(schema)
@@ -45,11 +46,15 @@ const openForm = (event: boolean) => {
     })
   }
 }
+// Wechsel zwischen den Modi (Beanstandung oder Bestätigung)
+const toggleReviewMode = () => {
+  showConfirmation.value = !showConfirmation.value
+}
 </script>
 
 <template>
   <Dialog
-    :open="open"
+    :open="open && showConfirmation"
     @update:open="openForm"
   >
     <DialogTrigger as-child>
@@ -69,12 +74,13 @@ const openForm = (event: boolean) => {
         >
           Abbrechen
         </Button>
+        <!-- Bestätigungs-Button oder Senden je nach Modus -->
         <Button
           type="submit"
           variant="destructive"
-          @click="onSubmit"
+          @click="toggleReviewMode"
         >
-          Senden
+          {{ showConfirmation ? "Bestätigen" : "Senden" }} <!-- Dynamische Änderung des Button Textes -->
         </Button>
       </DialogFooter>
     </DialogContent>

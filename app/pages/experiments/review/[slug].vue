@@ -1,8 +1,12 @@
 <script lang="ts" setup>
+import { ref } from "vue"
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const user = await useUser()
-const showInput = false
+const showInput = ref(false)
+const showConfirmation = ref(false) // Bestätigung, ob die Beanstandung wirklich gesendet werden soll
+const hasToggled = ref(false) // Variable zum Verfolgen, ob der Modus gewechselt wurde
+const openDialog = ref(false) // Steuerung für das Dialog-Fenster
 
 if (!user.value || user.value.role == "USER") {
   await navigateTo("/")
@@ -35,6 +39,26 @@ async function onDelete(message: string) {
   })
 
   await navigateTo("/experiments/review")
+}
+// Wechsel zwischen den Modi (Beanstandung oder Bestätigung)
+const toggleReviewMode = () => {
+  if (!hasToggled.value) {
+    showConfirmation.value = !showConfirmation.value
+    showInput.value = !showInput.value // Zeige das Eingabefeld, wenn der Bestätigungsmodus aktiv ist
+    hasToggled.value = true // Setze den Modus auf 'umgeschaltet'
+  } else {
+    // Öffne das Bestätigungs-Popup, wenn der Button erneut gedrückt wird
+    openDialog.value = true
+  }
+}
+
+const closeDialog = () => {
+  openDialog.value = false
+}
+
+const confirmAndDelete = async () => {
+  await onDelete("Beanstandung bestätigt")
+  closeDialog() // Schließe das Dialog-Fenster nach Bestätigung
 }
 </script>
 
@@ -75,10 +99,42 @@ async function onDelete(message: string) {
         <Button
           variant="destructive"
           class="flex-1"
+          @click="toggleReviewMode"
         >
-          Beanstanden
+          {{ !showInput ? "Beanstanden" : "Bestätigen" }} <!-- Button-Text ändern, wenn Review-Modus aktiv -->
         </Button>
       </ExperimentReviewRejectDialog>
     </div>
+    <!-- Bestätigungs-Popup -->
+    <Dialog :open="openDialog" @update:open="closeDialog">
+      <DialogTrigger as-child>
+        <slot />
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Bestätigen Sie die Beanstandung</DialogTitle>
+          <DialogDescription>
+            Möchten Sie die Beanstandung dieses Versuchs wirklich bestätigen? Diese Aktion kann nicht rückgängig gemacht werden.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter class="flex flex-col sm:flex-row gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            @click="closeDialog"
+          >
+            Abbrechen
+          </Button>
+          <!-- Hier müssten jetzt noch die Beanstandungseinträge gesammeelt und abgeschickt werden -->
+          <Button
+            type="submit"
+            variant="destructive"
+            @click="confirmAndDelete"
+          >
+            Bestätigen
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
