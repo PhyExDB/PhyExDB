@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const userId = user.id // 'user' kommt direkt aus deiner DB-Struktur
 
     if (!experimentId) {
-        throw createError({ statusCode: 400, statusMessage: "Experiment ID fehlt" })
+        throw createError({ statusCode: 400, statusMessage: "Experiment ID missing" })
     }
 
     // 2. Prüfen, ob Favorit schon existiert
