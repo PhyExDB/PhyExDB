@@ -62,12 +62,12 @@ export function generateRecoveryCodes(count = 10): string[] {
 }
 
 export function hashRecoveryCode(code: string): string {
-  return bcrypt.hashSync(code, 10)
+  return bcrypt.hashSync(normalizeRecoveryCode(code), 10)
 }
 
 export function verifyRecoveryCode(code: string, stored: string): boolean {
   try {
-    return bcrypt.compareSync(code, stored)
+    return bcrypt.compareSync(normalizeRecoveryCode(code), stored)
   } catch {
     return false
   }
@@ -78,7 +78,7 @@ export function isTwofaGloballyEnabled(): boolean {
 }
 
 export function signTwofaCookie(userId: string): string {
-  return jwt.sign({ sub: userId }, COOKIE_SECRET, { algorithm: "HS256", expiresIn: "12h" })
+  return jwt.sign({ user_id: userId }, COOKIE_SECRET, { algorithm: "HS256", expiresIn: "12h" })
 }
 
 export function verifyTwofaCookie(token: string, userId: string): boolean {
@@ -88,4 +88,8 @@ export function verifyTwofaCookie(token: string, userId: string): boolean {
   } catch {
     return false
   }
+}
+
+function normalizeRecoveryCode(code: string): string {
+  return code.replace(/[\s-]/g, "").toUpperCase()
 }
