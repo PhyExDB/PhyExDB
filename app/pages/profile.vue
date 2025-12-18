@@ -105,7 +105,7 @@ async function confirmTwofaEnable() {
       twofaStatus.value.enabled = true
     }
   } catch (e: any) {
-    const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Invalid code"
+    const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Ungültiger Code"
     toast({ title: "2FA Error", description: message, variant: "destructive" })
   } finally {
     twofaLoading.value = false
@@ -127,7 +127,7 @@ async function regenerateRecoveryCodes() {
       twofaCode.value = ""
     }
   } catch (e: any) {
-    const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Invalid code or 2FA not enabled"
+    const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Ungültiger Code"
     toast( { title: "2FA Error", description: message, variant: "destructive" } )
   } finally {
     twofaLoading.value = false
