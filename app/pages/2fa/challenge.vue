@@ -29,10 +29,10 @@ async function submitChallenge() {
     const isRecovery = /^[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(input)
 
     const body = isTotp
-        ? { code: input }
-        : isRecovery
-            ? { recovery: input }
-            : null
+      ? { code: input }
+      : isRecovery
+        ? { recovery: input }
+        : null
 
     if (!body) {
       toast({
@@ -59,6 +59,7 @@ async function submitChallenge() {
       })
     }
   } catch (e) {
+    console.error(e);
     toast({
       title: "Überprüfung fehlgeschlagen",
       description: "Bitte versuche es erneut.",
@@ -81,17 +82,18 @@ async function submitChallenge() {
       </CardHeader>
 
       <CardContent class="grid gap-4">
-        <FormField name="2faInput" v-slot="{ componentField }">
+        <FormField v-slot="{ componentField }"
+                   name="2faInput">
           <FormItem>
             <FormLabel>Code</FormLabel>
             <FormControl>
               <Input
-                  v-model="twoFactorAuthCode"
-                  v-bind="componentField"
-                  placeholder="123456 oder ABCDE-12345"
-                  inputmode="text"
-                  maxlength="11"
-                  @keydown.enter.prevent="submitChallenge"
+                v-model="twoFactorAuthCode"
+                v-bind="componentField"
+                placeholder="123456 oder ABCDE-12345"
+                inputmode="text"
+                maxlength="11"
+                @keydown.enter.prevent="submitChallenge"
               />
             </FormControl>
           </FormItem>
