@@ -352,6 +352,7 @@ function downloadRecoveryCodes() {
                     placeholder="123456"
                     inputmode="numeric"
                     maxlength="6"
+                    @keyup.enter="confirmTwofaEnable"
                 />
                 <Button :loading="twofaLoading" @click="confirmTwofaEnable">2FA aktivieren</Button>
               </div>
@@ -385,6 +386,7 @@ function downloadRecoveryCodes() {
                   placeholder="2FA-Code"
                   inputmode="text"
                   maxlength="11"
+                  @keyup.enter="regenerateRecoveryCodes"
               />
               <div class="text-xs text-muted-foreground">
                 Für das Regenerieren von Wiederherstellungscodes ist ein gültiger Auth-Code erforderlich.
@@ -405,7 +407,12 @@ function downloadRecoveryCodes() {
           <div class="grid gap-2 max-w-xs">
             <label class="text-sm font-medium">2FA deaktivieren</label>
             <div class="flex space-x-2">
-              <Input v-model="twofaDisableCode" placeholder="2FA-Code"/>
+              <Input v-model="twofaDisableCode"
+                     placeholder="2FA-Code"
+                     inputmode="text"
+                     maxlength="11"
+                     @keyup.enter="disableTwofa"
+              />
               <Button variant="destructive" :loading="twofaLoading" @click="disableTwofa">Deaktivieren</Button>
             </div>
           </div>
