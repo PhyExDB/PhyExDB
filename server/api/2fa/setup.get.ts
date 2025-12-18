@@ -1,7 +1,7 @@
+import QRCode from "qrcode"
 import prisma from "../../lib/prisma"
 import { getUserOrThrowError } from "~~/server/utils/auth"
 import { buildOtpauthUrl, generateSecret } from "~~/server/utils/twofa"
-import QRCode from 'qrcode';
 
 export default defineEventHandler(async (event) => {
   const runtime = useRuntimeConfig()

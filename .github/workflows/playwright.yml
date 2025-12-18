@@ -22,6 +22,7 @@ jobs:
       # For API Base URL
       NUXT_PUBLIC_API_BASE: http://db:3000/api/
       BETTER_AUTH_SECRET: better_auth_secret
+      TWOFA_COOKIE_SECRET: "8b9c8a4e69f31908bb29fd3d27cb1e9a1d3b48b47d26d8a28a4cdbb5c0b804c8"
 
     services:
       db:

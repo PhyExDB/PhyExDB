@@ -20,7 +20,7 @@ export async function generateSecret(): Promise<string> {
 export async function verifyTotp(
   code: string,
   secret: string,
-  opts?: { step?: number; digits?: number; window?: number },
+  opts?: { step?: number, digits?: number, window?: number },
 ): Promise<boolean> {
   const period = opts?.step ?? DEFAULT_STEP
   const digits = opts?.digits ?? DEFAULT_DIGITS
@@ -83,7 +83,7 @@ export function signTwofaCookie(userId: string): string {
 
 export function verifyTwofaCookie(token: string, userId: string): boolean {
   try {
-    const decoded = jwt.verify(token, COOKIE_SECRET, { algorithms: ["HS256"] }) as { userId?: string; typ?: string }
+    const decoded = jwt.verify(token, COOKIE_SECRET, { algorithms: ["HS256"] }) as { userId?: string, typ?: string }
     return decoded.userId === userId && decoded.typ === "2fa"
   } catch {
     return false

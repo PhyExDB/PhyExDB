@@ -57,7 +57,7 @@ async function submitChallenge() {
       })
     }
   } catch (e) {
-    console.error(e);
+    console.error(e)
     toast({
       title: "Überprüfung fehlgeschlagen",
       description: "Bitte versuche es erneut.",
@@ -80,8 +80,10 @@ async function submitChallenge() {
       </CardHeader>
 
       <CardContent class="grid gap-4">
-        <FormField v-slot="{ componentField }"
-                   name="2faInput">
+        <FormField
+          v-slot="{ componentField }"
+          name="2faInput"
+        >
           <FormItem>
             <FormLabel>Code</FormLabel>
             <FormControl>
@@ -97,7 +99,10 @@ async function submitChallenge() {
           </FormItem>
         </FormField>
 
-        <Button :loading="loading" @click="submitChallenge">
+        <Button
+          :loading="loading"
+          @click="submitChallenge"
+        >
           Bestätigen
         </Button>
       </CardContent>
