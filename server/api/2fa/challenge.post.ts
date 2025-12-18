@@ -29,3 +29,45 @@ export default defineEventHandler(async (event) => {
 
     return { verified: true }
 })
+
+defineRouteMeta({
+    openAPI: {
+        tags: ["Two-Factor Authentication"],
+        summary: "Verify 2FA code",
+        description: "Verifies a TOTP or recovery code and sets the 2FA verification cookie.",
+        requestBody: {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        type: "object",
+                        required: ["code"],
+                        properties: {
+                            code: {
+                                type: "string",
+                                description: "6-digit TOTP code or recovery code",
+                                example: "123456",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description: "2FA successfully verified",
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            properties: {
+                                verified: { type: "boolean", example: true },
+                            },
+                        },
+                    },
+                },
+            },
+            400: { description: "Invalid code" },
+        },
+    },
+})

@@ -21,3 +21,27 @@ export default defineEventHandler(async (event) => {
 
   return { enabled: true, required: !verified }
 })
+
+defineRouteMeta({
+  openAPI: {
+    tags: ["Two-Factor Authentication"],
+    summary: "Get 2FA status",
+    description: "Returns whether 2FA is enabled and if verification is required.",
+    responses: {
+      200: {
+        description: "2FA status",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                enabled: { type: "boolean", example: true },
+                required: { type: "boolean", example: false },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+})

@@ -17,3 +17,44 @@ export default defineEventHandler(async (event) => {
 
     return { disabled: true }
 })
+
+defineRouteMeta({
+    openAPI: {
+        tags: ["Two-Factor Authentication"],
+        summary: "Disable 2FA",
+        description: "Disables two-factor authentication after verifying a valid 2FA code.",
+        requestBody: {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        type: "object",
+                        required: ["code"],
+                        properties: {
+                            code: {
+                                type: "string",
+                                description: "Current TOTP or recovery code",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description: "2FA disabled",
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            properties: {
+                                disabled: { type: "boolean", example: true },
+                            },
+                        },
+                    },
+                },
+            },
+            400: { description: "Invalid code" },
+        },
+    },
+})

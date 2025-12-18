@@ -29,3 +29,47 @@ export default defineEventHandler(async (event) => {
 
     return { recoveryCodes: newCodes }
 })
+
+defineRouteMeta({
+    openAPI: {
+        tags: ["Two-Factor Authentication"],
+        summary: "Regenerate recovery codes",
+        description: "Generates a new set of recovery codes after verifying a 2FA code.",
+        requestBody: {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        type: "object",
+                        required: ["code"],
+                        properties: {
+                            code: {
+                                type: "string",
+                                description: "TOTP or recovery code",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description: "New recovery codes generated",
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            properties: {
+                                recoveryCodes: {
+                                    type: "array",
+                                    items: { type: "string" },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            400: { description: "Invalid code or 2FA not enabled" },
+        },
+    },
+})

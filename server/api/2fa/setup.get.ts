@@ -20,3 +20,29 @@ export default defineEventHandler(async (event) => {
     issuer: runtime.public.appName,
   }
 })
+
+defineRouteMeta({
+  openAPI: {
+    tags: ["Two-Factor Authentication"],
+    summary: "Initialize 2FA",
+    description: "Generates a TOTP secret and otpauth URL for authenticator apps.",
+    responses: {
+      200: {
+        description: "2FA setup initialized",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                secret: { type: "string", example: "JBSWY3DPEHPK3PXP" },
+                otpauthUrl: { type: "string" },
+                issuer: { type: "string", example: "MyApp" },
+              },
+            },
+          },
+        },
+      },
+      404: { description: "2FA globally disabled" },
+    },
+  },
+})
