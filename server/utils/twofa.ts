@@ -78,13 +78,13 @@ export function isTwofaGloballyEnabled(): boolean {
 }
 
 export function signTwofaCookie(userId: string): string {
-  return jwt.sign({ user_id: userId }, COOKIE_SECRET, { algorithm: "HS256", expiresIn: "12h" })
+  return jwt.sign({ userId, typ: "2fa" }, COOKIE_SECRET, { algorithm: "HS256", expiresIn: "12h" })
 }
 
 export function verifyTwofaCookie(token: string, userId: string): boolean {
   try {
-    const decoded = jwt.verify(token, COOKIE_SECRET, { algorithms: ["HS256"] }) as { sub?: string }
-    return decoded.sub === userId
+    const decoded = jwt.verify(token, COOKIE_SECRET, { algorithms: ["HS256"] }) as { userId?: string; typ?: string }
+    return decoded.userId === userId && decoded.typ === "2fa"
   } catch {
     return false
   }
