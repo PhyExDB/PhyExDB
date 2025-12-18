@@ -55,7 +55,7 @@ function numberOfOwnExperiments(): string {
 const twofaStatus = ref<{ enabled: boolean; required: boolean }>({enabled: false, required: false})
 const twofaLoading = ref(false)
 const twofaSetup = ref<{ secret: string; otpauthUrl: string; issuer: string } | null>(null)
-const twofaEnableCode = ref("")
+const twofaCode = ref("")
 const twofaRecoveryCodes = ref<string[] | null>(null)
 const twofaDisableCode = ref("")
 const qrDataUrl = ref<string | null>(null)
@@ -90,12 +90,18 @@ async function startTwofaSetup() {
 }
 
 async function confirmTwofaEnable() {
-  if (!twofaEnableCode.value) return
+  if (!twofaCode.value) return
   twofaLoading.value = true
   try {
-    const res = await $fetch("/api/2fa/enable", { method: "POST", body: { code: twofaEnableCode.value } })
+    const res = await $fetch("/api/2fa/enable", { method: "POST", body: { code: twofaCode.value } })
     if (res?.recoveryCodes) {
       twofaRecoveryCodes.value = res.recoveryCodes
+      toast({
+        title: "2FA aktiviert",
+        description: "Die Zwei-Faktor-Authentifizierung wurde erfolgreich aktiviert.",
+        variant: "success",
+      })
+      twofaCode.value = ""
       twofaStatus.value.enabled = true
     }
   } catch (e: any) {
@@ -107,12 +113,18 @@ async function confirmTwofaEnable() {
 }
 
 async function regenerateRecoveryCodes() {
-  if (!twofaEnableCode.value) return
+  if (!twofaCode.value) return
   twofaLoading.value = true
   try {
-    const res = await $fetch("/api/2fa/recoveries", {method: "POST", body: {code: twofaEnableCode.value}})
+    const res = await $fetch("/api/2fa/recoveries", {method: "POST", body: {code: twofaCode.value}})
     if (res?.recoveryCodes) {
       twofaRecoveryCodes.value = res.recoveryCodes
+      toast({
+        title: "Wiederherstellungscodes neu erzeugt",
+        description: "Die neuen Codes wurden erfolgreich generiert.",
+        variant: "success",
+      })
+      twofaCode.value = ""
     }
   } catch (e: any) {
     const message = e?.data?.statusMessage || e?.statusMessage || e?.data?.message || e?.message || "Invalid code or 2FA not enabled"
@@ -141,7 +153,7 @@ async function disableTwofa() {
     twofaStatus.value.enabled = false
     twofaSetup.value = null
     twofaRecoveryCodes.value = null
-    twofaEnableCode.value = ""
+    twofaCode.value = ""
     twofaDisableCode.value = ""
 
     toast({
@@ -325,8 +337,12 @@ function downloadRecoveryCodes() {
 
     <Card class="mt-4">
       <CardContent class="p-6 space-y-4">
-        <div class="text-xl">Sicherheit</div>
-        <div class="text-muted-foreground">Zwei-Faktor-Authentifizierung</div>
+        <div class="flex items-center space-x-2 text-xl">
+          <span>🔒</span>
+          <span>Zwei-Faktor-Authentifizierung</span>
+          <span v-if="twofaStatus.enabled" class="text-green-600 text-xl">aktiviert</span>
+          <span v-else class="text-red-600 text-xl">deaktiviert</span>
+        </div>
 
         <!-- 2FA Disabled -->
         <div v-if="!twofaStatus.enabled" class="space-y-4">
@@ -348,13 +364,14 @@ function downloadRecoveryCodes() {
               <label class="text-sm font-medium">6-stelliger Code</label>
               <div class="flex space-x-2">
                 <Input
-                    v-model="twofaEnableCode"
-                    placeholder="123456"
-                    inputmode="numeric"
-                    maxlength="6"
-                    @keyup.enter="confirmTwofaEnable"
+                  class="h-10"
+                  v-model="twofaCode"
+                  placeholder="123456"
+                  inputmode="numeric"
+                  maxlength="6"
+                  @keyup.enter="confirmTwofaEnable"
                 />
-                <Button :loading="twofaLoading" @click="confirmTwofaEnable">2FA aktivieren</Button>
+                <Button class="h-10" :loading="twofaLoading" @click="confirmTwofaEnable">Bestätigen</Button>
               </div>
             </div>
           </div>
@@ -377,21 +394,20 @@ function downloadRecoveryCodes() {
 
         <!-- 2FA Enabled -->
         <div v-else class="space-y-4">
-          <div class="text-sm">2FA ist aktiviert.</div>
           <div class="grid gap-2 max-w-xs">
             <label class="text-sm font-medium">Wiederherstellungscodes neu erzeugen</label>
-            <div class="flex flex-col space-y-1">
+            <div class="flex space-x-2">
               <Input
-                  v-model="twofaEnableCode"
-                  placeholder="2FA-Code"
-                  inputmode="text"
-                  maxlength="11"
-                  @keyup.enter="regenerateRecoveryCodes"
+                class="h-10"
+                v-model="twofaCode"
+                placeholder="2FA-Code"
+                inputmode="text"
+                maxlength="11"
+                @keyup.enter="regenerateRecoveryCodes"
               />
-              <div class="text-xs text-muted-foreground">
-                Für das Regenerieren von Wiederherstellungscodes ist ein gültiger Auth-Code erforderlich.
-              </div>
-              <Button variant="outline" :loading="twofaLoading" @click="regenerateRecoveryCodes">Bestätigen</Button>
+              <Button class="h-10" variant="outline" :loading="twofaLoading" @click="regenerateRecoveryCodes">
+                Bestätigen
+              </Button>
             </div>
           </div>
           <div v-if="twofaRecoveryCodes" class="space-y-2">
@@ -407,13 +423,15 @@ function downloadRecoveryCodes() {
           <div class="grid gap-2 max-w-xs">
             <label class="text-sm font-medium">2FA deaktivieren</label>
             <div class="flex space-x-2">
-              <Input v-model="twofaDisableCode"
-                     placeholder="2FA-Code"
-                     inputmode="text"
-                     maxlength="11"
-                     @keyup.enter="disableTwofa"
+              <Input
+                class="h-10"
+                v-model="twofaDisableCode"
+                placeholder="2FA-Code"
+                inputmode="text"
+                maxlength="11"
+                @keyup.enter="disableTwofa"
               />
-              <Button variant="destructive" :loading="twofaLoading" @click="disableTwofa">Deaktivieren</Button>
+              <Button class="h-10" variant="destructive" :loading="twofaLoading" @click="disableTwofa">Deaktivieren</Button>
             </div>
           </div>
         </div>
