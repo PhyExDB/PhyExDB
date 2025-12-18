@@ -32,9 +32,20 @@ onMounted(() => {
 })
 
 const showDeleteDialog = ref(false)
+const sectionImageStartIndices = computed(() => {
+  if (!experiment?.sections) return []
 
-function getImageTitle(fileIndex: number) {
-  return `Abb. ${fileIndex + 1}`
+  let count = 0
+  return experiment.sections.map((section) => {
+    const startIndex = count
+    count += section.files.length
+    return startIndex
+  })
+})
+
+function getImageTitle(sectionIndex: number, fileIndex: number) {
+  const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
+  return `Abb. ${globalIndex + 1}`
 }
 </script>
 
@@ -257,16 +268,16 @@ function getImageTitle(fileIndex: number) {
               </CardContent>
               <Separator class="mb-3" />
               <p
-                  v-if="isImageFile(item.file.mimeType)"
-                  class="w-full whitespace-normal text-center font-semibold pt-2"
+                v-if="isImageFile(item.file.mimeType)"
+                class="w-full whitespace-normal text-center font-semibold pt-2"
               >
-                {{ getImageTitle(index) }}
+                {{ getImageTitle(experiment.sections.indexOf(section), index) }}
               </p>
               <p
                 class="w-full whitespace-normal text-center text-muted-foreground pb-3"
                 style="overflow-wrap: anywhere;"
               >
-               {{ item.description }}
+                {{ item.description }}
               </p>
             </Card>
           </template>
