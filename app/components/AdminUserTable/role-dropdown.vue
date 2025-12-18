@@ -20,10 +20,10 @@ const canChangeRole = computed(() => user.value?.id !== props.id)
 const position = ref<UserRole>(props.role)
 
 watch(
-    () => props.role,
-    (newVal) => {
-      if (newVal !== position.value) position.value = newVal
-    }
+  () => props.role,
+  (newVal) => {
+    if (newVal !== position.value) position.value = newVal
+  },
 )
 
 watch(position, async (newVal, oldVal) => {
@@ -39,7 +39,7 @@ watch(position, async (newVal, oldVal) => {
       description: `${props.name}'s Rolle wurde erfolgreich zu ${capitalizeFirstLetter(newVal)} geändert.`,
       variant: "success",
     })
-  } catch (e) {
+  } catch (e: unknown) {
     position.value = oldVal as UserRole
     toast({
       title: "Fehler beim Ändern der Rolle",
