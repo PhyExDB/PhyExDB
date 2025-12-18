@@ -62,12 +62,12 @@ export function generateRecoveryCodes(count = 10): string[] {
 }
 
 export function hashRecoveryCode(code: string): string {
-  return bcrypt.hashSync(normalizeRecoveryCode(code), 10)
+  return bcrypt.hashSync(code.toUpperCase(), 10)
 }
 
 export function verifyRecoveryCode(code: string, stored: string): boolean {
   try {
-    return bcrypt.compareSync(normalizeRecoveryCode(code), stored)
+    return bcrypt.compareSync(code.toUpperCase(), stored)
   } catch {
     return false
   }
@@ -88,8 +88,4 @@ export function verifyTwofaCookie(token: string, userId: string): boolean {
   } catch {
     return false
   }
-}
-
-function normalizeRecoveryCode(code: string): string {
-  return code.replace(/[\s-]/g, "").toUpperCase()
 }

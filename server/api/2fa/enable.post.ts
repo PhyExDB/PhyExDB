@@ -24,7 +24,6 @@ export default defineEventHandler(async (event) => {
 
     const recovery = generateRecoveryCodes(10)
     const hashed = recovery.map(hashRecoveryCode)
-
     await prisma.user.update({
         where: { id: user.id },
         data: { twoFactorEnabled: true, twoFactorRecoveryCodes: hashed },

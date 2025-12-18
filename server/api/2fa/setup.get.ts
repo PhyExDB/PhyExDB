@@ -1,6 +1,7 @@
 import prisma from "../../lib/prisma"
 import { getUserOrThrowError } from "~~/server/utils/auth"
 import { buildOtpauthUrl, generateSecret } from "~~/server/utils/twofa"
+import QRCode from 'qrcode';
 
 export default defineEventHandler(async (event) => {
   const runtime = useRuntimeConfig()
@@ -11,13 +12,14 @@ export default defineEventHandler(async (event) => {
   const user = await getUserOrThrowError(event)
   const secret = await generateSecret()
   await prisma.user.update({ where: { id: user.id }, data: { twoFactorSecret: secret } })
-
   const otpauthUrl = buildOtpauthUrl({ secret, accountName: user.email, issuer: runtime.public.appName })
+  const qrDataUrl = await QRCode.toDataURL(otpauthUrl)
 
   return {
     secret,
     otpauthUrl,
     issuer: runtime.public.appName,
+    qrDataUrl,
   }
 })
 
@@ -36,7 +38,8 @@ defineRouteMeta({
               properties: {
                 secret: { type: "string", example: "JBSWY3DPEHPK3PXP" },
                 otpauthUrl: { type: "string" },
-                issuer: { type: "string", example: "MyApp" },
+                issuer: { type: "string", example: process.env.APP_IMAGE || "PhyExDB" },
+                qrDataUrl: { type: "string" },
               },
             },
           },
