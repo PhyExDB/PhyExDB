@@ -23,9 +23,7 @@ async function submitChallenge() {
 
   try {
     const input = twoFactorAuthCode.value.trim().toUpperCase()
-    // TOTP-Code
     const isTotp = /^\d{6}$/.test(input)
-    // Recovery-Code
     const isRecovery = /^[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(input)
 
     const body = isTotp
