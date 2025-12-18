@@ -6,7 +6,11 @@ import bcrypt from "bcrypt"
 const DEFAULT_STEP = Number(process.env.TWOFA_STEP ?? 30)
 const DEFAULT_DIGITS = Number(process.env.TWOFA_DIGITS ?? 6)
 const ISSUER = process.env.TWOFA_ISSUER ?? (process.env.NUXT_PUBLIC_APP_NAME ?? "App")
-const COOKIE_SECRET = process.env.TWOFA_COOKIE_SECRET ?? "change-me"
+if (!process.env.TWOFA_COOKIE_SECRET) {
+  throw new Error("TWOFA_COOKIE_SECRET must be set")
+}
+
+const COOKIE_SECRET = process.env.TWOFA_COOKIE_SECRET
 
 export async function generateSecret(): Promise<string> {
   const { secret } = await generateTOTP({ period: DEFAULT_STEP, digits: DEFAULT_DIGITS })
