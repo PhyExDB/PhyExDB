@@ -39,7 +39,7 @@ watch(position, async (newVal, oldVal) => {
       description: `${props.name}'s Rolle wurde erfolgreich zu ${capitalizeFirstLetter(newVal)} geändert.`,
       variant: "success",
     })
-  } catch (e: unknown) {
+  } catch {
     position.value = oldVal as UserRole
     toast({
       title: "Fehler beim Ändern der Rolle",
