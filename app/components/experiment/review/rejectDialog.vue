@@ -11,7 +11,6 @@ const { onDelete } = defineProps({
 
 const loading = ref(false)
 const open = ref(false)
-const showConfirmation = ref(false) // für die Bestätigung des Reviews
 
 const schema = experimentReviewSchema
 const formSchema = toTypedSchema(schema)
@@ -46,41 +45,44 @@ const openForm = (event: boolean) => {
     })
   }
 }
-// Wechsel zwischen den Modi (Beanstandung oder Bestätigung)
-const toggleReviewMode = () => {
-  showConfirmation.value = !showConfirmation.value
-}
 </script>
 
 <template>
   <Dialog
-    :open="open && showConfirmation"
+    :open="open"
     @update:open="openForm"
   >
-    <DialogTrigger as-child>
-      <slot />
-    </DialogTrigger>
+    <slot />
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Versuch beanstanden</DialogTitle>
         <DialogDescription>
-          Hiermit bestätigen Sie die Beanstandung des Versuchs.
+          Möchten Sie die Beanstandung dieses Versuchs wirklich absenden?
+          Diese Aktion kann nicht rückgängig gemacht werden.
         </DialogDescription>
       </DialogHeader>
+
+      <form @submit="onSubmit">
+        <!-- Hier können Eingabefelder einfügt werden, falls benötigt -->
+      </form>
+
       <DialogFooter class="flex flex-col sm:flex-row gap-2">
-        <Button
-          type="submit"
-          @click="open = false"
-        >
-          Abbrechen
-        </Button>
-        <!-- Bestätigungs-Button oder Senden je nach Modus -->
+        <DialogClose as-child>
+          <Button
+            type="button"
+            variant="outline"
+          >
+            Abbrechen
+          </Button>
+        </DialogClose>
+
         <Button
           type="submit"
           variant="destructive"
-          @click="toggleReviewMode"
+          :disabled="loading"
+          @click="onSubmit"
         >
-          {{ showConfirmation ? "Bestätigen" : "Senden" }} <!-- Dynamische Änderung des Button Textes -->
+          Senden
         </Button>
       </DialogFooter>
     </DialogContent>
