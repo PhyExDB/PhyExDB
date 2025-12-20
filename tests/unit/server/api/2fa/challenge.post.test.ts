@@ -1,150 +1,66 @@
-import { describe, expectTypeOf, vi, beforeEach, it, expect } from "vitest"
+import { describe, vi, beforeEach } from "vitest"
 import { challengeSuccess, userWith2faEnabled } from "./data"
-import { setupH3Mocks, mockReadBody } from "./setup"
+import { setupH3Mocks, mockReadBody, setupTwofaMocks, setupTwoFaHandlerMocks, mockVerifyTwofaInput, testUnauthenticated, testInvalidCode, test2faSuccess } from "./setup"
 import { users } from "~~/tests/helpers/auth"
-import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
-
-// Setup H3 mocks before importing endpoint
-setupH3Mocks()
-
-// Mock twofa utilities
-vi.mock("~~/server/utils/twofa", async (importOriginal) => {
-    const actual = await importOriginal() as object
-    return {
-        ...actual,
-        signTwofaCookie: vi.fn().mockReturnValue("mock-jwt-token"),
-    }
-})
-
-// Mock twofa handler - create a controllable mock
-const { mockVerifyTwofaInput } = vi.hoisted(() => ({
-    mockVerifyTwofaInput: vi.fn(),
-}))
-vi.mock("~~/server/utils/twoFaHandler", async (importOriginal) => {
-    const actual = await importOriginal() as object
-    return {
-        ...actual,
-        ensure2faEnabledGlobally: vi.fn(),
-        verifyTwofaInput: mockVerifyTwofaInput,
-    }
-})
 
 import endpoint from "~~/server/api/2fa/challenge.post"
 
+// Setup common mocks before importing endpoint
+setupH3Mocks()
+setupTwofaMocks()
+setupTwoFaHandlerMocks()
+
 describe("Api Route POST /api/2fa/challenge", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    await mockReadBody({ code: "123456" })
+    prisma.user.update = vi.fn().mockResolvedValue(userWith2faEnabled)
+  })
+
+  describe("when verifying with valid TOTP code", () => {
+    test2faSuccess(endpoint, {
+      data: userWith2faEnabled,
+      expected: challengeSuccess,
+    })
+  })
+
+  describe("when verifying with valid recovery code", () => {
+    const expected = challengeSuccess
+
     beforeEach(async () => {
-        vi.clearAllMocks()
-        await mockReadBody({ code:  "123456" })
-        prisma. user.update = vi.fn().mockResolvedValue(userWith2faEnabled)
+      await mockReadBody({ code: "ABCDE-12345" })
+      mockVerifyTwofaInput.mockResolvedValue({
+        ok: true,
+        user: users.user,
+        record: {
+          twoFactorEnabled: true,
+          twoFactorSecret: "JBSWY3DPEHPK3PXP",
+          twoFactorRecoveryCodes: ["hashed1", "hashed2"],
+        },
+        usedRecoveryIndex: 0,
+      })
     })
 
-    describe("when verifying with valid TOTP code", () => {
-        const expected = challengeSuccess
-
-        beforeEach(() => {
-            mockVerifyTwofaInput.mockResolvedValue({
-                ok: true,
-                user:  users.user,
-                record: {
-                    twoFactorEnabled: true,
-                    twoFactorSecret: "JBSWY3DPEHPK3PXP",
-                    twoFactorRecoveryCodes:  [],
-                },
-                usedRecoveryIndex: undefined,
-            })
-        })
-
-        const context = u.getTestContext({
-            data: userWith2faEnabled,
-            expected,
-            endpoint,
-            body: { code: "123456" },
-            user: users.user,
-        })
-
-        // tests
-        {
-            expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
-            u.testSuccess(context)
-        }
+    const context = u.getTestContext({
+      data: userWith2faEnabled,
+      expected,
+      endpoint,
+      body: { code: "ABCDE-12345" },
+      user: users.user,
     })
 
-    describe("when verifying with valid recovery code", () => {
-        const expected = challengeSuccess
+    // tests
+    {
+      u.testSuccess(context)
+    }
+  })
 
-        beforeEach(async () => {
-            await mockReadBody({ code: "ABCDE-12345" })
-            mockVerifyTwofaInput. mockResolvedValue({
-                ok:  true,
-                user: users.user,
-                record: {
-                    twoFactorEnabled: true,
-                    twoFactorSecret: "JBSWY3DPEHPK3PXP",
-                    twoFactorRecoveryCodes: ["hashed1", "hashed2"],
-                },
-                usedRecoveryIndex: 0,
-            })
-        })
+  describe("when user is not authenticated", () => {
+    testUnauthenticated(endpoint, { code: "123456" })
+  })
 
-        const context = u.getTestContext({
-            data: userWith2faEnabled,
-            expected,
-            endpoint,
-            body:  { code: "ABCDE-12345" },
-            user: users.user,
-        })
-
-        // tests
-        {
-            u.testSuccess(context)
-        }
-    })
-
-    describe("when user is not authenticated", () => {
-        it("should fail with 401", async () => {
-            mockVerifyTwofaInput. mockRejectedValue(
-                Object. assign(new Error("Not logged in"), { statusCode: 401 }),
-            )
-
-            const context = u.getTestContext({
-                data:  undefined,
-                expected: undefined as any,
-                endpoint,
-                body: { code: "123456" },
-                user:  users.guest,
-            })
-
-            await expect(context.endpoint(u.getEvent(context))).rejects.toMatchObject({
-                statusCode: 401,
-            })
-        })
-    })
-
-    describe("when code is invalid", () => {
-        it("should fail with 400", async () => {
-            mockVerifyTwofaInput.mockResolvedValue({
-                ok: false,
-                user: users.user,
-                record:  {
-                    twoFactorEnabled: true,
-                    twoFactorSecret: "JBSWY3DPEHPK3PXP",
-                    twoFactorRecoveryCodes: [],
-                },
-                usedRecoveryIndex:  undefined,
-            })
-
-            const context = u.getTestContext({
-                data:  userWith2faEnabled,
-                expected:  undefined as any,
-                endpoint,
-                body: { code:  "000000" },
-                user: users.user,
-            })
-
-            await expect(context.endpoint(u.getEvent(context))).rejects.toMatchObject({
-                statusCode:  400,
-            })
-        })
-    })
+  describe("when code is invalid", () => {
+    testInvalidCode(endpoint)
+  })
 })
