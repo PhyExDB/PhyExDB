@@ -1,3 +1,4 @@
+import { setCookie } from "h3"
 import prisma from "../../lib/prisma"
 import { signTwofaCookie } from "~~/server/utils/twofa"
 import { ensure2faEnabledGlobally, verifyTwofaInput } from "~~/server/utils/twoFaHandler"

@@ -1,3 +1,4 @@
+import { parseCookies } from "h3"
 import prisma from "../../lib/prisma"
 import { getUser } from "~~/server/utils/auth"
 import { verifyTwofaCookie, isTwofaGloballyEnabled } from "~~/server/utils/twofa"
