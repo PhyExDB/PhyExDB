@@ -3,7 +3,6 @@
  * This file contains common mocks and utilities used across all 2FA tests
  */
 import { vi, it, expect } from "vitest"
-import type { Endpoint } from "better-auth"
 import { enableResponse } from "./data"
 import { users } from "~~/tests/helpers/auth"
 
@@ -111,7 +110,8 @@ export async function mockParseCookies(cookies: Record<string, string>) {
   vi.mocked(h3.parseCookies).mockReturnValue(cookies)
 }
 
-export function testUnauthenticated(endpoint: Endpoint, body: unknown = {}) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function testUnauthenticated(endpoint: any, body: unknown = {}) {
   it("should fail with 401 when user is not authenticated", async () => {
     mockGetUserOrThrowError.mockRejectedValue(
       Object.assign(new Error("Not logged in"), { statusCode: 401 }),
@@ -121,10 +121,10 @@ export function testUnauthenticated(endpoint: Endpoint, body: unknown = {}) {
     )
 
     const context = u.getTestContext({
-      data: undefined,
-      expected: undefined,
+      data: undefined as any,
+      expected: undefined as any,
       endpoint,
-      body,
+      body: body as any,
       user: users.guest,
     })
 
@@ -134,7 +134,7 @@ export function testUnauthenticated(endpoint: Endpoint, body: unknown = {}) {
   })
 }
 
-export function testInvalidCode(endpoint: Endpoint, body: unknown = { code: "000000" }) {
+export function testInvalidCode(endpoint: any, body: unknown = { code: "000000" }) {
   it("should fail with 400 when code is invalid", async () => {
     mockVerifyTwofaInput.mockResolvedValue({
       ok: false,
@@ -148,10 +148,10 @@ export function testInvalidCode(endpoint: Endpoint, body: unknown = { code: "000
     })
 
     const context = u.getTestContext({
-      data: {},
-      expected: undefined,
+      data: {} as any,
+      expected: undefined as any,
       endpoint,
-      body,
+      body: body as any,
       user: users.user,
     })
 
@@ -161,13 +161,13 @@ export function testInvalidCode(endpoint: Endpoint, body: unknown = { code: "000
   })
 }
 
-export function testMissingCode(endpoint: Endpoint) {
+export function testMissingCode(endpoint: any) {
   it("should fail with 400 when code is missing", async () => {
     await mockReadBody({})
 
     const context = u.getTestContext({
-      data: {},
-      expected: undefined,
+      data: {} as any,
+      expected: undefined as any,
       endpoint,
       body: {},
       user: users.user,
@@ -179,7 +179,7 @@ export function testMissingCode(endpoint: Endpoint) {
   })
 }
 
-export function test2faSuccess(endpoint: Endpoint, { body = { code: "123456" }, expected, data }: { body?: unknown, expected: unknown, data: unknown }) {
+export function test2faSuccess(endpoint: any, { body = { code: "123456" }, expected, data }: { body?: any, expected: any, data: any }) {
   it("should succeed with valid code", async () => {
     mockVerifyTwofaInput.mockResolvedValue({
       ok: true,
@@ -200,6 +200,7 @@ export function test2faSuccess(endpoint: Endpoint, { body = { code: "123456" }, 
       user: users.user,
     })
 
-    u.testSuccess(context)
+    await u.expectSuccess(context)
   })
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */

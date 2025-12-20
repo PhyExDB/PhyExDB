@@ -6,7 +6,6 @@ import * as u from "~~/tests/helpers/utils"
 
 import endpoint from "~~/server/api/2fa/challenge.post"
 
-// Setup common mocks before importing endpoint
 setupH3Mocks()
 setupTwofaMocks()
 setupTwoFaHandlerMocks()
