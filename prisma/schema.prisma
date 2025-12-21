@@ -106,16 +106,16 @@ model ExperimentSection {
 }
 
 model ExperimentSectionContent {
-  id                  String            @id @default(uuid())
-  experiment          Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  id                  String             @id @default(uuid())
+  experiment          Experiment         @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId        String
-  experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
+  experimentSection   ExperimentSection  @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String
   text                String
   files               ExperimentFile[]
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  SectionCritique     SectionCritique[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  SectionCritique     SectionCriticism[]
 
   @@unique([experimentId, experimentSectionId])
 }
@@ -254,17 +254,17 @@ model Comment {
 }
 
 model Review {
-  id                String            @id @default(uuid())
-  experiment        Experiment        @relation(fields: [experimentId], references: [id])
+  id                String             @id @default(uuid())
+  experiment        Experiment         @relation(fields: [experimentId], references: [id])
   experimentId      String
-  reviewer          User              @relation(fields: [reviewerId], references: [id])
+  reviewer          User               @relation(fields: [reviewerId], references: [id])
   reviewerId        String
-  sectionsCritiques SectionCritique[]
+  sectionsCritiques SectionCriticism[]
   sectionCritiqueId String
   alreadyReviewed   Boolean
 }
 
-model SectionCritique {
+model SectionCriticism {
   id               String                   @id @default(uuid())
   review           Review                   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   reviewId         String
