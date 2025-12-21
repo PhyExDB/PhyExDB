@@ -2,7 +2,10 @@
 import type { Level } from "@tiptap/extension-heading"
 import { Subscript as TiptapSubscript } from "@tiptap/extension-subscript"
 import { Superscript as TiptapSuperscript } from "@tiptap/extension-superscript"
+import Mathematics from "@tiptap/extension-mathematics"
 import { PlainTextPaste } from "./PlainTextPaste"
+
+import "katex/dist/katex.min.css"
 
 const { modelValue, showHeadings } = defineProps({
   modelValue: {
@@ -40,8 +43,15 @@ const editorExtensions = [
   }),
   TiptapSubscript.configure({}),
   TiptapSuperscript.configure({}),
+  Mathematics.configure({
+    shouldRender: (state, pos, node) => {
+      const $pos = state.doc.resolve(pos)
+      return node.type.name === 'text' && $pos.parent.type.name !== 'codeBlock'
+    },
+  }),
   PlainTextPaste,
 ]
+
 const editor = useEditor({
   content: modelValue,
   extensions: editorExtensions,
@@ -96,6 +106,10 @@ watch(
 onBeforeUnmount(() => {
   editor.value?.destroy()
 })
+
+function insertMathFormula() {
+  editor.value?.chain().focus().insertContent('$E = mc^2$').run()
+}
 </script>
 
 <template>
@@ -231,6 +245,15 @@ onBeforeUnmount(() => {
               1. List
             </Button>
           </div>
+
+          <!-- LateX -->
+          <Button
+              variant="outline"
+              class="btn"
+              @click="insertMathFormula"
+          >
+            <span class="font-serif italic">∑</span> Math
+          </Button>
 
           <!-- Undo/Redo -->
           <div class="flex gap-1 ml-auto">

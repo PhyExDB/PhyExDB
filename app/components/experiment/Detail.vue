@@ -185,10 +185,9 @@ const showDeleteDialog = ref(false)
         <h2 class="text-3xl font-bold">
           {{ section.experimentSection.name }}
         </h2>
-        <div
-          v-if="section.text && section.text.length && section.text != '<p></p>'"
-          class="prose dark:prose-invert max-w-full"
-          v-html="section.text"
+        <LatexContent
+            v-if="section.text && section.text.length && section.text != '<p></p>'"
+            :content="section.text"
         />
         <p
           v-else
