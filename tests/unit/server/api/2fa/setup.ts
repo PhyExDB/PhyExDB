@@ -179,8 +179,9 @@ export function testMissingCode(endpoint: any) {
   })
 }
 
-export function test2faSuccess(endpoint: any, { body = { code: "123456" }, expected, data }: { body?: any, expected: any, data: any }) {
+export function test2faSuccess(endpoint: Endpoint<any>, { body = { code: "123456" }, expected, data }: { body?: any, expected: any, data: any }) {
   it("should succeed with valid code", async () => {
+    // Default mock behavior for 2FA success
     mockVerifyTwofaInput.mockResolvedValue({
       ok: true,
       user: users.user,
@@ -190,6 +191,12 @@ export function test2faSuccess(endpoint: any, { body = { code: "123456" }, expec
         twoFactorRecoveryCodes: [],
       },
       usedRecoveryIndex: undefined,
+    })
+
+    // Specialized mocks for endpoints that check prisma directly (like enable.post.ts)
+    prisma.user.findUnique = vi.fn().mockResolvedValue({
+      twoFactorSecret: "JBSWY3DPEHPK3PXP",
+      twoFactorEnabled: false,
     })
 
     const context = u.getTestContext({

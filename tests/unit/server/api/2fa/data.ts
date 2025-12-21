@@ -35,17 +35,6 @@ export const userWith2faSetupInProgress = {
  */
 export const statusEnabled = { enabled: true, required: true }
 export const statusDisabled = { enabled: false, required: false }
-export const statusVerified = { enabled: true, required: false }
-
-/**
- * Mock setup response
- */
-export const setupResponse = {
-  secret: "JBSWY3DPEHPK3PXP",
-  otpauthUrl: "otpauth://totp/ViPDA: user@test.test? secret=JBSWY3DPEHPK3PXP&issuer=ViPDA&algorithm=SHA-1&digits=6&period=30",
-  issuer: "ViPDA",
-  qrDataUrl: "data:image/png;base64,mockqrcode",
-}
 
 /**
  * Mock enable response with recovery codes
