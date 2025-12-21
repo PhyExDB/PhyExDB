@@ -27,6 +27,10 @@ model User {
   userFile      UserFile?
   experiments   Experiment[]
 
+  twoFactorEnabled       Boolean     @default(false)
+  twoFactorSecret        String?
+  twoFactorRecoveryCodes String[]    @default([])
+
   banned     Boolean?
   banReason  String?
   banExpires DateTime?
