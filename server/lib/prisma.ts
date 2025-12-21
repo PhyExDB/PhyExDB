@@ -1,11 +1,11 @@
-import { PrismaClient } from "~~/prisma/generated/prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
 import { dbLogger } from "./loggers"
-import {PrismaPg} from "@prisma/adapter-pg";
+import { PrismaClient } from "~~/prisma/generated/prisma/client"
 
 const prismaClientSingleton = () => {
   const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL,
-  });
+  })
 
   const prisma = new PrismaClient({
     adapter,
@@ -15,7 +15,7 @@ const prismaClientSingleton = () => {
       { emit: "event", level: "info" },
       { emit: "event", level: "warn" },
     ],
-  });
+  })
 
   prisma.$on("query", (e) => {
     if (process.env.NODE_ENV !== "test") {

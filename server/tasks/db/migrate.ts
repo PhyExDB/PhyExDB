@@ -8,5 +8,5 @@ export default defineTask({
     } catch (error) {
       return { result: false, error }
     }
-  }
+  },
 })
