@@ -186,8 +186,8 @@ const showDeleteDialog = ref(false)
           {{ section.experimentSection.name }}
         </h2>
         <LatexContent
-            v-if="section.text && section.text.length && section.text != '<p></p>'"
-            :content="section.text"
+          v-if="section.text && section.text.length && section.text != '<p></p>'"
+          :content="section.text"
         />
         <p
           v-else

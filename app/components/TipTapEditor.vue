@@ -46,7 +46,7 @@ const editorExtensions = [
   Mathematics.configure({
     shouldRender: (state, pos, node) => {
       const $pos = state.doc.resolve(pos)
-      return node.type.name === 'text' && $pos.parent.type.name !== 'codeBlock'
+      return node.type.name === "text" && $pos.parent.type.name !== "codeBlock"
     },
   }),
   PlainTextPaste,
@@ -108,7 +108,7 @@ onBeforeUnmount(() => {
 })
 
 function insertMathFormula() {
-  editor.value?.chain().focus().insertContent('$E = mc^2$').run()
+  editor.value?.chain().focus().insertContent("$E = mc^2$").run()
 }
 </script>
 
@@ -248,9 +248,9 @@ function insertMathFormula() {
 
           <!-- LateX -->
           <Button
-              variant="outline"
-              class="btn"
-              @click="insertMathFormula"
+            variant="outline"
+            class="btn"
+            @click="insertMathFormula"
           >
             <span class="font-serif italic">∑</span> Math
           </Button>

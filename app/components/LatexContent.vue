@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import 'katex/dist/katex.min.css'
+import "katex/dist/katex.min.css"
 
 const props = defineProps<{
   content: string
@@ -14,8 +14,8 @@ const renderedContent = computed(() => {
 
 <template>
   <div
-      class="prose dark:prose-invert max-w-full latex-content"
-      v-html="renderedContent"
+    class="prose dark:prose-invert max-w-full latex-content"
+    v-html="renderedContent"
   />
 </template>
 
