@@ -272,24 +272,37 @@ onBeforeUnmount(() => {
 
 <style>
 .btn {
-  @apply px-2 py-1 text-sm font-medium text-muted-foreground border rounded-md disabled:opacity-50;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  border-width: 1px;
+  border-radius: 0.375rem;
+}
+.btn:disabled {
+  opacity: 0.5;
 }
 .btn-active {
-  @apply bg-accent text-accent-foreground;
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
 }
 
 .ProseMirror:focus {
-    outline: none;
+  outline: none;
 }
 
 /* Custom Paragraph Spacing */
 .prose p {
-  @apply my-0; /* Reduce the default margin between paragraphs */
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .prose li {
-  @apply my-0; /* Reduce the default margin between list items */
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .prose ul {
-  @apply my-2; /* Add a margin to the left of unordered lists */
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 </style>
