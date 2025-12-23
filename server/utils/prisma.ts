@@ -1,6 +1,6 @@
 import { validate as uuidValidate } from "uuid"
 import type { Event } from "./utils"
-import { PrismaClientKnownRequestError } from "~~/prisma/generated/prisma/internal/prismaNamespace"
+import {PrismaClientKnownRequestError} from "~~/generated/prisma/internal/prismaNamespace";
 
 /**
  * Generates a Prisma where clause based on a slug or ID parameter from the event.
@@ -20,12 +20,12 @@ export function getSlugOrIdPrismaWhereClause(event: Event): { slug: string } | {
  * Generates a Prisma where clause based on an ID parameter from the event.
  */
 export function getIdPrismaWhereClause(event: Event) {
-  const id = getRouterParam(event, "id")
+  const id: string | undefined = getRouterParam(event, "id")
   if (!id) {
     throw createError({ status: 400, message: "Invalid id" })
   }
 
-  const whereClause = { id: id }
+  const whereClause: { id: string } = { id }
   return whereClause
 }
 

@@ -1,7 +1,9 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
 import { v4 as uuidv4 } from "uuid"
 import * as u from "~~/tests/helpers/utils"
-import { getUser } from "~~/server/utils/auth"
+import { getUser, getUserOrThrowError } from "~~/server/utils/auth"
+import type {UserDetail} from "#shared/types";
+import { getQuery, readBody, readValidatedBody, getRouterParam, getValidatedRouterParams } from "h3"
 
 describe("Test mocking event", async () => {
   it("query", () => {

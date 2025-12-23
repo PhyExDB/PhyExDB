@@ -27,7 +27,7 @@ export default defineSitemapEventHandler(async () => {
     },
   })
 
-  return urls.map((url) => {
+  return urls.map((url: { previewImage: { path: any }; sections: { files: { file: { mimeType: string; path: any }; description: any }[] }[]; slug: any; updatedAt: { toISOString: () => any } }) => {
     const previewImage = url.previewImage
       ? {
           loc: url.previewImage.path,
@@ -36,8 +36,8 @@ export default defineSitemapEventHandler(async () => {
         }
       : undefined
 
-    const sectionImages = url.sections.flatMap((section) => {
-      return section.files.flatMap((file) => {
+    const sectionImages = url.sections.flatMap((section: { files: { file: { mimeType: string; path: any }; description: any }[] }) => {
+      return section.files.flatMap((file: { file: { mimeType: string; path: any }; description: any }) => {
         if (file.file.mimeType?.startsWith("image/")) {
           return {
             loc: file.file.path,

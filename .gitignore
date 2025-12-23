@@ -48,4 +48,4 @@ public/uploads
 data
 
 # Prisma
-**/generated/prisma/**/*
+/generated/

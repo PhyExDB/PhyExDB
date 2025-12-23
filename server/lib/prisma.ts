@@ -1,6 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg"
 import { dbLogger } from "./loggers"
-import { PrismaClient } from "~~/prisma/generated/prisma/client"
+import { PrismaClient } from "~~/generated/prisma/client"
 
 const prismaClientSingleton = () => {
   const adapter = new PrismaPg({
@@ -17,22 +17,22 @@ const prismaClientSingleton = () => {
     ],
   })
 
-  prisma.$on("query", (e) => {
+  prisma.$on("query", (e: { query: string; params: any }) => {
     if (process.env.NODE_ENV !== "test") {
       dbLogger.debug(e.query, { params: e.params })
     }
   })
-  prisma.$on("error", (e) => {
+  prisma.$on("error", (e: { message: any }) => {
     if (process.env.NODE_ENV !== "test") {
       dbLogger.error(e.message)
     }
   })
-  prisma.$on("info", (e) => {
+  prisma.$on("info", (e: { message: any }) => {
     if (process.env.NODE_ENV !== "test") {
       dbLogger.info(e.message)
     }
   })
-  prisma.$on("warn", (e) => {
+  prisma.$on("warn", (e: { message: any }) => {
     if (process.env.NODE_ENV !== "test") {
       dbLogger.warn(e.message)
     }

@@ -1,10 +1,14 @@
-import type { Prisma } from "@prisma/client"
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
+import type { Prisma, PrismaClient } from "~~/generated/prisma/client"
+import { PrismaClientKnownRequestError } from "~~/generated/prisma/internal/prismaNamespace"
+import type { SlugList, BaseList } from "#shared/types/Base.type"
 import { vi } from "vitest"
 import type { TestContext } from "./utils"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type CheckWhereClause = (where: any) => boolean
+declare global {
+  let prisma: PrismaClient;
+}
 
 /**
  * Checks if the provided `where` clause contains either the `id` or `slug` from the given data.
