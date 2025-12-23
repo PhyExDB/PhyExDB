@@ -26,6 +26,7 @@ model User {
   userFile      UserFile?
   accounts      Account[]
   sessions      Session[]
+  reviews        Review[]
 
   @@map("user")
 }
@@ -72,6 +73,7 @@ model Experiment {
   sections        ExperimentSectionContent[]
   ratings         Rating[]
   attributes      ExperimentAttributeValue[] @relation("ExperimentToExperimentAttributeValue")
+  reviews         Review[]
 }
 
 model ExperimentSection {
@@ -94,6 +96,7 @@ model ExperimentSectionContent {
   files               ExperimentFile[]
   experiment          Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
+  sectionsCritiques   SectionCritique[]
 
   @@unique([experimentId, experimentSectionId])
 }
@@ -227,6 +230,30 @@ model Comment {
   parent       Comment?   @relation("CommentToComment", fields: [parentId], references: [id])
   children     Comment[]  @relation("CommentToComment")
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id                String            @id @default(uuid())
+  experiment        Experiment        @relation(fields: [experimentId], references: [id])
+  experimentId      String
+  reviewer          User              @relation(fields: [reviewerId], references: [id])
+  reviewerId        String
+  sectionsCritiques SectionCritique[]
+  sectionCritiqueId String
+  alreadyReviewed   Boolean
+}
+
+model SectionCritique {
+  id               String                   @id @default(uuid())
+  review           Review                   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId         String
+  sectionContent   ExperimentSectionContent @relation(fields: [sectionContentId], references: [id], onDelete: Cascade)
+  sectionContentId String
+  critique         String                   @db.Text
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  @@unique([reviewId, sectionContentId])
 }
 
 model SeedStatus {
