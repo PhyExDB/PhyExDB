@@ -7,6 +7,8 @@ const { experiment } = defineProps<{
   reviewStarted?: boolean
 }>()
 
+const {data} = await useFetch("/api/experiments/review/reviews")
+
 const attributesWithoutDuration = computed(() => {
   return experiment?.attributes.filter(
     attribute => attribute.name.replace("\u00AD", "") !== "Vorbereitungszeit",
