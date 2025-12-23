@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { users } from "#tests/helpers/auth"
-import * as u from "#tests/helpers/utils"
+import { users } from "../../../helpers/auth"
+import * as u from "../../../helpers/utils"
 
 import { defineAbility } from "#shared/utils/auth"
 import * as a from "~~/server/utils/authorization"

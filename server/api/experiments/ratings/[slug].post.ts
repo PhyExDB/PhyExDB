@@ -34,8 +34,8 @@ export default defineEventHandler(async (event) => {
         ratingsSum: { increment: rating.value },
         ratingsAvg: {
           set:
-              (experiment.ratingsSum + rating.value) /
-              (experiment.ratingsCount + 1),
+              (experiment.ratingsSum + rating.value)
+              / (experiment.ratingsCount + 1),
         },
       },
     }),

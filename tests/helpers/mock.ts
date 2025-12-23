@@ -7,7 +7,7 @@ import type { TestContext } from "./utils"
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type CheckWhereClause = (where: any) => boolean
 declare global {
-  let prisma: PrismaClient;
+  let prisma: PrismaClient
 }
 
 /**

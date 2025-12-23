@@ -2,8 +2,8 @@
 const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   experiment: {
     type: Object as PropType<
-      Partial<Pick<ExperimentList, "revisedBy">> &
-      Pick<ExperimentList, "id" | "name" | "status" | "slug">
+      Partial<Pick<ExperimentList, "revisedBy">>
+      & Pick<ExperimentList, "id" | "name" | "status" | "slug">
     >,
     required: true,
   },
