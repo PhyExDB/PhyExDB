@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   })
 
   return {
-    items: experiments.map((experiment: globalThis.ExperimentIncorrectList) => mapExperimentToList(experiment as ExperimentIncorrectList)),
+    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
     pagination: pageMeta,
   } as Page<ExperimentList>
 })

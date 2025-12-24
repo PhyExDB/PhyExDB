@@ -4,19 +4,6 @@ import * as u from "~~/tests/helpers/utils"
 import { getUser, getUserOrThrowError } from "~~/server/utils/auth"
 import type { UserDetail } from "#shared/types"
 
-interface MockEvent {
-  body?: unknown
-  context?: {
-    params?: Record<string, string>
-    query?: Record<string, unknown>
-    user?: UserDetail | null
-  }
-}
-
-async function readBody(event: MockEvent) {
-  return event.body
-}
-
 describe("Test mocking event", async () => {
   it("user", async () => {
     const user: UserDetail = {
