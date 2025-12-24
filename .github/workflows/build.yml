@@ -64,12 +64,13 @@ jobs:
 
       - name: Build and push
         uses: docker/build-push-action@v6
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         with:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha, mode=max
+          build-args: |
+            DATABASE_URL=${{ env.DATABASE_URL }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}

@@ -11,6 +11,10 @@ WORKDIR /build
 
 # Copy the package.json and package-lock.json files to the working directory
 COPY package*.json ./
+
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
 # install the root dependencies
 RUN npm ci
 
