@@ -88,7 +88,10 @@ const showDeleteDialog = ref(false)
           </DropdownMenuItem>
           <DropdownMenuItem
             v-if="user.id === experiment.userId && !experiment.revisedBy"
+            :disabled="experiment.status === 'IN_REVIEW'"
+            :class="{ 'opacity-50': experiment.status === 'IN_REVIEW' }"
             @click="duplicateExperiment(experiment, true)"
+            @click.prevent
           >
             <span>
               Überarbeiten
