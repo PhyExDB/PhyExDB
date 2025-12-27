@@ -90,7 +90,8 @@ const showDeleteDialog = ref(false)
             v-if="user.id === experiment.userId && !experiment.revisedBy"
             :disabled="experiment.status === 'IN_REVIEW'"
             :class="{ 'opacity-50': experiment.status === 'IN_REVIEW' }"
-            @click="experiment.status !== 'IN_REVIEW' && duplicateExperiment(experiment, true)"
+            @click="duplicateExperiment(experiment, true)"
+            @click.prevent
           >
             <span>
               Überarbeiten
