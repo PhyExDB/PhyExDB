@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test"
 import { v4 as uuidv4 } from "uuid"
+import type { LegalDocumentDetail } from "#shared/types"
 
 test.describe("Legal Page", () => {
   const slugs = [

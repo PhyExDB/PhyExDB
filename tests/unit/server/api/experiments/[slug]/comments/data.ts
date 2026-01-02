@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from "uuid"
 import { users } from "~~/tests/helpers/auth"
+import type { ExperimentList } from "#shared/types/Experiment.type"
+import type { ExperimentComment } from "#shared/types/ExperimentComment.type"
 
 /**
  * Comment
@@ -14,12 +16,18 @@ export const comment = {
 } satisfies ExperimentComment
 
 /**
- * Experiement
+ * Experiment
  */
-export const experiment = {
+export const experiment: ExperimentList = {
   id: uuidv4(),
-  slug: "slug",
+  slug: "test-experiment",
+  name: "Test experiment",
   userId: users.user.id,
-  commentsEnabled: true,
-  comments: [comment],
-} as unknown as ExperimentList
+  status: "published",
+  duration: 10,
+  attributes: [],
+  revisionOf: undefined,
+  revisedBy: undefined,
+  ratingsCount: 0,
+  ratingsSum: 0,
+}
