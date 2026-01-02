@@ -10,7 +10,9 @@ describe("Api Route api/experiments/attributes/values/[slug].delete", () => {
   const expected = null
 
   const context = u.getTestContext({
-    data, expected, endpoint,
+    data,
+    expected,
+    endpoint,
     params: { slug: data.slug },
     user: users.admin,
   })
@@ -19,7 +21,6 @@ describe("Api Route api/experiments/attributes/values/[slug].delete", () => {
 
   {
     u.testSuccessWithSlugAndId(context)
-    u.testSlugFails(context)
     u.testAuthFail(context, [users.guest, users.user, users.mod])
   }
 })

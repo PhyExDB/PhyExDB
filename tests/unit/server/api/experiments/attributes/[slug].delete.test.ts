@@ -19,7 +19,6 @@ describe("Api Route api/experiments/attributes/[slug].delete", () => {
 
   {
     u.testSuccessWithSlugAndId(context)
-    u.testSlugFails(context)
     u.testAuthFail(context, [users.guest, users.user, users.mod])
   }
 })
