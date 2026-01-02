@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
       experimentId: experiment.id,
       userId: user.id,
       text: content.text,
+      parentId: content.parentId ?? null,
     },
     include: {
       user: {

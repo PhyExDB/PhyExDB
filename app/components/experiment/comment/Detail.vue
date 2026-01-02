@@ -16,61 +16,91 @@ const canDelete = allowsUser(
 const canViewUser = allowsUser(user, userAbilities.getAll)
 
 const emit = defineEmits<{
-  (e: "deleteComment", commentId: string): void
+  (e: "deleteComment" | "reply", commentId: string): void
 }>()
 </script>
 
 <template>
-  <Card class="mt-4">
-    <CardContent class="flex justify-between flex-col sm:flex-row p-4">
-      <div class="flex flex-col space-y-2">
-        <div class="flex flex-row items-center space-x-2">
-          <Avatar>
-            <AvatarFallback>{{ getInitials(comment.user.name) }}</AvatarFallback>
-          </Avatar>
-          <p> {{ comment.user.name }}: </p>
+  <div
+    class="mt-4"
+    :class="{ 'ml-6 sm:ml-10 border-l-2 pl-4': comment.parentId }"
+  >
+    <Card>
+      <CardContent class="flex justify-between flex-col sm:flex-row p-4 gap-4">
+        <div class="flex flex-col space-y-2 flex-grow">
+          <div class="flex flex-row items-center space-x-2">
+            <Avatar class="w-8 h-8">
+              <AvatarFallback class="text-xs">
+                {{ getInitials(comment.user.name) }}
+              </AvatarFallback>
+            </Avatar>
+            <p class="font-bold text-sm">
+              {{ comment.user.name }}
+            </p>
+          </div>
+          <div
+            class="prose dark:prose-invert max-w-full text-sm"
+            v-html="comment.text"
+          />
         </div>
-        <div
-          class="prose dark:prose-invert max-w-full"
-          v-html="comment.text"
+
+        <div class="flex items-center space-x-2 self-end sm:self-start">
+          <Button
+            v-if="user && !comment.parentId"
+            variant="ghost"
+            size="sm"
+            class="text-xs h-8"
+            @click="emit('reply', comment.id)"
+          >
+            Antworten
+          </Button>
+
+          <DropdownMenu v-if="user">
+            <DropdownMenuTrigger as-child>
+              <Button
+                variant="ghost"
+                size="sm"
+                class="h-8 w-8 p-0"
+              >
+                <Icon
+                  name="heroicons:ellipsis-horizontal"
+                  class="w-5 h-5"
+                />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                v-if="canViewUser && comment.user.id !== user?.id"
+                @click="navigateTo(`/users?search=${comment.user.id}`)"
+              >
+                Profil ansehen
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                v-if="canDelete"
+                class="text-destructive"
+                @click="emit('deleteComment', comment.id)"
+              >
+                Löschen
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardContent>
+    </Card>
+
+    <div v-if="comment.children && comment.children.length > 0">
+      <div
+        v-for="child in comment.children"
+        :key="child.id"
+      >
+        <ExperimentCommentDetail
+          :experiment="experiment"
+          :comment="child"
+          :user="user"
+          @delete-comment="emit('deleteComment', $event)"
+          @reply="emit('reply', $event)"
         />
       </div>
-
-      <DropdownMenu
-        v-if="user"
-      >
-        <DropdownMenuTrigger as-child>
-          <Button
-            variant="outline"
-            size="sm"
-            class="rounded-full p-1 mt-2 sm:mt-1"
-          >
-            <Icon
-              name="heroicons:ellipsis-horizontal"
-              class="w-6 h-6 text-muted-foreground"
-            />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem
-            v-if="canViewUser && comment.user.id !== user?.id"
-            @click="navigateTo(`/users?search=${comment.user.id}`)"
-          >
-            <span>
-              Zur Verfasser:in
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            v-if="canDelete"
-            class="text-destructive"
-            @click="emit('deleteComment', comment.id)"
-          >
-            <span>
-              Kommentar Löschen
-            </span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </CardContent>
-  </Card>
+    </div>
+  </div>
 </template>
