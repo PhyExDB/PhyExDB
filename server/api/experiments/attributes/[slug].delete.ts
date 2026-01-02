@@ -7,11 +7,17 @@ export default defineEventHandler(async (event) => {
 
   const whereClause = getSlugOrIdPrismaWhereClause(event)
 
-  await prismaRecordNotFoundTo404(async () =>
-    await prisma.experimentAttribute.delete({
+  await prismaRecordNotFoundTo404(async () => {
+    await prisma.experimentAttributeValue.deleteMany({
+      where: {
+        attribute: whereClause,
+      },
+    })
+
+    return prisma.experimentAttribute.delete({
       where: whereClause,
-    }),
-  )
+    });
+  })
 
   setResponseStatus(event, 204)
   return null
