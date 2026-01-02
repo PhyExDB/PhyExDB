@@ -11,8 +11,13 @@ const loading = ref(false)
 const twoFactorAuthCode = ref("")
 
 onMounted(async () => {
-  const { data } = await useFetch("/api/2fa/status")
-  if (!data.value?.enabled || !data.value?.required) {
+  try {
+    const { data } = await useFetch("/api/2fa/status")
+    if (!data.value?.enabled || !data.value?.required) {
+      followRedirect()
+    }
+  } catch (err) {
+    console.error("Unexpected error fetching 2FA status:", err)
     followRedirect()
   }
 })

@@ -16,7 +16,7 @@ export async function getTwofaUserRecord(userId: string) {
 
 export async function verifyTwofaInput(event: unknown) {
   if (typeof event !== "object" || event === null) {
-    throw new Error("Invalid event")
+    throw createError({ statusCode: 400, statusMessage: "Invalid Event" })
   }
 
   const body = await readBody<{ code?: string }>(event as H3Event)

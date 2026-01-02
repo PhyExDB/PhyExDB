@@ -53,7 +53,7 @@ function numberOfOwnExperiments(): string {
     : `${numberOfOwnExperiments} Experimente`
 }
 
-const twofaStatus = ref<{ enabled: boolean, required: boolean }>({ enabled: false, required: false })
+const twofaStatus = ref<{ enabled: boolean }>({ enabled: false })
 const twofaLoading = ref(false)
 const twofaSetup = ref<{ secret: string, otpauthUrl: string, issuer: string } | null>(null)
 const twofaCode = ref("")
