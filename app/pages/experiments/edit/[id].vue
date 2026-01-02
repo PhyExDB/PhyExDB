@@ -130,6 +130,10 @@ async function uploadPreviewImage(newFiles: [File]) {
   }
 }
 
+const { data:reviews, error } = await useFetch(
+  `/api/experiments/review/by-experiment?experimentId=${experimentId}`,
+)
+
 async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
   const oldFiles = form.values.sections?.[sectionIndex]?.files ?? []
   const fileData = await uploadFile(newFiles)
@@ -296,6 +300,37 @@ async function submitForReview() {
             <FormMessage />
           </FormItem>
         </FormField>
+
+        <!-- REVIEW-ANZEIGE (AUTOR) -->
+        <div v-if="reviews?.length" class="mt-10">
+          <h2 class="text-3xl font-bold mb-6">
+            Beanstandungen
+          </h2>
+
+          <div
+            v-for="(review, index) in reviews"
+            :key="review.id"
+            class="border rounded p-4 mb-6"
+          >
+            <h3 class="font-semibold mb-4">
+              Reviewer {{ index + 1 }}
+            </h3>
+
+            <div
+              v-for="critique in review.sectionsCritiques"
+              :key="critique.id"
+              class="mb-4"
+            >
+              <p class="text-sm text-muted-foreground mb-1">
+                {{ critique.sectionContent.experimentSection.name }}
+              </p>
+
+              <div class="border rounded p-3 bg-muted">
+                {{ critique.critique }}
+              </div>
+            </div>
+          </div>
+        </div>
 
         <FormField
           name="previewImageId"

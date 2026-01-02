@@ -34,10 +34,14 @@ const toggleReviewMode = () => {
 }
 
 async function onDelete() {
-  await $fetch(`/api/experiments/review/${experimentSlug}`, {
+  if (!experiment.value?.id) {
+    throw new Error("Experiment nicht geladen")
+  }
+
+  await $fetch(`/api/experiments/review/save`, {
     method: "POST",
     body: {
-      approve: false,
+      experimentId: experiment.value.id,
       comments: comments.value,
     },
   })

@@ -7,7 +7,36 @@ const { experiment } = defineProps<{
   reviewStarted?: boolean
 }>()
 
-const {data} = await useFetch("/api/experiments/review/reviews")
+const reviews = ref<any[]>([])
+console.log("fetching")
+
+console.log("fetching")
+watch(
+  () => experiment?.id,
+  async (id) => {
+    if (!id) return
+
+    const reviewExperimentId =
+      experiment.revisionOf?.id ?? id
+
+    console.log("reviewExperimentId:", reviewExperimentId)
+
+    const { data, error } = await useFetch(
+      `/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`,
+    )
+
+    console.log("reviews response:", data.value)
+
+    if (!error.value) {
+      reviews.value = data.value ?? []
+    }
+  },
+  { immediate: true },
+)
+
+const comments = defineModel<Record<string, string>>("comments", {
+  default: {},
+})
 
 const attributesWithoutDuration = computed(() => {
   return experiment?.attributes.filter(
@@ -293,36 +322,21 @@ const showDeleteDialog = ref(false)
           </template>
         </CarouselWithPreview>
         <!-- Hier Textfeld für Review-Modul einfügen -->
-        <div
-          v-if ="reviewStarted"
-        >
-          <form
-            class="flex flex-col gap-4"
-            @submit="onSubmit"
-          >
-            <FormField
-              v-slot="{ componentField }"
-              name="text"
-            >
-              <FormItem>
-                <FormLabel class="text-4xl font-extrabold mr-2 pb-4">
-                  Beanstanden:
-                </FormLabel>
-                <FormControl>
-                  <TipTapEditor
-                    id="text"
-                    v-bind="componentField"
-                    :key="commented"
-                    default-value=""
-                    :show-headings="false"
-                    editor-class="p-4 h-40 overflow-auto"
-                    @click.prevent
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            </FormField>
-          </form>
+        <div v-if="reviewStarted" class="mt-6">
+          <label class="block text-2xl font-extrabold mb-3">
+            Beanstandung:
+          </label>
+
+          <TipTapEditor
+            :model-value="comments[section.id] ?? ''"
+            @update:modelValue="val => comments[section.id] = val"
+            :show-headings="false"
+            editor-class="p-4 min-h-[160px] resize-y overflow-auto border rounded"
+          />
+
+          <p class="text-sm text-muted-foreground mt-2">
+            Optional: Hinweise oder Beanstandungen für diesen Abschnitt
+          </p>
         </div>
       </div>
     </div>

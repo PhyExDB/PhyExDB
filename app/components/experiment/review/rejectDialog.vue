@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
+import type { PropType } from "vue"
 
 const { onDelete } = defineProps({
   onDelete: {
-    type: Function as PropType<(message: string) => Promise<void>>,
+    type: Function as PropType<() => Promise<void>>,
     required: true,
   },
 })
@@ -12,37 +11,15 @@ const { onDelete } = defineProps({
 const loading = ref(false)
 const open = ref(false)
 
-const schema = experimentReviewSchema
-const formSchema = toTypedSchema(schema)
-const form = useForm({
-  validationSchema: formSchema,
-  initialValues: {
-    approve: false,
-    message: "",
-  },
-})
-
-const onSubmit = form.handleSubmit(async (values) => {
+async function submit() {
   if (loading.value) return
   loading.value = true
 
-  if (values.message == undefined) return
-
-  await onDelete(values.message)
-
-  open.value = false
-  loading.value = false
-})
-
-const openForm = (event: boolean) => {
-  open.value = event
-  if (event) {
-    form.resetForm({
-      values: {
-        approve: false,
-        message: "",
-      },
-    })
+  try {
+    await onDelete()
+    open.value = false
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -50,39 +27,38 @@ const openForm = (event: boolean) => {
 <template>
   <Dialog
     :open="open"
-    @update:open="openForm"
+    @update:open="open = $event"
   >
+    <!-- Trigger kommt von außen -->
     <slot />
+
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Versuch beanstanden</DialogTitle>
         <DialogDescription>
-          Möchten Sie die Beanstandung dieses Versuchs wirklich absenden?
-          Diese Aktion kann nicht rückgängig gemacht werden.
+          Möchten Sie diesen Versuch wirklich beanstanden?
+          <br>
+          Die Beanstandungen werden gespeichert und dem Autor angezeigt.
         </DialogDescription>
       </DialogHeader>
-
-      <form @submit="onSubmit">
-        <!-- Hier können Eingabefelder einfügt werden, falls benötigt -->
-      </form>
 
       <DialogFooter class="flex flex-col sm:flex-row gap-2">
         <DialogClose as-child>
           <Button
             type="button"
             variant="outline"
+            :disabled="loading"
           >
             Abbrechen
           </Button>
         </DialogClose>
 
         <Button
-          type="submit"
           variant="destructive"
           :disabled="loading"
-          @click="onSubmit"
+          @click="submit"
         >
-          Senden
+          Beanstandung senden
         </Button>
       </DialogFooter>
     </DialogContent>
