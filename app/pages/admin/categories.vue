@@ -15,10 +15,11 @@ const { data: attributes, refresh } = await useFetch("/api/experiments/attribute
 const newAttributeName = ref("")
 const newAttributeMultipleSelection = ref(false)
 const isAddingAttribute = ref(false)
+const isNameInvalid = (name: string | undefined | null) => (name?.trim()?.length ?? 0) <= 3
 
 async function addAttribute() {
   const name = newAttributeName.value.trim()
-  if (!name || name.length <= 3) {
+  if (isNameInvalid(name)) {
     toast({
       title: "Name zu kurz",
       description: "Der Name muss mindestens 4 Zeichen lang sein.",
@@ -67,7 +68,7 @@ function startEditing(attribute: ExperimentAttributeDetail) {
 
 async function updateAttribute() {
   const name = editingAttribute.value?.name?.trim()
-  if (!name || name.length <= 3) {
+  if (isNameInvalid(name)) {
     toast({
       title: "Name zu kurz",
       description: "Der Name muss mindestens 4 Zeichen lang sein.",
@@ -96,7 +97,7 @@ async function updateAttribute() {
 const newValueNames = ref<Record<string, string>>({})
 async function addValue(attributeId: string) {
   const name = newValueNames.value[attributeId]?.trim()
-  if (!name || name.length <= 3) {
+  if (isNameInvalid(name)) {
     toast({
       title: "Name zu kurz",
       description: "Der Name muss mindestens 4 Zeichen lang sein.",
@@ -142,7 +143,7 @@ function startEditingValue(val: ExperimentAttributeValueList) {
 
 async function updateValue() {
   const name = editingValue.value?.value?.trim()
-  if (!name || name.length <= 3) {
+  if (isNameInvalid(name)) {
     toast({
       title: "Name zu kurz",
       description: "Der Name muss mindestens 4 Zeichen lang sein.",
@@ -190,6 +191,12 @@ async function updateValue() {
                 v-model="newAttributeName"
                 placeholder="z.B. Themenbereich"
               />
+              <p
+                v-if="isNameInvalid(newAttributeName) && newAttributeName.length > 0"
+                class="text-[10px] text-destructive"
+              >
+                Mindestens 4 Zeichen erforderlich.
+              </p>
             </div>
             <div class="flex items-center space-x-2">
               <Checkbox
@@ -208,7 +215,7 @@ async function updateValue() {
               Abbrechen
             </Button>
             <Button
-              :disabled="(newAttributeName?.trim()?.length ?? 0) <= 3"
+              :disabled="isNameInvalid(newAttributeName)"
               @click="addAttribute"
             >
               Speichern
@@ -308,14 +315,13 @@ async function updateValue() {
               <Input
                 v-model="newValueNames[attribute.id]"
                 placeholder="Neue Option..."
-                size="sm"
                 class="h-8"
-                @keyup.enter="addValue(attribute.id)"
+                @keyup.enter="!isNameInvalid(newValueNames[attribute.id]) && addValue(attribute.id)"
               />
               <Button
                 size="sm"
                 class="h-8"
-                :disabled="(newValueNames[attribute.id]?.trim()?.length ?? 0) <= 3"
+                :disabled="isNameInvalid(newValueNames[attribute.id])"
                 @click="addValue(attribute.id)"
               >
                 <Icon name="heroicons:plus" />
@@ -331,20 +337,23 @@ async function updateValue() {
       :open="!!editingAttribute"
       @update:open="editingAttribute = null"
     >
-      <DialogContent>
+      <DialogContent v-if="editingAttribute">
         <DialogHeader>
           <DialogTitle>Kategorie bearbeiten</DialogTitle>
         </DialogHeader>
-        <div
-          v-if="editingAttribute"
-          class="space-y-4 py-4"
-        >
+        <div class="space-y-4 py-4">
           <div class="space-y-2">
             <Label for="edit-name">Name</Label>
             <Input
               id="edit-name"
               v-model="editingAttribute.name"
             />
+            <p
+              v-if="isNameInvalid(editingAttribute.name)"
+              class="text-[10px] text-destructive"
+            >
+              Mindestens 4 Zeichen erforderlich.
+            </p>
           </div>
           <div class="flex items-center space-x-2">
             <Checkbox
@@ -363,7 +372,7 @@ async function updateValue() {
             Abbrechen
           </Button>
           <Button
-            :disabled="!editingAttribute?.name || editingAttribute.name.trim().length <= 3"
+            :disabled="isNameInvalid(editingAttribute.name)"
             @click="updateAttribute"
           >
             Speichern
@@ -387,10 +396,10 @@ async function updateValue() {
             <Input
               id="edit-value"
               v-model="editingValue.value"
-              @keyup.enter="editingValue.value.trim().length > 3 && updateValue()"
+              @keyup.enter="!isNameInvalid(editingValue.value?.trim()) && updateValue()"
             />
             <p
-              v-if="editingValue.value.trim().length <= 3"
+              v-if="isNameInvalid(editingValue.value?.trim())"
               class="text-[10px] text-destructive"
             >
               Mindestens 4 Zeichen erforderlich.
@@ -405,7 +414,7 @@ async function updateValue() {
             Abbrechen
           </Button>
           <Button
-            :disabled="!editingValue.value || editingValue.value.trim().length <= 3"
+            :disabled="isNameInvalid(editingValue.value?.trim())"
             @click="updateValue"
           >
             Speichern
