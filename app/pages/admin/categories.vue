@@ -322,27 +322,6 @@ async function updateValue() {
               </Button>
             </div>
           </div>
-
-          <div class="mt-6">
-            <div class="font-semibold text-sm mb-2">
-              Vorschau (Dropdown):
-            </div>
-            <MultiSelect
-              :options="attribute.values"
-              :multiple="attribute.multipleSelection"
-              :value-for-option="option => option.value"
-            >
-              <template #empty>
-                Keine Optionen gefunden.
-              </template>
-              <template #preview="{ selected }">
-                {{ selected.length ? selected.map(val => attribute.values.find(v => v.value === val)?.value).join(", ") : "Auswählen" }}
-              </template>
-              <template #option="{ option }">
-                {{ option.value }}
-              </template>
-            </MultiSelect>
-          </div>
         </CardContent>
       </Card>
     </div>
