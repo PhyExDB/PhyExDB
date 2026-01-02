@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import DOMPurify from 'dompurify'
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
@@ -301,37 +302,6 @@ async function submitForReview() {
           </FormItem>
         </FormField>
 
-        <!-- REVIEW-ANZEIGE (AUTOR) -->
-        <div v-if="reviews?.length" class="mt-10">
-          <h2 class="text-3xl font-bold mb-6">
-            Beanstandungen
-          </h2>
-
-          <div
-            v-for="(review, index) in reviews"
-            :key="review.id"
-            class="border rounded p-4 mb-6"
-          >
-            <h3 class="font-semibold mb-4">
-              Reviewer {{ index + 1 }}
-            </h3>
-
-            <div
-              v-for="critique in review.sectionsCritiques"
-              :key="critique.id"
-              class="mb-4"
-            >
-              <p class="text-sm text-muted-foreground mb-1">
-                {{ critique.sectionContent.experimentSection.name }}
-              </p>
-
-              <div class="border rounded p-3 bg-muted">
-                {{ critique.critique }}
-              </div>
-            </div>
-          </div>
-        </div>
-
         <FormField
           name="previewImageId"
         >
@@ -538,6 +508,26 @@ async function submitForReview() {
               </Card>
             </template>
           </DraggableList>
+          <!-- Critiques für diese Section -->
+          <div v-if="reviews?.length" class="mt-6 space-y-4">
+            <div v-for="(review, reviewIndex) in reviews" :key="review.id">
+              <!-- Reviewer-Kennung -->
+              <h3 class="font-semibold mb-2">
+                Reviewer {{ reviewIndex + 1 }}
+              </h3>
+
+              <div
+                v-for="critique in review.sectionsCritiques.filter(c => c.sectionContent.experimentSection.id === section.id)"
+                :key="critique.id"
+                class="border rounded p-4 bg-muted"
+              >
+                <p class="text-sm text-muted-foreground mb-1">
+                  Beanstandung
+                </p>
+                <div>{{ critique.critique }}</div>
+              </div>
+            </div>
+          </div>
         </template>
       </form>
       <div class="lg:relative lg:w-1/3">
