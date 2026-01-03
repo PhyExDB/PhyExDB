@@ -60,7 +60,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
     form.resetForm()
     replyingToId.value = null
-    commented.value = 1 - commented.value
+    commented.value++
     page.value = 1
     await refresh()
   } catch (e) {
@@ -71,8 +71,8 @@ const onSubmit = form.handleSubmit(async (values) => {
 })
 
 function setReply(commentId: string) {
+  form.setFieldValue("text", "")
   replyingToId.value = commentId
-  document.getElementById("comment-anchor")?.scrollIntoView({ behavior: "smooth" })
 }
 
 async function enableComments(enable: boolean) {
@@ -89,44 +89,26 @@ async function enableComments(enable: boolean) {
     <div id="comment-anchor" />
 
     <div
-      v-if="canComment"
+      v-if="canComment && !replyingToId"
       class="mb-8"
     >
-      <div
-        v-if="replyingToId"
-        class="flex justify-between items-center bg-accent/50 p-2 rounded-t-md border-x border-t"
-      >
-        <span class="text-sm font-medium italic">Antwort verfassen...</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          class="h-7"
-          @click="replyingToId = null"
-        >
-          Abbrechen
-        </Button>
-      </div>
-
       <form
-        class="flex flex-col gap-4 border p-4 bg-card"
-        :class="replyingToId ? 'rounded-b-lg border-t-0' : 'rounded-lg'"
+        class="flex flex-col gap-4 border p-4 bg-card rounded-lg"
         @submit="onSubmit"
       >
+        <h2 class="text-xl font-bold">
+          Neuer Kommentar
+        </h2>
         <FormField
           v-slot="{ componentField }"
           name="text"
         >
           <FormItem>
-            <FormLabel
-              class="text-xl font-bold transition-colors duration-100"
-            >
-              {{ replyingToId ? 'Deine Antwort' : 'Neuer Kommentar' }}
-            </FormLabel>
             <FormControl>
               <TipTapEditor
-                id="text"
+                id="main-editor"
                 v-bind="componentField"
-                :key="commented"
+                :key="`main-${commented}`"
                 default-value=""
                 :show-headings="false"
                 editor-class="p-4 h-40 overflow-auto bg-background focus:outline-none"
@@ -140,14 +122,8 @@ async function enableComments(enable: boolean) {
             variant="default"
             type="submit"
             :disabled="loading || isTextEmpty"
-            class="transition-all active:scale-95"
           >
-            <Icon
-              v-if="loading"
-              name="lucide:loader-2"
-              class="mr-2 h-4 w-4 animate-spin"
-            />
-            {{ replyingToId ? 'Antwort senden' : 'Kommentieren' }}
+            Kommentieren
           </Button>
         </div>
       </form>
@@ -171,16 +147,57 @@ async function enableComments(enable: boolean) {
 
       <div
         v-for="comment in data?.items"
-        :key="comment.id"
+        :key="String(comment.id)"
       >
         <ExperimentCommentDetail
           v-if="!comment.parentId"
           :experiment="experiment"
           :comment="comment"
           :user="user"
+          :active-reply-id="replyingToId"
           @delete-comment="deleteComment"
           @reply="setReply"
-        />
+        >
+          <template #reply-form>
+            <div class="bg-accent/10 p-4 rounded-lg border border-l-4 border-l-primary mb-6 animate-in fade-in slide-in-from-top-2">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-bold">Deine Antwort</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  @click="replyingToId = null"
+                >
+                  Abbrechen
+                </Button>
+              </div>
+
+              <form @submit.prevent="onSubmit">
+                <TipTapEditor
+                  :key="`reply-${replyingToId}`"
+                  :model-value="form.values.text"
+                  :show-headings="false"
+                  editor-class="p-4 h-32 overflow-auto bg-background focus:outline-none border rounded-md"
+                  auto-focus
+                  @update:model-value="form.setFieldValue('text', $event)"
+                />
+                <div class="flex justify-end mt-2">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    :disabled="loading || isTextEmpty"
+                  >
+                    <Icon
+                      v-if="loading"
+                      name="lucide:loader-2"
+                      class="mr-2 h-4 w-4 animate-spin"
+                    />
+                    Antwort senden
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </template>
+        </ExperimentCommentDetail>
       </div>
 
       <div

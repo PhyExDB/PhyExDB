@@ -5,6 +5,7 @@ const props = defineProps<{
   experiment: Pick<ExperimentList, "id" | "userId" | "status">
   comment: ExperimentComment
   user: UserDetail | null
+  activeReplyId: string | null
 }>()
 
 const user = props.user
@@ -88,6 +89,13 @@ const emit = defineEmits<{
       </CardContent>
     </Card>
 
+    <div
+      v-if="activeReplyId === comment.id"
+      class="mt-2 ml-4"
+    >
+      <slot name="reply-form" />
+    </div>
+
     <div v-if="comment.children && comment.children.length > 0">
       <div
         v-for="child in comment.children"
@@ -97,9 +105,14 @@ const emit = defineEmits<{
           :experiment="experiment"
           :comment="child"
           :user="user"
+          :active-reply-id="activeReplyId"
           @delete-comment="emit('deleteComment', $event)"
           @reply="emit('reply', $event)"
-        />
+        >
+          <template #reply-form>
+            <slot name="reply-form" />
+          </template>
+        </ExperimentCommentDetail>
       </div>
     </div>
   </div>
