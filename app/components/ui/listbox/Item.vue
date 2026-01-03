@@ -26,6 +26,6 @@ const emits = defineEmits<ListboxItemEmits>()
 const forwarded = useForwardPropsEmits(reactiveOmit(props, "class", "icon"), emits)
 
 const styles = cva(
-  "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-3 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:ring-1 data-[highlighted]:ring-border",
+  "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-3 pr-8 text-sm outline-hidden focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:ring-1 data-highlighted:ring-border",
 )
 </script>

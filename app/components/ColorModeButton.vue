@@ -26,32 +26,31 @@ const colorModes = [
       >
         <Icon
           name="heroicons:moon"
-          class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+          class="absolute h-[1.2rem]! w-[1.2rem]! opacity-100 rotate-0 dark:opacity-0"
         />
         <Icon
           name="heroicons:sun"
-          class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+          class="absolute h-[1.2rem]! w-[1.2rem]! transition-all
+             opacity-0 scale-50
+             dark:opacity-100 dark:rotate-0 dark:scale-100"
         />
-        <span class="sr-only">Toggle theme</span>
       </Button>
     </DropdownMenuTrigger>
+
     <DropdownMenuContent align="end">
-      <template
+      <DropdownMenuItem
         v-for="mode in colorModes"
         :key="mode.value"
+        class="flex flex-row justify-between cursor-pointer "
+        @click="colorMode.preference = mode.value"
       >
-        <DropdownMenuItem
-          class="flex flex-row justify-between"
-          @click="colorMode.preference = mode.value"
-        >
-          {{ mode.name }}
-          <Icon
-            v-if="colorMode.preference === mode.value"
-            name="heroicons:check"
-            class="ml-2 h-4 w-4"
-          />
-        </DropdownMenuItem>
-      </template>
+        <span>{{ mode.name }}</span>
+        <Icon
+          v-if="colorMode.preference === mode.value"
+          name="heroicons:check"
+          class="ml-2 h-4! w-4!"
+        />
+      </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>

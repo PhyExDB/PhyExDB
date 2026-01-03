@@ -8,7 +8,7 @@ const forwardedProps = useForwardProps(props)
 
 <template>
   <DropdownMenuTrigger
-    class="outline-none"
+    class="outline-hidden"
     v-bind="forwardedProps"
   >
     <slot />

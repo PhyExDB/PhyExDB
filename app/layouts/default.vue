@@ -5,13 +5,13 @@ import Toaster from "@/components/ui/toast/Toaster.vue"
 <template>
   <div class="min-h-screen flex flex-col">
     <div class="border-b">
-      <div class="flex container h-16 items-center">
+      <div class="flex container h-16 items-center @container">
         <NavigationHeader />
       </div>
     </div>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto py-6">
+    <main class="grow container mx-auto py-6 @container">
       <NuxtPage />
     </main>
 
