@@ -1,105 +1,69 @@
-import { auth } from "~~/server/utils/auth"
-import sanitizeHtml from "sanitize-html"
-
-const sanitizeCritique = (html: string) =>
-  sanitizeHtml(html, {
-    allowedTags: [
-      "p",
-      "ul",
-      "ol",
-      "li",
-      "strong",
-      "em",
-      "s",
-      "sup",
-      "sub",
-      "br",
-    ],
-    allowedAttributes: {},
-  })
+import { getUserOrThrowError } from "~~/server/utils/auth"
 
 export default defineEventHandler(async (event) => {
-  // Session holen
-  const session = await auth.api.getSession({
-    headers: event.node.req.headers,
-  })
-
-  if (!session?.user) {
-    throw createError({ statusCode: 401, statusMessage: "Not authenticated" })
-  }
-  const user = session.user
+  const user = await getUserOrThrowError(event)
 
   if (user.role === "USER") {
-    throw createError({ statusCode: 403, statusMessage: "Not allowed" })
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Nicht berechtigt: Nur Admins oder Moderatoren dürfen Reviews durchführen.",
+    })
   }
 
-  // Body lesen
   const body = await readBody(event)
-
   const { experimentId, comments } = body as {
     experimentId?: string
     comments?: Record<string, string>
   }
 
-  // Test console.log("BODY:", body)
-  // Test console.log("COMMENTS:", comments)
-
   if (!experimentId) {
     throw createError({ statusCode: 400, statusMessage: "experimentId missing" })
   }
 
-  // Review anlegen mit temporärem Platzhalter für sectionCritiqueId
-  const review = await prisma.review.create({
-    data: {
-      experimentId,
-      reviewerId: user.id,
-      alreadyReviewed: true,
-      sectionCritiqueId: "__TEMP__", // temporär
-    },
-  })
-
-  // Alle Section IDs des Experiments holen
-  const sectionIds = (
-    await prisma.experimentSectionContent.findMany({
-      where: { experimentId },
-      select: { id: true },
-    })
-  ).map(s => s.id)
-
-  // SectionCritiques speichern
-  let firstCritiqueId: string | null = null
-  for (const [sectionContentId, critique] of Object.entries(comments ?? {})) {
-    if (!critique?.trim()) continue
-
-    const cleanCritique = sanitizeCritique(critique)
-
-    // prüfen, ob die SectionContentId zum Experiment gehört
-    if (!sectionIds.includes(sectionContentId)) continue
-
-    const sc = await prisma.sectionCritique.create({
-      data: {
-        reviewId: review.id,
-        sectionContentId,
-        critique: cleanCritique,
+  return prisma.$transaction(async (tx) => {
+    const review = await tx.review.upsert({
+      where: {
+        experimentId_reviewerId: {
+          experimentId,
+          reviewerId: user.id,
+        },
+      },
+      update: {
+        status: "COMPLETED",
+        updatedAt: new Date(),
+      },
+      create: {
+        experimentId,
+        reviewerId: user.id,
+        status: "COMPLETED",
       },
     })
 
-    if (!firstCritiqueId) firstCritiqueId = sc.id
-  }
-
-  // Review updaten, damit sectionCritiqueId auf echte Kritik zeigt
-  if (firstCritiqueId) {
-    await prisma.review.update({
-      where: { id: review.id },
-      data: { sectionCritiqueId: firstCritiqueId },
+    await tx.sectionCritique.deleteMany({
+      where: { reviewId: review.id },
     })
-  }
 
-  // Experiment ablehnen
-  await prisma.experiment.update({
-    where: { id: experimentId },
-    data: { status: "REJECTED" },
+    if (comments) {
+      const critiquesData = Object.entries(comments)
+        .filter(([_, text]) => text?.trim())
+        .map(([sectionContentId, text]) => ({
+          reviewId: review.id,
+          sectionContentId,
+          critique: text,
+        }))
+
+      if (critiquesData.length > 0) {
+        await tx.sectionCritique.createMany({
+          data: critiquesData,
+        })
+      }
+    }
+
+    await tx.experiment.update({
+      where: { id: experimentId },
+      data: { status: "REJECTED" },
+    })
+
+    return { success: true }
   })
-
-  return { success: true }
 })

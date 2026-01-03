@@ -8,32 +8,22 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Existenzprüfung
+  // Prüfen, ob Experiment existiert
   const experiment = await prisma.experiment.findUnique({
     where: { id: experimentId },
     select: { id: true },
   })
 
-  if (!experiment) {
-    return []
-  }
+  if (!experiment) return []
 
-  // Alle Reviews für dieses Experiment laden
-  return await prisma.review.findMany({
+  return prisma.review.findMany({
     where: { experimentId },
-    orderBy: { id: "asc" },
+    orderBy: { createdAt: "asc" },
     include: {
-      reviewer: true,
-      sectionsCritiques: {
-        orderBy: { createdAt: "asc" },
-        include: {
-          sectionContent: {
-            include: {
-              experimentSection: true,
-            },
-          },
-        },
+      reviewer: {
+        select: { name: true, image: true },
       },
+      sectionsCritiques: true,
     },
   })
 })

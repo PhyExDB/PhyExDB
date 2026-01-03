@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,22 +16,30 @@ model User {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   name          String
-  email         String       @unique
+  email         String
   emailVerified Boolean
   image         String?
-  banned        Boolean?
-  banReason     String?
-  banExpires    DateTime?
-  comments      Comment[]
-  experiments   Experiment[]
-  files         File[]
-  ratings       Rating[]
-  userFile      UserFile?
-  accounts      Account[]
   sessions      Session[]
-  reviews        Review[]
+  accounts      Account[]
+  ratings       Rating[]
+  comments      Comment[]
+  files         File[]
+  userFile      UserFile?
+  experiments   Experiment[]
+  reviews       Review[]
 
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+
+  @@unique([email])
   @@map("user")
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
 }
 
 model LegalDocument {
@@ -41,39 +52,46 @@ model LegalDocument {
 }
 
 model Startpage {
-  id          Boolean  @id @default(true)
+  id          Boolean   @id @default(true)
   text        String
   description String
+  files       File[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  files       File[]
 }
 
 model Experiment {
-  id              String                     @id @default(uuid())
-  name            String
-  slug            String                     @unique
-  userId          String?
-  status          ExperimentStatus           @default(DRAFT)
-  duration        Int
-  previewImageId  String?
-  createdAt       DateTime                   @default(now())
-  updatedAt       DateTime                   @updatedAt
-  changeRequest   String?
-  revisionOfId    String?                    @unique
-  ratingsAvg      Float                      @default(0)
-  ratingsCount    Int                        @default(0)
-  ratingsSum      Int                        @default(0)
-  commentsEnabled Boolean                    @default(true)
-  comments        Comment[]
-  previewImage    File?                      @relation(fields: [previewImageId], references: [id])
-  revisionOf      Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
-  revisedBy       Experiment?                @relation("Revision")
-  user            User?                      @relation(fields: [userId], references: [id])
-  sections        ExperimentSectionContent[]
-  ratings         Rating[]
-  attributes      ExperimentAttributeValue[] @relation("ExperimentToExperimentAttributeValue")
-  reviews         Review[]
+  id             String                     @id @default(uuid())
+  name           String
+  slug           String                     @unique
+  user           User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         String?
+  status         ExperimentStatus           @default(DRAFT)
+  duration       Int
+  previewImage   File?                      @relation(fields: [previewImageId], references: [id])
+  previewImageId String?
+  sections       ExperimentSectionContent[]
+  attributes     ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
+  ratings        Rating[]
+  ratingsCount   Int                        @default(0)
+  ratingsSum     Int                        @default(0)
+  ratingsAvg     Float                      @default(0)
+  comments       Comment[]
+  commentsEnabled Boolean                   @default(true)
+  revisionOf     Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
+  revisedBy      Experiment?                @relation("Revision")
+  revisionOfId   String?                    @unique
+  changeRequest  String?
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+  reviews        Review[]
+}
+
+enum ExperimentStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  REJECTED
 }
 
 model ExperimentSection {
@@ -81,21 +99,21 @@ model ExperimentSection {
   name        String
   slug        String                     @unique
   order       Int                        @unique
+  experiments ExperimentSectionContent[]
   createdAt   DateTime                   @default(now())
   updatedAt   DateTime                   @updatedAt
-  experiments ExperimentSectionContent[]
 }
 
 model ExperimentSectionContent {
   id                  String            @id @default(uuid())
+  experiment          Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId        String
+  experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
   experimentSectionId String
   text                String
+  files               ExperimentFile[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
-  files               ExperimentFile[]
-  experiment          Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
-  experimentSection   ExperimentSection @relation(fields: [experimentSectionId], references: [id])
   sectionsCritiques   SectionCritique[]
 
   @@unique([experimentId, experimentSectionId])
@@ -107,72 +125,74 @@ model ExperimentAttribute {
   slug              String                     @unique
   order             Int                        @unique
   multipleSelection Boolean
+  values            ExperimentAttributeValue[]
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @updatedAt
-  values            ExperimentAttributeValue[]
 }
 
 model ExperimentAttributeValue {
   id          String              @id @default(uuid())
+  experiments Experiment[] // implicit many to many, pivot managed by Prisma
+  attribute   ExperimentAttribute @relation(fields: [attributeId], references: [id])
   attributeId String
   value       String
   slug        String              @unique
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
-  attribute   ExperimentAttribute @relation(fields: [attributeId], references: [id])
-  experiments Experiment[]        @relation("ExperimentToExperimentAttributeValue")
 }
 
 model File {
-  id                    String           @id @default(uuid())
+  id                    String          @id @default(uuid())
   originalName          String
   path                  String
   mimeType              String
-  createdById           String?
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
-  startpageId           Boolean?
-  experimentPreviewFile Experiment[]
   experimentFile        ExperimentFile[]
-  createdBy             User?            @relation(fields: [createdById], references: [id])
+  experimentPreviewFile Experiment[]
   startpage             Startpage?       @relation(fields: [startpageId], references: [id])
+  startpageId           Boolean?
   userFile              UserFile?
+  createdBy             User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById           String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 }
 
 model ExperimentFile {
   id                  String                   @id @default(uuid())
+  file                File                     @relation(fields: [fileId], references: [id])
   fileId              String
   description         String?
+  experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id], onDelete: Cascade)
   experimentSectionId String
   order               Int
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
-  experimentSection   ExperimentSectionContent @relation(fields: [experimentSectionId], references: [id], onDelete: Cascade)
-  file                File                     @relation(fields: [fileId], references: [id])
 
   @@unique([experimentSectionId, order])
 }
 
 model UserFile {
   id     String  @id @default(uuid())
-  fileId String  @unique
-  userId String? @unique
   file   File    @relation(fields: [fileId], references: [id])
+  fileId String  @unique
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @unique
 }
 
 model Session {
-  id             String   @id
-  expiresAt      DateTime
-  token          String   @unique
-  ipAddress      String?
-  userAgent      String?
-  userId         String
-  createdAt      DateTime
-  updatedAt      DateTime
-  impersonatedBy String?
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime
+  updatedAt DateTime
 
+  impersonatedBy String?
+
+  @@unique([token])
   @@map("session")
 }
 
@@ -181,6 +201,7 @@ model Account {
   accountId             String
   providerId            String
   userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -190,7 +211,6 @@ model Account {
   password              String?
   createdAt             DateTime
   updatedAt             DateTime
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
 }
@@ -208,39 +228,47 @@ model Verification {
 
 model Rating {
   value        Int
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
+  experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
-  @@id([userId, experimentId], name: "compoundId")
+  @@id(name: "compoundId", [userId, experimentId])
 }
 
 model Comment {
-  id           String     @id @default(uuid())
+  id           String      @id @default(uuid())
   text         String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
+  experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
+  parent       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: SetNull)
   parentId     String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
-  parent       Comment?   @relation("CommentToComment", fields: [parentId], references: [id])
-  children     Comment[]  @relation("CommentToComment")
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  children     Comment[]   @relation("CommentToComment")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
 model Review {
   id                String            @id @default(uuid())
-  experiment        Experiment        @relation(fields: [experimentId], references: [id])
+  experiment        Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId      String
-  reviewer          User              @relation(fields: [reviewerId], references: [id])
+  reviewer          User              @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
   reviewerId        String
+  status            ReviewStatus      @default(IN_PROGRESS)
   sectionsCritiques SectionCritique[]
-  sectionCritiqueId String
-  alreadyReviewed   Boolean
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@unique([experimentId, reviewerId])
+}
+
+enum ReviewStatus {
+  IN_PROGRESS
+  COMPLETED
 }
 
 model SectionCritique {
@@ -259,17 +287,4 @@ model SectionCritique {
 model SeedStatus {
   name        String   @id
   performedAt DateTime @default(now())
-}
-
-enum UserRole {
-  USER
-  MODERATOR
-  ADMIN
-}
-
-enum ExperimentStatus {
-  DRAFT
-  IN_REVIEW
-  PUBLISHED
-  REJECTED
 }

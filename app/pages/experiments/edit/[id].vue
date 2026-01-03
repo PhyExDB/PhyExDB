@@ -130,7 +130,7 @@ async function uploadPreviewImage(newFiles: [File]) {
   }
 }
 
-const { data:reviews, error } = await useFetch(
+const { data: reviews } = await useFetch(
   `/api/experiments/review/by-experiment?experimentId=${experimentId}`,
 )
 
@@ -508,9 +508,14 @@ async function submitForReview() {
             </template>
           </DraggableList>
           <!-- Critiques für diese Section -->
-          <div v-if="reviews?.length" class="mt-6 space-y-4">
-            <div v-for="(review, reviewIndex) in reviews" :key="review.id">
-              <!-- Reviewer-Kennung -->
+          <div
+            v-if="reviews?.length"
+            class="mt-6 space-y-4"
+          >
+            <div
+              v-for="(review, reviewIndex) in reviews"
+              :key="review.id"
+            >
               <h3 class="font-semibold mb-2">
                 Reviewer {{ reviewIndex + 1 }}
               </h3>

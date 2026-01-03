@@ -2,30 +2,20 @@
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const user = await useUser()
-
-if (!user.value || user.value.role == "USER") {
-  await navigateTo("/")
-}
-
 const route = useRoute()
-const experimentSlug = route.params.slug as string
-const { data: experiment } = useFetch<ExperimentDetail>(`/api/experiments/${experimentSlug}`)
+const { toast } = useToast()
 
-if (!experiment) {
-  showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
-}
-
-if (experiment.value && experiment.value.status !== "IN_REVIEW") {
+if (!user.value || user.value.role === "USER") {
   await navigateTo("/")
 }
+
+const { data: experiment } = await useFetch<unknown>(`/api/experiments/${route.params.slug}`)
 
 const hasToggled = ref(false)
 const openDialog = ref(false)
-const comments = ref<Record<string, string>>({}) // sectionId → Text
+const comments = ref<Record<string, string>>({})
 
-const { toast } = useToast()
-
-const toggleReviewMode = () => {
+const handleAction = () => {
   if (!hasToggled.value) {
     hasToggled.value = true
   } else {
@@ -33,71 +23,49 @@ const toggleReviewMode = () => {
   }
 }
 
-async function onDelete() {
-  if (!experiment.value?.id) {
-    throw new Error("Experiment nicht geladen")
+async function submitReject() {
+  try {
+    await $fetch("/api/experiments/review/save", {
+      method: "POST",
+      body: {
+        experimentId: experiment.value.id,
+        comments: comments.value,
+      },
+    })
+    toast({ title: "Gesendet", description: "Beanstandungen wurden erfolgreich gespeichert." })
+    await navigateTo("/experiments/review")
+  } catch {
+    toast({ title: "Fehler", variant: "destructive", description: "Speichern fehlgeschlagen." })
   }
-
-  await $fetch(`/api/experiments/review/save`, {
-    method: "POST",
-    body: {
-      experimentId: experiment.value.id,
-      comments: comments.value,
-    },
-  })
-
-  toast({
-    title: "Versuch beanstandet",
-    description: "Der Versuch wurde erfolgreich beanstandet.",
-    variant: "success",
-  })
-
-  await navigateTo("/experiments/review")
 }
 </script>
 
 <template>
-  <div>
-    <h2 class="text-4xl font-extrabold pb-4">
-      Zu überprüfender Versuch
-    </h2>
-    <h3
-      v-if="experiment?.revisionOf"
-      class="text-2xl font-bold pb-4"
-    >
-      Dies ist eine Überarbeitung von
-      <NuxtLink
-        :to="`/experiments/${experiment?.revisionOf?.slug}`"
-        class="underline"
-      >
-        {{ experiment?.revisionOf?.name }}
-      </NuxtLink>
-    </h3>
-    <Card>
-      <CardContent class="my-6 mx-4">
-        <ExperimentDetail
-          v-model:comments="comments"
-          :experiment="experiment"
-          :show-dropdown="false"
-          :preview="true"
-          :reviewStarted="hasToggled"
-        />
-      </CardContent>
-    </Card>
-    <div class="mt-4 flex flex-col sm:flex-row gap-2">
-      <ExperimentReviewAcceptDialog
-        :experiment="experiment"
-      />
+  <div class="container py-10 pb-32">
+    <ExperimentDetail
+      v-model:comments="comments"
+      :experiment="experiment"
+      :review-started="hasToggled"
+      preview
+    />
+
+    <div class="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur-md border-t p-6 flex justify-center gap-4 z-50">
+      <ExperimentReviewAcceptDialog :experiment="experiment" />
+
       <ExperimentReviewRejectDialog
         v-model:open="openDialog"
-        :on-delete="onDelete"
+        :on-submit="submitReject"
       >
         <Button
-          variant="destructive"
-          class="flex-1"
-          @click="toggleReviewMode"
+          :variant="hasToggled ? 'destructive' : 'outline'"
+          size="lg"
+          @click="handleAction"
         >
-          {{ hasToggled ? "Beanstandung absenden" : "Beanstanden" }}
+          <Icon
+            :name="hasToggled ? 'heroicons:paper-airplane' : 'heroicons:exclamation-triangle'"
+            class="mr-2"
+          />
+          {{ hasToggled ? "Review jetzt absenden" : "Beanstanden" }}
         </Button>
       </ExperimentReviewRejectDialog>
     </div>

@@ -29,7 +29,6 @@ async function submit() {
     :open="open"
     @update:open="open = $event"
   >
-    <!-- Trigger kommt von außen -->
     <slot />
 
     <DialogContent>

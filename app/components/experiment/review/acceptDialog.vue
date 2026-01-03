@@ -69,10 +69,8 @@ const openForm = (event: boolean) => {
     @update:open="openForm"
   >
     <DialogTrigger as-child>
-      <Button
-        class="flex-1"
-      >
-        Akzeptieren <!-- Füherer Bestätigen-Button -->
+      <Button>
+        Akzeptieren
       </Button>
     </DialogTrigger>
     <DialogContent>

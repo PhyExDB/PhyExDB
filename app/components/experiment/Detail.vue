@@ -7,25 +7,19 @@ const { experiment } = defineProps<{
   reviewStarted?: boolean
 }>()
 
-const reviews = ref<any[]>([])
-console.log("fetching")
+const reviews = ref<unknown[]>([])
 
-console.log("fetching")
 watch(
   () => experiment?.id,
   async (id) => {
-    if (!id) return
+    if (!id || !experiment) return
 
-    const reviewExperimentId =
-      experiment.revisionOf?.id ?? id
-
-    console.log("reviewExperimentId:", reviewExperimentId)
+    const reviewExperimentId
+          = experiment.revisionOf?.id ?? id
 
     const { data, error } = await useFetch(
       `/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`,
     )
-
-    console.log("reviews response:", data.value)
 
     if (!error.value) {
       reviews.value = data.value ?? []
@@ -322,16 +316,19 @@ const showDeleteDialog = ref(false)
           </template>
         </CarouselWithPreview>
         <!-- Hier Textfeld für Review-Modul einfügen -->
-        <div v-if="reviewStarted" class="mt-6">
+        <div
+          v-if="reviewStarted"
+          class="mt-6"
+        >
           <label class="block text-2xl font-extrabold mb-3">
             Beanstandung:
           </label>
 
           <TipTapEditor
             :model-value="comments[section.id] ?? ''"
-            @update:modelValue="val => comments[section.id] = val"
             :show-headings="false"
             editor-class="p-4 min-h-[160px] resize-y overflow-auto border rounded"
+            @update:model-value="val => comments[section.id] = val"
           />
 
           <p class="text-sm text-muted-foreground mt-2">
