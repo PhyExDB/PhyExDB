@@ -6,7 +6,7 @@ const appName = runtimeConfig.public.appName
 
 <template>
   <footer class="bg-muted text-muted-foreground">
-    <div class="container mx-auto px-4 py-4 text-sm flex flex-col md:flex-row justify-between items-center">
+    <div class="container mx-auto px-4 py-4 text-sm flex flex-col md:flex-row justify-between items-center @container">
       <p class="order-last md:order-1 mb-4 md:mb-0 pt-5 md:pt-0">
         &copy; {{ currentYear }} {{ appName }}
       </p>
@@ -44,7 +44,7 @@ const appName = runtimeConfig.public.appName
           >
             <Icon
               name="uil:github"
-              class="w-6 h-6"
+              class="w-6! h-6!"
             />
           </NuxtLink>
         </li>

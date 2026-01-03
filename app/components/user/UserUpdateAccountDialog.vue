@@ -141,7 +141,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           <div class="flex items-start">
             <Icon
               name="heroicons:information-circle"
-              class="w-4 h-4 mr-2 shrink-0"
+              class="w-4! h-4! mr-2 shrink-0"
             />
             <div>
               <AlertTitle>E-Mail Änderung</AlertTitle>

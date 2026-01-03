@@ -86,7 +86,7 @@ const columns: ColumnDef<UserDetailAdmin>[] = [
 </script>
 
 <template>
-  <div class="container py-10 mx-auto">
+  <div class="container py-10 mx-auto @container">
     <AdminUserTableDataTable
       v-if="data"
       v-model="search"

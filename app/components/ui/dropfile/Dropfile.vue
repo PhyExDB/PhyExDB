@@ -14,7 +14,7 @@
           >
             <Icon
               :name="icon"
-              class="h-7 w-7 opacity-70"
+              class="h-7! w-7! opacity-70"
               :class="[isOverDropZone && 'text-primary']"
             />
           </div>

@@ -47,7 +47,7 @@ const emit = defineEmits<{
           >
             <Icon
               name="heroicons:ellipsis-horizontal"
-              class="w-6 h-6 text-muted-foreground"
+              class="w-6! h-6! text-muted-foreground"
             />
           </Button>
         </DropdownMenuTrigger>

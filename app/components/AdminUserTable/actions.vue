@@ -56,7 +56,7 @@ async function handleDelete() {
       <Tooltip>
         <TooltipTrigger>
           <Icon
-            class="mx-1 h-4 w-4"
+            class="mx-1 h-4! w-4!"
             name="heroicons:eye"
             @click="handleImpersonate"
           />
@@ -68,7 +68,7 @@ async function handleDelete() {
       <Tooltip v-if="user.banned">
         <TooltipTrigger>
           <Icon
-            class="mx-1 h-4 w-4"
+            class="mx-1 h-4! w-4!"
             name="heroicons:check"
             @click="handleUnban"
           />
@@ -80,7 +80,7 @@ async function handleDelete() {
       <Tooltip v-if="!user.banned">
         <TooltipTrigger>
           <Icon
-            class="mx-1 h-4 w-4"
+            class="mx-1 h-4! w-4!"
             name="heroicons:no-symbol"
             @click="handleBan"
           />
@@ -97,7 +97,7 @@ async function handleDelete() {
         <Tooltip>
           <TooltipTrigger>
             <Icon
-              class="mx-1 h-4 w-4"
+              class="mx-1 h-4! w-4!"
               name="heroicons:trash"
             />
           </TooltipTrigger>
