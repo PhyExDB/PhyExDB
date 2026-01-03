@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
+import { z } from "zod"
 import { ExperimentCommentDetail } from "#components"
 
 const props = defineProps<{
@@ -10,10 +11,7 @@ const id = computed(() => props.experiment.id)
 const { page, pageSize } = getRequestPageMeta()
 
 const { data, refresh } = useLazyFetch<Page<ExperimentComment> | null>(`/api/experiments/${id.value}/comments`, {
-  query: {
-    page: page,
-    pageSize: pageSize,
-  },
+  query: { page, pageSize },
 })
 
 const user = await useUser()
@@ -21,44 +19,39 @@ const replyingToId = ref<string | null>(null)
 const loading = ref(false)
 const commented = ref(0)
 
-const canComment = computed(() => data.value && allowsUser(
-  user.value,
-  experimentCommentAbilities.post,
-  { ...props.experiment, commentsEnabled: true },
-))
-const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, props.experiment)
-
-async function deleteComment(commentId: string) {
-  await useFetch(`/api/experiments/${id.value}/comments/${commentId}`, {
-    method: "DELETE",
-  })
-  if (data.value?.items.length === 1 && page.value > 1) {
-    page.value = page.value - 1
-  }
-  await refresh()
+const hasTextContent = (html: string | undefined) => {
+  if (!html) return false
+  const doc = new DOMParser().parseFromString(html, "text/html")
+  return (doc.body.textContent || "").trim().length > 0
 }
 
-const formSchema = toTypedSchema(experimentCommentCreateSchema)
-const form = useForm({ validationSchema: formSchema })
+const formSchema = toTypedSchema(z.object({
+  text: z.string().optional(),
+}))
 
-const isTextEmpty = computed(() => {
-  const text = form.values.text || ""
-  return text.replace(/<[^>]*>/g, "").trim().length === 0
+const { handleSubmit, values, setFieldValue, errors, resetForm, setFieldError } = useForm({
+  validationSchema: formSchema,
+  initialValues: { text: "" },
 })
 
-const onSubmit = form.handleSubmit(async (values) => {
-  if (isTextEmpty.value || loading.value) return
+const onSubmit = handleSubmit(async (formValues) => {
+  if (!hasTextContent(formValues.text)) {
+    setFieldError("text", "Bitte gib einen Kommentar ein.")
+    return
+  }
+
+  if (loading.value) return
   loading.value = true
   try {
     await $fetch(`/api/experiments/${id.value}/comments`, {
       method: "POST",
       body: {
-        text: values.text,
+        text: formValues.text,
         ...(replyingToId.value ? { parentId: replyingToId.value } : {}),
       },
     })
 
-    form.resetForm()
+    resetForm()
     replyingToId.value = null
     commented.value++
     page.value = 1
@@ -70,8 +63,16 @@ const onSubmit = form.handleSubmit(async (values) => {
   }
 })
 
+async function deleteComment(commentId: string) {
+  await useFetch(`/api/experiments/${id.value}/comments/${commentId}`, { method: "DELETE" })
+  if (data.value?.items.length === 1 && page.value > 1) {
+    page.value = page.value - 1
+  }
+  await refresh()
+}
+
 function setReply(commentId: string) {
-  form.setFieldValue("text", "")
+  setFieldValue("text", "")
   replyingToId.value = commentId
 }
 
@@ -82,6 +83,13 @@ async function enableComments(enable: boolean) {
   })
   refresh()
 }
+
+const canComment = computed(() => data.value && allowsUser(
+  user.value,
+  experimentCommentAbilities.post,
+  { ...props.experiment, commentsEnabled: true },
+))
+const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, props.experiment)
 </script>
 
 <template>
@@ -100,7 +108,7 @@ async function enableComments(enable: boolean) {
           Neuer Kommentar
         </h2>
         <FormField
-          v-slot="{ componentField }"
+          v-slot="{ componentField, errorMessage }"
           name="text"
         >
           <FormItem>
@@ -109,11 +117,17 @@ async function enableComments(enable: boolean) {
                 id="main-editor"
                 v-bind="componentField"
                 :key="`main-${commented}`"
-                default-value=""
                 :show-headings="false"
+                :class="{ 'border-destructive ring-1 ring-destructive': errorMessage }"
                 editor-class="p-4 h-40 overflow-auto bg-background focus:outline-none"
               />
             </FormControl>
+            <p
+              v-if="errorMessage"
+              class="text-sm font-medium text-destructive mt-1 animate-in fade-in slide-in-from-top-1"
+            >
+              {{ errorMessage }}
+            </p>
           </FormItem>
         </FormField>
 
@@ -121,8 +135,13 @@ async function enableComments(enable: boolean) {
           <Button
             variant="default"
             type="submit"
-            :disabled="loading || isTextEmpty"
+            :disabled="loading"
           >
+            <Icon
+              v-if="loading"
+              name="lucide:loader-2"
+              class="mr-2 h-4 w-4 animate-spin"
+            />
             Kommentieren
           </Button>
         </div>
@@ -174,17 +193,24 @@ async function enableComments(enable: boolean) {
               <form @submit.prevent="onSubmit">
                 <TipTapEditor
                   :key="`reply-${replyingToId}`"
-                  :model-value="form.values.text"
+                  :model-value="values.text"
                   :show-headings="false"
+                  :class="{ 'border-destructive': errors.text }"
                   editor-class="p-4 h-32 overflow-auto bg-background focus:outline-none border rounded-md"
                   auto-focus
-                  @update:model-value="form.setFieldValue('text', $event)"
+                  @update:model-value="setFieldValue('text', $event)"
                 />
+                <p
+                  v-if="errors.text"
+                  class="text-sm font-medium text-destructive mt-1"
+                >
+                  {{ errors.text }}
+                </p>
                 <div class="flex justify-end mt-2">
                   <Button
                     type="submit"
                     size="sm"
-                    :disabled="loading || isTextEmpty"
+                    :disabled="loading"
                   >
                     <Icon
                       v-if="loading"
