@@ -9,7 +9,7 @@ if (!user.value || user.value.role === "USER") {
   await navigateTo("/")
 }
 
-const { data: experiment } = await useFetch<unknown>(`/api/experiments/${route.params.slug}`)
+const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${route.params.slug}`)
 
 const hasToggled = ref(false)
 const openDialog = ref(false)
@@ -18,12 +18,18 @@ const comments = ref<Record<string, string>>({})
 const handleAction = () => {
   if (!hasToggled.value) {
     hasToggled.value = true
+    toast({
+      title: "Review-Modus aktiviert",
+      description: "Du kannst nun Beanstandungen direkt in den Abschnitten verfassen.",
+    })
   } else {
     openDialog.value = true
   }
 }
 
 async function submitReject() {
+  if (!experiment.value) return
+
   try {
     await $fetch("/api/experiments/review/save", {
       method: "POST",
@@ -41,33 +47,36 @@ async function submitReject() {
 </script>
 
 <template>
-  <div class="container py-10 pb-32">
+  <div v-if="experiment" class="container py-10 pb-32">
     <ExperimentDetail
-      v-model:comments="comments"
-      :experiment="experiment"
-      :review-started="hasToggled"
-      preview
+        v-model:comments="comments"
+        :experiment="experiment"
+        :review-started="hasToggled"
+        preview
     />
 
     <div class="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur-md border-t p-6 flex justify-center gap-4 z-50">
       <ExperimentReviewAcceptDialog :experiment="experiment" />
 
       <ExperimentReviewRejectDialog
-        v-model:open="openDialog"
-        :on-submit="submitReject"
+          v-model:open="openDialog"
+          :on-delete="submitReject"
       >
         <Button
-          :variant="hasToggled ? 'destructive' : 'outline'"
-          size="lg"
-          @click="handleAction"
+            :variant="hasToggled ? 'destructive' : 'outline'"
+            size="lg"
+            @click="handleAction"
         >
           <Icon
-            :name="hasToggled ? 'heroicons:paper-airplane' : 'heroicons:exclamation-triangle'"
-            class="mr-2"
+              :name="hasToggled ? 'heroicons:paper-airplane' : 'heroicons:exclamation-triangle'"
+              class="mr-2 w-5 h-5"
           />
           {{ hasToggled ? "Review jetzt absenden" : "Beanstanden" }}
         </Button>
       </ExperimentReviewRejectDialog>
     </div>
+  </div>
+  <div v-else class="flex justify-center py-20">
+    <Icon name="heroicons:arrow-path" class="w-10 h-10 animate-spin text-muted" />
   </div>
 </template>

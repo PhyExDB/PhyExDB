@@ -18,12 +18,19 @@ export default defineEventHandler(async (event) => {
 
   return prisma.review.findMany({
     where: { experimentId },
-    orderBy: { createdAt: "asc" },
+    orderBy: { id: "asc" },
     include: {
-      reviewer: {
-        select: { name: true, image: true },
+      reviewer: true,
+      sectionsCritiques: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          sectionContent: {
+            include: {
+              experimentSection: true,
+            },
+          },
+        },
       },
-      sectionsCritiques: true,
     },
   })
 })
