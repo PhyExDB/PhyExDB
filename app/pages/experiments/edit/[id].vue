@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import DOMPurify from 'dompurify'
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
@@ -524,7 +523,7 @@ async function submitForReview() {
                 <p class="text-sm text-muted-foreground mb-1">
                   Beanstandung
                 </p>
-                <div>{{ critique.critique }}</div>
+                <div v-html="critique.critique" />
               </div>
             </div>
           </div>

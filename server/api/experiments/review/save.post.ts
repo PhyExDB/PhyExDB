@@ -1,4 +1,22 @@
 import { auth } from "~~/server/utils/auth"
+import sanitizeHtml from "sanitize-html"
+
+const sanitizeCritique = (html: string) =>
+  sanitizeHtml(html, {
+    allowedTags: [
+      "p",
+      "ul",
+      "ol",
+      "li",
+      "strong",
+      "em",
+      "s",
+      "sup",
+      "sub",
+      "br",
+    ],
+    allowedAttributes: {},
+  })
 
 export default defineEventHandler(async (event) => {
   // Session holen
@@ -23,8 +41,8 @@ export default defineEventHandler(async (event) => {
     comments?: Record<string, string>
   }
 
-  console.log("BODY:", body) // Test
-  console.log("COMMENTS:", comments) // Test
+  // Test console.log("BODY:", body)
+  // Test console.log("COMMENTS:", comments)
 
   if (!experimentId) {
     throw createError({ statusCode: 400, statusMessage: "experimentId missing" })
@@ -53,6 +71,8 @@ export default defineEventHandler(async (event) => {
   for (const [sectionContentId, critique] of Object.entries(comments ?? {})) {
     if (!critique?.trim()) continue
 
+    const cleanCritique = sanitizeCritique(critique)
+
     // prüfen, ob die SectionContentId zum Experiment gehört
     if (!sectionIds.includes(sectionContentId)) continue
 
@@ -60,7 +80,7 @@ export default defineEventHandler(async (event) => {
       data: {
         reviewId: review.id,
         sectionContentId,
-        critique,
+        critique: cleanCritique,
       },
     })
 
