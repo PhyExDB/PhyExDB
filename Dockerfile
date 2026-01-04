@@ -17,6 +17,10 @@ RUN npm ci
 # Copy the rest of the application files to the working directory
 COPY . .
 
+# Dummy
+ARG DATABASE_URL="postgresql://postgres:postgres@localhost:5432/unused"
+ENV DATABASE_URL=$DATABASE_URL
+
 # Build the application
 RUN npm run build
 
