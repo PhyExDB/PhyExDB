@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   if (!experiment) throw createError({ status: 404 })
 
   const currentRoundReviews = experiment.reviews.filter(r =>
-    new Date(r.updatedAt).getTime() >= new Date(experiment.updatedAt).getTime()
+    new Date(r.updatedAt).getTime() >= new Date(experiment.updatedAt).getTime(),
   )
 
   const mapped = mapExperimentToDetail(experiment as ExperimentIncorrectDetail)
