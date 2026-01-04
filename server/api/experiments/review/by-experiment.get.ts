@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Prüfen, ob Experiment existiert
   const experiment = await prisma.experiment.findUnique({
     where: { id: experimentId },
     select: { id: true },

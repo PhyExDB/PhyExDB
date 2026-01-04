@@ -2,15 +2,23 @@
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const user = await useUser()
-const route = useRoute()
-const { toast } = useToast()
 
 if (!user.value || user.value.role === "USER") {
   await navigateTo("/")
 }
 
+const route = useRoute()
 const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${route.params.slug}`)
 
+if (!experiment) {
+  showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
+}
+
+if (experiment.value && experiment.value.status !== "IN_REVIEW") {
+  await navigateTo("/")
+}
+
+const { toast } = useToast()
 const hasToggled = ref(false)
 const openDialog = ref(false)
 const comments = ref<Record<string, string>>({})
@@ -36,6 +44,7 @@ async function submitReject() {
       body: {
         experimentId: experiment.value.id,
         comments: comments.value,
+        approve: false,
       },
     })
     toast({ title: "Gesendet", description: "Beanstandungen wurden erfolgreich gespeichert." })

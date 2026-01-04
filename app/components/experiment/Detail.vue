@@ -311,7 +311,7 @@ const showDeleteDialog = ref(false)
             </Card>
           </template>
         </CarouselWithPreview>
-        <!-- Hier Textfeld für Review-Modul einfügen -->
+        <!-- Textfeld für Review-Modul -->
         <div
           v-if="reviewStarted"
           class="mt-6"

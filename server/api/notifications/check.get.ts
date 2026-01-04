@@ -2,42 +2,52 @@ import { getUser } from "~~/server/utils/auth"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
-  if (!user) {
-    return {
-      userNotifications: 0,
-      moderatorNotifications: 0,
-    }
-  }
+  if (!user) return { userNotifications: 0, moderatorNotifications: 0, lastUpdate: null }
 
-  let userNotifications = 0
-  let moderatorNotifications = 0
-
-  // 1. Check for user's experiments reviewed at least 2 times
-  // We count experiments owned by the user where the number of associated reviews is >= 2.
-  const reviewedExperiments = await prisma.experiment.findMany({
+  const userNotifications = await prisma.experiment.count({
     where: {
       userId: user.id,
-    },
-    include: {
-      _count: {
-        select: { reviews: true },
-      },
+      status: { in: ["REJECTED", "PUBLISHED"] },
     },
   })
 
-  userNotifications = reviewedExperiments.filter(exp => exp._count.reviews >= 2).length
-
-  // 2. Check for moderator/admin: count experiments in IN_REVIEW
-  if (user.role === "MODERATOR" || user.role === "ADMIN") {
-    moderatorNotifications = await prisma.experiment.count({
-      where: {
-        status: "IN_REVIEW",
+  let moderatorNotifications = 0
+  if (user.role !== "USER") {
+    const experimentsInReview = await prisma.experiment.findMany({
+      where: { status: "IN_REVIEW" },
+      select: {
+        id: true,
+        updatedAt: true,
+        reviews: {
+          where: {
+            reviewerId: user.id,
+            status: "COMPLETED",
+          },
+          select: { updatedAt: true },
+        },
       },
     })
+
+    // Wir filtern manuell: Ein Experiment zählt nur als "Notification",
+    // wenn der Admin noch gar kein Review hat ODER das Review älter ist als das Experiment-Update
+    moderatorNotifications = experimentsInReview.filter((exp) => {
+      const myReview = exp.reviews[0]
+      if (!myReview) return true // Noch nie reviewt -> Anzeigen
+
+      // Wenn das Experiment neuer ist als mein letztes Review -> Wieder anzeigen!
+      return exp.updatedAt > myReview.updatedAt
+    }).length
   }
+
+  const lastReview = await prisma.review.findFirst({
+    where: { experiment: { userId: user.id } },
+    orderBy: { updatedAt: "desc" },
+    select: { updatedAt: true },
+  })
 
   return {
     userNotifications,
     moderatorNotifications,
+    lastUpdate: lastReview?.updatedAt?.getTime() || null,
   }
 })

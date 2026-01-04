@@ -30,7 +30,6 @@ async function submit() {
     @update:open="open = $event"
   >
     <slot />
-
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Versuch beanstanden</DialogTitle>
@@ -40,7 +39,6 @@ async function submit() {
           Die Beanstandungen werden gespeichert und dem Autor angezeigt.
         </DialogDescription>
       </DialogHeader>
-
       <DialogFooter class="flex flex-col sm:flex-row gap-2">
         <DialogClose as-child>
           <Button
@@ -51,7 +49,6 @@ async function submit() {
             Abbrechen
           </Button>
         </DialogClose>
-
         <Button
           variant="destructive"
           :disabled="loading"
