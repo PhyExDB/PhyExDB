@@ -24,6 +24,8 @@ export default defineEventHandler(async (event) => {
 
   if (!experiment) throw createError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
 
+  const now = new Date()
+
   return prisma.$transaction(async (tx) => {
     // Hat dieser Admin bereits für die AKTUELLE Version gestimmt?
     const existingReview = await tx.review.findFirst({
@@ -32,14 +34,14 @@ export default defineEventHandler(async (event) => {
         reviewerId: user.id,
         status: "COMPLETED",
         // Wenn das Review neuer ist als das letzte Experiment-Update, hat er schon gestimmt
-        updatedAt: { gt: experiment.updatedAt },
+        updatedAt: { gte: experiment.updatedAt },
       },
     })
 
     if (existingReview && approve) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Du hast bereits für diese Version gestimmt. Ein anderer Admin muss die Zweitprüfung übernehmen.",
+        statusMessage: "Du hast bereits für diese Version gestimmt. Ein anderes Teammitglied muss die Zweitprüfung übernehmen.",
       })
     }
 
@@ -47,8 +49,8 @@ export default defineEventHandler(async (event) => {
       where: {
         experimentId_reviewerId: { experimentId, reviewerId: user.id },
       },
-      update: { status: "COMPLETED", updatedAt: new Date() },
-      create: { experimentId, reviewerId: user.id, status: "COMPLETED" },
+      update: { status: "COMPLETED", updatedAt: now },
+      create: { experimentId, reviewerId: user.id, status: "COMPLETED", updatedAt: now },
     })
 
     await tx.sectionCritique.deleteMany({ where: { reviewId: review.id } })
@@ -71,20 +73,22 @@ export default defineEventHandler(async (event) => {
 
       await tx.experiment.update({
         where: { id: experimentId },
-        data: { status: "REJECTED" },
+        data: {
+          status: "REJECTED",
+          updatedAt: now,
+        },
       })
 
       return { success: true, message: "Beanstandet." }
     } else {
       // FALL: AKZEPTIEREN
       // Zähle andere gültige Reviews (die NACH dem letzten Experiment-Update erstellt wurden)
-      const gracePeriod = new Date(experiment.updatedAt.getTime() - 1000)
       const otherApprovals = await tx.review.count({
         where: {
           experimentId,
           status: "COMPLETED",
           reviewerId: { not: user.id },
-          updatedAt: { gte: gracePeriod },
+          updatedAt: { gte: experiment.updatedAt },
         },
       })
 
@@ -92,7 +96,10 @@ export default defineEventHandler(async (event) => {
 
       await tx.experiment.update({
         where: { id: experimentId },
-        data: { status: newStatus },
+        data: {
+          status: newStatus,
+          updatedAt: now,
+        },
       })
 
       return {

@@ -15,9 +15,8 @@ export default defineEventHandler(async (event) => {
 
   if (!experiment) throw createError({ status: 404 })
 
-  const gracePeriod = new Date(experiment.updatedAt.getTime() - 1000)
   const currentRoundReviews = experiment.reviews.filter(r =>
-    new Date(r.updatedAt).getTime() >= gracePeriod.getTime(),
+    new Date(r.updatedAt).getTime() >= new Date(experiment.updatedAt).getTime()
   )
 
   const mapped = mapExperimentToDetail(experiment as ExperimentIncorrectDetail)
