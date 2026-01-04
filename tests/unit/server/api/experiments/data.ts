@@ -10,8 +10,7 @@ export const lists: ExperimentList[] = [
     userId: users.user.id,
     status: "DRAFT",
     duration: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    completedReviewsCount: 0,
     reviews: [],
     attributes: [
       {
@@ -51,6 +50,7 @@ export const lists: ExperimentList[] = [
     userId: users.user.id,
     status: "DRAFT",
     duration: 1,
+    completedReviewsCount: 0,
     attributes: [],
     previewImage: undefined,
     revisedBy: undefined,

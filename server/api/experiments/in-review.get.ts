@@ -13,11 +13,9 @@ export default defineEventHandler(async (event) => {
   })
 
   const filteredAndMapped = allExperiments.reduce<(ExperimentList & { completedReviewsCount: number })[]>((acc, exp) => {
-    const gracePeriod = new Date(exp.updatedAt).getTime() - 1000
-
-    const currentRoundReviews = exp.reviews.filter(r =>
+    const currentRoundReviews = (exp.reviews || []).filter(r =>
       r.status === "COMPLETED"
-      && new Date(r.updatedAt).getTime() >= gracePeriod,
+      && new Date(r.updatedAt).getTime() >= new Date(exp.updatedAt).getTime(),
     )
 
     const alreadyReviewedByMe = currentRoundReviews.some(r => r.reviewerId === user.id)

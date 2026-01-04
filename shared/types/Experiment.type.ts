@@ -33,11 +33,11 @@ export interface ExperimentList extends SlugList {
   /**
    * The id of the experiment this experiment revises
    */
-  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes"> | undefined
+  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
   /**
    * The id of the experiment this experiment is revised by
    */
-  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes"> | undefined
+  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
 
   /**
    * The count of all ratings
@@ -47,6 +47,11 @@ export interface ExperimentList extends SlugList {
    * The sum of all ratings
    */
   ratingsSum: number
+
+  /**
+   * Count of all reviews
+   */
+  completedReviewsCount: number
 }
 
 /**
@@ -71,7 +76,7 @@ export interface ExperimentDetail extends ExperimentList {
 /**
  * Experiment List object with attribute values instead of attributes
  */
-export interface ExperimentIncorrectList extends Omit<ExperimentList, "attributes"> {
+export interface ExperimentIncorrectList extends Omit<ExperimentList, "attributes" | "completedReviewsCount"> {
   /**
    * The attribute values associated with the experiment.
    */
