@@ -51,6 +51,7 @@ export const lists: ExperimentList[] = [
     userId: users.user.id,
     status: "DRAFT",
     duration: 1,
+    reviews: [],
     attributes: [],
     previewImage: undefined,
     revisedBy: undefined,

@@ -9,7 +9,11 @@ import endpoint from "~~/server/api/experiments/in-review.get"
 describe("Api Route /api/experiments/in-review.get", () => {
   // definitions
   const data = listsDb
-  const expected = u.page(lists)
+  const listsWithReviewCount = lists.map(exp => ({
+    ...exp,
+    completedReviewsCount: 0,
+  }))
+  const expected = u.page(listsWithReviewCount)
 
   const context = u.getTestContext({
     data, expected, endpoint,
@@ -25,7 +29,7 @@ describe("Api Route /api/experiments/in-review.get", () => {
     // type test
     expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
-    u.testSuccessWithPagination(context, lists)
+    u.testSuccessWithPagination(context, listsWithReviewCount)
 
     u.testAuthFail(context, [users.guest, users.user])
   }
