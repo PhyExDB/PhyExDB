@@ -48,41 +48,27 @@ function closeModeratorPopup() {
   <div>
     <NotificationDialog
         :open="showUserPopup"
-        @update:open="(val) => { if (!val) closeUserPopup() }"
+        @update:open="(val) => !val && closeUserPopup()"
         icon-name="heroicons:bell-alert"
         title="Review-Update"
         description="Es gibt Neuigkeiten zu deinen Versuchen."
     >
       <div class="space-y-3">
-        <div
+        <NotificationItem
             v-if="publishedCount > 0"
-            class="flex items-center gap-4 rounded-lg border border-border bg-card p-4 shadow-sm"
-        >
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
-            <Icon name="heroicons:check-badge" class="h-6 w-6" />
-          </div>
-          <div>
-            <p class="text-sm font-semibold">Veröffentlicht</p>
-            <p class="text-xs text-muted-foreground">
-              {{ publishedCount === 1 ? 'Ein Versuch ist' : `${publishedCount} Versuche sind` }} live.
-            </p>
-          </div>
-        </div>
+            title="Status: Live"
+            :description="`${publishedCount} ${publishedCount === 1 ? 'Versuch ist' : 'Versuche sind'} aktuell veröffentlicht.`"
+            icon="heroicons:check-badge"
+            color-class="bg-emerald-500/10 text-emerald-600"
+        />
 
-        <div
+        <NotificationItem
             v-if="needsRevisionCount > 0"
-            class="flex items-center gap-4 rounded-lg border border-border bg-card p-4 shadow-sm"
-        >
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-600">
-            <Icon name="heroicons:pencil-square" class="h-6 w-6" />
-          </div>
-          <div>
-            <p class="text-sm font-semibold">Korrekturwunsch</p>
-            <p class="text-xs text-muted-foreground">
-              {{ needsRevisionCount === 1 ? 'Ein Versuch benötigt' : `${needsRevisionCount} Versuche benötigen` }} eine Überarbeitung.
-            </p>
-          </div>
-        </div>
+            title="Überarbeitung nötig"
+            :description="`${needsRevisionCount} ${needsRevisionCount === 1 ? 'Versuch benötigt' : 'Versuche benötigen'} eine Überarbeitung.`"
+            icon="heroicons:pencil-square"
+            color-class="bg-amber-500/10 text-amber-600"
+        />
       </div>
 
       <template #footer>
@@ -97,14 +83,14 @@ function closeModeratorPopup() {
 
     <NotificationDialog
         :open="showModeratorPopup"
-        @update:open="(val) => { if (!val) closeModeratorPopup() }"
+        @update:open="(val) => !val && closeModeratorPopup()"
         icon-name="heroicons:clipboard-document-list"
         title="Warteschlange"
         description="Neue Aufgaben stehen an."
     >
       <div class="rounded-xl bg-muted/50 p-6 text-center border">
         <span class="text-6xl font-light tracking-tighter text-foreground">
-          {{ data?.moderatorNotifications }}
+          {{ needsRevisionCount }}
         </span>
         <p class="mt-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">Offene Reviews</p>
       </div>
