@@ -64,6 +64,8 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            DATABASE_URL=postgresql://unused:unused@localhost:5432/unused
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha, mode=max

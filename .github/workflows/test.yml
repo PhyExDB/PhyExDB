@@ -31,4 +31,6 @@ jobs:
         run: npm ci
 
       - name: Run unit tests with coverage
+        env:
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/unused"
         run: npm run test:unit:coverage
