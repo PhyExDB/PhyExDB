@@ -82,7 +82,18 @@ const openForm = (event: boolean) => {
     @update:open="openForm"
   >
     <DialogTrigger as-child>
-      <Button :variant="isFinalReview ? 'default' : 'outline'">
+      <Button
+          :variant="isFinalReview ? 'default' : 'outline'"
+          size="lg"
+          class="transition-all duration-300 shadow-md"
+          :class="isFinalReview
+    ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-700'
+    : 'border-blue-600 text-blue-600 hover:border-blue-700'"
+      >
+        <Icon
+            :name="isFinalReview ? 'heroicons:check-badge' : 'heroicons:check'"
+            class="mr-2 w-5 h-5"
+        />
         {{ isFinalReview ? 'Final Akzeptieren' : 'Akzeptieren' }}
       </Button>
     </DialogTrigger>
