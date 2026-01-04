@@ -14,12 +14,8 @@ watch(
   async (id) => {
     if (!id || !experiment) return
 
-    const reviewExperimentId
-          = experiment.revisionOf?.id ?? id
-
-    const { data, error } = await useFetch(
-      `/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`,
-    )
+    const reviewExperimentId = experiment.revisionOf?.id ?? id
+    const { data, error } = await useFetch(`/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`)
 
     if (!error.value) {
       reviews.value = data.value ?? []
