@@ -1,9 +1,13 @@
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
-  if (!user) return { userNotifications: 0, moderatorNotifications: 0, lastUpdate: null, moderatorLastUpdate: null }
+  if (!user) return { userNotifications: 0, publishedCount: 0, needsRevisionCount: 0, moderatorNotifications: 0, lastUpdate: null, moderatorLastUpdate: null }
 
-  const userNotifications = await prisma.experiment.count({
-    where: { userId: user.id, status: { in: ["REJECTED", "PUBLISHED"] } },
+  const publishedCount = await prisma.experiment.count({
+    where: { userId: user.id, status: "PUBLISHED" },
+  })
+
+  const needsRevisionCount = await prisma.experiment.count({
+    where: { userId: user.id, status: "REJECTED" },
   })
 
   let moderatorNotifications = 0
@@ -41,7 +45,9 @@ export default defineEventHandler(async (event) => {
   })
 
   return {
-    userNotifications,
+    userNotifications: publishedCount + needsRevisionCount,
+    publishedCount,
+    needsRevisionCount,
     moderatorNotifications,
     lastUpdate: lastReview?.updatedAt?.getTime() || null,
     moderatorLastUpdate: moderatorLastUpdate?.getTime() || null,

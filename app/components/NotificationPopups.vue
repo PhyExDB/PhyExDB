@@ -4,24 +4,30 @@ const user = userRef.value
 const { data } = await useFetch("/api/notifications/check")
 const showUserPopup = ref(false)
 const showModeratorPopup = ref(false)
+const publishedCount = computed(() => data.value?.publishedCount ?? 0)
+const needsRevisionCount = computed(() => data.value?.needsRevisionCount ?? 0)
 
 onMounted(() => {
   if (!data.value || !user) return
 
   const lastUserSeen = Number(localStorage.getItem("last-user-notif-seen") || 0)
-  if (data.value.userNotifications > 0 && data.value.lastUpdate) {
-    if (data.value.lastUpdate > lastUserSeen) {
-      showUserPopup.value = true
-    }
-  }
+  const serverUserUpdate = Number(data.value.lastUpdate || 0)
 
-  const lastModSeen = Number(localStorage.getItem("last-mod-notif-seen") || 0)
-  if (data.value.moderatorNotifications > 0 && data.value.moderatorLastUpdate) {
-    if (data.value.moderatorLastUpdate > lastModSeen) {
-      showModeratorPopup.value = true
-    }
+  if (data.value.userNotifications > 0 && serverUserUpdate > lastUserSeen) {
+    showUserPopup.value = true
+  }
+  else {
+    checkModeratorPopup()
   }
 })
+
+function checkModeratorPopup() {
+  const lastModSeen = Number(localStorage.getItem("last-mod-notif-seen") || 0)
+  const serverModUpdate = Number(data.value?.moderatorLastUpdate || 0)
+  if (data.value && data.value.moderatorNotifications > 0 && serverModUpdate > lastModSeen) {
+    showModeratorPopup.value = true
+  }
+}
 
 function closeUserPopup() {
   showUserPopup.value = false
@@ -40,77 +46,77 @@ function closeModeratorPopup() {
 
 <template>
   <div>
-    <Dialog
-      :open="showUserPopup"
-      @update:open="closeUserPopup"
+    <NotificationDialog
+        :open="showUserPopup"
+        @update:open="(val) => { if (!val) closeUserPopup() }"
+        icon-name="heroicons:bell-alert"
+        title="Review-Update"
+        description="Es gibt Neuigkeiten zu deinen Versuchen."
     >
-      <DialogContent>
-        <DialogHeader>
-          <div class="flex items-center gap-2">
-            <Icon
-              name="heroicons:bell"
-              class="w-6 h-6 text-primary"
-            />
-            <DialogTitle>Update zu deinen Versuchen</DialogTitle>
+      <div class="space-y-3">
+        <div
+            v-if="publishedCount > 0"
+            class="flex items-center gap-4 rounded-lg border border-border bg-card p-4 shadow-sm"
+        >
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
+            <Icon name="heroicons:check-badge" class="h-6 w-6" />
           </div>
-          <DialogDescription class="pt-2">
-            Es gibt Neuigkeiten zu deinem Review-Prozess:
-            <ul class="list-disc list-inside mt-2 space-y-1">
-              <li>Einige Versuche wurden <strong>veröffentlicht</strong> 🎉</li>
-              <li>Andere benötigen eventuell noch <strong>Überarbeitungen</strong>.</li>
-            </ul>
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter class="gap-2">
-          <Button
-            variant="outline"
-            @click="closeUserPopup"
-          >
-            Schließen
-          </Button>
-          <Button
-            as-child
-            @click="closeUserPopup"
-          >
-            <NuxtLink href="/experiments/mine">Zu meinen Versuchen</NuxtLink>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <div>
+            <p class="text-sm font-semibold">Veröffentlicht</p>
+            <p class="text-xs text-muted-foreground">
+              {{ publishedCount === 1 ? 'Ein Versuch ist' : `${publishedCount} Versuche sind` }} live.
+            </p>
+          </div>
+        </div>
 
-    <Dialog
-      :open="showModeratorPopup"
-      @update:open="closeModeratorPopup"
-    >
-      <DialogContent>
-        <DialogHeader>
-          <div class="flex items-center gap-2">
-            <Icon
-              name="heroicons:clipboard-document-check"
-              class="w-6 h-6 text-primary"
-            />
-            <DialogTitle>Review-Warteschlange</DialogTitle>
+        <div
+            v-if="needsRevisionCount > 0"
+            class="flex items-center gap-4 rounded-lg border border-border bg-card p-4 shadow-sm"
+        >
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-600">
+            <Icon name="heroicons:pencil-square" class="h-6 w-6" />
           </div>
-          <DialogDescription class="pt-2">
-            Es warten <strong>{{ data?.moderatorNotifications }}</strong> Versuche auf deine Überprüfung.
-            <span v-if="data?.moderatorNotifications === 1"> Davon wartet einer bereits auf die finale zweite Bestätigung.</span>
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter class="gap-2">
-          <Button
-            variant="outline"
-            @click="closeModeratorPopup"
-          >
-            Später
+          <div>
+            <p class="text-sm font-semibold">Korrekturwunsch</p>
+            <p class="text-xs text-muted-foreground">
+              {{ needsRevisionCount === 1 ? 'Ein Versuch benötigt' : `${needsRevisionCount} Versuche benötigen` }} eine Überarbeitung.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <Button as-child class="w-full py-6 shadow-md" @click="closeUserPopup">
+          <NuxtLink href="/experiments/mine" class="flex items-center justify-center">
+            Status prüfen
+            <Icon name="heroicons:arrow-right" class="ml-2 w-4 h-4" />
+          </NuxtLink>
+        </Button>
+      </template>
+    </NotificationDialog>
+
+    <NotificationDialog
+        :open="showModeratorPopup"
+        @update:open="(val) => { if (!val) closeModeratorPopup() }"
+        icon-name="heroicons:clipboard-document-list"
+        title="Warteschlange"
+        description="Neue Aufgaben stehen an."
+    >
+      <div class="rounded-xl bg-muted/50 p-6 text-center border">
+        <span class="text-6xl font-light tracking-tighter text-foreground">
+          {{ data?.moderatorNotifications }}
+        </span>
+        <p class="mt-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">Offene Reviews</p>
+      </div>
+
+      <template #footer>
+        <div class="flex gap-3">
+          <Button variant="outline" class="flex-1" @click="closeModeratorPopup">Später</Button>
+          <Button as-child class="flex-1 shadow-md" @click="closeModeratorPopup">
+            <NuxtLink href="/experiments/review">Jetzt prüfen</NuxtLink>
           </Button>
-          <Button
-            as-child
-            @click="closeModeratorPopup"
-          >
-            <NuxtLink href="/experiments/review">Review-Liste öffnen</NuxtLink>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </template>
+    </NotificationDialog>
   </div>
 </template>
