@@ -17,9 +17,6 @@ jobs:
     permissions:
       contents: read
 
-    env:
-      DATABASE_URL: postgresql://nuxt:nuxt_password@localhost:5432/phyexdb
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
