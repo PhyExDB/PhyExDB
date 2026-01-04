@@ -1,42 +1,37 @@
-import { getUser } from "~~/server/utils/auth"
-
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
-  if (!user) return { userNotifications: 0, moderatorNotifications: 0, lastUpdate: null }
+  if (!user) return { userNotifications: 0, moderatorNotifications: 0, lastUpdate: null, moderatorLastUpdate: null }
 
   const userNotifications = await prisma.experiment.count({
-    where: {
-      userId: user.id,
-      status: { in: ["REJECTED", "PUBLISHED"] },
-    },
+    where: { userId: user.id, status: { in: ["REJECTED", "PUBLISHED"] } },
   })
 
   let moderatorNotifications = 0
+  let moderatorLastUpdate: Date | null = null
+
   if (user.role !== "USER") {
     const experimentsInReview = await prisma.experiment.findMany({
       where: { status: "IN_REVIEW" },
       select: {
-        id: true,
         updatedAt: true,
         reviews: {
-          where: {
-            reviewerId: user.id,
-            status: "COMPLETED",
-          },
+          where: { reviewerId: user.id, status: "COMPLETED" },
           select: { updatedAt: true },
         },
       },
     })
 
-    // Wir filtern manuell: Ein Experiment zählt nur als "Notification",
-    // wenn der Admin noch gar kein Review hat ODER das Review älter ist als das Experiment-Update
-    moderatorNotifications = experimentsInReview.filter((exp) => {
+    const relevantExps = experimentsInReview.filter((exp) => {
       const myReview = exp.reviews[0]
-      if (!myReview) return true // Noch nie reviewt -> Anzeigen
-
-      // Wenn das Experiment neuer ist als mein letztes Review -> Wieder anzeigen!
+      if (!myReview) return true
       return exp.updatedAt > myReview.updatedAt
-    }).length
+    })
+
+    moderatorNotifications = relevantExps.length
+
+    if (relevantExps.length > 0) {
+      moderatorLastUpdate = new Date(Math.max(...relevantExps.map(e => e.updatedAt.getTime())))
+    }
   }
 
   const lastReview = await prisma.review.findFirst({
@@ -49,5 +44,6 @@ export default defineEventHandler(async (event) => {
     userNotifications,
     moderatorNotifications,
     lastUpdate: lastReview?.updatedAt?.getTime() || null,
+    moderatorLastUpdate: moderatorLastUpdate?.getTime() || null,
   }
 })

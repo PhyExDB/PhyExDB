@@ -6,20 +6,18 @@ const showUserPopup = ref(false)
 const showModeratorPopup = ref(false)
 
 onMounted(() => {
-  if (data.value && user) {
-    const lastSeenUserUpdate = localStorage.getItem("last-user-notif-update")
-    const currentServerUpdate = data.value.lastUpdate?.toString()
+  if (!data.value || !user) return
 
-    // Zeige Popup, wenn es ungelesene Benachrichtigungen gibt UND
-    // entweder noch nie gesehen wurde ODER ein neues Update vom Server vorliegt
-    if (data.value.userNotifications > 0) {
-      if (!lastSeenUserUpdate || lastSeenUserUpdate !== currentServerUpdate) {
-        showUserPopup.value = true
-      }
+  const lastUserSeen = Number(localStorage.getItem("last-user-notif-seen") || 0)
+  if (data.value.userNotifications > 0 && data.value.lastUpdate) {
+    if (data.value.lastUpdate > lastUserSeen) {
+      showUserPopup.value = true
     }
+  }
 
-    const lastSeenModCount = Number(localStorage.getItem("last-mod-notif-count") || 0)
-    if (data.value.moderatorNotifications > lastSeenModCount) {
+  const lastModSeen = Number(localStorage.getItem("last-mod-notif-seen") || 0)
+  if (data.value.moderatorNotifications > 0 && data.value.moderatorLastUpdate) {
+    if (data.value.moderatorLastUpdate > lastModSeen) {
       showModeratorPopup.value = true
     }
   }
@@ -28,14 +26,14 @@ onMounted(() => {
 function closeUserPopup() {
   showUserPopup.value = false
   if (data.value?.lastUpdate) {
-    localStorage.setItem("last-user-notif-update", data.value.lastUpdate.toString())
+    localStorage.setItem("last-user-notif-seen", data.value.lastUpdate.toString())
   }
 }
 
 function closeModeratorPopup() {
   showModeratorPopup.value = false
-  if (data.value) {
-    localStorage.setItem("last-mod-notif-count", data.value.moderatorNotifications.toString())
+  if (data.value?.moderatorLastUpdate) {
+    localStorage.setItem("last-mod-notif-seen", data.value.moderatorLastUpdate.toString())
   }
 }
 </script>
