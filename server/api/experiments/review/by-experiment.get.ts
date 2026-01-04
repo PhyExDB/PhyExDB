@@ -1,34 +1,14 @@
 export default defineEventHandler(async (event) => {
   const experimentId = getQuery(event).experimentId as string
-
-  if (!experimentId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "experimentId missing",
-    })
-  }
-
-  const experiment = await prisma.experiment.findUnique({
-    where: { id: experimentId },
-    select: { id: true },
-  })
-
-  if (!experiment) return []
+  if (!experimentId) throw createError({ statusCode: 400, statusMessage: "experimentId missing" })
 
   return prisma.review.findMany({
     where: { experimentId },
-    orderBy: { id: "asc" },
+    orderBy: { createdAt: "desc" },
     include: {
-      reviewer: true,
+      reviewer: { select: { name: true, image: true } },
       sectionsCritiques: {
-        orderBy: { createdAt: "asc" },
-        include: {
-          sectionContent: {
-            include: {
-              experimentSection: true,
-            },
-          },
-        },
+        include: { sectionContent: { include: { experimentSection: true } } },
       },
     },
   })

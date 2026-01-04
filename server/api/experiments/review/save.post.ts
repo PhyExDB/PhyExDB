@@ -78,8 +78,7 @@ export default defineEventHandler(async (event) => {
     } else {
       // FALL: AKZEPTIEREN
       // Zähle andere gültige Reviews (die NACH dem letzten Experiment-Update erstellt wurden)
-      const gracePeriod = new Date(experiment.updatedAt.getTime() - 5000)
-
+      const gracePeriod = new Date(experiment.updatedAt.getTime() - 1000)
       const otherApprovals = await tx.review.count({
         where: {
           experimentId,

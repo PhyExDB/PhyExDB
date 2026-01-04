@@ -67,7 +67,7 @@ watch([page, pageSize], () => {
                     variant="outline"
                     class="text-muted-foreground"
                   >
-                    Überprüfen
+                    Neu hinzugefügt
                   </Badge>
                 </div>
                 <div class="flex items-center pt-2 sm:pt-0">

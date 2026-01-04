@@ -75,11 +75,11 @@ async function submitReject() {
         :on-delete="submitReject"
       >
         <Button
-            :variant="hasToggled ? 'default' : 'outline'"
-            size="lg"
-            @click="handleAction"
-            class="transition-all duration-300 shadow-md"
-            :class="'bg-red-600 hover:bg-red-700 text-white border-red-700'"
+          :variant="hasToggled ? 'default' : 'outline'"
+          size="lg"
+          class="transition-all duration-300 shadow-md"
+          :class="'bg-red-600 hover:bg-red-700 text-white border-red-700'"
+          @click="handleAction"
         >
           <Icon
             :name="hasToggled ? 'heroicons:paper-airplane' : 'heroicons:exclamation-triangle'"
