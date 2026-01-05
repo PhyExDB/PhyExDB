@@ -88,12 +88,13 @@ model Experiment {
 }
 
 model Favorite {
-  id           String     @id @default(uuid())
-  userId       String
-  experimentId String
-  createdAt    DateTime   @default(now())
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  id                String     @id @default(uuid())
+  userId            String
+  experimentId      String
+  createdAt         DateTime   @default(now())
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experiment        Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  numberForSequence Int
 
   @@unique([userId, experimentId])
 }
