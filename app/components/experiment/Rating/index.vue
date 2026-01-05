@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  experiment: Pick<ExperimentList, "id" | "ratingsSum" | "ratingsCount"> & {isFavorited?: boolean}
+  experiment: Pick<ExperimentList, "id" | "ratingsSum" | "ratingsCount"> & {isFavorited: boolean}
   small?: boolean
 }>()
 const ratingsSum = computed(() => props.experiment.ratingsSum)
@@ -8,7 +8,7 @@ const ratingsCount = computed(() => props.experiment.ratingsCount)
 const ratingsAvg = computed(() => (ratingsSum.value / ratingsCount.value).toFixed(1))
 
 const { toggleFavorite } = useFavorite()
-const isFavorited = ref(props.experiment.isFavorited || false)
+const isFavorited = ref(props.experiment.isFavorited)
 
 async function handleFavoriteClick() {
   const result = await toggleFavorite(props.experiment.id)
