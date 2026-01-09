@@ -247,6 +247,22 @@ async function submitForReview() {
     variant: "success",
   })
 }
+
+const sectionImageStartIndices = computed(() => {
+  if (!experiment.value?.sections) return []
+
+  let count = 0
+  return experiment.value.sections.map((section) => {
+    const startIndex = count
+    count += section.files?.length ?? 0
+    return startIndex
+  })
+})
+
+function getImageTitle(sectionIndex: number, fileIndex: number) {
+  const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
+  return `Abb. ${globalIndex + 1}`
+}
 </script>
 
 <template>
@@ -460,6 +476,13 @@ async function submitForReview() {
                   >
                     <FormItem class="flex-1 p-4 w-full">
                       <FormLabel>
+                        <div
+                          v-if="item.file.mimeType.startsWith('image')"
+                          class="font-semibold"
+                        >
+                          {{ getImageTitle(section.order, index) }}
+                        </div>
+
                         <NuxtLink
                           :to="item.file.path"
                           target="_blank"
@@ -468,9 +491,7 @@ async function submitForReview() {
                           external
                         >
                           {{ item.file.originalName }}
-                          <Icon
-                            name="heroicons:arrow-top-right-on-square"
-                          />
+                          <Icon name="heroicons:arrow-top-right-on-square" />
                         </NuxtLink>
                       </FormLabel>
                       <FormControl>
