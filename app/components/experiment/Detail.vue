@@ -4,7 +4,29 @@ const user = await useUser()
 const { experiment } = defineProps<{
   experiment?: ExperimentDetail
   preview?: boolean
+  reviewStarted?: boolean
 }>()
+
+const reviews = ref<unknown[]>([])
+
+watch(
+  () => experiment?.id,
+  async (id) => {
+    if (!id || !experiment) return
+
+    const reviewExperimentId = experiment.revisionOf?.id ?? id
+    const { data, error } = await useFetch(`/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`)
+
+    if (!error.value) {
+      reviews.value = data.value ?? []
+    }
+  },
+  { immediate: true },
+)
+
+const comments = defineModel<Record<string, string>>("comments", {
+  default: {},
+})
 
 const attributesWithoutDuration = computed(() => {
   return experiment?.attributes.filter(
@@ -310,6 +332,26 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </Card>
           </template>
         </CarouselWithPreview>
+        <!-- Textfeld für Review-Modul -->
+        <div
+          v-if="reviewStarted"
+          class="mt-6"
+        >
+          <label class="block text-2xl font-extrabold mb-3">
+            Beanstandung:
+          </label>
+
+          <TipTapEditor
+            :model-value="comments[section.id] ?? ''"
+            :show-headings="false"
+            editor-class="p-4 min-h-[160px] resize-y overflow-auto border rounded"
+            @update:model-value="val => comments[section.id] = val"
+          />
+
+          <p class="text-sm text-muted-foreground mt-2">
+            Optional: Hinweise oder Beanstandungen für diesen Abschnitt
+          </p>
+        </div>
       </div>
     </div>
 
