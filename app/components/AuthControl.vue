@@ -46,11 +46,17 @@ async function signOut() {
         <span>Imitieren beenden</span>
       </DropdownMenuItem>
       <NuxtLink href="/users">
-
         <DropdownMenuItem
           v-if="canSeeUsers"
         >
           <span>Nutzerverwaltung</span>
+        </DropdownMenuItem>
+      </NuxtLink>
+      <NuxtLink href="/admin/categories">
+        <DropdownMenuItem
+          v-if="canSeeUsers"
+        >
+          <span>Kategorien verwalten</span>
         </DropdownMenuItem>
       </NuxtLink>
       <NuxtLink
