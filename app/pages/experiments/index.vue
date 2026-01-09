@@ -234,7 +234,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
           >
             Erweiterte Sucheinstellungen <Icon
               name="heroicons:adjustments-horizontal"
-              class="ml-2 h-4 w-4"
+              class="ml-2 h-4! w-4!"
             />
           </Button>
         </DialogTrigger>
@@ -318,7 +318,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
           >
             Filter <Icon
               name="heroicons:adjustments-horizontal"
-              class="ml-2 h-4 w-4"
+              class="ml-2 h-4! w-4!"
             />
           </Button>
         </DialogTrigger>
@@ -408,7 +408,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
 
                 <!-- Overlay Content (Defines Section Size) -->
                 <div
-                  class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
+                  class="relative z-10 p-3 w-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
                 >
                   <div class="grid grid-cols-2 gap-1">
                     <template
@@ -446,7 +446,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                 <Badge class="text-left">
                   <Icon
                     name="heroicons:clock"
-                    class="mr-2 h-4 w-4"
+                    class="mr-2 h-4! w-4!"
                   />
                   {{ experiment.duration }} Min.
                 </Badge>

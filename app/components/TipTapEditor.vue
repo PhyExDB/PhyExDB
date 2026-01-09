@@ -271,6 +271,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
+@reference "~/assets/css/main.css";
 .btn {
   @apply px-2 py-1 text-sm font-medium text-muted-foreground border rounded-md disabled:opacity-50;
 }
