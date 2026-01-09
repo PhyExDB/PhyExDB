@@ -102,8 +102,11 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            v-if="user.id === experiment.userId && !experiment.revisedBy"
+            v-if="user.id === experiment.userId && !experiment.revisedBy && (experiment.status === 'IN_REVIEW' || experiment.status === 'PUBLISHED')"
+            :disabled="experiment.status === 'IN_REVIEW'"
+            :class="{ 'opacity-50': experiment.status === 'IN_REVIEW' }"
             @click="duplicateExperiment(experiment, true)"
+            @click.prevent
           >
             <span>
               Überarbeiten
@@ -116,6 +119,16 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             <span>
               Zur Überarbeitung
             </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            v-else-if="user.id === experiment.userId && experiment.status === 'DRAFT' || experiment.status === 'REJECTED'"
+          >
+            <NuxtLink
+              :to="`/experiments/edit/${experiment.id}`"
+              class="no-underline w-full block"
+            >
+              Bearbeiten
+            </NuxtLink>
           </DropdownMenuItem>
           <DropdownMenuItem
             v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
