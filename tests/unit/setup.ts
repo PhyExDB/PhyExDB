@@ -1,14 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "~~/generated/prisma/client"
 import { vitest } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
 import { createDomPurify } from "~~/server/utils/dompurify"
+import { createError } from "nuxt/app"
 
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
 
-prisma.$transaction = ((func: (prisma: any) => Promise<any>) => {
-  return func(prisma)
+prisma.$transaction = ((input: any) => {
+  if (typeof input === "function") {
+    return input(prisma)
+  } else if (Array.isArray(input)) {
+    return Promise.all(input)
+  }
+  throw new Error("Unexpected $transaction input")
 }) as unknown as typeof prisma.$transaction
 
 vitest.mock(import("~~/server/lib/loggers"))

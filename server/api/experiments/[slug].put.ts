@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "~~/generated/prisma/client"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/prisma"
 import slugify from "~~/server/utils/slugify"
 import { experimentAbilities } from "~~/shared/utils/abilities"

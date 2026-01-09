@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client"
+import { Prisma } from "~~/generated/prisma/client"
 import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {

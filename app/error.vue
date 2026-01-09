@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { NuxtError } from "#app"
+import { Button } from "~/components/ui/button"
+import type { NuxtError } from "nuxt/app"
 
 const props = defineProps({
   error: Object as () => NuxtError,

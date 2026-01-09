@@ -8,6 +8,13 @@ dotenv.config({ path: ".env.test" })
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig<ConfigOptions>({
+  // Global test timeout
+  timeout: 5000,
+  // Timeout for expect() assertions
+  expect: {
+    timeout: 5000,
+  },
+
   testDir: "./tests/e2e",
   // Run tests in files in parallel
   fullyParallel: true,
@@ -70,6 +77,7 @@ export default defineConfig<ConfigOptions>({
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",
+    timeout: 120000,
     reuseExistingServer: !process.env.CI,
   },
 })

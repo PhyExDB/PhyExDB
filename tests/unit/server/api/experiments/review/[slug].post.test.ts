@@ -4,6 +4,7 @@ import { detailDb } from "../data"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
+import { experimentReviewSchema } from "#shared/types/Experiment.type"
 
 import endpoint from "~~/server/api/experiments/review/[slug].post"
 
