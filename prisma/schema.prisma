@@ -94,7 +94,7 @@ model Favorite {
   createdAt         DateTime   @default(now())
   user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   experiment        Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
-  numberForSequence Int        @unique @default(autoincrement())
+  numberForSequence Int        @default(autoincrement())
 
   @@unique([userId, experimentId])
 }

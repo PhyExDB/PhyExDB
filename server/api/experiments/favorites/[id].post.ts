@@ -1,18 +1,15 @@
 import prisma from "~~/server/lib/prisma" // Korrekter Pfad zu deiner Prisma-Instanz
 
 export default defineEventHandler(async (event) => {
-    // 1. Benutzerprüfung & Session
-    // Nutzt die projektinterne Methode, die automatisch 401 wirft, wenn nicht eingeloggt
     const user = await getUserOrThrowError(event)
 
     const experimentId = getRouterParam(event, 'id')
-    const userId = user.id // 'user' kommt direkt aus deiner DB-Struktur
+    const userId = user.id
 
     if (!experimentId) {
         throw createError({ statusCode: 400, statusMessage: "Experiment ID missing" })
     }
 
-    // 2. Prüfen, ob Favorit schon existiert
     const existing = await prisma.favorite.findUnique({
         where: {
             userId_experimentId: {
@@ -23,13 +20,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (existing) {
-        // Wenn vorhanden -> löschen (Unfavorite)
         await prisma.favorite.delete({
             where: { id: existing.id }
         })
         return { favorited: false }
     } else {
-        // Wenn nicht vorhanden -> erstellen (Favorite)
         await prisma.favorite.create({
             data: {
                 userId: userId,
