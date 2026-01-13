@@ -2,6 +2,7 @@
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
 import { ExperimentCommentDetail } from "#components"
+import Report from "~~/app/components/experiment/report/report.vue"
 
 const props = defineProps<{
   experiment: Pick<ExperimentList, "id" | "userId" | "status">
@@ -159,4 +160,6 @@ async function enableComments(enable: boolean) {
       Kommentare für diesen Versuch erlauben
     </Button>
   </div>
+  <!-- Report-Button + Modal -->
+  <Report />
 </template>
