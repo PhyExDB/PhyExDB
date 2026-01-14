@@ -1,4 +1,6 @@
 <script setup lang='ts'>
+import FavoriteButton from "~/components/experiment/FavoriteButton.vue";
+
 const route = useRoute()
 const search = ref<string>(route.query.search as string || "")
 const sectionSearch = ref<string>(route.query.sections as string || "")
@@ -453,6 +455,10 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                 <ExperimentRating
                   :experiment="experiment"
                   :small="true"
+                />
+                <FavoriteButton
+                    :experiment-id="experiment.id"
+                    :is-favorited-initial="experiment.isFavorited ?? false"
                 />
               </div>
             </CardFooter>

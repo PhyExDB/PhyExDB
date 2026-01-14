@@ -27,8 +27,9 @@ async function handleToggle() {
       @click.stop.prevent="handleToggle"
       :disabled="isLoading"
   >
-    <LucideHeart
-        :class="[isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-500']"
+    <Icon
+        :name="isFavorited ? 'heroicons:heart-solid' : 'heroicons:heart'"
+        :class="[isFavorited ? 'text-red-500 fill-red-500' : 'text-gray-400']"
         class="h-5 w-5 transition-colors"
     />
   </Button>

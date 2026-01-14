@@ -46,6 +46,10 @@ export interface ExperimentList extends SlugList {
    * The sum of all ratings
    */
   ratingsSum: number
+    /*
+    Is the expiment favorited?
+     */
+    isFavorited?: boolean
 }
 
 /**
