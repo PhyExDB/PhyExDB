@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+import FavoriteButton from "~/components/experiment/FavoriteButton.vue";
+
 const props = defineProps<{
-  experiment: Pick<ExperimentList, "ratingsSum" | "ratingsCount">
+  experiment: Pick<ExperimentList, "id" | "ratingsSum" | "ratingsCount"> & {isFavorited: boolean}
   small?: boolean
 }>()
 const ratingsSum = computed(() => props.experiment.ratingsSum)
@@ -49,5 +51,9 @@ function ratingsString() {
     <p>
       ({{ ratingsString() }})
     </p>
+    <ExperimentFavoriteButton
+        :experiment-id="experiment.id"
+        :is-favorited-initial="experiment.isFavorited ?? false"
+    />
   </div>
 </template>

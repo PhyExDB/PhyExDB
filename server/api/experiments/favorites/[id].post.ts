@@ -1,4 +1,4 @@
-import prisma from "~~/server/lib/prisma" // Korrekter Pfad zu deiner Prisma-Instanz
+import prisma from "~~/server/lib/prisma"
 
 export default defineEventHandler(async (event) => {
     const user = await getUserOrThrowError(event)
