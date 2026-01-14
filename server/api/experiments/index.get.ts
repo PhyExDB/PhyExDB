@@ -108,10 +108,27 @@ export default defineEventHandler(async (event) => {
     orderBy: sortOption,
   })
 
+    //Favorite Experiments
+    const user = await getUser(event)
+    let favoriteIds: string[] = [];
+  if(user){
+      const userFavorites = await prisma.experiment.findMany({
+          where: {userId: user.id},
+          select: {id: true}
+      });
+      favoriteIds = userFavorites.map(f => f.id);
+  }
+
   return {
-    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
-    pagination: pageMeta,
-  } as Page<ExperimentList>
+      items: experiments.map(experiment => {
+          const mapped = mapExperimentToList(experiment as ExperimentIncorrectList);
+          return {
+              ...mapped,
+              isFavorited: favoriteIds.includes(mapped.id) // Hier wird die Info gebündelt hinzugefügt
+          };
+      }),
+      pagination: pageMeta,
+  }
 })
 
 defineRouteMeta({
