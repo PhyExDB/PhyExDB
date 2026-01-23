@@ -14,27 +14,27 @@ const emit = defineEmits<{
 
 const isLoggedIn = computed(() => Boolean(props.user))
 const isOwnComment = computed(
-    () => props.comment.user.id === props.user?.id,
+  () => props.comment.user.id === props.user?.id,
 )
 
 const canDelete = computed(() =>
-    allowsUser(
-        props.user,
-        experimentCommentAbilities.delete,
-        { userId: props.comment.user.id, experiment: props.experiment },
-    ),
+  allowsUser(
+    props.user,
+    experimentCommentAbilities.delete,
+    { userId: props.comment.user.id, experiment: props.experiment },
+  ),
 )
 
 const canViewUser = computed(() =>
-    allowsUser(props.user, userAbilities.getAll),
+  allowsUser(props.user, userAbilities.getAll),
 )
 
 const canViewProfile = computed(
-    () => canViewUser.value && !isOwnComment.value,
+  () => canViewUser.value && !isOwnComment.value,
 )
 
 const canSeeMenu = computed(
-    () => isLoggedIn.value && (canDelete.value || canViewProfile.value),
+  () => isLoggedIn.value && (canDelete.value || canViewProfile.value),
 )
 </script>
 
