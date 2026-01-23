@@ -8,17 +8,34 @@ const props = defineProps<{
   activeReplyId: string | null
 }>()
 
-const user = props.user
-const canDelete = allowsUser(
-  user,
-  experimentCommentAbilities.delete,
-  { userId: props.comment.user.id, experiment: props.experiment },
-)
-const canViewUser = allowsUser(user, userAbilities.getAll)
-
 const emit = defineEmits<{
   (e: "deleteComment" | "reply", commentId: string): void
 }>()
+
+const isLoggedIn = computed(() => Boolean(props.user))
+const isOwnComment = computed(
+    () => props.comment.user.id === props.user?.id,
+)
+
+const canDelete = computed(() =>
+    allowsUser(
+        props.user,
+        experimentCommentAbilities.delete,
+        { userId: props.comment.user.id, experiment: props.experiment },
+    ),
+)
+
+const canViewUser = computed(() =>
+    allowsUser(props.user, userAbilities.getAll),
+)
+
+const canViewProfile = computed(
+    () => canViewUser.value && !isOwnComment.value,
+)
+
+const canSeeMenu = computed(
+    () => isLoggedIn.value && (canDelete.value || canViewProfile.value),
+)
 </script>
 
 <template>
@@ -56,7 +73,7 @@ const emit = defineEmits<{
             Antworten
           </Button>
 
-          <DropdownMenu v-if="user">
+          <DropdownMenu v-if="user && canSeeMenu">
             <DropdownMenuTrigger as-child>
               <Button
                 variant="ghost"
