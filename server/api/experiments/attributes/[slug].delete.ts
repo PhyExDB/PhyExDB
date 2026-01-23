@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
 
     return prisma.experimentAttribute.delete({
       where: whereClause,
-    });
+    })
   })
 
   setResponseStatus(event, 204)

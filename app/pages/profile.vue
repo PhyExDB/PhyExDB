@@ -365,46 +365,46 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
           <span>🔒</span>
           <span>Zwei-Faktor-Authentifizierung</span>
           <span
-              v-if="twofaStatus.enabled"
-              class="text-green-600 text-xl"
+            v-if="twofaStatus.enabled"
+            class="text-green-600 text-xl"
           >aktiviert</span>
           <span
-              v-else
-              class="text-red-600 text-xl"
+            v-else
+            class="text-red-600 text-xl"
           >deaktiviert</span>
         </div>
 
         <!-- 2FA Disabled -->
         <div
-            v-if="!twofaStatus.enabled"
-            class="space-y-4"
+          v-if="!twofaStatus.enabled"
+          class="space-y-4"
         >
           <div class="text-sm">
             2FA ist aktuell deaktiviert.
           </div>
           <Button
-              :loading="twofaLoading"
-              @click="startTwofaSetup"
+            :loading="twofaLoading"
+            @click="startTwofaSetup"
           >
             Einrichtung starten
           </Button>
           <div
-              v-if="twofaSetup"
-              class="space-y-3"
+            v-if="twofaSetup"
+            class="space-y-3"
           >
             <div class="text-sm">
               Scanne diesen QR-Code mit deiner Authenticator-App oder verwende das Secret.
             </div>
             <div class="flex items-center space-x-4">
               <div
-                  v-if="qrLoading"
-                  class="animate-spin w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full"
+                v-if="qrLoading"
+                class="animate-spin w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full"
               />
               <img
-                  v-else-if="qrDataUrl"
-                  :src="qrDataUrl"
-                  alt="QR"
-                  class="border rounded"
+                v-else-if="qrDataUrl"
+                :src="qrDataUrl"
+                alt="QR"
+                class="border rounded"
               >
             </div>
 
@@ -417,17 +417,17 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
               <label class="text-sm font-medium">6-stelliger Code</label>
               <div class="flex space-x-2">
                 <Input
-                    v-model="twofaCode"
-                    class="h-10"
-                    placeholder="123456"
-                    inputmode="numeric"
-                    maxlength="6"
-                    @keyup.enter="confirmTwofaEnable"
+                  v-model="twofaCode"
+                  class="h-10"
+                  placeholder="123456"
+                  inputmode="numeric"
+                  maxlength="6"
+                  @keyup.enter="confirmTwofaEnable"
                 />
                 <Button
-                    class="h-10"
-                    :loading="twofaLoading"
-                    @click="confirmTwofaEnable"
+                  class="h-10"
+                  :loading="twofaLoading"
+                  @click="confirmTwofaEnable"
                 >
                   Bestätigen
                 </Button>
@@ -437,8 +437,8 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
 
           <!-- Recovery Codes for newly enabled 2FA -->
           <div
-              v-if="twofaRecoveryCodes"
-              class="space-y-2"
+            v-if="twofaRecoveryCodes"
+            class="space-y-2"
           >
             <div class="text-sm font-medium">
               Wiederherstellungscodes
@@ -448,25 +448,25 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
             </div>
             <ul class="text-sm grid grid-cols-2 gap-2">
               <li
-                  v-for="c in twofaRecoveryCodes"
-                  :key="c"
-                  class="font-mono p-2 border rounded"
+                v-for="c in twofaRecoveryCodes"
+                :key="c"
+                class="font-mono p-2 border rounded"
               >
                 {{ c }}
               </li>
             </ul>
             <div class="flex space-x-2 mt-1">
               <Button
-                  size="sm"
-                  variant="outline"
-                  @click="copyRecoveryCodes"
+                size="sm"
+                variant="outline"
+                @click="copyRecoveryCodes"
               >
                 Kopieren
               </Button>
               <Button
-                  size="sm"
-                  variant="outline"
-                  @click="downloadRecoveryCodes"
+                size="sm"
+                variant="outline"
+                @click="downloadRecoveryCodes"
               >
                 Als .txt speichern
               </Button>
@@ -476,58 +476,58 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
 
         <!-- 2FA Enabled -->
         <div
-            v-else
-            class="space-y-4"
+          v-else
+          class="space-y-4"
         >
           <div class="grid gap-2 max-w-xs">
             <label class="text-sm font-medium">Wiederherstellungscodes neu erzeugen</label>
             <div class="flex space-x-2">
               <Input
-                  v-model="twofaCode"
-                  class="h-10"
-                  placeholder="2FA-Code"
-                  inputmode="text"
-                  maxlength="11"
-                  @keyup.enter="regenerateRecoveryCodes"
+                v-model="twofaCode"
+                class="h-10"
+                placeholder="2FA-Code"
+                inputmode="text"
+                maxlength="11"
+                @keyup.enter="regenerateRecoveryCodes"
               />
               <Button
-                  class="h-10"
-                  variant="outline"
-                  :loading="twofaLoading"
-                  @click="regenerateRecoveryCodes"
+                class="h-10"
+                variant="outline"
+                :loading="twofaLoading"
+                @click="regenerateRecoveryCodes"
               >
                 Bestätigen
               </Button>
             </div>
           </div>
           <div
-              v-if="twofaRecoveryCodes"
-              class="space-y-2"
+            v-if="twofaRecoveryCodes"
+            class="space-y-2"
           >
             <div class="text-sm font-medium">
               Neue Wiederherstellungscodes
             </div>
             <ul class="text-sm grid grid-cols-2 gap-2">
               <li
-                  v-for="c in twofaRecoveryCodes"
-                  :key="c"
-                  class="font-mono p-2 border rounded"
+                v-for="c in twofaRecoveryCodes"
+                :key="c"
+                class="font-mono p-2 border rounded"
               >
                 {{ c }}
               </li>
             </ul>
             <div class="flex space-x-2 mt-1">
               <Button
-                  size="sm"
-                  variant="outline"
-                  @click="copyRecoveryCodes"
+                size="sm"
+                variant="outline"
+                @click="copyRecoveryCodes"
               >
                 Kopieren
               </Button>
               <Button
-                  size="sm"
-                  variant="outline"
-                  @click="downloadRecoveryCodes"
+                size="sm"
+                variant="outline"
+                @click="downloadRecoveryCodes"
               >
                 Als .txt speichern
               </Button>
@@ -537,18 +537,18 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
             <label class="text-sm font-medium">2FA deaktivieren</label>
             <div class="flex space-x-2">
               <Input
-                  v-model="twofaDisableCode"
-                  class="h-10"
-                  placeholder="2FA-Code"
-                  inputmode="text"
-                  maxlength="11"
-                  @keyup.enter="disableTwofa"
+                v-model="twofaDisableCode"
+                class="h-10"
+                placeholder="2FA-Code"
+                inputmode="text"
+                maxlength="11"
+                @keyup.enter="disableTwofa"
               />
               <Button
-                  class="h-10"
-                  variant="destructive"
-                  :loading="twofaLoading"
-                  @click="disableTwofa"
+                class="h-10"
+                variant="destructive"
+                :loading="twofaLoading"
+                @click="disableTwofa"
               >
                 Deaktivieren
               </Button>
