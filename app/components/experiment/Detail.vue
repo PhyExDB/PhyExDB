@@ -213,10 +213,9 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         <h2 class="text-3xl font-bold">
           {{ section.experimentSection.name }}
         </h2>
-        <div
+        <LatexContent
           v-if="section.text && section.text.length && section.text != '<p></p>'"
-          class="prose dark:prose-invert max-w-full"
-          v-html="section.text"
+          :content="section.text"
         />
         <p
           v-else
