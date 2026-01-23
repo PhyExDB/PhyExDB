@@ -1,47 +1,80 @@
+import prisma from '~~/server/lib/prisma';
+
 export default defineEventHandler (async (event) => {
     const user = await getUserOrThrowError(event)
+
+    const experimentId = getRouterParam(event, 'id');
     const userId = user.id
 
-    const favorites = await prisma.favorite.findMany({
-        where: {
-            userId: userId
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    })
+    if (!experimentId) {
+        throw createError({ statusCode: 400, statusMessage: 'Experiment ID missing' });
+    }
 
-    return favorites
-})
+    const existing = await prisma.favorite.findUnique({
+        where: {
+            userId_experimentId: {
+                userId: userId,
+                experimentId: experimentId,
+            },
+        },
+    });
+
+    if (existing) {
+        await prisma.favorite.delete({
+            where: { id: existing.id },
+        });
+        return { favorited: false };
+    } else {
+        await prisma.favorite.create({
+            data: {
+                userId: userId,
+                experimentId: experimentId,
+                numberForSequence: Math.pow(2, 31) - 1, // Max value for 32-bit signed integer
+            },
+        });
+        return { favorited: true };
+    }
+});
 
 defineRouteMeta({
     openAPI: {
-        summary: "Get all favorites of the User",
-        description: "Returns a List of all favorites from the current user",
-        tags: ["Experiment"],
+        description: 'Highlights an experiment as favorite',
+        tags: ['Experiment'],
+        parameters: [
+            {
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: {
+                    type: 'string',
+                    format: 'uuid',
+                },
+                description: 'The uuid of the experiment',
+            },
+        ],
         responses: {
             200: {
-                description: "List of all favorites from the user loaded successfully",
+                description: 'Experiment got highlighted as favorite successfully',
                 content: {
-                    "application/json": {
+                    'application/json': {
                         schema: {
-                            type: "array",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    id: { type: "string", format: "uuid" },
-                                    userId: { type: "string", format: "uuid" },
-                                    experimentId: { type: "string", format: "uuid" },
-                                    createdAt: { type: "string", format: "date-time" }
-                                }
-                            }
-                        }
-                    }
-                }
+                            type: 'object',
+                            properties: {
+                                favorited: {
+                                    type: 'boolean',
+                                    description: 'True if it is not a favorite, false if not',
+                                },
+                            },
+                        },
+                    },
+                },
             },
-            401: {
-                description: "Not authorisized. User must be logged in"
-            }
-        }
-    }
-})
+            400: {
+                description: 'Wrong request. Experiment-ID is missing or not valid',
+            },
+            404: {
+                description: 'Experiment not found',
+            },
+        },
+    },
+});
