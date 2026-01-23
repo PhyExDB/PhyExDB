@@ -32,6 +32,21 @@ onMounted(() => {
 })
 
 const showDeleteDialog = ref(false)
+const sectionImageStartIndices = computed(() => {
+  if (!experiment?.sections) return []
+
+  let count = 0
+  return experiment.sections.map((section) => {
+    const startIndex = count
+    count += section.files.length
+    return startIndex
+  })
+})
+
+function getImageTitle(sectionIndex: number, fileIndex: number) {
+  const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
+  return `Abb. ${globalIndex + 1}`
+}
 </script>
 
 <template>
@@ -87,8 +102,11 @@ const showDeleteDialog = ref(false)
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            v-if="user.id === experiment.userId && !experiment.revisedBy"
+            v-if="user.id === experiment.userId && !experiment.revisedBy && (experiment.status === 'IN_REVIEW' || experiment.status === 'PUBLISHED')"
+            :disabled="experiment.status === 'IN_REVIEW'"
+            :class="{ 'opacity-50': experiment.status === 'IN_REVIEW' }"
             @click="duplicateExperiment(experiment, true)"
+            @click.prevent
           >
             <span>
               Überarbeiten
@@ -101,6 +119,16 @@ const showDeleteDialog = ref(false)
             <span>
               Zur Überarbeitung
             </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            v-else-if="user.id === experiment.userId && experiment.status === 'DRAFT' || experiment.status === 'REJECTED'"
+          >
+            <NuxtLink
+              :to="`/experiments/edit/${experiment.id}`"
+              class="no-underline w-full block"
+            >
+              Bearbeiten
+            </NuxtLink>
           </DropdownMenuItem>
           <DropdownMenuItem
             v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
@@ -185,10 +213,9 @@ const showDeleteDialog = ref(false)
         <h2 class="text-3xl font-bold">
           {{ section.experimentSection.name }}
         </h2>
-        <div
+        <LatexContent
           v-if="section.text && section.text.length && section.text != '<p></p>'"
-          class="prose dark:prose-invert max-w-full"
-          v-html="section.text"
+          :content="section.text"
         />
         <p
           v-else
@@ -203,7 +230,7 @@ const showDeleteDialog = ref(false)
           :show-thumbnails="true"
         >
           <!-- Main Carousel Item -->
-          <template #item="{ item }">
+          <template #item="{ item, index }">
             <Card>
               <CardContent class="h-80 flex items-center justify-center p-0">
                 <!-- Image File -->
@@ -252,6 +279,12 @@ const showDeleteDialog = ref(false)
                 </template>
               </CardContent>
               <Separator class="mb-3" />
+              <p
+                v-if="isImageFile(item.file.mimeType)"
+                class="w-full whitespace-normal text-center font-semibold pt-2"
+              >
+                {{ getImageTitle(experiment.sections.indexOf(section), index) }}
+              </p>
               <p
                 class="w-full whitespace-normal text-center text-muted-foreground pb-3"
                 style="overflow-wrap: anywhere;"
