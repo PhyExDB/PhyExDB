@@ -12,10 +12,14 @@ authorize(experimentAttributeAbilities.getAll)
 const { toast } = useToast()
 const { data: attributes, refresh } = await useFetch("/api/experiments/attributes")
 
+const MIN_NAME_LENGTH = 4
 const newAttributeName = ref("")
 const newAttributeMultipleSelection = ref(false)
 const isAddingAttribute = ref(false)
-const isNameInvalid = (name: string | undefined | null) => (name?.trim()?.length ?? 0) <= 3
+
+function isNameInvalid(name?: string | null) {
+  return (name?.trim().length ?? 0) < MIN_NAME_LENGTH
+}
 
 async function addAttribute() {
   const name = newAttributeName.value.trim()
@@ -23,6 +27,16 @@ async function addAttribute() {
     toast({
       title: "Name zu kurz",
       description: "Der Name muss mindestens 4 Zeichen lang sein.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const exists = attributes.value?.some(attr => attr.name.toLowerCase() === name.toLowerCase())
+  if (exists) {
+    toast({
+      title: "Kategorie existiert bereits",
+      description: "Eine Kategorie mit diesem Namen existiert bereits.",
       variant: "destructive",
     })
     return
@@ -67,11 +81,21 @@ function startEditing(attribute: ExperimentAttributeDetail) {
 }
 
 async function updateAttribute() {
-  const name = editingAttribute.value?.name?.trim()
+  const name = editingAttribute.value?.name?.trim() ?? ""
   if (isNameInvalid(name)) {
     toast({
       title: "Name zu kurz",
       description: "Der Name muss mindestens 4 Zeichen lang sein.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const exists = attributes.value?.some(attr => attr.name.toLowerCase() === name.toLowerCase())
+  if (exists) {
+    toast({
+      title: "Kategorie existiert bereits",
+      description: "Eine andere Kategorie mit diesem Namen existiert bereits.",
       variant: "destructive",
     })
     return
@@ -96,11 +120,22 @@ async function updateAttribute() {
 
 const newValueNames = ref<Record<string, string>>({})
 async function addValue(attributeId: string) {
-  const name = newValueNames.value[attributeId]?.trim()
+  const name = newValueNames.value[attributeId]?.trim() ?? ""
   if (isNameInvalid(name)) {
     toast({
       title: "Name zu kurz",
       description: "Der Name muss mindestens 4 Zeichen lang sein.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const attribute = attributes.value?.find(attr => attr.id === attributeId)
+  const exists = attribute?.values.some(val => val.value.toLowerCase() === name.toLowerCase())
+  if (exists) {
+    toast({
+      title: "Option existiert bereits",
+      description: "Eine Option mit diesem Namen existiert bereits in dieser Kategorie.",
       variant: "destructive",
     })
     return
