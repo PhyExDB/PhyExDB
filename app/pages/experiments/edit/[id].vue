@@ -6,9 +6,23 @@ import FormControl from "~/components/ui/form/FormControl.vue"
 
 const user = await useUser()
 
+watch(
+  user,
+  (newUser) => {
+    if (!newUser) {
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
+      navigateTo("/", { replace: true })
+    }
+  },
+)
+
 if (!user.value) {
   await navigateTo("/")
 }
+
 const emailVerified = user.value?.emailVerified
 
 const loading = ref(false)
@@ -81,6 +95,7 @@ onUnmounted(() => {
 })
 
 onBeforeRouteLeave(async () => {
+  if (!user.value) return
   await onSubmit()
 })
 
@@ -196,6 +211,7 @@ async function saveForm(values: typeof form.values) {
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
+  if (!user.value) return
   if (!emailVerified) return
   if (loading.value) return
   loading.value = true
