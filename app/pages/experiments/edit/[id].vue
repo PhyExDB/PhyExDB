@@ -499,7 +499,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                           v-bind="componentField"
                           type="text"
                           placeholder="Beschreibung"
-                          class="resize min-h-[80px]"
+                          class="resize-y min-h-[80px] max-h-[350px] overflow-auto"
                         />
                       </FormControl>
                       <FormMessage />
