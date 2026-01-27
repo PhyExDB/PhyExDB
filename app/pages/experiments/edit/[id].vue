@@ -495,10 +495,11 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                         </NuxtLink>
                       </FormLabel>
                       <FormControl>
-                        <Input
+                        <Textarea
                           v-bind="componentField"
                           type="text"
                           placeholder="Beschreibung"
+                          class="resize-y min-h-[80px] max-h-[350px] overflow-auto"
                         />
                       </FormControl>
                       <FormMessage />
