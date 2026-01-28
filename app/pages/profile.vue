@@ -557,5 +557,29 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
         </div>
       </CardContent>
     </Card>
+
+    <!-- Admin Actions -->
+    <Card
+      v-if="user.role === 'ADMIN'"
+      class="mt-4"
+    >
+      <CardContent class="p-6">
+        <div class="text-xl">
+          Administration
+        </div>
+        <div class="flex flex-wrap gap-4 mt-4">
+          <NuxtLink to="/users">
+            <Button variant="outline">
+              Nutzerverwaltung
+            </Button>
+          </NuxtLink>
+          <NuxtLink to="/admin/categories">
+            <Button variant="outline">
+              Kategorien verwalten
+            </Button>
+          </NuxtLink>
+        </div>
+      </CardContent>
+    </Card>
   </div>
 </template>

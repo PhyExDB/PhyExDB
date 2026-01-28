@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
       (slug: string) => {
         return prisma.experimentAttribute.update({
           where: whereClause,
-          data: { name: content.name, slug: slug },
+          data: { name: content.name, slug: slug, multipleSelection: content.multipleSelection },
           include: { values: true },
         })
       },

@@ -41,6 +41,7 @@ export interface ExperimentAttributeDetail extends ExperimentAttributeList {
  */
 export const experimentAttributeUpdateSchema = z.object({
   name: z.string(),
+  multipleSelection: z.boolean(),
 })
 
 /**
