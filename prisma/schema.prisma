@@ -28,6 +28,10 @@ model User {
   experiments   Experiment[]
   reviews       Review[]
 
+  twoFactorEnabled       Boolean     @default(false)
+  twoFactorSecret        String?
+  twoFactorRecoveryCodes String[]    @default([])
+
   banned     Boolean?
   banReason  String?
   banExpires DateTime?
@@ -245,7 +249,7 @@ model Comment {
   userId       String
   experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
-  parent       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: SetNull)
+  parent       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
   parentId     String?
   children     Comment[]   @relation("CommentToComment")
   createdAt    DateTime    @default(now())

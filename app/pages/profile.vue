@@ -25,6 +25,7 @@ const verifiedValue = user.value?.emailVerified
 const canReviewExperiments = await allows(experimentAbilities.review)
 
 const { toast } = useToast()
+
 async function sendVerificationEmail() {
   await useAuth().client.sendVerificationEmail({
     email: user.value!.email,
@@ -50,6 +51,170 @@ function numberOfOwnExperiments(): string {
   return numberOfOwnExperiments === 1
     ? "1 Experiment"
     : `${numberOfOwnExperiments} Experimente`
+}
+
+const twofaStatus = ref<{ enabled: boolean }>({ enabled: false })
+const twofaLoading = ref(false)
+const twofaSetup = ref<{ secret: string, otpauthUrl: string, issuer: string } | null>(null)
+const twofaCode = ref("")
+const twofaRecoveryCodes = ref<string[] | null>(null)
+const twofaDisableCode = ref("")
+const qrDataUrl = ref<string | null>(null)
+const qrLoading = ref(false)
+
+const { data: twofaStatusData } = await useFetch("/api/2fa/status")
+if (twofaStatusData?.value) {
+  twofaStatus.value = twofaStatusData.value
+}
+
+async function startTwofaSetup() {
+  twofaLoading.value = true
+  qrLoading.value = true
+  twofaRecoveryCodes.value = null
+  try {
+    const { data } = await useFetch("/api/2fa/setup")
+    if (data.value) {
+      twofaSetup.value = data.value
+      qrDataUrl.value = data.value.qrDataUrl
+    }
+  } catch (e: unknown) {
+    let message = "Unbekannter Fehler"
+
+    if (typeof e === "object" && e !== null) {
+      const err = e as {
+        message?: string
+        data?: { message?: string }
+      }
+
+      if (err.data?.message) {
+        message = err.data.message
+      } else if (err.message) {
+        message = err.message
+      }
+    }
+    console.error(e)
+    toast({
+      title: "2FA-Einrichtung fehlgeschlagen",
+      description: `${message} — bitte Migrationen ausführen und Session prüfen.`,
+      variant: "destructive",
+    })
+  } finally {
+    twofaLoading.value = false
+    qrLoading.value = false
+  }
+}
+
+async function confirmTwofaEnable() {
+  if (!twofaCode.value) return
+  twofaLoading.value = true
+  try {
+    const res = await $fetch("/api/2fa/enable", { method: "POST", body: { code: twofaCode.value } })
+    if (res?.recoveryCodes) {
+      twofaRecoveryCodes.value = res.recoveryCodes
+      toast({
+        title: "2FA aktiviert",
+        description: "Die Zwei-Faktor-Authentifizierung wurde erfolgreich aktiviert.",
+        variant: "success",
+      })
+      twofaCode.value = ""
+      twofaStatus.value.enabled = true
+    }
+  } catch (e: unknown) {
+    toast({ title: "2FA Error", description: getErrorMessage(e), variant: "destructive" })
+  } finally {
+    twofaLoading.value = false
+  }
+}
+
+async function regenerateRecoveryCodes() {
+  if (!twofaCode.value) return
+  twofaLoading.value = true
+  try {
+    const res = await $fetch("/api/2fa/recoveries", { method: "POST", body: { code: twofaCode.value } })
+    if (res?.recoveryCodes) {
+      twofaRecoveryCodes.value = res.recoveryCodes
+      toast({
+        title: "Wiederherstellungscodes neu erzeugt",
+        description: "Die neuen Codes wurden erfolgreich generiert.",
+        variant: "success",
+      })
+      twofaCode.value = ""
+    }
+  } catch (e: unknown) {
+    toast({ title: "2FA Error", description: getErrorMessage(e), variant: "destructive" })
+  } finally {
+    twofaLoading.value = false
+  }
+}
+
+async function disableTwofa() {
+  if (!twofaDisableCode.value) {
+    toast({
+      title: "Fehler",
+      description: "Bitte gib den 2FA-Code ein",
+      variant: "destructive",
+    })
+    return
+  }
+
+  twofaLoading.value = true
+  try {
+    await $fetch("/api/2fa/disable", {
+      method: "POST",
+      body: { code: twofaDisableCode.value },
+    })
+    twofaStatus.value.enabled = false
+    twofaSetup.value = null
+    twofaRecoveryCodes.value = null
+    twofaCode.value = ""
+    twofaDisableCode.value = ""
+
+    toast({
+      title: "2FA deaktiviert",
+      description: "Die Zwei-Faktor-Authentifizierung wurde erfolgreich deaktiviert.",
+      variant: "success",
+    })
+  } catch (e: unknown) {
+    toast({ title: "2FA Fehler", description: getErrorMessage(e), variant: "destructive" })
+  } finally {
+    twofaLoading.value = false
+  }
+}
+
+function copyRecoveryCodes() {
+  if (twofaRecoveryCodes.value && twofaRecoveryCodes.value.length > 0) {
+    navigator.clipboard.writeText(twofaRecoveryCodes.value.join("\n"))
+  } else {
+    toast({
+      title: "Keine Wiederherstellungscodes",
+      description: "Es sind keine Wiederherstellungscodes verfügbar.",
+      variant: "destructive",
+    })
+  }
+}
+
+function downloadRecoveryCodes() {
+  if (!twofaRecoveryCodes.value || twofaRecoveryCodes.value.length === 0) return
+
+  const blob = new Blob([twofaRecoveryCodes.value.join("\n")], { type: "text/plain" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = "2fa-recovery-codes-" + process.env.APP_IMAGE + ".txt"
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
+  if (typeof e !== "object" || e === null) return fallback
+
+  const err = e as { message?: string, statusMessage?: string, data?: { message?: string, statusMessage?: string } }
+
+  return err.data?.statusMessage
+    ?? err.statusMessage
+    ?? err.data?.message
+    ?? err.message
+    ?? fallback
 }
 </script>
 
@@ -191,6 +356,229 @@ function numberOfOwnExperiments(): string {
             Meine Versuche
           </Button>
         </NuxtLink>
+      </CardContent>
+    </Card>
+
+    <Card class="mt-4">
+      <CardContent class="p-6 space-y-4">
+        <div class="flex items-center space-x-2 text-xl">
+          <span>🔒</span>
+          <span>Zwei-Faktor-Authentifizierung</span>
+          <span
+            v-if="twofaStatus.enabled"
+            class="text-green-600 text-xl"
+          >aktiviert</span>
+          <span
+            v-else
+            class="text-red-600 text-xl"
+          >deaktiviert</span>
+        </div>
+
+        <!-- 2FA Disabled -->
+        <div
+          v-if="!twofaStatus.enabled"
+          class="space-y-4"
+        >
+          <div class="text-sm">
+            2FA ist aktuell deaktiviert.
+          </div>
+          <Button
+            :loading="twofaLoading"
+            @click="startTwofaSetup"
+          >
+            Einrichtung starten
+          </Button>
+          <div
+            v-if="twofaSetup"
+            class="space-y-3"
+          >
+            <div class="text-sm">
+              Scanne diesen QR-Code mit deiner Authenticator-App oder verwende das Secret.
+            </div>
+            <div class="flex items-center space-x-4">
+              <div
+                v-if="qrLoading"
+                class="animate-spin w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full"
+              />
+              <img
+                v-else-if="qrDataUrl"
+                :src="qrDataUrl"
+                alt="QR"
+                class="border rounded"
+              >
+            </div>
+
+            <div class="flex flex-col mt-2 text-xs">
+              <div>
+                <strong>Secret:</strong> {{ twofaSetup.secret }}
+              </div>
+            </div>
+            <div class="grid gap-2 max-w-xs">
+              <label class="text-sm font-medium">6-stelliger Code</label>
+              <div class="flex space-x-2">
+                <Input
+                  v-model="twofaCode"
+                  class="h-10"
+                  placeholder="123456"
+                  inputmode="numeric"
+                  maxlength="6"
+                  @keyup.enter="confirmTwofaEnable"
+                />
+                <Button
+                  class="h-10"
+                  :loading="twofaLoading"
+                  @click="confirmTwofaEnable"
+                >
+                  Bestätigen
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recovery Codes for newly enabled 2FA -->
+          <div
+            v-if="twofaRecoveryCodes"
+            class="space-y-2"
+          >
+            <div class="text-sm font-medium">
+              Wiederherstellungscodes
+            </div>
+            <div class="text-xs text-yellow-600">
+              Diese Codes werden nur einmal angezeigt. Bitte sicher speichern.
+            </div>
+            <ul class="text-sm grid grid-cols-2 gap-2">
+              <li
+                v-for="c in twofaRecoveryCodes"
+                :key="c"
+                class="font-mono p-2 border rounded"
+              >
+                {{ c }}
+              </li>
+            </ul>
+            <div class="flex space-x-2 mt-1">
+              <Button
+                size="sm"
+                variant="outline"
+                @click="copyRecoveryCodes"
+              >
+                Kopieren
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                @click="downloadRecoveryCodes"
+              >
+                Als .txt speichern
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2FA Enabled -->
+        <div
+          v-else
+          class="space-y-4"
+        >
+          <div class="grid gap-2 max-w-xs">
+            <label class="text-sm font-medium">Wiederherstellungscodes neu erzeugen</label>
+            <div class="flex space-x-2">
+              <Input
+                v-model="twofaCode"
+                class="h-10"
+                placeholder="2FA-Code"
+                inputmode="text"
+                maxlength="11"
+                @keyup.enter="regenerateRecoveryCodes"
+              />
+              <Button
+                class="h-10"
+                variant="outline"
+                :loading="twofaLoading"
+                @click="regenerateRecoveryCodes"
+              >
+                Bestätigen
+              </Button>
+            </div>
+          </div>
+          <div
+            v-if="twofaRecoveryCodes"
+            class="space-y-2"
+          >
+            <div class="text-sm font-medium">
+              Neue Wiederherstellungscodes
+            </div>
+            <ul class="text-sm grid grid-cols-2 gap-2">
+              <li
+                v-for="c in twofaRecoveryCodes"
+                :key="c"
+                class="font-mono p-2 border rounded"
+              >
+                {{ c }}
+              </li>
+            </ul>
+            <div class="flex space-x-2 mt-1">
+              <Button
+                size="sm"
+                variant="outline"
+                @click="copyRecoveryCodes"
+              >
+                Kopieren
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                @click="downloadRecoveryCodes"
+              >
+                Als .txt speichern
+              </Button>
+            </div>
+          </div>
+          <div class="grid gap-2 max-w-xs">
+            <label class="text-sm font-medium">2FA deaktivieren</label>
+            <div class="flex space-x-2">
+              <Input
+                v-model="twofaDisableCode"
+                class="h-10"
+                placeholder="2FA-Code"
+                inputmode="text"
+                maxlength="11"
+                @keyup.enter="disableTwofa"
+              />
+              <Button
+                class="h-10"
+                variant="destructive"
+                :loading="twofaLoading"
+                @click="disableTwofa"
+              >
+                Deaktivieren
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Admin Actions -->
+    <Card
+      v-if="user.role === 'ADMIN'"
+      class="mt-4"
+    >
+      <CardContent class="p-6">
+        <div class="text-xl">
+          Administration
+        </div>
+        <div class="flex flex-wrap gap-4 mt-4">
+          <NuxtLink to="/users">
+            <Button variant="outline">
+              Nutzerverwaltung
+            </Button>
+          </NuxtLink>
+          <NuxtLink to="/admin/categories">
+            <Button variant="outline">
+              Kategorien verwalten
+            </Button>
+          </NuxtLink>
+        </div>
       </CardContent>
     </Card>
   </div>
