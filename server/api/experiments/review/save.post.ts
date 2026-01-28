@@ -19,10 +19,14 @@ export default defineEventHandler(async (event) => {
 
   const experiment = await prisma.experiment.findUnique({
     where: { id: experimentId },
-    select: { updatedAt: true },
+    select: { updatedAt: true, userId: true },
   })
 
   if (!experiment) throw createError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
+
+  if (experiment.userId === user.id) {
+    throw createError({ statusCode: 403, statusMessage: "Du kannst deinen eigenen Versuch nicht überprüfen." })
+  }
 
   const now = new Date()
 

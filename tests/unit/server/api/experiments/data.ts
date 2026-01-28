@@ -11,7 +11,6 @@ export const lists: ExperimentList[] = [
     status: "DRAFT",
     duration: 1,
     completedReviewsCount: 0,
-    reviews: [],
     attributes: [
       {
         id: uuidv4(),

@@ -7,12 +7,28 @@ const { experiment } = defineProps<{
   reviewStarted?: boolean
 }>()
 
-const reviews = ref<unknown[]>([])
+const reviews = ref<Array<{
+  id: string
+  status: string
+  createdAt: string
+  updatedAt: string
+  reviewer: { name: string, image: string | null }
+  sectionsCritiques: Array<{
+    id: string
+    critique: string
+    sectionContent: {
+      id: string
+      experimentSection: { id: string, name: string }
+    }
+  }>
+}>>([])
+
+const canReviewExperiments = await allows(experimentAbilities.review)
 
 watch(
   () => experiment?.id,
   async (id) => {
-    if (!id || !experiment) return
+    if (!id || !experiment || !canReviewExperiments) return
 
     const reviewExperimentId = experiment.revisionOf?.id ?? id
     const { data, error } = await useFetch(`/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`)
@@ -68,6 +84,25 @@ const sectionImageStartIndices = computed(() => {
 function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
+}
+
+function getReviewsForSection(sectionId: string) {
+  return reviews.value
+    .filter(review => review.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === sectionId))
+    .map(review => ({
+      ...review,
+      critiques: review.sectionsCritiques.filter(c => c.sectionContent.experimentSection.id === sectionId),
+    }))
+}
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
 }
 </script>
 
@@ -344,6 +379,51 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </Card>
           </template>
         </CarouselWithPreview>
+
+        <div
+          v-if="canReviewExperiments && getReviewsForSection(section.experimentSection.id).length > 0"
+          class="mt-6 space-y-4"
+        >
+          <h3 class="text-lg font-semibold flex items-center gap-2">
+            <Icon
+              name="heroicons:chat-bubble-left-right"
+              class="w-5 h-5"
+            />
+            Bisherige Beanstandungen
+          </h3>
+
+          <div
+            v-for="review in getReviewsForSection(section.experimentSection.id)"
+            :key="review.id"
+            class="space-y-2"
+          >
+            <div
+              v-for="critique in review.critiques"
+              :key="critique.id"
+              class="border rounded-lg p-4 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 shadow-sm"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <Icon
+                    name="heroicons:user-circle"
+                    class="w-5 h-5 text-amber-600"
+                  />
+                  <span class="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                    {{ review.reviewer?.name || 'Reviewer' }}
+                  </span>
+                </div>
+                <span class="text-xs text-muted-foreground">
+                  {{ formatDate(review.updatedAt) }}
+                </span>
+              </div>
+              <div
+                class="prose prose-sm dark:prose-invert"
+                v-html="critique.critique"
+              />
+            </div>
+          </div>
+        </div>
+
         <!-- Textfeld für Review-Modul -->
         <div
           v-if="reviewStarted"
@@ -368,7 +448,6 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     </div>
 
     <!-- Own rating -->
-    <!-- <div v-if="!preview"> -->
     <Separator />
     <ExperimentRatingOwn
       v-if="user"
@@ -377,6 +456,5 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     <ExperimentComment
       :experiment="experiment"
     />
-    <!-- </div> -->
   </div>
 </template>

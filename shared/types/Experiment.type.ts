@@ -1,6 +1,6 @@
 import { z } from "zod"
 import type { FileList } from "./File.type"
-import type { ReviewSummary } from "#shared/types/Review.type";
+import type { ReviewSummary } from "#shared/types/Review.type"
 
 /**
  * ExperimentList
@@ -49,7 +49,7 @@ export interface ExperimentList extends SlugList {
   ratingsSum: number
 
   /**
-   * Count of all reviews
+   * Count of completed reviews for current round
    */
   completedReviewsCount: number
 }
@@ -69,7 +69,6 @@ export interface ExperimentDetail extends ExperimentList {
 
   reviews: ReviewSummary[]
   updatedAt: string | Date
-  completedReviewsCount: number
   alreadyReviewedByMe: boolean
 }
 
@@ -90,10 +89,10 @@ export interface ExperimentIncorrectDetail extends Omit<ExperimentDetail, "attri
   /**
    * The attribute values associated with the experiment.
    */
-  attributes: ExperimentAttributeValueDetail[];
+  attributes: ExperimentAttributeValueDetail[]
   // These are optional here so the DB object can be cast to this type
-  completedReviewsCount?: number;
-  alreadyReviewedByMe?: boolean;
+  completedReviewsCount?: number
+  alreadyReviewedByMe?: boolean
 }
 
 /**

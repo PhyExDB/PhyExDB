@@ -3,7 +3,10 @@ export default defineEventHandler(async (event) => {
   const user = await getUserOrThrowError(event)
 
   const allExperiments = await prisma.experiment.findMany({
-    where: { status: "IN_REVIEW" },
+    where: {
+      status: "IN_REVIEW",
+      userId: { not: user.id },
+    },
     include: {
       ...experimentIncludeForToList,
       reviews: {

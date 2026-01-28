@@ -16,7 +16,10 @@ export default defineEventHandler(async (event) => {
 
     user.role !== "USER"
       ? prisma.experiment.findMany({
-          where: { status: "IN_REVIEW" },
+          where: {
+            status: "IN_REVIEW",
+            userId: { not: user.id },
+          },
           select: {
             updatedAt: true,
             reviews: {

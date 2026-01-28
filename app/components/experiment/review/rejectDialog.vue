@@ -1,22 +1,22 @@
 <script lang="ts" setup>
 import type { PropType } from "vue"
 
-const { onDelete } = defineProps({
+const props = defineProps({
   onDelete: {
     type: Function as PropType<() => Promise<void>>,
     required: true,
   },
 })
 
+const open = defineModel<boolean>("open", { default: false })
 const loading = ref(false)
-const open = ref(false)
 
 async function submit() {
   if (loading.value) return
   loading.value = true
 
   try {
-    await onDelete()
+    await props.onDelete()
     open.value = false
   } finally {
     loading.value = false
@@ -26,8 +26,7 @@ async function submit() {
 
 <template>
   <Dialog
-    :open="open"
-    @update:open="open = $event"
+    v-model:open="open"
   >
     <slot />
     <DialogContent>

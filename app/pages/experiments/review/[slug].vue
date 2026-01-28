@@ -18,6 +18,10 @@ if (experiment.value && experiment.value.status !== "IN_REVIEW") {
   await navigateTo("/")
 }
 
+if (experiment.value && experiment.value.userId === user.value?.id) {
+  await navigateTo("/experiments/review")
+}
+
 const { toast } = useToast()
 const hasToggled = ref(false)
 const openDialog = ref(false)
