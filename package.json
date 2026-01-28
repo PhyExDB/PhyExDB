@@ -46,7 +46,7 @@
     "jsonwebtoken": "^9.0.2",
     "katex": "^0.16.27",
     "lucide-vue-next": "^0.487.0",
-    "nuxt": "^3.16.2",
+    "nuxt": "^3.20.1",
     "nuxt-schema-org": "^5.0.4",
     "nuxt-tiptap-editor": "^2.1.4",
     "qrcode": "^1.5.4",
