@@ -2,18 +2,47 @@ export default defineEventHandler(async (event) => {
   const user = await getUser(event)
   if (!user) {
     return {
-      userNotifications: 0, publishedCount: 0, needsRevisionCount: 0,
-      moderatorNotifications: 0, lastUpdate: null, moderatorLastUpdate: null,
+      publishedCount: 0,
+      userNotifications: 0,
+      newlyPublishedCount: 0,
+      needsRevisionCount: 0,
+      moderatorNotifications: 0,
+      lastPublishedAt: null,
+      lastRejectedAt: null,
+      moderatorLastUpdate: null,
     }
   }
 
-  const [userStats, moderatorData, lastReview] = await Promise.all([
-    prisma.experiment.groupBy({
-      by: ["status"],
-      where: { userId: user.id, status: { in: ["PUBLISHED", "REJECTED"] } },
-      _count: true,
+  const [
+    publishedExperiments,
+    rejectedExperiments,
+    moderatorData,
+  ] = await Promise.all([
+    // Alle veröffentlichten Versuche
+    prisma.experiment.findMany({
+      where: { userId: user.id, status: "PUBLISHED" },
+      select: { id: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
     }),
 
+    // Versuche die beanstandet wurden
+    prisma.experiment.findMany({
+      where: {
+        userId: user.id,
+        status: "DRAFT",
+        reviews: {
+          some: {
+            sectionsCritiques: {
+              some: {},
+            },
+          },
+        },
+      },
+      select: { id: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+    }),
+
+    // Moderator: Offene Reviews
     user.role !== "USER"
       ? prisma.experiment.findMany({
           where: {
@@ -29,16 +58,12 @@ export default defineEventHandler(async (event) => {
           },
         })
       : Promise.resolve([]),
-
-    prisma.review.findFirst({
-      where: { experiment: { userId: user.id } },
-      orderBy: { updatedAt: "desc" },
-      select: { updatedAt: true },
-    }),
   ])
 
-  const publishedCount = userStats.find(s => s.status === "PUBLISHED")?._count ?? 0
-  const needsRevisionCount = userStats.find(s => s.status === "REJECTED")?._count ?? 0
+  const publishedCount = publishedExperiments.length
+  const needsRevisionCount = rejectedExperiments.length
+  const lastPublishedAt = publishedExperiments[0]?.updatedAt?.getTime() || null
+  const lastRejectedAt = rejectedExperiments[0]?.updatedAt?.getTime() || null
 
   const relevantModExps = moderatorData.filter((exp) => {
     const myReview = exp.reviews[0]
@@ -52,11 +77,12 @@ export default defineEventHandler(async (event) => {
     : null
 
   return {
-    userNotifications: publishedCount + needsRevisionCount,
     publishedCount,
     needsRevisionCount,
     moderatorNotifications,
-    lastUpdate: lastReview?.updatedAt?.getTime() || null,
+    lastPublishedAt,
+    lastRejectedAt,
     moderatorLastUpdate,
+    userNotifications: (lastPublishedAt ? 1 : 0) + (lastRejectedAt ? 1 : 0),
   }
 })

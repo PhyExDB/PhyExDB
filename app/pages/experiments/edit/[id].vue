@@ -558,10 +558,9 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                   <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
                     Korrekturhinweis
                   </p>
-                  <div
-                    class="prose prose-sm dark:prose-invert"
-                    v-html="critique.critique"
-                  />
+                  <div class="prose prose-sm dark:prose-invert">
+                    <LatexContent :content="critique.critique" />
+                  </div>
                 </div>
               </div>
             </template>

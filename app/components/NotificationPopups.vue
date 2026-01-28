@@ -8,13 +8,28 @@ const publishedCount = computed(() => data.value?.publishedCount ?? 0)
 const needsRevisionCount = computed(() => data.value?.needsRevisionCount ?? 0)
 const moderatorNotifications = computed(() => data.value?.moderatorNotifications ?? 0)
 
+const hasNewPublished = computed(() => {
+  if (!data.value?.lastPublishedAt) return false
+  const lastSeen = Number(localStorage.getItem("last-published-seen") || 0)
+  return data.value.lastPublishedAt > lastSeen
+})
+
+const hasNewRejected = computed(() => {
+  if (!data.value?.lastRejectedAt) return false
+  const lastSeen = Number(localStorage.getItem("last-rejected-seen") || 0)
+  return data.value.lastRejectedAt > lastSeen
+})
+
+const hasNewModeratorTasks = computed(() => {
+  if (!data.value?.moderatorLastUpdate) return false
+  const lastSeen = Number(localStorage.getItem("last-mod-notif-seen") || 0)
+  return data.value.moderatorLastUpdate > lastSeen
+})
+
 onMounted(() => {
   if (!data.value || !user) return
 
-  const lastUserSeen = Number(localStorage.getItem("last-user-notif-seen") || 0)
-  const serverUserUpdate = Number(data.value.lastUpdate || 0)
-
-  if (data.value.userNotifications > 0 && serverUserUpdate > lastUserSeen) {
+  if (hasNewPublished.value || hasNewRejected.value) {
     showUserPopup.value = true
   } else {
     checkModeratorPopup()
@@ -22,18 +37,24 @@ onMounted(() => {
 })
 
 function checkModeratorPopup() {
-  const lastModSeen = Number(localStorage.getItem("last-mod-notif-seen") || 0)
-  const serverModUpdate = Number(data.value?.moderatorLastUpdate || 0)
-  if (data.value && data.value.moderatorNotifications > 0 && serverModUpdate > lastModSeen) {
+  if (!user || user.role === "USER") return
+
+  if (hasNewModeratorTasks.value) {
     showModeratorPopup.value = true
   }
 }
 
 function closeUserPopup() {
   showUserPopup.value = false
-  if (data.value?.lastUpdate) {
-    localStorage.setItem("last-user-notif-seen", data.value.lastUpdate.toString())
+
+  if (data.value?.lastPublishedAt) {
+    localStorage.setItem("last-published-seen", data.value.lastPublishedAt.toString())
   }
+  if (data.value?.lastRejectedAt) {
+    localStorage.setItem("last-rejected-seen", data.value.lastRejectedAt.toString())
+  }
+
+  checkModeratorPopup()
 }
 
 function closeModeratorPopup() {
@@ -49,21 +70,34 @@ function closeModeratorPopup() {
     <NotificationDialog
       :open="showUserPopup"
       icon-name="heroicons:bell-alert"
-      title="Review-Update"
-      description="Es gibt Neuigkeiten zu deinen Versuchen."
+      title="Neuigkeiten zu deinen Versuchen"
+      description="Es hat sich etwas geändert seit deinem letzten Besuch."
       @update:open="(val) => !val && closeUserPopup()"
     >
       <div class="space-y-3">
         <NotificationItem
-          v-if="publishedCount > 0"
+          v-if="hasNewPublished && publishedCount > 0"
+          title="Neu veröffentlicht!"
+          :description="`${publishedCount} ${publishedCount === 1 ? 'Versuch ist' : 'Versuche sind'} jetzt live.`"
+          icon="heroicons:check-badge"
+          color-class="bg-emerald-500/10 text-emerald-600"
+        />
+        <NotificationItem
+          v-else-if="publishedCount > 0"
           title="Status: Live"
           :description="`${publishedCount} ${publishedCount === 1 ? 'Versuch ist' : 'Versuche sind'} aktuell veröffentlicht.`"
           icon="heroicons:check-badge"
           color-class="bg-emerald-500/10 text-emerald-600"
         />
-
         <NotificationItem
-          v-if="needsRevisionCount > 0"
+          v-if="hasNewRejected && needsRevisionCount > 0"
+          title="Neue Beanstandung!"
+          :description="`${needsRevisionCount} ${needsRevisionCount === 1 ? 'Versuch benötigt' : 'Versuche benötigen'} Überarbeitung.`"
+          icon="heroicons:exclamation-triangle"
+          color-class="bg-red-500/10 text-red-600"
+        />
+        <NotificationItem
+          v-else-if="needsRevisionCount > 0"
           title="Überarbeitung nötig"
           :description="`${needsRevisionCount} ${needsRevisionCount === 1 ? 'Versuch benötigt' : 'Versuche benötigen'} eine Überarbeitung.`"
           icon="heroicons:pencil-square"
@@ -95,7 +129,7 @@ function closeModeratorPopup() {
       :open="showModeratorPopup"
       icon-name="heroicons:clipboard-document-list"
       title="Warteschlange"
-      description="Neue Aufgaben stehen an."
+      description="Es gibt neue Versuche zur Überprüfung."
       @update:open="(val) => !val && closeModeratorPopup()"
     >
       <div class="rounded-xl bg-muted/50 p-6 text-center border">

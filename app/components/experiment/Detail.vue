@@ -416,10 +416,9 @@ function formatDate(dateString: string) {
                   {{ formatDate(review.updatedAt) }}
                 </span>
               </div>
-              <div
-                class="prose prose-sm dark:prose-invert"
-                v-html="critique.critique"
-              />
+              <div class="prose prose-sm dark:prose-invert">
+                <LatexContent :content="critique.critique" />
+              </div>
             </div>
           </div>
         </div>
