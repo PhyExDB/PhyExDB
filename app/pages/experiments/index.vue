@@ -424,6 +424,10 @@ onMounted(() => {
                 <CardFooter class="flex flex-col items-start p-4 gap-2 w-full">
                   <CardTitle class="text-primary/80 text-left">
                     {{ experiment.name }}
+                    <FavoriteButton
+                        :experiment-id="experiment.id"
+                        :is-favorited-initial="experiment.isFavorited ?? false"
+                    />
                   </CardTitle>
                   <div class="flex flex-col sm:flex-row gap-2 w-full">
                     <Badge class="text-left">
@@ -431,10 +435,7 @@ onMounted(() => {
                       {{ experiment.duration }} Min.
                     </Badge>
                     <ExperimentRating :experiment="experiment" :small="true" />
-                    <FavoriteButton
-                        :experiment-id="experiment.id"
-                        :is-favorited-initial="experiment.isFavorited ?? false"
-                    />
+
                   </div>
                 </CardFooter>
               </Card>
@@ -499,6 +500,10 @@ onMounted(() => {
             <CardFooter class="flex flex-col items-start p-4 gap-2 w-full">
               <CardTitle class="text-primary/80 text-left">
                 {{ experiment.name }}
+                <FavoriteButton
+                    :experiment-id="experiment.id"
+                    :is-favorited-initial="experiment.isFavorited ?? false"
+                />
               </CardTitle>
               <div class="flex flex-col sm:flex-row gap-2 w-full">
                 <Badge class="text-left">
@@ -506,10 +511,6 @@ onMounted(() => {
                   {{ experiment.duration }} Min.
                 </Badge>
                 <ExperimentRating :experiment="experiment" :small="true" />
-                <FavoriteButton
-                    :experiment-id="experiment.id"
-                    :is-favorited-initial="experiment.isFavorited ?? false"
-                />
               </div>
             </CardFooter>
           </Card>

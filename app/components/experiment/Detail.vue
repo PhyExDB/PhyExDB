@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import FavoriteButton from '~/components/experiment/FavoriteButton.vue';
 const user = await useUser()
 
 const { experiment } = defineProps<{
@@ -55,6 +56,12 @@ const showDeleteDialog = ref(false)
       <h1 class="text-4xl font-extrabold mr-2">
         {{ experiment.name }}
       </h1>
+
+      <FavoriteButton
+          :experiment-id="experiment.id"
+          :is-favorited-initial="experiment.isFavorited ?? false"
+      />
+
       <DropdownMenu
         v-if="user"
       >
@@ -113,14 +120,12 @@ const showDeleteDialog = ref(false)
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
       <ConfirmDeleteAlertDialogBool
         v-model="showDeleteDialog"
         :on-delete="() => deleteExperiment(experiment.id).then(async () => await navigateTo('/experiments'))"
         header="Versuch löschen?"
       />
     </div>
-
     <!-- Rating -->
     <ExperimentRating
       :experiment="experiment"
