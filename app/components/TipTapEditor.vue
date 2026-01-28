@@ -121,6 +121,7 @@ function insertMathFormula() {
           <!-- Text Formatting -->
           <div class="flex gap-1">
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('bold') }"
@@ -130,6 +131,7 @@ function insertMathFormula() {
               <strong>B</strong>
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('italic') }"
@@ -139,6 +141,7 @@ function insertMathFormula() {
               <em>I</em>
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('strike') }"
@@ -148,6 +151,7 @@ function insertMathFormula() {
               <s>S</s>
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('subscript') }"
@@ -157,6 +161,7 @@ function insertMathFormula() {
               <p>x<sub>2</sub></p>
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('superscript') }"
@@ -168,6 +173,7 @@ function insertMathFormula() {
             <DropdownMenu v-model:open="isLinkDropdownOpen">
               <DropdownMenuTrigger as-child>
                 <Button
+                  type="button"
                   variant="outline"
                   class="btn aspect-square"
                   :class="{ 'btn-active': editor.isActive('link') }"
@@ -186,6 +192,7 @@ function insertMathFormula() {
                 />
                 <div class="flex gap-1 mt-2">
                   <Button
+                    type="button"
                     variant="outline"
                     class="ml-auto"
                     @click="setNewLink"
@@ -196,6 +203,7 @@ function insertMathFormula() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('link') }"
@@ -216,6 +224,7 @@ function insertMathFormula() {
               :key="heading.level"
             >
               <Button
+                type="button"
                 variant="outline"
                 class="btn aspect-square"
                 :class="{ 'btn-active': editor.isActive('heading', { level: heading.level }) }"
@@ -229,6 +238,7 @@ function insertMathFormula() {
           <!-- Lists -->
           <div class="flex gap-1">
             <Button
+              type="button"
               variant="outline"
               class="btn"
               :class="{ 'btn-active': editor.isActive('bulletList') }"
@@ -237,6 +247,7 @@ function insertMathFormula() {
               • List
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn"
               :class="{ 'btn-active': editor.isActive('orderedList') }"
@@ -258,6 +269,7 @@ function insertMathFormula() {
           <!-- Undo/Redo -->
           <div class="flex gap-1 ml-auto">
             <Button
+              type="button"
               variant="outline"
               class="btn"
               :disabled="!editor.can().chain().focus().undo().run()"
@@ -267,6 +279,7 @@ function insertMathFormula() {
               Undo
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn"
               :disabled="!editor.can().chain().focus().redo().run()"
