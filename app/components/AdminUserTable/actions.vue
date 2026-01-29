@@ -126,10 +126,14 @@ async function handleDelete() {
         message="Diese Aktion kann nicht rückgängig gemacht werden. Der Account wird dauerhaft gelöscht."
         :on-delete="handleDelete"
       >
-        <button type="button" class="mx-1">
-          <Icon 
-            class="h-4 w-4 text-destructive" 
-            name="heroicons:trash" />
+        <button
+          type="button"
+          class="mx-1"
+        >
+          <Icon
+            class="h-4 w-4 text-destructive"
+            name="heroicons:trash"
+          />
         </button>
       </ConfirmDeleteAlertDialog>
     </TooltipProvider>
