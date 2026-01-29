@@ -127,7 +127,9 @@ async function handleDelete() {
         :on-delete="handleDelete"
       >
         <button type="button" class="mx-1">
-          <Icon class="h-4 w-4 text-destructive" name="heroicons:trash" />
+          <Icon 
+            class="h-4 w-4 text-destructive" 
+            name="heroicons:trash" />
         </button>
       </ConfirmDeleteAlertDialog>
     </TooltipProvider>
