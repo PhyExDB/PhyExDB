@@ -43,3 +43,42 @@ export default defineEventHandler(async (event) => {
     deleted: true,
   }
 })
+
+/**
+ * Route metadata for OpenAPI
+ */
+export const routeMeta = defineRouteMeta({
+  openAPI: {
+    description: "Delete a user by ID. Only admins can delete users.",
+    tags: ["User"],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        description: "The ID of the user",
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    responses: {
+      200: {
+        description: "User deleted successfully",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                deleted: { type: "boolean" },
+              },
+              required: ["id", "deleted"],
+            },
+          },
+        },
+      },
+      400: { description: "Cannot delete the last admin user" },
+      401: { description: "Unauthorized" },
+      404: { description: "User not found" },
+    },
+  },
+})
