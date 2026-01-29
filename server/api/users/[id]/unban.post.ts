@@ -36,3 +36,42 @@ export default defineEventHandler(async (event) => {
     banned: false,
   }
 })
+
+/**
+ * Route metadata for OpenAPI
+ */
+export const routeMeta = defineRouteMeta({
+  openAPI: {
+    description: "Unban a user by ID. Only admins can perform this action.",
+    tags: ["User"],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        description: "The ID of the user",
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    responses: {
+      200: {
+        description: "User unbanned successfully",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                banned: { type: "boolean" },
+              },
+              required: ["id", "banned"],
+            },
+          },
+        },
+      },
+      401: { description: "Unauthorized" },
+      404: { description: "User not found" },
+    },
+  },
+})
+
