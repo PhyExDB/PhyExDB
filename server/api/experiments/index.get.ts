@@ -113,7 +113,6 @@ export default defineEventHandler(async (event) => {
         });
         favoriteIds = userFavorites.map((f) => f.experimentId);
     }
-    console.log('User Favorites:', userFavorites);
 
     return {
         items: experiments.map((experiment) => {
