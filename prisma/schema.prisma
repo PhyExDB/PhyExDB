@@ -256,7 +256,6 @@ model SeedStatus {
   performedAt DateTime @default(now())
 }
 
-//Datenbank erweitern für einen ReportButton für User bei Versuchen
 
 model Report {
   id           String     @id @default(uuid())

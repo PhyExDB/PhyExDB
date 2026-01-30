@@ -20,11 +20,6 @@ const open = ref(false)
 const success = ref("")
 const error = ref("")
 
-// ---------- Sichtbarkeit nur für normale User ----------
-const canReport = computed(() => {
-  const role = props.userRole ?? "USER" // Default "USER" falls keine Rolle gesetzt
-  return role !== "ADMIN" && role !== "MODERATOR"
-})
 
 // ---------- Form setup ----------
 const formSchema = toTypedSchema(experimentReportSchema)
@@ -41,7 +36,7 @@ async function onSubmit(values: { message: string }) {
   success.value = ""
 
   try {
-    await $fetch(`/api/experiments/${route.params.slug}/report`, {
+    await $fetch(`/api/experiments/${route.params.slug}/save.post.ts`, {
       method: "POST",
       body: values,
     })
@@ -58,7 +53,7 @@ async function onSubmit(values: { message: string }) {
 </script>
 
 <template>
-  <div v-if="canReport">
+  <div>
     <Dialog :open="open" @update:open="open = $event">
       <!-- Trigger Button -->
       <DialogTrigger as-child>
@@ -97,8 +92,18 @@ async function onSubmit(values: { message: string }) {
           <p v-if="success" class="text-green-500">{{ success }}</p>
 
           <DialogFooter class="flex flex-col sm:flex-row gap-2 mt-2">
-            <Button type="button" variant="outline" @click="open = false">Abbrechen</Button>
-            <Button type="submit" variant="destructive">Melden</Button>
+            <Button
+                type="button"
+
+                @click="open = false"
+              >Abbrechen
+            </Button>
+            <Button
+                type="submit"
+                variant="destructive"
+                @click="onSubmit"
+              >Melden
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -110,17 +115,17 @@ async function onSubmit(values: { message: string }) {
 
 .btn-report {
   background-color: transparent;
-  color: #06b6d4;
+  color: red;
   font-weight: 600;
   border-radius: 0.375rem;
   padding: 0.5rem 1rem;
-  border: 1px solid #06b6d4;
+  border: 1px solid red;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
 .btn-report:hover {
-  background-color: #e0f7fa;
-  color: #007c91;
+  background-color: white;
+  color: red;
 }
 </style>
 
