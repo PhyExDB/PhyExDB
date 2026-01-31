@@ -50,10 +50,9 @@ const searchSections = ref<string[]>([])
 const temporarySearchSections = ref<string[]>([])
 
 function updateSectionSearch() {
-  sectionSearch.value
-      = (searchTitle.value ? "titel" : "")
-        + (searchSections.value.length > 0 && searchTitle.value ? "," : "")
-        + searchSections.value.join(",")
+  sectionSearch.value = (searchTitle.value ? "titel" : "")
+    + (searchSections.value.length > 0 && searchTitle.value ? "," : "")
+    + searchSections.value.join(",")
   if (sectionSearch.value.length === 0) {
     sectionSearch.value = "keine"
   }
@@ -205,6 +204,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
   const newUrl = { path: route.path, query }
   router.replace(newUrl)
 })
+
 /* Favorite Experiments Drag-and-Drop */
 const favData = ref<any[]>([])
 watchEffect(() => {
@@ -228,9 +228,6 @@ async function onReorder(event: any) {
     body: JSON.stringify({ experimentIds: favData.value.map(exp => exp.id) }),
   })
 }
-
-onMounted(() => {
-})
 </script>
 
 <template>

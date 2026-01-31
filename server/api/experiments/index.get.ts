@@ -3,8 +3,9 @@ import { Prisma } from "@prisma/client"
 export default defineEventHandler(async (event) => {
   // Attribute Filter
   const query = getQuery(event)
-  const attributes
-        = typeof query.attributes === "string" && query.attributes.length > 0 ? query.attributes.split(",") : []
+  const attributes = (typeof query.attributes === "string" && query.attributes.length > 0)
+    ? query.attributes.split(",")
+    : []
   const attributeFilters = attributes.map(slug => ({
     attributes: {
       some: {
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
   const attributeFilter = attributeFilters.length > 0 ? { AND: attributeFilters } : {}
 
   // Sorting
-  const sort = (query.sort as string) || undefined
+  const sort = query.sort as string || undefined
   let sortOption
   if (sort === "alphabetical") {
     sortOption = { name: "asc" as const }
@@ -28,14 +29,15 @@ export default defineEventHandler(async (event) => {
   }
 
   // Searching
-  const querySearchString = (query.search as string) || undefined
-  const querySearchSections
-        = typeof query.sections === "string" && query.sections.length > 0 ? query.sections.split(",") : undefined
+  const querySearchString = query.search as string || undefined
+  const querySearchSections = (typeof query.sections === "string" && query.sections.length > 0)
+    ? query.sections.split(",")
+    : undefined
   let shouldSearchTitle = false
-  let shouldSearchSections = false
+  let shouldSearchSections: boolean
   if (querySearchSections?.includes("titel")) {
     shouldSearchTitle = true
-    shouldSearchSections = querySearchSections.length > 1 ? true : false
+    shouldSearchSections = querySearchSections.length > 1
   } else {
     shouldSearchSections = true
   }
@@ -70,7 +72,10 @@ export default defineEventHandler(async (event) => {
   let searchCondition
   if ((shouldSearchTitle && shouldSearchSections) || (!shouldSearchTitle && shouldSearchSections)) {
     searchCondition = {
-      OR: [{ ...searchTitle }, { ...searchSections }],
+      OR: [
+        { ...searchTitle },
+        { ...searchSections },
+      ],
     }
   } else if (shouldSearchTitle) {
     searchCondition = { ...searchTitle }
