@@ -7,6 +7,7 @@ const props = defineProps<{
 const { toggleFavorite } = useFavorite()
 const isFavorited = ref(props.isFavoritedInitial)
 const isLoading = ref(false)
+const emit = defineEmits(["update:isFavorited"])
 
 async function handleToggle() {
   if (isLoading.value) return
@@ -15,6 +16,7 @@ async function handleToggle() {
   const result = await toggleFavorite(props.experimentId)
   if (result !== null) {
     isFavorited.value = result
+    emit("update:isFavorited", result)
   }
   isLoading.value = false
 }

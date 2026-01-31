@@ -473,6 +473,7 @@ async function onReorder(event: any) {
                     <FavoriteButton
                       :experiment-id="experiment.id"
                       :is-favorited-initial="experiment.isFavorited ?? false"
+                      @update:is-favorited="(val) => experiment.isFavorited = val"
                     />
                   </CardTitle>
                   <div class="flex flex-col sm:flex-row gap-2 w-full">
@@ -560,6 +561,7 @@ async function onReorder(event: any) {
                 <FavoriteButton
                   :experiment-id="experiment.id"
                   :is-favorited-initial="experiment.isFavorited ?? false"
+                  @update:is-favorited="(val) => experiment.isFavorited = val"
                 />
               </CardTitle>
               <div class="flex flex-col sm:flex-row gap-2 w-full">
