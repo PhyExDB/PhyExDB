@@ -32,32 +32,32 @@ export default defineEventHandler(async (event) => {
 
   return prisma.$transaction(async (tx) => {
     // Hat dieser Admin bereits für die AKTUELLE Version gestimmt?
-    const existingReview = await tx.review.findFirst({
+    const alreadyApprovedThisVersion = await tx.review.findFirst({
       where: {
         experimentId,
         reviewerId: user.id,
         status: "COMPLETED",
         // Wenn das Review neuer ist als das letzte Experiment-Update, hat er schon gestimmt
         updatedAt: { gte: experiment.updatedAt },
+        sectionsCritiques: { none: {} },
       },
     })
 
-    if (existingReview && approve) {
+    if (approve && alreadyApprovedThisVersion) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Du hast bereits für diese Version gestimmt. Ein anderes Teammitglied muss die Zweitprüfung übernehmen.",
+        statusMessage: "Du hast dieser Version bereits zugestimmt. Warte auf ein zweites Teammitglied.",
       })
     }
 
-    const review = await tx.review.upsert({
-      where: {
-        experimentId_reviewerId: { experimentId, reviewerId: user.id },
+    const review = await tx.review.create({
+      data: {
+        experimentId,
+        reviewerId: user.id,
+        status: "COMPLETED",
+        updatedAt: now,
       },
-      update: { status: "COMPLETED", updatedAt: now },
-      create: { experimentId, reviewerId: user.id, status: "COMPLETED", updatedAt: now },
     })
-
-    await tx.sectionCritique.deleteMany({ where: { reviewId: review.id } })
 
     if (!approve) {
       // FALL: BEANSTANDUNG
@@ -79,20 +79,19 @@ export default defineEventHandler(async (event) => {
         where: { id: experimentId },
         data: {
           status: "REJECTED",
-          updatedAt: now,
         },
       })
 
-      return { success: true, message: "Beanstandet." }
+      return { success: true, message: "Beanstandet. Status auf REJECTED gesetzt." }
     } else {
       // FALL: AKZEPTIEREN
-      // Zähle andere gültige Reviews (die NACH dem letzten Experiment-Update erstellt wurden)
       const otherApprovals = await tx.review.count({
         where: {
           experimentId,
           status: "COMPLETED",
           reviewerId: { not: user.id },
           updatedAt: { gte: experiment.updatedAt },
+          sectionsCritiques: { none: {} },
         },
       })
 

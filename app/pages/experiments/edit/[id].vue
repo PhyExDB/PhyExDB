@@ -531,15 +531,15 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           </DraggableList>
           <!-- Critiques für diese Section -->
           <div
-            v-if="reviews?.length"
-            class="mt-6 space-y-6"
+            v-if="reviews && reviews.length"
+            class="mt-6"
           >
-            <template
-              v-for="(review, reviewIndex) in reviews"
-              :key="review.id"
+            <div
+              v-for="review in [[...reviews].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]]"
+              :key="review?.id"
             >
               <div
-                v-if="review.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === section.id)"
+                v-if="review && review.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === section.id)"
                 class="space-y-2"
               >
                 <h3 class="font-semibold text-sm flex items-center gap-2">
@@ -547,7 +547,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                     name="heroicons:user-circle"
                     class="w-4 h-4"
                   />
-                  Feedback von Reviewer {{ reviewIndex + 1 }}
+                  Aktuelles Feedback
                 </h3>
 
                 <div
@@ -563,7 +563,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                   </div>
                 </div>
               </div>
-            </template>
+            </div>
           </div>
         </template>
       </form>

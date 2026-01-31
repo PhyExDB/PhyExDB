@@ -31,7 +31,7 @@ watch(() => route.fullPath, () => {
   if (canReviewExperiments) {
     refreshNotifications()
   }
-})
+}, { immediate: true })
 
 const dropdownOpen = ref(false)
 </script>

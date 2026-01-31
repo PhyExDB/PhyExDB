@@ -10,22 +10,24 @@ export default defineEventHandler(async (event) => {
     include: {
       ...experimentIncludeForToList,
       reviews: {
+        orderBy: { updatedAt: "desc" },
         select: { reviewerId: true, updatedAt: true, status: true },
       },
     },
   })
 
   const filteredAndMapped = allExperiments.reduce<(ExperimentList & { completedReviewsCount: number })[]>((acc, exp) => {
+    const expTime = new Date(exp.updatedAt).getTime()
+
     const currentRoundReviews = (exp.reviews || []).filter(r =>
       r.status === "COMPLETED"
-      && new Date(r.updatedAt).getTime() >= new Date(exp.updatedAt).getTime(),
+      && new Date(r.updatedAt).getTime() >= expTime,
     )
 
-    const alreadyReviewedByMe = currentRoundReviews.some(r => r.reviewerId === user.id)
+    const alreadyParticipatedInThisRound = currentRoundReviews.some(r => r.reviewerId === user.id)
 
-    if (!alreadyReviewedByMe) {
+    if (!alreadyParticipatedInThisRound) {
       const mapped = mapExperimentToList(exp as ExperimentIncorrectList) as ExperimentList
-
       acc.push({
         ...mapped,
         completedReviewsCount: currentRoundReviews.length,

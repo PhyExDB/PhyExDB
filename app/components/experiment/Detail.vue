@@ -7,12 +7,13 @@ const { experiment } = defineProps<{
   reviewStarted?: boolean
 }>()
 
-const reviews = ref<Array<{
+interface Review {
   id: string
   status: string
   createdAt: string
   updatedAt: string
   reviewer: { name: string, image: string | null }
+  experimentId: string
   sectionsCritiques: Array<{
     id: string
     critique: string
@@ -21,7 +22,9 @@ const reviews = ref<Array<{
       experimentSection: { id: string, name: string }
     }
   }>
-}>>([])
+}
+
+const reviews = ref<Review[]>([])
 
 const canReviewExperiments = await allows(experimentAbilities.review)
 
@@ -88,11 +91,14 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
 
 function getReviewsForSection(sectionId: string) {
   return reviews.value
-    .filter(review => review.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === sectionId))
+    .filter(review =>
+      review.sectionsCritiques?.some(c => c.sectionContent?.experimentSection?.id === sectionId),
+    )
     .map(review => ({
       ...review,
-      critiques: review.sectionsCritiques.filter(c => c.sectionContent.experimentSection.id === sectionId),
+      critiques: review.sectionsCritiques.filter(c => c.sectionContent?.experimentSection?.id === sectionId),
     }))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 }
 
 function formatDate(dateString: string) {
@@ -144,7 +150,7 @@ function formatDate(dateString: string) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
-            v-if="user !== null && (user.role === 'ADMIN')"
+            v-if="(user.role === 'ADMIN')"
             @click="navigateTo(`/users?search=${experiment.userId}`)"
           >
             <span>
@@ -188,7 +194,7 @@ function formatDate(dateString: string) {
             </NuxtLink>
           </DropdownMenuItem>
           <DropdownMenuItem
-            v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
+            v-if="(user.id === experiment.userId || user.role === 'ADMIN')"
             class="text-destructive"
             @click="showDeleteDialog = true"
           >
@@ -382,42 +388,92 @@ function formatDate(dateString: string) {
 
         <div
           v-if="canReviewExperiments && getReviewsForSection(section.experimentSection.id).length > 0"
-          class="mt-6 space-y-4"
+          class="mt-10 rounded-xl border bg-muted/30 p-6"
         >
-          <h3 class="text-lg font-semibold flex items-center gap-2">
-            <Icon
-              name="heroicons:chat-bubble-left-right"
-              class="w-5 h-5"
-            />
-            Bisherige Beanstandungen
+          <h3 class="text-xl font-bold flex items-center gap-3 mb-6">
+            <div class="p-2 bg-primary/10 rounded-lg">
+              <Icon
+                name="heroicons:chat-bubble-left-right"
+                class="w-6 h-6 text-primary"
+              />
+            </div>
+            Review Historie
           </h3>
 
-          <div
-            v-for="review in getReviewsForSection(section.experimentSection.id)"
-            :key="review.id"
-            class="space-y-2"
-          >
+          <div class="space-y-6 relative before:absolute before:inset-y-0 before:left-4 before:w-0.5 before:bg-border">
             <div
-              v-for="critique in review.critiques"
-              :key="critique.id"
-              class="border rounded-lg p-4 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 shadow-sm"
+              v-for="(review, index) in getReviewsForSection(section.experimentSection.id)"
+              :key="review.id"
+              class="relative pl-10"
             >
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <Icon
-                    name="heroicons:user-circle"
-                    class="w-5 h-5 text-amber-600"
-                  />
-                  <span class="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                    {{ review.reviewer?.name || 'Reviewer' }}
-                  </span>
+              <div
+                :class="[
+                  'absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-background z-10',
+                  index === 0 ? 'bg-emerald-500 ring-4 ring-emerald-500/20' : 'bg-slate-400',
+                ]"
+              />
+
+              <div
+                :class="[
+                  'rounded-xl border p-5 shadow-sm transition-all',
+                  index === 0
+                    ? 'bg-background border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-500/5'
+                    : 'bg-background/50 border-border opacity-90',
+                ]"
+              >
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div class="flex items-center gap-3">
+                    <Badge
+                      v-if="index === 0"
+                      variant="default"
+                      class="bg-emerald-600 hover:bg-emerald-600 text-white"
+                    >
+                      Letzte Beanstandung
+                    </Badge>
+                    <Badge
+                      v-else
+                      variant="secondary"
+                      class="font-normal"
+                    >
+                      Archiviert
+                    </Badge>
+
+                    <div class="flex items-center gap-1.5 text-sm font-medium">
+                      <Avatar
+                        v-if="review.reviewer?.image"
+                        class="w-6 h-6"
+                      >
+                        <AvatarImage :src="review.reviewer.image" />
+                        <AvatarFallback>{{ review.reviewer.name[0] }}</AvatarFallback>
+                      </Avatar>
+                      <span class="text-foreground/80">{{ review.reviewer?.name }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-4 text-xs text-muted-foreground">
+                    <div
+                      v-if="review.experimentId !== experiment?.id"
+                      class="flex items-center gap-1 px-2 py-0.5 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 rounded"
+                    >
+                      <Icon
+                        name="heroicons:arrow-uturn-left"
+                        class="w-3 h-3"
+                      />
+                      Vorherige Version
+                    </div>
+                    <time>{{ formatDate(review.updatedAt) }}</time>
+                  </div>
                 </div>
-                <span class="text-xs text-muted-foreground">
-                  {{ formatDate(review.updatedAt) }}
-                </span>
-              </div>
-              <div class="prose prose-sm dark:prose-invert">
-                <LatexContent :content="critique.critique" />
+
+                <div class="space-y-3">
+                  <div
+                    v-for="critique in review.critiques"
+                    :key="critique.id"
+                    class="prose prose-sm dark:prose-invert max-w-none bg-muted/20 rounded-lg p-3 border border-border/40"
+                  >
+                    <LatexContent :content="critique.critique" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

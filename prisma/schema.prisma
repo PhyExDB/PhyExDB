@@ -266,8 +266,6 @@ model Review {
   sectionsCritiques SectionCritique[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
-
-  @@unique([experimentId, reviewerId])
 }
 
 enum ReviewStatus {
