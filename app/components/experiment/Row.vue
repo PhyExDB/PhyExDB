@@ -31,8 +31,8 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
       <div class="flex items-center space-x-2">
 
         <FavoriteButton
-            :experiment-id="experiment.id"
-            :is-favorited-initial="experiment.isFavorited"
+          :experiment-id="experiment.id"
+          :is-favorited-initial="experiment.isFavorited"
         />
         <p class="font-medium">
           {{ nameOrPlaceholderForExperiment(experiment) }}

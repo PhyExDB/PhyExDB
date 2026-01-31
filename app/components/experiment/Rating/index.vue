@@ -20,11 +20,11 @@ function ratingsString() {
 
 <template>
   <div
-      v-if="!small"
-      class="flex flex-col sm:flex-row items-center space-x-2 text-muted-foreground"
+    v-if="!small"
+    class="flex flex-col sm:flex-row items-center space-x-2 text-muted-foreground"
   >
     <ExperimentRatingStars
-        :selected="ratingsSum / ratingsCount"
+      :selected="ratingsSum / ratingsCount"
     />
     <p class="py-1 flex justify-center">
       {{ ratingsCount === 0 ? "" : ratingsAvg }}
@@ -32,15 +32,15 @@ function ratingsString() {
     </p>
   </div>
   <div
-      v-else
-      class="flex flex-row space-x-1 text-muted-foreground items-center"
+    v-else
+    class="flex flex-row space-x-1 text-muted-foreground items-center"
   >
     <template
-        v-if="ratingsCount !== 0"
+      v-if="ratingsCount !== 0"
     >
       <Icon
-          name="heroicons:star"
-          class="w-4 h-4"
+        name="heroicons:star"
+        class="w-4 h-4"
       />
       <p>
         {{ ratingsAvg }}
