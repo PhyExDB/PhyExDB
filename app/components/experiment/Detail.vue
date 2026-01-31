@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import FavoriteButton from "~/components/experiment/FavoriteButton.vue"
+
 const user = await useUser()
 
 const { experiment } = defineProps<{
@@ -70,6 +72,13 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
       <h1 class="text-4xl font-extrabold mr-2">
         {{ experiment.name }}
       </h1>
+
+      <FavoriteButton
+        :experiment-id="experiment.id"
+        :is-favorited-initial="experiment.isFavorited ?? false"
+        @update:is-favorited="(val: boolean | undefined) => experiment.isFavorited = val"
+      />
+
       <DropdownMenu
         v-if="user"
       >
@@ -141,14 +150,12 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
       <ConfirmDeleteAlertDialogBool
         v-model="showDeleteDialog"
         :on-delete="() => deleteExperiment(experiment.id).then(async () => await navigateTo('/experiments'))"
         header="Versuch löschen?"
       />
     </div>
-
     <!-- Rating -->
     <ExperimentRating
       :experiment="experiment"

@@ -1,9 +1,11 @@
 <script lang="ts" setup>
+import FavoriteButton from "~/components/experiment/FavoriteButton.vue"
+
 const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   experiment: {
     type: Object as PropType<
       Partial<Pick<ExperimentList, "revisedBy">> &
-      Pick<ExperimentList, "id" | "name" | "status" | "slug">
+      Pick<ExperimentList, "id" | "name" | "status" | "slug" | "isFavorited">
     >,
     required: true,
   },
@@ -29,6 +31,13 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   >
     <div class="flex items-center flex-col sm:flex-row justify-between">
       <div class="flex items-center space-x-2">
+
+        <FavoriteButton
+          :experiment-id="experiment.id"
+          :is-favorited-initial="experiment.isFavorited ?? false"
+          @update:is-favorited="(val: boolean | undefined) => experiment.isFavorited = val"
+        />
+
         <p class="font-medium">
           {{ nameOrPlaceholderForExperiment(experiment) }}
         </p>
