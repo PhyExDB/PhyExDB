@@ -4,21 +4,23 @@ export default defineEventHandler(async (event) => {
   const user = await getUserOrThrowError(event)
 
   const res = await readBody(event)
-  const experimentIds: string[] | undefined = res.experimentIds.map((id: any) => String(id))
+  const experimentIds: string[] = res.experimentIds
   const userId = user.id
 
   if (!experimentIds || !Array.isArray(experimentIds)) {
     throw createError({ statusCode: 400, statusMessage: "Experiment IDs missing or invalid" })
   }
 
-  for (const experimentId of experimentIds) {
-    await prisma.favorite.update({
-      where: { userId_experimentId: { userId: userId, experimentId: experimentId } },
-      data: {
-        numberForSequence: experimentIds.indexOf(experimentId),
-      },
-    })
-  }
+  await prisma.$transaction(
+    experimentIds.map((id, index) =>
+      prisma.favorite.update({
+        where: { userId_experimentId: { userId, experimentId: id } },
+        data: { numberForSequence: index },
+      }),
+    ),
+  )
+
+  return { success: true }
 })
 
 defineRouteMeta({
