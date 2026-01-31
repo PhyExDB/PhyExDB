@@ -50,6 +50,8 @@ export interface ExperimentList extends SlugList {
     Is the expiment favorited?
      */
   isFavorited?: boolean
+
+  favoriteNumberForSequence?: number,
 }
 
 /**

@@ -10,6 +10,8 @@ export const lists: ExperimentList[] = [
     userId: users.user.id,
     status: "DRAFT",
     duration: 1,
+    favoriteNumberForSequence: undefined,
+    isFavorited: false,
     attributes: [
       {
         id: uuidv4(),
@@ -48,6 +50,8 @@ export const lists: ExperimentList[] = [
     userId: users.user.id,
     status: "DRAFT",
     duration: 1,
+    favoriteNumberForSequence: undefined,
+    isFavorited: false,
     attributes: [],
     previewImage: undefined,
     revisedBy: undefined,
