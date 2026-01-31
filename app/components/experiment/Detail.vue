@@ -7,23 +7,6 @@ const { experiment } = defineProps<{
   reviewStarted?: boolean
 }>()
 
-interface Review {
-  id: string
-  status: string
-  createdAt: string
-  updatedAt: string
-  reviewer: { name: string, image: string | null }
-  experimentId: string
-  sectionsCritiques: Array<{
-    id: string
-    critique: string
-    sectionContent: {
-      id: string
-      experimentSection: { id: string, name: string }
-    }
-  }>
-}
-
 const reviews = ref<Review[]>([])
 
 const canReviewExperiments = await allows(experimentAbilities.review)
@@ -96,12 +79,12 @@ function getReviewsForSection(sectionId: string) {
     )
     .map(review => ({
       ...review,
-      critiques: review.sectionsCritiques.filter(c => c.sectionContent?.experimentSection?.id === sectionId),
+      critiques: (review.sectionsCritiques ?? []).filter(c => c.sectionContent?.experimentSection?.id === sectionId),
     }))
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 }
 
-function formatDate(dateString: string) {
+function formatDate(dateString: string | Date) {
   return new Date(dateString).toLocaleDateString("de-DE", {
     day: "2-digit",
     month: "2-digit",

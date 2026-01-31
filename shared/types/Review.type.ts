@@ -8,8 +8,11 @@ export interface Review {
   status: "IN_PROGRESS" | "COMPLETED"
   createdAt: string | Date
   updatedAt: string | Date
-
   sectionsCritiques?: SectionCritique[]
+  reviewer?: {
+    name: string
+    image: string | null
+  }
 }
 
 /**
@@ -22,6 +25,13 @@ export interface SectionCritique {
   critique: string
   createdAt: string | Date
   updatedAt: string | Date
+  sectionContent?: {
+    id: string
+    experimentSection: {
+      id: string
+      name: string
+    }
+  }
 }
 
 export interface ReviewSummary {

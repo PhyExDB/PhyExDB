@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  if (!experiment) throw createError({ status: 404 })
+  if (!experiment) throw createError({ status: 404, message: "Experiment not found!" })
 
   const currentRoundReviews = experiment.reviews.filter(r =>
     new Date(r.updatedAt).getTime() >= new Date(experiment.updatedAt).getTime(),
