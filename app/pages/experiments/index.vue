@@ -50,13 +50,13 @@ const searchSections = ref<string[]>([])
 const temporarySearchSections = ref<string[]>([])
 
 function updateSectionSearch() {
-  sectionSearch.value = (searchTitle.value ? "titel" : "")
-    + (searchSections.value.length > 0 && searchTitle.value ? "," : "")
-    + searchSections.value.join(",")
-  if (sectionSearch.value.length === 0) {
-    sectionSearch.value = "keine"
-  }
+  const parts = []
+  if (searchTitle.value) parts.push("titel")
+  if (searchSections.value.length > 0) parts.push(...searchSections.value)
+
+  sectionSearch.value = parts.length > 0 ? parts.join(",") : "keine"
 }
+
 function initializeSearchSections() {
   if (sectionSearch.value.length > 0) {
     sectionSearch.value.split(",").forEach((sec) => {
