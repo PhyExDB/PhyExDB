@@ -1,3 +1,5 @@
+import { ModeratorTask } from "#shared/types/Review.type";
+
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
   if (!user) return { needsRevisionCount: 0, moderatorNotifications: 0, lastRejectedAt: 0, moderatorLastUpdate: 0 }
@@ -27,7 +29,7 @@ export default defineEventHandler(async (event) => {
       : [],
   ])
 
-  const relevantModTasks = moderatorData.filter((exp) => {
+  const relevantModTasks = (moderatorData as ModeratorTask[]).filter((exp) => {
     const myReview = exp.reviews[0]
     return !myReview || (myReview.status !== "COMPLETED" || myReview.updatedAt < exp.updatedAt)
   })

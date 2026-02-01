@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { badgeColorClass } from "~/utils/experiment"
+
 const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   experiment: {
     type: Object as PropType<

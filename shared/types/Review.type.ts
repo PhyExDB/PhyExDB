@@ -38,3 +38,11 @@ export interface ReviewSummary {
   reviewerId: string
   updatedAt: string | Date
 }
+
+export interface ModeratorTask {
+  updatedAt: Date
+  reviews: {
+    updatedAt: Date
+    status: string
+  }[]
+}
