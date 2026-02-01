@@ -4,7 +4,31 @@ const user = await useUser()
 const { experiment } = defineProps<{
   experiment?: ExperimentDetail
   preview?: boolean
+  reviewStarted?: boolean
 }>()
+
+const reviews = ref<Review[]>([])
+
+const canReviewExperiments = await allows(experimentAbilities.review)
+
+watch(
+  () => experiment?.id,
+  async (id) => {
+    if (!id || !experiment || !canReviewExperiments) return
+
+    const reviewExperimentId = experiment.revisionOf?.id ?? id
+    const { data, error } = await useFetch(`/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`)
+
+    if (!error.value) {
+      reviews.value = data.value ?? []
+    }
+  },
+  { immediate: true },
+)
+
+const comments = defineModel<Record<string, string>>("comments", {
+  default: {},
+})
 
 const attributesWithoutDuration = computed(() => {
   return experiment?.attributes.filter(
@@ -47,6 +71,28 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
 }
+
+function getReviewsForSection(sectionId: string) {
+  return reviews.value
+    .filter(review =>
+      review.sectionsCritiques?.some(c => c.sectionContent?.experimentSection?.id === sectionId),
+    )
+    .map(review => ({
+      ...review,
+      critiques: (review.sectionsCritiques ?? []).filter(c => c.sectionContent?.experimentSection?.id === sectionId),
+    }))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+}
+
+function formatDate(dateString: string | Date) {
+  return new Date(dateString).toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
 </script>
 
 <template>
@@ -87,7 +133,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
-            v-if="user !== null && (user.role === 'ADMIN')"
+            v-if="(user.role === 'ADMIN')"
             @click="navigateTo(`/users?search=${experiment.userId}`)"
           >
             <span>
@@ -131,7 +177,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </NuxtLink>
           </DropdownMenuItem>
           <DropdownMenuItem
-            v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
+            v-if="(user.id === experiment.userId || user.role === 'ADMIN')"
             class="text-destructive"
             @click="showDeleteDialog = true"
           >
@@ -322,11 +368,124 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </Card>
           </template>
         </CarouselWithPreview>
+
+        <div
+          v-if="canReviewExperiments && getReviewsForSection(section.experimentSection.id).length > 0"
+          class="mt-10 rounded-xl border bg-muted/30 p-6"
+        >
+          <h3 class="text-xl font-bold flex items-center gap-3 mb-6">
+            <div class="p-2 bg-primary/10 rounded-lg">
+              <Icon
+                name="heroicons:chat-bubble-left-right"
+                class="w-6 h-6 text-primary"
+              />
+            </div>
+            Review Historie
+          </h3>
+
+          <div class="space-y-6 relative before:absolute before:inset-y-0 before:left-4 before:w-0.5 before:bg-border">
+            <div
+              v-for="(review, index) in getReviewsForSection(section.experimentSection.id)"
+              :key="review.id"
+              class="relative pl-10"
+            >
+              <div
+                :class="[
+                  'absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-background z-10',
+                  index === 0 ? 'bg-emerald-500 ring-4 ring-emerald-500/20' : 'bg-slate-400',
+                ]"
+              />
+
+              <div
+                :class="[
+                  'rounded-xl border p-5 shadow-sm transition-all',
+                  index === 0
+                    ? 'bg-background border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-500/5'
+                    : 'bg-background/50 border-border opacity-90',
+                ]"
+              >
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div class="flex items-center gap-3">
+                    <Badge
+                      v-if="index === 0"
+                      variant="default"
+                      class="bg-emerald-600 hover:bg-emerald-600 text-white"
+                    >
+                      Letzte Beanstandung
+                    </Badge>
+                    <Badge
+                      v-else
+                      variant="secondary"
+                      class="font-normal"
+                    >
+                      Archiviert
+                    </Badge>
+
+                    <div class="flex items-center gap-1.5 text-sm font-medium">
+                      <Avatar
+                        v-if="review.reviewer?.image"
+                        class="w-6 h-6"
+                      >
+                        <AvatarImage :src="review.reviewer.image" />
+                        <AvatarFallback>{{ review.reviewer.name[0] }}</AvatarFallback>
+                      </Avatar>
+                      <span class="text-foreground/80">{{ review.reviewer?.name }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-4 text-xs text-muted-foreground">
+                    <div
+                      v-if="review.experimentId !== experiment?.id"
+                      class="flex items-center gap-1 px-2 py-0.5 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 rounded"
+                    >
+                      <Icon
+                        name="heroicons:arrow-uturn-left"
+                        class="w-3 h-3"
+                      />
+                      Vorherige Version
+                    </div>
+                    <time>{{ formatDate(review.updatedAt) }}</time>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div
+                    v-for="critique in review.critiques"
+                    :key="critique.id"
+                    class="prose prose-sm dark:prose-invert max-w-none bg-muted/20 rounded-lg p-3 border border-border/40"
+                  >
+                    <LatexContent :content="critique.critique" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Textfeld für Review-Modul -->
+        <div
+          v-if="reviewStarted"
+          class="mt-6"
+        >
+          <label class="block text-2xl font-extrabold mb-3">
+            Beanstandung:
+          </label>
+
+          <TipTapEditor
+            :model-value="comments[section.id] ?? ''"
+            :show-headings="false"
+            editor-class="p-4 min-h-[160px] resize-y overflow-auto border rounded"
+            @update:model-value="val => comments[section.id] = val"
+          />
+
+          <p class="text-sm text-muted-foreground mt-2">
+            Optional: Hinweise oder Beanstandungen für diesen Abschnitt
+          </p>
+        </div>
       </div>
     </div>
 
     <!-- Own rating -->
-    <!-- <div v-if="!preview"> -->
     <Separator />
     <ExperimentRatingOwn
       v-if="user"
@@ -335,6 +494,5 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     <ExperimentComment
       :experiment="experiment"
     />
-    <!-- </div> -->
   </div>
 </template>

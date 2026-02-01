@@ -1,5 +1,6 @@
 import { z } from "zod"
 import type { FileList } from "./File.type"
+import type { ReviewSummary } from "#shared/types/Review.type"
 
 /**
  * ExperimentList
@@ -32,11 +33,11 @@ export interface ExperimentList extends SlugList {
   /**
    * The id of the experiment this experiment revises
    */
-  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes"> | undefined
+  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
   /**
    * The id of the experiment this experiment is revised by
    */
-  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes"> | undefined
+  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
 
   /**
    * The count of all ratings
@@ -46,6 +47,11 @@ export interface ExperimentList extends SlugList {
    * The sum of all ratings
    */
   ratingsSum: number
+
+  /**
+   * Count of completed reviews for current round
+   */
+  completedReviewsCount: number
 }
 
 /**
@@ -60,12 +66,16 @@ export interface ExperimentDetail extends ExperimentList {
    * The change request of the experiment, if any.
    */
   changeRequest: string | undefined
+
+  reviews: ReviewSummary[]
+  updatedAt: string | Date
+  alreadyReviewedByMe: boolean
 }
 
 /**
  * Experiment List object with attribute values instead of attributes
  */
-export interface ExperimentIncorrectList extends Omit<ExperimentList, "attributes"> {
+export interface ExperimentIncorrectList extends Omit<ExperimentList, "attributes" | "completedReviewsCount"> {
   /**
    * The attribute values associated with the experiment.
    */
@@ -75,11 +85,14 @@ export interface ExperimentIncorrectList extends Omit<ExperimentList, "attribute
 /**
  * Experiment Detail object with attribute values instead of attributes
  */
-export interface ExperimentIncorrectDetail extends Omit<ExperimentDetail, "attributes"> {
+export interface ExperimentIncorrectDetail extends Omit<ExperimentDetail, "attributes" | "completedReviewsCount" | "alreadyReviewedByMe"> {
   /**
    * The attribute values associated with the experiment.
    */
   attributes: ExperimentAttributeValueDetail[]
+  // These are optional here so the DB object can be cast to this type
+  completedReviewsCount?: number
+  alreadyReviewedByMe?: boolean
 }
 
 /**
