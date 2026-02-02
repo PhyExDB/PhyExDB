@@ -61,7 +61,11 @@ function openLightbox(section: LightboxSection, index: number) {
 
 function openPreviewLightbox() {
   if (!experiment?.previewImage) return
-  activeSectionForLightbox.value = { files: [{ file: experiment.previewImage, description: "" }] }
+  activeSectionForLightbox.value = {
+    id: 'preview',
+    isPreview: true,
+    files: [{ file: experiment.previewImage, description: "" }]
+  }
   activeLightboxIndex.value = 0
   document.body.style.overflow = "hidden"
 }
@@ -70,12 +74,6 @@ function closeLightbox() {
   activeLightboxIndex.value = null
   activeSectionForLightbox.value = null
   document.body.style.overflow = "auto"
-}
-
-const nav = (dir: number) => {
-  const files = activeSectionForLightbox.value?.files
-  if (!files || files.length <= 1) return
-  activeLightboxIndex.value = (activeLightboxIndex.value! + dir + files.length) % files.length
 }
 
 async function downloadFile(url: string) {
@@ -96,26 +94,8 @@ async function downloadFile(url: string) {
 }
 
 function getServerFileName(path: string) {
-  return path.split('/').pop() || 'download'
+  return path.split("/").pop() || "download"
 }
-
-const activeFile = computed(() => {
-  if (activeLightboxIndex.value === null || !activeSectionForLightbox.value) return null
-  return activeSectionForLightbox.value.files[activeLightboxIndex.value]
-})
-
-const activeTitle = computed(() => {
-  const section = activeSectionForLightbox.value
-  const index = activeLightboxIndex.value
-
-  if (!section || index === null || !experiment?.sections) return ""
-
-  if (section.isPreview) return "Vorschau"
-
-  const sectionIndex = experiment.sections.findIndex(s => s.id === section.id)
-  const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + index
-  return `Abb. ${globalIndex + 1}`
-})
 </script>
 
 <template>
@@ -352,15 +332,15 @@ const activeTitle = computed(() => {
                 </template>
 
                 <Button
-                    v-if="item.file.path"
-                    variant="secondary"
-                    size="icon"
-                    class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
-                    @click.stop="downloadFile(item.file.path)"
+                  v-if="item.file.path"
+                  variant="secondary"
+                  size="icon"
+                  class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
+                  @click.stop="downloadFile(item.file.path)"
                 >
                   <Icon
-                      name="heroicons:arrow-down-tray"
-                      class="w-5 h-5"
+                    name="heroicons:arrow-down-tray"
+                    class="w-5 h-5"
                   />
                 </Button>
               </CardContent>
@@ -425,11 +405,9 @@ const activeTitle = computed(() => {
   </div>
 
   <ExperimentLightbox
-      :active-file="activeFile"
-      :active-section="activeSectionForLightbox"
-      :active-title="activeTitle"
-      @close="closeLightbox"
-      @nav="nav"
-      @download="(path) => downloadFile(path)"
+    :active-file-index="activeLightboxIndex"
+    :active-section="activeSectionForLightbox"
+    @close="closeLightbox"
+    @download="(path) => downloadFile(path)"
   />
 </template>
