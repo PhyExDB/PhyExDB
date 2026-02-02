@@ -1,7 +1,7 @@
 # ================================
 # Build image
 # ================================
-FROM node:23-alpine AS build
+FROM node:25-alpine AS build
 
 # Update and install the latest dependencies for the alpine version
 RUN apk update && apk upgrade && apk add openssl
@@ -23,7 +23,7 @@ RUN npm run build
 # ================================
 # Run image
 # ================================
-FROM node:23-alpine AS run
+FROM node:25-alpine AS run
 
 # Update and install latest dependencies
 RUN apk update && apk upgrade && apk add ffmpeg && adduser -D nuxtuser
