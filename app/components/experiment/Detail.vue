@@ -47,6 +47,36 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
 }
+
+const activeLightboxIndex = ref<number | null>(null)
+const activeSectionForLightbox = ref<any>(null)
+
+function openLightbox(section: any, index: number) {
+  activeSectionForLightbox.value = section
+  activeLightboxIndex.value = index
+  document.body.style.overflow = 'hidden'
+}
+
+function closeLightbox() {
+  activeLightboxIndex.value = null
+  activeSectionForLightbox.value = null
+  document.body.style.overflow = 'auto'
+}
+
+const nav = (dir: number) => {
+  const files = activeSectionForLightbox.value.files
+  activeLightboxIndex.value = (activeLightboxIndex.value! + dir + files.length) % files.length
+}
+
+function downloadFile(url: string, fileName: string) {
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.target = '_blank'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
 </script>
 
 <template>
@@ -232,17 +262,20 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           <!-- Main Carousel Item -->
           <template #item="{ item, index }">
             <Card>
-              <CardContent class="h-80 flex items-center justify-center p-0">
+              <CardContent class="h-80 flex items-center justify-center p-0 relative overflow-hidden rounded-t-lg">
                 <!-- Image File -->
                 <template v-if="isImageFile(item.file.mimeType)">
                   <NuxtPicture
-                    format="webp,avif"
-                    sizes="100vw md:850px"
-                    fit="inside"
-                    :src="item.file.path"
-                    alt="File Preview"
-                    :img-attrs="{ class: 'object-contain w-full h-full rounded' }"
-                    class="object-contain w-full h-full rounded"
+                      format="webp,avif"
+                      sizes="100vw md:850px"
+                      fit="inside"
+                      :src="item.file.path"
+                      alt="File Preview"
+                      :img-attrs="{
+        class: 'object-contain w-full h-full cursor-zoom-in transition-all duration-300 hover:scale-[1.03]',
+        onClick: () => openLightbox(section, index)
+      }"
+                      class="w-full h-full flex items-center justify-center"
                   />
                 </template>
 
@@ -277,6 +310,16 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                     </div>
                   </NuxtLink>
                 </template>
+
+                <Button
+                    v-if="item.file.path"
+                    variant="secondary"
+                    size="icon"
+                    class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
+                    @click.stop="downloadFile(item.file.path, item.file.originalName)"
+                >
+                  <Icon name="heroicons:arrow-down-tray" class="w-5 h-5" />
+                </Button>
               </CardContent>
               <Separator class="mb-3" />
               <p
@@ -296,7 +339,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
 
           <!-- Thumbnail -->
           <template #thumbnail="{ item }">
-            <Card class="h-20 w-full flex items-center justify-center rounded">
+            <Card class="h-20 w-full flex items-center justify-center rounded overflow-hidden border-2 border-transparent hover:border-primary/30 hover:bg-black/5 transition-all cursor-pointer">
               <template v-if="isImageFile(item.file.mimeType)">
                 <NuxtPicture
                   format="webp,avif"
@@ -337,4 +380,38 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     />
     <!-- </div> -->
   </div>
+
+  <Teleport to="body" v-if="experiment">
+    <div v-if="activeLightboxIndex !== null" class="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-xl p-4 animate-in fade-in" @click.self="closeLightbox">
+
+      <Button variant="ghost" size="icon" class="absolute top-6 right-6 z-50 rounded-full" @click="closeLightbox">
+        <Icon name="heroicons:x-mark" class="w-8 h-8" />
+      </Button>
+
+      <Button v-for="d in [-1, 1]" :key="d" variant="ghost" size="icon"
+              :class="['fixed z-50 h-20 w-20 hidden md:flex rounded-full', d === -1 ? 'left-4' : 'right-4']"
+              @click="nav(d)">
+        <Icon :name="d === -1 ? 'heroicons:chevron-left' : 'heroicons:chevron-right'" class="w-12 h-12" />
+      </Button>
+
+      <div class="flex flex-col items-center max-w-5xl w-full gap-6">
+        <img :src="activeSectionForLightbox.files[activeLightboxIndex].file.path"
+             class="max-h-[75vh] object-contain rounded-lg shadow-2xl border bg-card" alt="File Preview"/>
+
+        <div class="text-center space-y-2">
+          <h3 class="text-2xl font-bold">{{ getImageTitle(experiment.sections.indexOf(activeSectionForLightbox), activeLightboxIndex) }}</h3>
+          <p v-if="activeSectionForLightbox.files[activeLightboxIndex].description"
+             class="text-muted-foreground text-sm bg-muted/30 px-4 py-2 rounded-md border inline-block">
+            {{ activeSectionForLightbox.files[activeLightboxIndex].description }}
+          </p>
+        </div>
+      </div>
+
+      <div class="fixed bottom-10 flex gap-12 md:hidden">
+        <Button v-for="d in [-1, 1]" :key="d" variant="outline" size="icon" class="h-14 w-14 rounded-full bg-background" @click="nav(d)">
+          <Icon :name="d === -1 ? 'heroicons:chevron-left' : 'heroicons:chevron-right'" class="w-8 h-8" />
+        </Button>
+      </div>
+    </div>
+  </Teleport>
 </template>
