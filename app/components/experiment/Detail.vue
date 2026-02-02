@@ -78,14 +78,25 @@ const nav = (dir: number) => {
   activeLightboxIndex.value = (activeLightboxIndex.value! + dir + files.length) % files.length
 }
 
-function downloadFile(url: string, fileName: string) {
-  const link = document.createElement("a")
-  link.href = url
-  link.download = fileName
-  link.target = "_blank"
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+async function downloadFile(url: string) {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = blobUrl
+    link.download = getServerFileName(url)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(blobUrl)
+  } catch (error) {
+    console.error("Download failed", error)
+  }
+}
+
+function getServerFileName(path: string) {
+  return path.split('/').pop() || 'download'
 }
 
 const activeFile = computed(() => {
@@ -341,15 +352,15 @@ const activeTitle = computed(() => {
                 </template>
 
                 <Button
-                  v-if="item.file.path"
-                  variant="secondary"
-                  size="icon"
-                  class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
-                  @click.stop="downloadFile(item.file.path, item.file.originalName)"
+                    v-if="item.file.path"
+                    variant="secondary"
+                    size="icon"
+                    class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
+                    @click.stop="downloadFile(item.file.path)"
                 >
                   <Icon
-                    name="heroicons:arrow-down-tray"
-                    class="w-5 h-5"
+                      name="heroicons:arrow-down-tray"
+                      class="w-5 h-5"
                   />
                 </Button>
               </CardContent>
@@ -419,6 +430,6 @@ const activeTitle = computed(() => {
       :active-title="activeTitle"
       @close="closeLightbox"
       @nav="nav"
-      @download="(path, title) => downloadFile(path, title.replace(' ', '_'))"
+      @download="(path) => downloadFile(path)"
   />
 </template>
