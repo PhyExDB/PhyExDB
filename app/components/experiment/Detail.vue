@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { LightboxSection } from "~/components/ui/carousel/interface"
+
 const user = await useUser()
 
 const { experiment } = defineProps<{
@@ -49,34 +51,60 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
 }
 
 const activeLightboxIndex = ref<number | null>(null)
-const activeSectionForLightbox = ref<any>(null)
+const activeSectionForLightbox = ref<LightboxSection | null>(null)
 
-function openLightbox(section: any, index: number) {
+function openLightbox(section: LightboxSection, index: number) {
   activeSectionForLightbox.value = section
   activeLightboxIndex.value = index
-  document.body.style.overflow = 'hidden'
+  document.body.style.overflow = "hidden"
+}
+
+function openPreviewLightbox() {
+  if (!experiment?.previewImage) return
+  activeSectionForLightbox.value = { files: [{ file: experiment.previewImage, description: "" }] }
+  activeLightboxIndex.value = 0
+  document.body.style.overflow = "hidden"
 }
 
 function closeLightbox() {
   activeLightboxIndex.value = null
   activeSectionForLightbox.value = null
-  document.body.style.overflow = 'auto'
+  document.body.style.overflow = "auto"
 }
 
 const nav = (dir: number) => {
-  const files = activeSectionForLightbox.value.files
+  const files = activeSectionForLightbox.value?.files
+  if (!files || files.length <= 1) return
   activeLightboxIndex.value = (activeLightboxIndex.value! + dir + files.length) % files.length
 }
 
 function downloadFile(url: string, fileName: string) {
-  const link = document.createElement('a')
+  const link = document.createElement("a")
   link.href = url
   link.download = fileName
-  link.target = '_blank'
+  link.target = "_blank"
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
 }
+
+const activeFile = computed(() => {
+  if (activeLightboxIndex.value === null || !activeSectionForLightbox.value) return null
+  return activeSectionForLightbox.value.files[activeLightboxIndex.value]
+})
+
+const activeTitle = computed(() => {
+  const section = activeSectionForLightbox.value
+  const index = activeLightboxIndex.value
+
+  if (!section || index === null || !experiment?.sections) return ""
+
+  if (section.isPreview) return "Vorschau"
+
+  const sectionIndex = experiment.sections.findIndex(s => s.id === section.id)
+  const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + index
+  return `Abb. ${globalIndex + 1}`
+})
 </script>
 
 <template>
@@ -188,6 +216,7 @@ function downloadFile(url: string, fileName: string) {
     <Card
       v-if="experiment.previewImage"
       class="flex justify-center shadow-md max-h-200"
+      @click="openPreviewLightbox"
     >
       <NuxtPicture
         format="webp,avif"
@@ -266,16 +295,16 @@ function downloadFile(url: string, fileName: string) {
                 <!-- Image File -->
                 <template v-if="isImageFile(item.file.mimeType)">
                   <NuxtPicture
-                      format="webp,avif"
-                      sizes="100vw md:850px"
-                      fit="inside"
-                      :src="item.file.path"
-                      alt="File Preview"
-                      :img-attrs="{
-        class: 'object-contain w-full h-full cursor-zoom-in transition-all duration-300 hover:scale-[1.03]',
-        onClick: () => openLightbox(section, index)
-      }"
-                      class="w-full h-full flex items-center justify-center"
+                    format="webp,avif"
+                    sizes="100vw md:850px"
+                    fit="inside"
+                    :src="item.file.path"
+                    alt="File Preview"
+                    :img-attrs="{
+                      class: 'object-contain w-full h-full cursor-zoom-in transition-all duration-300 hover:scale-[1.03]',
+                      onClick: () => openLightbox(section, index),
+                    }"
+                    class="w-full h-full flex items-center justify-center"
                   />
                 </template>
 
@@ -312,13 +341,16 @@ function downloadFile(url: string, fileName: string) {
                 </template>
 
                 <Button
-                    v-if="item.file.path"
-                    variant="secondary"
-                    size="icon"
-                    class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
-                    @click.stop="downloadFile(item.file.path, item.file.originalName)"
+                  v-if="item.file.path"
+                  variant="secondary"
+                  size="icon"
+                  class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
+                  @click.stop="downloadFile(item.file.path, item.file.originalName)"
                 >
-                  <Icon name="heroicons:arrow-down-tray" class="w-5 h-5" />
+                  <Icon
+                    name="heroicons:arrow-down-tray"
+                    class="w-5 h-5"
+                  />
                 </Button>
               </CardContent>
               <Separator class="mb-3" />
@@ -381,35 +413,92 @@ function downloadFile(url: string, fileName: string) {
     <!-- </div> -->
   </div>
 
-  <Teleport to="body" v-if="experiment">
-    <div v-if="activeLightboxIndex !== null" class="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-xl p-4 animate-in fade-in" @click.self="closeLightbox">
+  <Teleport
+    v-if="experiment"
+    to="body"
+  >
+    <div
+      v-if="activeFile"
+      class="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-xl p-4 animate-in fade-in"
+      @click.self="closeLightbox"
+    >
+      <div class="absolute top-6 right-6 z-50 flex gap-3">
+        <Button
+          variant="secondary"
+          size="icon"
+          class="rounded-full shadow-md hover:bg-primary hover:text-primary-foreground transition-all"
+          @click="downloadFile(activeFile.file.path, activeTitle.replace(' ', '_'))"
+        >
+          <Icon
+            name="heroicons:arrow-down-tray"
+            class="w-6 h-6"
+          />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          class="rounded-full hover:bg-accent/20"
+          @click="closeLightbox"
+        >
+          <Icon
+            name="heroicons:x-mark"
+            class="w-8 h-8"
+          />
+        </Button>
+      </div>
 
-      <Button variant="ghost" size="icon" class="absolute top-6 right-6 z-50 rounded-full" @click="closeLightbox">
-        <Icon name="heroicons:x-mark" class="w-8 h-8" />
-      </Button>
+      <template v-if="activeSectionForLightbox && activeSectionForLightbox.files.length > 1">
+        <Button
+          v-for="d in [-1, 1]"
+          :key="d"
+          variant="ghost"
+          size="icon"
+          :class="['fixed z-50 h-20 w-20 hidden md:flex rounded-full hover:bg-accent/20', d === -1 ? 'left-4' : 'right-4']"
+          @click="nav(d)"
+        >
+          <Icon
+            :name="d === -1 ? 'heroicons:chevron-left' : 'heroicons:chevron-right'"
+            class="w-12 h-12"
+          />
+        </Button>
+      </template>
 
-      <Button v-for="d in [-1, 1]" :key="d" variant="ghost" size="icon"
-              :class="['fixed z-50 h-20 w-20 hidden md:flex rounded-full', d === -1 ? 'left-4' : 'right-4']"
-              @click="nav(d)">
-        <Icon :name="d === -1 ? 'heroicons:chevron-left' : 'heroicons:chevron-right'" class="w-12 h-12" />
-      </Button>
+      <div class="flex flex-col items-center max-w-5xl w-full gap-6 select-none">
+        <img
+          :src="activeFile.file.path"
+          class="max-h-[75vh] w-auto object-contain rounded-lg shadow-2xl border bg-card/50"
+          alt="File Preview"
+        >
 
-      <div class="flex flex-col items-center max-w-5xl w-full gap-6">
-        <img :src="activeSectionForLightbox.files[activeLightboxIndex].file.path"
-             class="max-h-[75vh] object-contain rounded-lg shadow-2xl border bg-card" alt="File Preview"/>
-
-        <div class="text-center space-y-2">
-          <h3 class="text-2xl font-bold">{{ getImageTitle(experiment.sections.indexOf(activeSectionForLightbox), activeLightboxIndex) }}</h3>
-          <p v-if="activeSectionForLightbox.files[activeLightboxIndex].description"
-             class="text-muted-foreground text-sm bg-muted/30 px-4 py-2 rounded-md border inline-block">
-            {{ activeSectionForLightbox.files[activeLightboxIndex].description }}
+        <div class="text-center space-y-3">
+          <h3 class="text-2xl font-bold tracking-tight">
+            {{ activeTitle }}
+          </h3>
+          <p
+            v-if="activeFile.description"
+            class="text-muted-foreground text-sm bg-muted/50 backdrop-blur-sm px-4 py-2 rounded-lg border border-border/50 inline-block max-w-prose"
+          >
+            {{ activeFile.description }}
           </p>
         </div>
       </div>
 
-      <div class="fixed bottom-10 flex gap-12 md:hidden">
-        <Button v-for="d in [-1, 1]" :key="d" variant="outline" size="icon" class="h-14 w-14 rounded-full bg-background" @click="nav(d)">
-          <Icon :name="d === -1 ? 'heroicons:chevron-left' : 'heroicons:chevron-right'" class="w-8 h-8" />
+      <div
+        v-if="activeSectionForLightbox && activeSectionForLightbox.files.length > 1"
+        class="fixed bottom-10 flex gap-12 md:hidden"
+      >
+        <Button
+          v-for="d in [-1, 1]"
+          :key="d"
+          variant="outline"
+          size="icon"
+          class="h-14 w-14 rounded-full bg-background/80 backdrop-blur-md"
+          @click="nav(d)"
+        >
+          <Icon
+            :name="d === -1 ? 'heroicons:chevron-left' : 'heroicons:chevron-right'"
+            class="w-8 h-8"
+          />
         </Button>
       </div>
     </div>
