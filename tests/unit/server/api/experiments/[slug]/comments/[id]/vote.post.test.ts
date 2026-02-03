@@ -1,4 +1,4 @@
-import { describe, expectTypeOf } from "vitest"
+import { describe, expectTypeOf, vi } from "vitest"
 import type { CommentVote } from "@prisma/client"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
@@ -10,11 +10,9 @@ import { comment } from "~~/tests/unit/server/api/experiments/[slug]/comments/da
 
 describe("Api Route /api/experiments/[slug]/comments/[id].vote.post", () => {
   u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
+  u.mockPrismaForIdGet({ data: comment }, "comment")
 
-  vi.mocked(prisma.$transaction).mockImplementation(async cb => cb(prisma))
-
-  expectTypeOf<EndpointResult<typeof endpoint>>()
-    .toEqualTypeOf<{ voted: boolean }>()
+  expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<{ voted: boolean }>()
 
   describe("vote behavior", () => {
     it("should successfully vote for a comment", async () => {

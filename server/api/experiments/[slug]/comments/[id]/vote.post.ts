@@ -11,10 +11,16 @@ export default defineEventHandler(async (event) => {
 
   const commentId = getRouterParam(event, "id")
   if (!commentId) {
-    throw createError({ statusCode: 400, statusMessage: "Comment ID fehlt" })
+    throw createError({ statusCode: 400, statusMessage: "Invalid id" })
   }
 
   return prisma.$transaction(async (tx) => {
+    const existingComment = await tx.comment.findUnique({
+      where: { id: commentId },
+    })
+    if (!existingComment) {
+      throw createError({ statusCode: 404, statusMessage: "Comment not found" })
+    }
     const existingVote = await tx.commentVote.findUnique({
       where: {
         userId_commentId: {

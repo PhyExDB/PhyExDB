@@ -9,6 +9,8 @@ export const comment = {
   text: "text",
   upvotesCount: 0,
   userHasVoted: false,
+  parentId: null,
+  children: [],
   user: {
     id: users.user.id,
     name: "name",
