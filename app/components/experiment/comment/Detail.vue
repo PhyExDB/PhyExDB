@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "deleteComment" | "reply", commentId: string): void
+  (e: "deleteComment" | "reply" | "vote", commentId: string): void
 }>()
 
 const isLoggedIn = computed(() => Boolean(props.user))
@@ -45,6 +45,22 @@ const canSeeMenu = computed(
   >
     <Card>
       <CardContent class="flex justify-between flex-col sm:flex-row p-4 gap-4">
+        <div class="flex flex-col items-center gap-1 min-w-[32px]">
+          <Button
+            variant="ghost"
+            size="sm"
+            class="h-8 w-8 p-0"
+            :class="{ 'text-primary bg-primary/10': comment.userHasVoted }"
+            :disabled="!isLoggedIn"
+            @click="emit('vote', comment.id)"
+          >
+            <Icon
+              :name="comment.userHasVoted ? 'heroicons:chevron-up-20-solid' : 'heroicons:chevron-up'"
+              class="w-5 h-5"
+            />
+          </Button>
+          <span class="text-xs font-bold">{{ comment.upvotesCount }}</span>
+        </div>
         <div class="flex flex-col space-y-2 flex-grow">
           <div class="flex flex-row items-center space-x-2">
             <Avatar class="w-8 h-8">
@@ -125,6 +141,7 @@ const canSeeMenu = computed(
           :active-reply-id="activeReplyId"
           @delete-comment="emit('deleteComment', $event)"
           @reply="emit('reply', $event)"
+          @vote="emit('vote', $event)"
         >
           <template #reply-form>
             <slot name="reply-form" />

@@ -90,6 +90,20 @@ const canComment = computed(() => data.value && allowsUser(
   { ...props.experiment, commentsEnabled: true },
 ))
 const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, props.experiment)
+
+async function handleVote(commentId: string) {
+  if (!user.value) return
+
+  try {
+    await $fetch(`/api/experiments/${id.value}/comments/${commentId}/vote`, {
+      method: "POST",
+    })
+
+    await refresh()
+  } catch (e) {
+    console.error("Vote failed", e)
+  }
+}
 </script>
 
 <template>
@@ -176,6 +190,7 @@ const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, prop
           :active-reply-id="replyingToId"
           @delete-comment="deleteComment"
           @reply="setReply"
+          @vote="handleVote"
         >
           <template #reply-form>
             <div class="bg-accent/10 p-4 rounded-lg border border-l-4 border-l-primary mb-6 animate-in fade-in slide-in-from-top-2">

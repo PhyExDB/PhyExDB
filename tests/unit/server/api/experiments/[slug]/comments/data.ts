@@ -7,6 +7,8 @@ import { users } from "~~/tests/helpers/auth"
 export const comment = {
   id: uuidv4(),
   text: "text",
+  upvotesCount: 0,
+  userHasVoted: false,
   user: {
     id: users.user.id,
     name: "name",

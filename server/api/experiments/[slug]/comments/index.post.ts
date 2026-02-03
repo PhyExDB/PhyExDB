@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
       userId: user.id,
       text: content.text,
       parentId: content.parentId ?? null,
+      upvotesCount: 0,
     },
     include: {
       user: {
@@ -26,7 +27,12 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return result as ExperimentComment
+  return {
+    ...result,
+    upvotesCount: 0,
+    userHasVoted: false,
+    children: [],
+  } as ExperimentComment
 })
 
 defineRouteMeta({
@@ -70,6 +76,8 @@ defineRouteMeta({
               properties: {
                 id: { type: "string", format: "uuid" },
                 text: { type: "string" },
+                upvotesCount: { type: "integer" },
+                userHasVoted: { type: "boolean" },
                 user: {
                   type: "object",
                   properties: {

@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
+  const user = await getUser(event)
   await authorize(event, experimentCommentAbilities.getAll)
 
   const experiment = await nullTo404(async () =>
@@ -10,7 +11,7 @@ export default defineEventHandler(async (event) => {
     return false
   }
 
-  const where = { experimentId: experiment.id }
+  const where = { experimentId: experiment.id, parentId: null }
 
   const total = await prisma.comment.count({ where })
   const pageMeta = getPageMeta(event, total)
@@ -19,30 +20,42 @@ export default defineEventHandler(async (event) => {
     ...getPaginationPrismaParam(pageMeta),
     where,
     include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      user: { select: { id: true, name: true } },
+      votes: user
+        ? {
+            where: { userId: user.id },
+            select: { userId: true },
+          }
+        : false,
       children: {
         include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
+          user: { select: { id: true, name: true } },
+          votes: user
+            ? {
+                where: { userId: user.id },
+                select: { userId: true },
+              }
+            : false,
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: [
+      { upvotesCount: "desc" },
+      { createdAt: "desc" },
+    ],
   })
 
+  const items = result.map(comment => ({
+    ...comment,
+    userHasVoted: !!comment.votes?.length,
+    children: comment.children.map(child => ({
+      ...child,
+      userHasVoted: !!child.votes?.length,
+    })),
+  }))
+
   return {
-    items: result as ExperimentComment[],
+    items: items as ExperimentComment[],
     pagination: pageMeta,
   } as Page<ExperimentComment>
 })
@@ -87,6 +100,9 @@ defineRouteMeta({
                         },
                         required: ["id", "name"],
                       },
+                      upvotesCount: { type: "integer" },
+                      userHasVoted: { type: "boolean" },
+                      children: { type: "array", items: { $ref: "#/components/schemas/ExperimentComment" } },
                     },
                     required: ["id", "text", "createdAt", "user"],
                   },

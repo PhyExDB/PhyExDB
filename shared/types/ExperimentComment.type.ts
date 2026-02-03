@@ -11,6 +11,8 @@ export interface ExperimentComment extends BaseList {
     id: string
     name: string
   }
+  upvotesCount: number
+  userHasVoted: boolean
   parentId?: string | null
   children?: ExperimentComment[]
 }
