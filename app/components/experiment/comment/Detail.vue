@@ -153,7 +153,7 @@ function handleImageClick(event: MouseEvent) {
       <img
         v-if="selectedImage"
         :src="selectedImage"
-        class="max-w-full max-h-full object-contain rounded-lg"
+        class="max-w-full max-h-full object-contain rounded-2xl"
         @click="selectedImage = null"
       >
     </DialogContent>

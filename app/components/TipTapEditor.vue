@@ -168,9 +168,9 @@ function insertMathFormula() {
 <template>
   <div v-if="editor">
     <div class="max-w-4xl mx-auto">
-      <div class="border border-separate rounded-lg shadow-md overflow-hidden bg-background">
+      <div class="border rounded-2xl shadow-md overflow-hidden bg-background">
         <!-- Toolbar -->
-        <div class="flex flex-wrap items-center gap-2 p-3 border-b bg-background rounded-t-lg">
+        <div class="flex flex-wrap items-center gap-2 p-3 border-b bg-background">
           <!-- Text Formatting -->
           <div class="flex gap-1">
             <Button
@@ -355,8 +355,8 @@ function insertMathFormula() {
 
         <!-- Editor Content -->
         <div
-          class="relative flex flex-col transition-all bg-background rounded-b-lg"
-          :class="editorClass"
+          class="relative flex flex-col transition-all bg-background"
+          :class="[editorClass, { 'rounded-b-2xl': attachments.length === 0 }]"
           style="resize: vertical; min-height: 120px; max-height: 400px;"
         >
           <TiptapEditorContent
@@ -368,7 +368,7 @@ function insertMathFormula() {
         <!-- Preview Area -->
         <div
           v-if="attachments.length > 0"
-          class="p-3 border-t bg-muted/30 backdrop-blur-sm rounded-b-lg"
+          class="p-3 border-t bg-muted/30 backdrop-blur-sm rounded-b-2xl"
         >
           <div class="flex flex-wrap gap-2">
             <div
@@ -378,7 +378,7 @@ function insertMathFormula() {
             >
               <img
                 :src="src"
-                class="w-14 h-14 object-cover rounded-md border shadow-sm bg-background transition-transform duration-200 group-hover:scale-105"
+                class="w-14 h-14 object-cover rounded-xl border shadow-sm bg-background transition-transform duration-200 group-hover:scale-105"
                 @click="openLightbox(src)"
               >
               <button
@@ -406,7 +406,7 @@ function insertMathFormula() {
         <img
           v-if="selectedImage"
           :src="selectedImage"
-          class="max-w-full max-h-full object-contain rounded-lg"
+          class="max-w-full max-h-full object-contain rounded-2xl"
           @click="selectedImage = null"
         >
       </DialogContent>
@@ -446,7 +446,7 @@ function insertMathFormula() {
 
 .prose {
   & :where(img, .editor-attachment) {
-    @apply inline-block w-20 h-20 rounded border bg-muted/20 p-0.5
+    @apply inline-block w-20 h-20 rounded-xl border bg-muted/20 p-0.5
     object-cover cursor-zoom-in transition-transform duration-150 !important;
 
     @apply my-0 !important;
@@ -459,10 +459,6 @@ function insertMathFormula() {
 
 .ProseMirror img {
   @apply hidden !important;
-}
-
-.border.rounded-lg.overflow-hidden {
-  @apply border-separate;
 }
 
 .custom-resize-area::-webkit-resizer {
