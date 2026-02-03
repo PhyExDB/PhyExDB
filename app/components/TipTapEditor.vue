@@ -169,9 +169,9 @@ function insertMathFormula() {
 <template>
   <div v-if="editor">
     <div class="max-w-4xl mx-auto">
-      <div class="border rounded-lg shadow-md">
+      <div class="border rounded-lg shadow-md overflow-hidden bg-background">
         <!-- Toolbar -->
-        <div class="flex flex-wrap items-center gap-2 p-3 border-b">
+        <div class="flex flex-wrap items-center gap-2 p-3 border-b bg-background">
           <!-- Text Formatting -->
           <div class="flex gap-1">
             <Button
@@ -321,6 +321,7 @@ function insertMathFormula() {
 
           <!-- LateX -->
           <Button
+            type="button"
             variant="outline"
             class="btn"
             @click="insertMathFormula"
@@ -355,42 +356,38 @@ function insertMathFormula() {
 
         <!-- Editor Content -->
         <div
-            class="relative border rounded-xl overflow-hidden flex flex-col transition-all bg-background"
+            class="relative flex flex-col transition-all bg-background custom-resize-area"
             :class="editorClass"
             style="resize: vertical; min-height: 120px; max-height: 400px;"
         >
           <TiptapEditorContent
               :editor="editor"
-              class="prose dark:prose-invert max-w-full p-4 flex-1 overflow-y-auto"
+              class="prose dark:prose-invert max-w-full p-4 flex-1 overflow-y-auto outline-none"
           />
-
-          <div class="absolute bottom-1 right-1 opacity-30 pointer-events-none">
-            <Icon name="lucide:grip-vertical" class="rotate-45 w-3 h-3" />
-          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Preview Area -->
-    <div v-if="attachments.length > 0" class="p-4 border-t bg-muted/20">
-      <div class="flex flex-wrap gap-2">
-        <div
-            v-for="(src, index) in attachments"
-            :key="src"
-            class="relative group cursor-pointer"
-        >
-          <img
-              :src="src"
-              class="w-16 h-16 object-cover rounded-md border bg-background"
-              @click="openLightbox(src)"
-          >
-          <button
-              type="button"
-              class="absolute -top-2 -right-2 flex items-center justify-center h-5 w-5 bg-destructive text-destructive-foreground rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity p-0 border-none"
-              @click.stop="removeAttachment(index)"
-          >
-            <Icon name="heroicons:x-mark" class="w-3 h-3" />
-          </button>
+        <!-- Preview Area -->
+        <div v-if="attachments.length > 0" class="p-3 border-t bg-muted/30 backdrop-blur-sm">
+          <div class="flex flex-wrap gap-2">
+            <div
+                v-for="(src, index) in attachments"
+                :key="src"
+                class="relative group cursor-pointer"
+            >
+              <img
+                  :src="src"
+                  class="w-14 h-14 object-cover rounded-md border shadow-sm bg-background transition-transform duration-200 group-hover:scale-105"
+                  @click="openLightbox(src)"
+              >
+              <button
+                  type="button"
+                  class="absolute -top-2 -right-2 flex items-center justify-center h-5 w-5 bg-destructive text-destructive-foreground rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity p-0 border-none"
+                  @click.stop="removeAttachment(index)"
+              >
+                <Icon name="heroicons:x-mark" class="w-3 h-3" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -452,5 +449,14 @@ function insertMathFormula() {
 
 .ProseMirror img {
   display: none !important;
+}
+
+.custom-resize-area::-webkit-resizer {
+  display: none;
+  background-color: transparent;
+}
+
+.custom-resize-area {
+  scrollbar-gutter: stable;
 }
 </style>
