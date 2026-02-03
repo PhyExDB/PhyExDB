@@ -145,7 +145,10 @@ function handleImageClick(event: MouseEvent) {
   </div>
 
   <!-- Lightbox Dialog -->
-  <Dialog :open="!!selectedImage" @update:open="selectedImage = null">
+  <Dialog
+    :open="!!selectedImage"
+    @update:open="selectedImage = null"
+  >
     <DialogContent class="max-w-[90vw] max-h-[90vh] p-0 border-none bg-transparent shadow-none flex items-center justify-center">
       <img
         v-if="selectedImage"
