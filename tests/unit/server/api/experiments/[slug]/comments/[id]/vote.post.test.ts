@@ -1,4 +1,5 @@
 import { describe, expectTypeOf } from "vitest"
+import type { CommentVote } from "@prisma/client"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
@@ -6,7 +7,6 @@ import * as u from "~~/tests/helpers/utils"
 import endpoint from "~~/server/api/experiments/[slug]/comments/[id]/vote.post"
 import { experiment } from "~~/tests/unit/server/api/experiments/ratings/data"
 import { comment } from "~~/tests/unit/server/api/experiments/[slug]/comments/data"
-import type { CommentVote } from "@prisma/client";
 
 describe("Api Route /api/experiments/[slug]/comments/[id].vote.post", () => {
   u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
