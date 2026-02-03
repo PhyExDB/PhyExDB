@@ -355,7 +355,7 @@ function insertMathFormula() {
 
         <!-- Editor Content -->
         <div
-          class="relative flex flex-col transition-all bg-background"
+          class="relative flex flex-col transition-all bg-background editor-resize-container"
           :class="[editorClass, { 'rounded-b-2xl': attachments.length === 0 }]"
           style="resize: vertical; min-height: 120px; max-height: 400px;"
         >
@@ -363,6 +363,20 @@ function insertMathFormula() {
             :editor="editor"
             class="prose dark:prose-invert max-w-full p-4 flex-1 overflow-y-auto outline-none"
           />
+          <!-- Custom Resize Handle -->
+          <div class="absolute right-1 bottom-1 w-4 h-4 cursor-ns-resize pointer-events-auto opacity-40 hover:opacity-70 transition-opacity">
+            <svg
+              viewBox="0 0 16 16"
+              class="w-full h-full text-current"
+            >
+              <path
+                d="M14 10 L10 14 M14 6 L6 14 M14 2 L2 14"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
         </div>
 
         <!-- Preview Area -->
@@ -379,6 +393,7 @@ function insertMathFormula() {
               <img
                 :src="src"
                 class="w-14 h-14 object-cover rounded-xl border shadow-sm bg-background transition-transform duration-200 group-hover:scale-105"
+                alt="Bildvorschau"
                 @click="openLightbox(src)"
               >
               <button
@@ -407,6 +422,7 @@ function insertMathFormula() {
           v-if="selectedImage"
           :src="selectedImage"
           class="max-w-full max-h-full object-contain rounded-2xl"
+          alt="Bildvorschau"
           @click="selectedImage = null"
         >
       </DialogContent>
@@ -461,8 +477,7 @@ function insertMathFormula() {
   @apply hidden !important;
 }
 
-.custom-resize-area::-webkit-resizer {
+.editor-resize-container::-webkit-resizer {
   display: none;
-  background-color: transparent;
 }
 </style>
