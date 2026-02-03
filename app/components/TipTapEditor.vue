@@ -4,10 +4,11 @@ import { Subscript as TiptapSubscript } from "@tiptap/extension-subscript"
 import { Superscript as TiptapSuperscript } from "@tiptap/extension-superscript"
 import Mathematics from "@tiptap/extension-mathematics"
 import { PlainTextPaste } from "./PlainTextPaste"
+import type { FileDetail } from "~~/shared/types"
 
 import "katex/dist/katex.min.css"
 
-const { modelValue, showHeadings } = defineProps({
+const { modelValue, showHeadings, editorClass } = defineProps({
   modelValue: {
     type: String,
     required: false,
@@ -25,8 +26,43 @@ const { modelValue, showHeadings } = defineProps({
   },
 })
 
-// Emit event for two-way binding
 const emit = defineEmits(["update:modelValue"])
+
+const { files, handleFileInput } = useFileStorage()
+
+async function uploadImage() {
+  const input = document.createElement("input")
+  input.type = "file"
+  input.accept = "image/*"
+  input.onchange = async (event: Event) => {
+    const target = event.target as HTMLInputElement
+    const file = target.files?.[0]
+    if (!file) return
+
+    await handleFileInput(event)
+
+    try {
+      const response = await $fetch<FileDetail[]>("/api/files", {
+        method: "POST",
+        body: {
+          files: files.value,
+        },
+      })
+
+      if (response && response.length > 0) {
+        const uploadedFile = response[0]
+        if (uploadedFile) {
+          attachments.value.push(uploadedFile.path)
+        }
+      }
+    } catch (error) {
+      console.error("Image upload failed", error)
+    } finally {
+      files.value = []
+    }
+  }
+  input.click()
+}
 
 // Editor initialization
 const editorExtensions = [
@@ -56,6 +92,17 @@ const editor = useEditor({
   content: modelValue,
   extensions: editorExtensions,
 })
+
+const attachments = ref<string[]>([])
+const selectedImage = ref<string | null>(null)
+
+function removeAttachment(index: number) {
+  attachments.value.splice(index, 1)
+}
+
+function openLightbox(src: string) {
+  selectedImage.value = src
+}
 
 const linkUrl = ref("")
 const isLinkDropdownOpen = ref(false)
@@ -97,10 +144,16 @@ function setNewLink() {
 
 // Watch the editor content and emit changes
 watch(
-  () => editor.value?.getHTML(),
-  (newContent) => {
-    emit("update:modelValue", newContent)
+  [() => editor.value?.getHTML(), attachments],
+  ([newContent, newAttachments]) => {
+    let finalContent = newContent || ""
+    if (newAttachments.length > 0) {
+      const imagesHtml = newAttachments.map(src => `<img src="${src}" class="editor-attachment" />`).join("")
+      finalContent += `<div class="attachments-container">${imagesHtml}</div>`
+    }
+    emit("update:modelValue", finalContent)
   },
+  { deep: true },
 )
 
 onBeforeUnmount(() => {
@@ -115,9 +168,9 @@ function insertMathFormula() {
 <template>
   <div v-if="editor">
     <div class="max-w-4xl mx-auto">
-      <div class="border rounded-lg shadow-md">
+      <div class="border rounded-2xl shadow-md overflow-hidden bg-background">
         <!-- Toolbar -->
-        <div class="flex flex-wrap items-center gap-2 p-3 border-b">
+        <div class="flex flex-wrap items-center gap-2 p-3 border-b bg-background">
           <!-- Text Formatting -->
           <div class="flex gap-1">
             <Button
@@ -212,6 +265,14 @@ function insertMathFormula() {
             >
               <Icon name="heroicons:link-slash" />
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              class="btn aspect-square"
+              @click="uploadImage"
+            >
+              <Icon name="heroicons:photo" />
+            </Button>
           </div>
 
           <!-- Headings -->
@@ -259,6 +320,7 @@ function insertMathFormula() {
 
           <!-- LateX -->
           <Button
+            type="button"
             variant="outline"
             class="btn"
             @click="insertMathFormula"
@@ -293,16 +355,78 @@ function insertMathFormula() {
 
         <!-- Editor Content -->
         <div
-          class="p-4"
-          :class="editorClass"
+          class="relative flex flex-col transition-all bg-background editor-resize-container"
+          :class="[editorClass, { 'rounded-b-2xl': attachments.length === 0 }]"
+          style="resize: vertical; min-height: 120px; max-height: 400px;"
         >
           <TiptapEditorContent
             :editor="editor"
-            class="prose dark:prose-invert max-w-full"
+            class="prose dark:prose-invert max-w-full p-4 flex-1 overflow-y-auto outline-none"
           />
+          <!-- Custom Resize Handle -->
+          <div class="absolute right-1 bottom-1 w-4 h-4 cursor-ns-resize pointer-events-auto opacity-40 hover:opacity-70 transition-opacity">
+            <svg
+              viewBox="0 0 16 16"
+              class="w-full h-full text-current"
+            >
+              <path
+                d="M14 10 L10 14 M14 6 L6 14 M14 2 L2 14"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Preview Area -->
+        <div
+          v-if="attachments.length > 0"
+          class="p-3 border-t bg-muted/30 backdrop-blur-sm rounded-b-2xl"
+        >
+          <div class="flex flex-wrap gap-2">
+            <div
+              v-for="(src, index) in attachments"
+              :key="src"
+              class="relative group cursor-pointer"
+            >
+              <img
+                :src="src"
+                class="w-14 h-14 object-cover rounded-xl border shadow-sm bg-background transition-transform duration-200 group-hover:scale-105"
+                alt="Bildvorschau"
+                @click="openLightbox(src)"
+              >
+              <button
+                type="button"
+                class="absolute -top-2 -right-2 flex items-center justify-center h-5 w-5 bg-destructive text-destructive-foreground rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity p-0 border-none"
+                @click.stop="removeAttachment(index)"
+              >
+                <Icon
+                  name="heroicons:x-mark"
+                  class="w-3 h-3"
+                />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Lightbox Dialog -->
+    <Dialog
+      :open="!!selectedImage"
+      @update:open="selectedImage = null"
+    >
+      <DialogContent class="max-w-[90vw] max-h-[90vh] p-0 border-none bg-transparent shadow-none flex items-center justify-center">
+        <img
+          v-if="selectedImage"
+          :src="selectedImage"
+          class="max-w-full max-h-full object-contain rounded-2xl"
+          alt="Bildvorschau"
+          @click="selectedImage = null"
+        >
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
@@ -315,17 +439,45 @@ function insertMathFormula() {
 }
 
 .ProseMirror:focus {
-    outline: none;
+  outline: none;
 }
 
 /* Custom Paragraph Spacing */
 .prose p {
-  @apply my-0; /* Reduce the default margin between paragraphs */
+  @apply my-0;
 }
 .prose li {
-  @apply my-0; /* Reduce the default margin between list items */
+  @apply my-0;
 }
 .prose ul {
-  @apply my-2; /* Add a margin to the left of unordered lists */
+  @apply my-2;
+}
+
+/* Attachments container for rendering */
+.attachments-container {
+  @apply flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-border/40;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+.prose {
+  & :where(img, .editor-attachment) {
+    @apply inline-block w-20 h-20 rounded-xl border bg-muted/20 p-0.5
+    object-cover cursor-zoom-in transition-transform duration-150 !important;
+
+    @apply my-0 !important;
+
+    &:hover {
+      @apply scale-105 border-primary !important;
+    }
+  }
+}
+
+.ProseMirror img {
+  @apply hidden !important;
+}
+
+.editor-resize-container::-webkit-resizer {
+  display: none;
 }
 </style>
