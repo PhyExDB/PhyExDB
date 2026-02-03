@@ -224,7 +224,10 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
     <Card>
       <CardContent class="p-6">
         <div class="flex items-center flex-col sm:flex-row">
-          <Avatar class="w-24 h-24 mb-4 sm:mb-0 sm:mr-4 mx-auto">
+          <Avatar
+            react
+            class="w-24 h-24 mb-4 sm:mb-0 sm:mr-4 mx-auto"
+          >
             <AvatarFallback class="text-xl font-bold">
               {{ getInitials(user.name) }}
             </AvatarFallback>
