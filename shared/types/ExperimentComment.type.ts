@@ -11,8 +11,10 @@ export interface ExperimentComment extends BaseList {
     id: string
     name: string
   }
-  parentId?: string | null
-  children?: ExperimentComment[]
+  upvotesCount: number
+  userHasVoted: boolean
+  parentId: string | null
+  children: ExperimentComment[]
 }
 
 /**
