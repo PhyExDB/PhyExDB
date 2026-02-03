@@ -41,25 +41,41 @@ const canSeeMenu = computed(
 <template>
   <div
     class="mt-4"
-    :class="{ 'ml-6 sm:ml-10 border-l-2 pl-4': comment.parentId }"
+    :class="{ 'ml-6 sm:ml-10 border-l-2 pl-4 border-muted/30': comment.parentId }"
   >
-    <Card>
+    <Card class="overflow-hidden transition-all duration-300 hover:shadow-lg border-muted/50 dark:bg-slate-900/50">
       <CardContent class="flex justify-between flex-col sm:flex-row p-4 gap-4">
-        <div class="flex flex-col items-center gap-1 min-w-[32px]">
+        <div class="flex flex-col items-center gap-1.5 min-w-[44px]">
           <Button
             variant="ghost"
             size="sm"
-            class="h-8 w-8 p-0"
-            :class="{ 'text-primary bg-primary/10': comment.userHasVoted }"
+            class="h-10 w-10 p-0 rounded-full transition-all duration-200 group relative"
+            :class="[
+              comment.userHasVoted
+                ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:text-indigo-400 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20'
+                : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-indigo-400 dark:hover:bg-slate-800',
+              'active:scale-90',
+            ]"
             :disabled="!isLoggedIn"
             @click="emit('vote', comment.id)"
           >
+            <div
+              v-if="comment.userHasVoted"
+              class="absolute inset-0 rounded-full bg-indigo-400/20 blur-sm animate-pulse dark:bg-indigo-500/10"
+            />
+
             <Icon
               :name="comment.userHasVoted ? 'heroicons:chevron-up-20-solid' : 'heroicons:chevron-up'"
-              class="w-5 h-5"
+              class="w-6 h-6 transition-transform group-hover:-translate-y-0.5 z-10"
             />
           </Button>
-          <span class="text-xs font-bold">{{ comment.upvotesCount }}</span>
+
+          <span
+            class="text-xs font-bold tabular-nums tracking-wide transition-colors duration-300"
+            :class="comment.userHasVoted ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'"
+          >
+            {{ comment.upvotesCount }}
+          </span>
         </div>
         <div class="flex flex-col space-y-2 flex-grow">
           <div class="flex flex-row items-center space-x-2">
