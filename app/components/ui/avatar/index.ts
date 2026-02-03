@@ -5,7 +5,7 @@ export { default as AvatarFallback } from "./AvatarFallback.vue"
 export { default as AvatarImage } from "./AvatarImage.vue"
 
 export const avatarVariant = cva(
-  "inline-flex items-center justify-center font-normal text-foreground select-none shrink-0 bg-secondary overflow-hidden transition-colors ring-1 ring-transparent hover:ring-primary/30 hover:bg-secondary/80 cursor-pointer",
+  "inline-flex items-center justify-center font-normal text-foreground select-none shrink-0 bg-secondary overflow-hidden transition-colors ring-1 ring-transparent",
   {
     variants: {
       size: {
@@ -17,6 +17,15 @@ export const avatarVariant = cva(
         circle: "rounded-full",
         square: "rounded-md",
       },
+      react: {
+        true: "hover:ring-primary/30 hover:bg-secondary/80 cursor-pointer",
+        false: "",
+      },
+    },
+    defaultVariants: {
+      size: "sm",
+      shape: "circle",
+      react: false,
     },
   },
 )

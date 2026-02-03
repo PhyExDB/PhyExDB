@@ -21,7 +21,7 @@ async function signOut() {
 <template>
   <DropdownMenu v-if="user">
     <DropdownMenuTrigger as-child>
-      <Avatar>
+      <Avatar react>
         <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
       </Avatar>
     </DropdownMenuTrigger>
