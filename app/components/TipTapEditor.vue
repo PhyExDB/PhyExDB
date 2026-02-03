@@ -356,7 +356,7 @@ function insertMathFormula() {
 
         <!-- Editor Content -->
         <div
-            class="relative flex flex-col transition-all bg-background custom-resize-area"
+            class="relative flex flex-col transition-all bg-background custom-resize-area rounded-b-lg"
             :class="editorClass"
             style="resize: vertical; min-height: 120px; max-height: 400px;"
         >
@@ -456,7 +456,22 @@ function insertMathFormula() {
   background-color: transparent;
 }
 
+.border.rounded-lg.overflow-hidden {
+   @apply border-separate;
+ }
+
+.border-b.bg-background {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
 .custom-resize-area {
-  scrollbar-gutter: stable;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+.p-3.border-t.bg-muted\/30 {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
 }
 </style>
