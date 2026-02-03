@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { LightboxSection } from "~/components/ui/carousel/interface"
+
 const user = await useUser()
 
 const { experiment } = defineProps<{
@@ -46,6 +48,53 @@ const sectionImageStartIndices = computed(() => {
 function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
+}
+
+const activeLightboxIndex = ref<number | null>(null)
+const activeSectionForLightbox = ref<LightboxSection | null>(null)
+
+function openLightbox(section: LightboxSection, index: number) {
+  activeSectionForLightbox.value = section
+  activeLightboxIndex.value = index
+  document.body.style.overflow = "hidden"
+}
+
+function openPreviewLightbox() {
+  if (!experiment?.previewImage) return
+  activeSectionForLightbox.value = {
+    id: 'preview',
+    isPreview: true,
+    files: [{ file: experiment.previewImage, description: "" }]
+  }
+  activeLightboxIndex.value = 0
+  document.body.style.overflow = "hidden"
+}
+
+function closeLightbox() {
+  activeLightboxIndex.value = null
+  activeSectionForLightbox.value = null
+  document.body.style.overflow = "auto"
+}
+
+async function downloadFile(url: string) {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = blobUrl
+    link.download = getServerFileName(url)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(blobUrl)
+  } catch (error) {
+    console.error("Download failed", error)
+  }
+}
+
+function getServerFileName(path: string) {
+  return path.split("/").pop() || "download"
 }
 </script>
 
@@ -158,6 +207,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     <Card
       v-if="experiment.previewImage"
       class="flex justify-center shadow-md max-h-200"
+      @click="openPreviewLightbox"
     >
       <NuxtPicture
         format="webp,avif"
@@ -232,7 +282,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           <!-- Main Carousel Item -->
           <template #item="{ item, index }">
             <Card>
-              <CardContent class="h-80 flex items-center justify-center p-0">
+              <CardContent class="h-80 flex items-center justify-center p-0 relative overflow-hidden rounded-t-lg">
                 <!-- Image File -->
                 <template v-if="isImageFile(item.file.mimeType)">
                   <NuxtPicture
@@ -241,8 +291,11 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                     fit="inside"
                     :src="item.file.path"
                     alt="File Preview"
-                    :img-attrs="{ class: 'object-contain w-full h-full rounded' }"
-                    class="object-contain w-full h-full rounded"
+                    :img-attrs="{
+                      class: 'object-contain w-full h-full cursor-zoom-in transition-all duration-300 hover:scale-[1.03]',
+                      onClick: () => openLightbox(section, index),
+                    }"
+                    class="w-full h-full flex items-center justify-center"
                   />
                 </template>
 
@@ -277,6 +330,19 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                     </div>
                   </NuxtLink>
                 </template>
+
+                <Button
+                  v-if="item.file.path"
+                  variant="secondary"
+                  size="icon"
+                  class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
+                  @click.stop="downloadFile(item.file.path)"
+                >
+                  <Icon
+                    name="heroicons:arrow-down-tray"
+                    class="w-5 h-5"
+                  />
+                </Button>
               </CardContent>
               <Separator class="mb-3" />
               <p
@@ -296,7 +362,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
 
           <!-- Thumbnail -->
           <template #thumbnail="{ item }">
-            <Card class="h-20 w-full flex items-center justify-center rounded">
+            <Card class="h-20 w-full flex items-center justify-center rounded overflow-hidden border-2 border-transparent hover:border-primary/30 hover:bg-black/5 transition-all cursor-pointer">
               <template v-if="isImageFile(item.file.mimeType)">
                 <NuxtPicture
                   format="webp,avif"
@@ -337,4 +403,11 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     />
     <!-- </div> -->
   </div>
+
+  <ExperimentLightbox
+    :active-file-index="activeLightboxIndex"
+    :active-section="activeSectionForLightbox"
+    @close="closeLightbox"
+    @download="(path) => downloadFile(path)"
+  />
 </template>
