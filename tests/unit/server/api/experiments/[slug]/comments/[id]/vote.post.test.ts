@@ -6,6 +6,7 @@ import * as u from "~~/tests/helpers/utils"
 import endpoint from "~~/server/api/experiments/[slug]/comments/[id]/vote.post"
 import { experiment } from "~~/tests/unit/server/api/experiments/ratings/data"
 import { comment } from "~~/tests/unit/server/api/experiments/[slug]/comments/data"
+import type { CommentVote } from "@prisma/client";
 
 describe("Api Route /api/experiments/[slug]/comments/[id].vote.post", () => {
   u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
@@ -34,7 +35,8 @@ describe("Api Route /api/experiments/[slug]/comments/[id].vote.post", () => {
       vi.mocked(prisma.commentVote.findUnique).mockResolvedValue({
         userId: users.user.id,
         commentId: comment.id,
-      } as any)
+        createdAt: new Date(),
+      } as CommentVote)
 
       const context = u.getTestContext({
         data: comment,
