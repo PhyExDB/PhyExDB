@@ -71,6 +71,7 @@
     "@nuxt/test-utils": "^3.21.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@playwright/test": "^1.57.0",
+    "@prisma/client": "^7.2.0",
     "@prisma/internals": "^7.2.0",
     "@prisma/migrate": "^7.2.0",
     "@tailwindcss/typography": "^0.5.19",
