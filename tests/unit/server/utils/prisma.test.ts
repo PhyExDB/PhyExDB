@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 import * as u from "../../../helpers/utils"
 
 import * as unit from "~~/server/utils/prisma"
-import { PrismaClientKnownRequestError } from "../../../../generated/prisma/internal/prismaNamespace"
+import { PrismaClientKnownRequestError } from "#prisma/internal/prismaNamespace"
 
 describe("Test utils prisma", async () => {
   it("getSlugOrIdPrismaWhereClause", async () => {

@@ -9,13 +9,8 @@ import { createError } from "nuxt/app"
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
 
-prisma.$transaction = ((input: any) => {
-  if (typeof input === "function") {
-    return input(prisma)
-  } else if (Array.isArray(input)) {
-    return Promise.all(input)
-  }
-  throw new Error("Unexpected $transaction input")
+prisma.$transaction = ((func: (prisma: any) => Promise<any>) => {
+  return func(prisma)
 }) as unknown as typeof prisma.$transaction
 
 vitest.mock(import("~~/server/lib/loggers"))

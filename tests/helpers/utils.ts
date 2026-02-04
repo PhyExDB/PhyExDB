@@ -1,8 +1,6 @@
 import type { H3Event, EventHandlerRequest } from "h3"
 import { v4 as uuidv4 } from "uuid"
 import { expect, it } from "vitest"
-import type { BaseList, SlugList } from "#shared/types/Base.type"
-import type { UserDetail, Page } from "#shared/types"
 
 export * from "./mock"
 

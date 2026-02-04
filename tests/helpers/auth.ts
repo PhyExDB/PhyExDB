@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from "uuid"
-import type { UserDetail } from "../../shared/types"
 
 /**
  * A collection of user objects for testing purposes.

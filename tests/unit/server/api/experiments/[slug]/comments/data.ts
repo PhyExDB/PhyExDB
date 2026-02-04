@@ -1,7 +1,5 @@
 import { v4 as uuidv4 } from "uuid"
 import { users } from "~~/tests/helpers/auth"
-import type { ExperimentList } from "#shared/types/Experiment.type"
-import type { ExperimentComment } from "#shared/types/ExperimentComment.type"
 
 /**
  * Comment

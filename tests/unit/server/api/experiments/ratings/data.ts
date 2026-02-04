@@ -1,6 +1,4 @@
 import { v4 as uuidv4 } from "uuid"
-import type { ExperimentList } from "#shared/types"
-import type { ExperimentRating } from "#shared/types/ExperimentRatings.type"
 
 /**
  * Experiement

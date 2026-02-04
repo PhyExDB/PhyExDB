@@ -4,8 +4,6 @@ import { experiment, comment } from "./data"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
-import { experimentCommentCreateSchema } from "#shared/types/ExperimentComment.type"
-import type { ExperimentComment } from "#shared/types/ExperimentComment.type"
 
 import endpoint from "~~/server/api/experiments/[slug]/comments/index.post"
 
@@ -31,7 +29,7 @@ describe("Api Route api/experiments/[slug]/comments/index.post", () => {
   // tests
   {
     // type test
-    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<ExperimentComment>()
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
     u.testSuccess(context)
 

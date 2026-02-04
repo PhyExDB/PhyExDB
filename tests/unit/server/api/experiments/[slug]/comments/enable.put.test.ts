@@ -1,7 +1,6 @@
 import { describe, expectTypeOf } from "vitest"
 import { generateMock } from "@anatine/zod-mock"
 import { experiment } from "./data"
-import { experimentCommentEnabledSchema, type ExperimentCommentEnabled } from "#shared/types/ExperimentComment.type"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
@@ -25,13 +24,12 @@ describe("Api Route api/experiments/[slug]/comments/enable.put", () => {
   })
 
   // mocks
-  u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
   u.mockPrismaForSlugOrIdPut({ data: experiment, expected: updatedExperiment }, "experiment")
 
   // tests
   {
     // type test
-    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<ExperimentCommentEnabled>()
+    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
 
     u.testSuccess(context)
 

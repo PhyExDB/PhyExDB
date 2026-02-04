@@ -20,12 +20,12 @@ export function getSlugOrIdPrismaWhereClause(event: Event): { slug: string } | {
  * Generates a Prisma where clause based on an ID parameter from the event.
  */
 export function getIdPrismaWhereClause(event: Event) {
-  const id: string | undefined = getRouterParam(event, "id")
+  const id = getRouterParam(event, "id")
   if (!id) {
     throw createError({ status: 400, message: "Invalid id" })
   }
 
-  const whereClause: { id: string } = { id }
+  const whereClause = { id: id }
   return whereClause
 }
 

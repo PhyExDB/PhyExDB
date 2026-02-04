@@ -8,85 +8,45 @@ test.describe("E-Mail verification", () => {
     const email = `${id}@test.test`
     const emailRegex = new RegExp(`^${id}@test\\.test$`)
 
-    await page.goto("/register")
-    await expect(page.locator("#email")).toBeVisible()
-
+    await page.goto("http://localhost:3000/register", { waitUntil: "networkidle" })
+    await page.locator("#email").click()
     await page.locator("#email").fill(email)
+    await page.locator("#name").click()
     await page.locator("#name").fill(name)
+    await page.locator("#password").click()
     await page.locator("#password").fill("1Passwort")
+    await page.locator("#confirmPassword").click()
     await page.locator("#confirmPassword").fill("1Passwort")
     await page.getByLabel("Ich akzeptiere die").click()
-
     await page.getByRole("button", { name: "Registrieren" }).click()
-
-    await expect(
-      page.locator("div").filter({ hasText: emailRegex }).locator("span"),
-    ).toBeVisible()
-
-    await page
-      .locator("div")
-      .filter({ hasText: emailRegex })
-      .locator("span")
-      .click()
-
-    await expect(
-      page.locator("[id^='radix-vue-popover-content']"),
-    ).toBeVisible()
-
-    await expect(
-      page.locator("[id^='radix-vue-popover-content']"),
-    ).toMatchAriaSnapshot(`
+    await expect(page.locator("div").filter({ hasText: emailRegex }).locator("span")).toBeVisible()
+    await page.locator("div").filter({ hasText: emailRegex }).locator("span").click()
+    await expect(page.locator("[id^='radix-vue-popover-content']")).toBeVisible()
+    await expect(page.locator("[id^='radix-vue-popover-content']")).toMatchAriaSnapshot(`
       - dialog:
         - paragraph: E-Mail ist nicht verifiziert
         - button "E-Mail verifizieren"
-    `)
+      `)
 
-    await page.goto("http://localhost:8025/")
-    await expect(
-      page.getByRole("link", { name: new RegExp(`To: ${email}`) }),
-    ).toBeVisible()
-
-    await page.getByRole("link", { name: new RegExp(`To: ${email}`) }).click()
-
-    const [page1] = await Promise.all([
-      page.waitForEvent("popup"),
-      page
-        .locator("#preview-html")
-        .contentFrame()
-        .getByRole("link", { name: "E-Mail bestätigen" })
-        .click(),
-    ])
-
-    await page1.goto("/profile")
-    await expect(page1.getByRole("main")).toBeVisible()
-
+    await page.goto("http://localhost:8025/", { waitUntil: "networkidle" })
+    await page.getByRole("link", { name: `email@test.test To: ${email}` }).click()
+    const page1Promise = page.waitForEvent("popup")
+    await page.locator("#preview-html").contentFrame().getByRole("link", { name: "E-Mail bestätigen" }).click()
+    const page1 = await page1Promise
+    await page1.goto("/profile", { waitUntil: "networkidle" })
     await expect(page1.getByRole("main")).toMatchAriaSnapshot(`
-      - text: US
-      - paragraph: ${name}
-      - paragraph: ${email}
-      - button "Name oder E-Mail ändern"
-      - button "Passwort ändern"
+    - text: US
+    - paragraph: ${name}
+    - paragraph: ${email}
+    - button "Name oder E-Mail ändern"
+    - button "Passwort ändern"
     `)
-
-    await expect(
-      page1.locator("div").filter({ hasText: emailRegex }).locator("span"),
-    ).toBeVisible()
-
-    await page1
-      .locator("div")
-      .filter({ hasText: emailRegex })
-      .locator("span")
-      .click()
-
-    await expect(
-      page1.locator("[id^='radix-vue-popover-content']"),
-    ).toBeVisible()
-
-    await expect(
-      page1.locator("[id^='radix-vue-popover-content']"),
-    ).toMatchAriaSnapshot(`
-      - dialog:
-        - paragraph: E-Mail ist verifiziert
+    await expect(page1.locator("div").filter({ hasText: emailRegex }).locator("span")).toBeVisible()
+    await page1.locator("div").filter({ hasText: emailRegex }).locator("span").click()
+    await expect(page1.locator("[id^='radix-vue-popover-content']")).toBeVisible()
+    await expect(page1.locator("[id^='radix-vue-popover-content']")).toMatchAriaSnapshot(`
+    - dialog:
+      - paragraph: E-Mail ist verifiziert
     `)
   })
 })

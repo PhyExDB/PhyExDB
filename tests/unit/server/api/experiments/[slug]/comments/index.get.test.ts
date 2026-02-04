@@ -5,8 +5,6 @@ import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
 import endpoint from "~~/server/api/experiments/[slug]/comments/index.get"
-import type { ExperimentComment } from "#shared/types/ExperimentComment.type"
-import type { Page } from "#shared/types"
 
 describe("Api Route api/experiments/[slug]/comments/index.get", () => {
   // definitions

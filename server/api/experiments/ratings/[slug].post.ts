@@ -23,23 +23,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 400, message: "Rating already exists" })
   }
 
-  await prisma.$transaction([
-    prisma.experiment.findUniqueOrThrow({
-      where: { id: experiment.id },
-    }),
-    prisma.experiment.update({
-      where: { id: experiment.id },
+  prisma.$transaction(async (prisma) => {
+    const where = { id: experiment.id }
+    const exp = await prisma.experiment.findUniqueOrThrow({ where })
+    await prisma.experiment.update({
+      where,
       data: {
-        ratingsCount: { increment: 1 },
-        ratingsSum: { increment: rating.value },
-        ratingsAvg: {
-          set:
-              (experiment.ratingsSum + rating.value)
-              / (experiment.ratingsCount + 1),
-        },
+        ratingsCount: exp.ratingsCount + 1,
+        ratingsSum: exp.ratingsSum + rating.value,
+        ratingsAvg: (exp.ratingsSum + rating.value) / (exp.ratingsCount + 1),
       },
-    }),
-  ])
+    })
+  })
 
   return rating as ExperimentRating
 })

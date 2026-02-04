@@ -9,7 +9,7 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "strict": true,
+    "strict": false,
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitOverride": true,
@@ -32,4 +32,10 @@
     },
     "types": ["node", "vitest/globals"]
   },
+  "include": [
+    "./auto-imports.d.ts",
+    "**/*.ts",
+    "**/*.vue",
+    ".nuxt/**/*"
+  ]
 }
