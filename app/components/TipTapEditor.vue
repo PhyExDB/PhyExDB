@@ -2,7 +2,10 @@
 import type { Level } from "@tiptap/extension-heading"
 import { Subscript as TiptapSubscript } from "@tiptap/extension-subscript"
 import { Superscript as TiptapSuperscript } from "@tiptap/extension-superscript"
+import Mathematics from "@tiptap/extension-mathematics"
 import { PlainTextPaste } from "./PlainTextPaste"
+
+import "katex/dist/katex.min.css"
 
 const { modelValue, showHeadings } = defineProps({
   modelValue: {
@@ -40,8 +43,15 @@ const editorExtensions = [
   }),
   TiptapSubscript.configure({}),
   TiptapSuperscript.configure({}),
+  Mathematics.configure({
+    shouldRender: (state, pos, node) => {
+      const $pos = state.doc.resolve(pos)
+      return node.type.name === "text" && $pos.parent.type.name !== "codeBlock"
+    },
+  }),
   PlainTextPaste,
 ]
+
 const editor = useEditor({
   content: modelValue,
   extensions: editorExtensions,
@@ -96,6 +106,10 @@ watch(
 onBeforeUnmount(() => {
   editor.value?.destroy()
 })
+
+function insertMathFormula() {
+  editor.value?.chain().focus().insertContent("$E = mc^2$").run()
+}
 </script>
 
 <template>
@@ -107,6 +121,7 @@ onBeforeUnmount(() => {
           <!-- Text Formatting -->
           <div class="flex gap-1">
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('bold') }"
@@ -116,6 +131,7 @@ onBeforeUnmount(() => {
               <strong>B</strong>
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('italic') }"
@@ -125,6 +141,7 @@ onBeforeUnmount(() => {
               <em>I</em>
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('strike') }"
@@ -134,6 +151,7 @@ onBeforeUnmount(() => {
               <s>S</s>
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('subscript') }"
@@ -143,6 +161,7 @@ onBeforeUnmount(() => {
               <p>x<sub>2</sub></p>
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('superscript') }"
@@ -154,6 +173,7 @@ onBeforeUnmount(() => {
             <DropdownMenu v-model:open="isLinkDropdownOpen">
               <DropdownMenuTrigger as-child>
                 <Button
+                  type="button"
                   variant="outline"
                   class="btn aspect-square"
                   :class="{ 'btn-active': editor.isActive('link') }"
@@ -172,6 +192,7 @@ onBeforeUnmount(() => {
                 />
                 <div class="flex gap-1 mt-2">
                   <Button
+                    type="button"
                     variant="outline"
                     class="ml-auto"
                     @click="setNewLink"
@@ -182,6 +203,7 @@ onBeforeUnmount(() => {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button
+              type="button"
               variant="outline"
               class="btn aspect-square"
               :class="{ 'btn-active': editor.isActive('link') }"
@@ -202,6 +224,7 @@ onBeforeUnmount(() => {
               :key="heading.level"
             >
               <Button
+                type="button"
                 variant="outline"
                 class="btn aspect-square"
                 :class="{ 'btn-active': editor.isActive('heading', { level: heading.level }) }"
@@ -215,6 +238,7 @@ onBeforeUnmount(() => {
           <!-- Lists -->
           <div class="flex gap-1">
             <Button
+              type="button"
               variant="outline"
               class="btn"
               :class="{ 'btn-active': editor.isActive('bulletList') }"
@@ -223,6 +247,7 @@ onBeforeUnmount(() => {
               • List
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn"
               :class="{ 'btn-active': editor.isActive('orderedList') }"
@@ -232,9 +257,19 @@ onBeforeUnmount(() => {
             </Button>
           </div>
 
+          <!-- LateX -->
+          <Button
+            variant="outline"
+            class="btn"
+            @click="insertMathFormula"
+          >
+            <span class="font-serif italic">∑</span> Math
+          </Button>
+
           <!-- Undo/Redo -->
           <div class="flex gap-1 ml-auto">
             <Button
+              type="button"
               variant="outline"
               class="btn"
               :disabled="!editor.can().chain().focus().undo().run()"
@@ -244,6 +279,7 @@ onBeforeUnmount(() => {
               Undo
             </Button>
             <Button
+              type="button"
               variant="outline"
               class="btn"
               :disabled="!editor.can().chain().focus().redo().run()"

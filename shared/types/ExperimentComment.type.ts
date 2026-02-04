@@ -12,6 +12,8 @@ export interface ExperimentComment extends BaseList {
     id: string
     name: string
   }
+  parentId?: string | null
+  children?: ExperimentComment[]
 }
 
 /**
@@ -29,6 +31,7 @@ export const experimentCommentCreateSchema = z.object({
   text: z
     .string({ message: "Bitte geben Sie einen Kommentar ein." })
     .trim().nonempty("Bitte geben Sie einen Kommentar ein."),
+  parentId: z.string().uuid().optional(),
 })
 
 /**

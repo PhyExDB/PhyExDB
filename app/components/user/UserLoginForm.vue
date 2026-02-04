@@ -27,7 +27,18 @@ const onSubmit = form.handleSubmit(async (values) => {
       console.error(error)
     }
   } else {
-    followRedirect()
+    // Check if 2FA challenge is required
+    try {
+      const { data } = await useFetch("/api/2fa/status")
+      if (data.value?.enabled && data.value?.required) {
+        await navigateTo("/2fa/challenge")
+      } else {
+        followRedirect()
+      }
+    } catch (e) {
+      console.error(e)
+      followRedirect()
+    }
   }
   loading.value = false
 })
