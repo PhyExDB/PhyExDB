@@ -16,16 +16,10 @@ export const comment = {
 /**
  * Experiment
  */
-export const experiment: ExperimentList = {
+export const experiment = {
   id: uuidv4(),
-  slug: "test-experiment",
-  name: "Test experiment",
+  slug: "slug",
   userId: users.user.id,
-  status: "published",
-  duration: 10,
-  attributes: [],
-  revisionOf: undefined,
-  revisedBy: undefined,
-  ratingsCount: 0,
-  ratingsSum: 0,
-}
+  commentsEnabled: true,
+  comments: [comment],
+} as unknown as ExperimentList
