@@ -56,6 +56,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Setup database
+        run: npx prisma migrate deploy
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
