@@ -19,9 +19,9 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://nuxt:nuxt_password@localhost:5432/phyexdb
-      # For API Base URL
-      NUXT_PUBLIC_API_BASE: http://db:3000/api/
+      NUXT_PUBLIC_API_BASE: http://localhost:3000/api/
       BETTER_AUTH_SECRET: better_auth_secret
+      NODE_ENV: production
 
     services:
       db:
@@ -58,6 +58,9 @@ jobs:
 
       - name: Setup database
         run: npx prisma migrate deploy
+
+      - name: Build application
+        run: npm run build
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps

@@ -8,8 +8,10 @@
   "scripts": {
     "build": "prisma generate && nuxt build",
     "dev": "prisma generate && dotenv -e .env.development nuxt dev",
+    "dev:test": "prisma generate && dotenv -e .env.test nuxt dev",
     "generate": "nuxt generate",
     "preview": "dotenv -e .env.development nuxt preview",
+    "preview:test": "dotenv -e .env.test nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
