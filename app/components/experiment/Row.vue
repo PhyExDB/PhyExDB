@@ -35,7 +35,6 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
         <FavoriteButton
           :experiment-id="experiment.id"
           :is-favorited-initial="experiment.isFavorited ?? false"
-          @update:is-favorited="(val: boolean | undefined) => experiment.isFavorited = val"
         />
 
         <p class="font-medium">

@@ -76,7 +76,6 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
       <FavoriteButton
         :experiment-id="experiment.id"
         :is-favorited-initial="experiment.isFavorited ?? false"
-        @update:is-favorited="(val: boolean | undefined) => experiment.isFavorited = val"
       />
 
       <DropdownMenu

@@ -276,7 +276,7 @@ export const experimentReviewSchema = z.object({
 })
 
 export interface ReorderEvent {
-  added?: { element: ExperimentList; newIndex: number };
-  removed?: { element: ExperimentList; oldIndex: number };
-  moved?: { element: ExperimentList; oldIndex: number; newIndex: number };
+  added?: { element: ExperimentList, newIndex: number }
+  removed?: { element: ExperimentList, oldIndex: number }
+  moved?: { element: ExperimentList, oldIndex: number, newIndex: number }
 }

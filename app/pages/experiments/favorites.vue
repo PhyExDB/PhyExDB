@@ -4,6 +4,7 @@ import FavoriteButton from "~/components/experiment/FavoriteButton.vue"
 import { useFetch } from "#app"
 import type { ExperimentList, ReorderEvent } from "~~/shared/types/Experiment.type"
 import type { ExperimentAttributeDetail } from "~~/shared/types/ExperimentAttribute.type"
+import { toast } from "~/components/ui/toast"
 
 const isLoading = ref(true)
 const newCategoryName = ref("")
@@ -115,9 +116,20 @@ const allGroups = computed(() => {
 function addUserCategory() {
   const name = newCategoryName.value.trim()
   if (!name) return
-  if (!temporaryCategories.value.includes(name) && !userCategories.value.includes(name)) {
-    temporaryCategories.value.push(name)
+
+  const exists = userCategories.value.some(cat => cat.toLowerCase() === name.toLowerCase())
+    || temporaryCategories.value.some(cat => cat.toLowerCase() === name.toLowerCase())
+
+  if (exists) {
+    toast({
+      title: "Kategorie existiert bereits",
+      description: `Die Kategorie "${name}" ist bereits vorhanden.`,
+      variant: "destructive",
+    })
+    return
   }
+
+  temporaryCategories.value.push(name)
   newCategoryName.value = ""
   isAddCategoryDialogOpen.value = false
 }
@@ -196,8 +208,8 @@ isLoading.value = false
         <div class="w-full sm:w-48">
           <label class="text-sm font-medium mb-1 block">Ansicht:</label>
           <Select
-              :model-value="isGroupedByUser.toString()"
-              @update:model-value="(val) => isGroupedByUser = val === 'true'"
+            :model-value="isGroupedByUser.toString()"
+            @update:model-value="(val) => isGroupedByUser = val === 'true'"
           >
             <SelectTrigger>
               <SelectValue />
