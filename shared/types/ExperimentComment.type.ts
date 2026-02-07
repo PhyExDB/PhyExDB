@@ -1,4 +1,5 @@
 import { z } from "zod"
+import type { BaseList } from "./Base.type"
 
 /**
  * Type for an ExperimentComment

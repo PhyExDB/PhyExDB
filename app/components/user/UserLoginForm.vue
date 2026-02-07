@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
+import { FormControl, FormItem, FormLabel, FormMessage } from "~/components/ui/form"
+import { Input } from "~/components/ui/input"
+import { Button } from "~/components/ui/button"
 
 const loading = ref(false)
 const lastWrong = ref(false)

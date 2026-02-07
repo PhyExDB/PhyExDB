@@ -1,8 +1,14 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
 import { dbLogger } from "./loggers"
+import { PrismaClient } from "~~/generated/prisma/client"
 
 const prismaClientSingleton = () => {
+  const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL,
+  })
+
   const prisma = new PrismaClient({
+    adapter,
     log: [
       {
         emit: "event",
@@ -23,22 +29,22 @@ const prismaClientSingleton = () => {
     ],
   })
 
-  prisma.$on("query", (e) => {
+  prisma.$on("query", (e: { query: string, params: unknown }) => {
     if (process.env.NODE_ENV !== "test") {
       dbLogger.debug(e.query, { params: e.params })
     }
   })
-  prisma.$on("error", (e) => {
+  prisma.$on("error", (e: { message: unknown }) => {
     if (process.env.NODE_ENV !== "test") {
       dbLogger.error(e.message)
     }
   })
-  prisma.$on("info", (e) => {
+  prisma.$on("info", (e: { message: unknown }) => {
     if (process.env.NODE_ENV !== "test") {
       dbLogger.info(e.message)
     }
   })
-  prisma.$on("warn", (e) => {
+  prisma.$on("warn", (e: { message: unknown }) => {
     if (process.env.NODE_ENV !== "test") {
       dbLogger.warn(e.message)
     }

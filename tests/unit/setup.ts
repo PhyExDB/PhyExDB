@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "~~/generated/prisma/client"
 import { vitest } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
 import { ref } from "vue"
 import { createDomPurify } from "~~/server/utils/dompurify"
+import { createError } from "nuxt/app"
 
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)
