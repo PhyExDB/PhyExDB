@@ -10,9 +10,9 @@ const emit = defineEmits<{
 
 <template>
   <Icon
-    :name="`heroicons:star${state === 'selected' ? '-solid' : ''}`"
-    class="w-8 h-8"
-    :class="{ 'bg-yellow-500': state === 'hover' || state === 'selected' }"
+    :name="state === 'selected' ? 'heroicons:star-20-solid' : 'heroicons:star'"
+    class="w-8! h-8! transition-colors cursor-pointer"
+    :class="state !== 'unselected' ? 'text-yellow-500' : 'text-gray-300'"
     @click="emit('click')"
     @mouseover="emit('hover')"
     @mouseleave="emit('end-hover')"

@@ -48,7 +48,7 @@ const table = useVueTable({
             Spalten
             <Icon
               name="heroicons:chevron-down"
-              class="ml-2 h-4 w-4"
+              class="ml-2 h-4! w-4!"
             />
           </Button>
         </DropdownMenuTrigger>

@@ -86,7 +86,7 @@ const reset = () => {
   <Popover v-model:open="open">
     <PopoverTrigger
       as-child
-      class="flex min-h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-start"
+      class="flex min-h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background data-placeholder:text-muted-foreground focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-start"
     >
       <Button
         variant="outline"
@@ -94,7 +94,7 @@ const reset = () => {
         :aria-expanded="open"
         class="justify-between w-full flex items-center min-h-[40px] h-auto py-2"
       >
-        <span class="truncate whitespace-normal break-words text-left flex-1">
+        <span class="truncate whitespace-normal wrap-break-word text-left flex-1">
           <slot
             name="preview"
             :selected="selected"
@@ -104,7 +104,7 @@ const reset = () => {
         </span>
         <Icon
           name="heroicons:chevron-up-down"
-          class="ml-2 h-4 w-4 shrink-0 opacity-50"
+          class="ml-2 h-4! w-4! shrink-0 opacity-50"
         />
       </Button>
     </PopoverTrigger>
@@ -125,7 +125,7 @@ const reset = () => {
               v-for="option in options"
               :key="option.id"
               :value="valueForOption(option)"
-              class="whitespace-normal break-words flex flex-1"
+              class="whitespace-normal wrap-break-word flex flex-1"
               @select="toggle(option)"
             >
               <slot
@@ -137,7 +137,7 @@ const reset = () => {
               <Icon
                 v-if="isSelected(option)"
                 name="heroicons:check"
-                class="ml-auto h-4 w-4"
+                class="ml-auto h-4! w-4!"
               />
             </CommandItem>
           </CommandGroup>

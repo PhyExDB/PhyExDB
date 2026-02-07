@@ -61,7 +61,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     >
       <Icon
         name="heroicons:arrow-left"
-        class="w-4 h-4 mr-2"
+        class="w-4! h-4! mr-2"
       />
       Zurück
     </Button>
@@ -81,7 +81,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           >
             <Icon
               name="heroicons:ellipsis-horizontal"
-              class="w-6 h-6 text-muted-foreground"
+              class="w-6! h-6! text-muted-foreground"
             />
           </Button>
         </DropdownMenuTrigger>
@@ -172,7 +172,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     <div class="flex items-center space-x-3 text-muted-foreground">
       <Icon
         name="heroicons:clock"
-        class="w-6 h-6 text-muted-foreground"
+        class="w-6! h-6! text-muted-foreground"
       />
       <span class="text-lg font-medium">
         {{ preparationDuration ? `Vorbereitung:  ${preparationDuration || "Unbestimmt"}, ` : "" }}
@@ -271,7 +271,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                     <div class="text-center p-4 text-muted-foreground">
                       <Icon
                         name="heroicons:document"
-                        class="w-12 h-12 mx-auto mb-2"
+                        class="w-12! h-12! mx-auto mb-2"
                       />
                       <p>{{ item.file.originalName }}</p>
                     </div>
@@ -310,13 +310,13 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
               <template v-else-if="isVideoFile(item.file.mimeType)">
                 <Icon
                   name="heroicons:film"
-                  class="w-8 h-8 text-muted"
+                  class="w-8! h-8! text-muted"
                 />
               </template>
               <template v-else>
                 <Icon
                   name="heroicons:document"
-                  class="w-8 h-8 text-muted"
+                  class="w-8! h-8! text-muted"
                 />
               </template>
             </Card>
