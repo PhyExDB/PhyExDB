@@ -69,19 +69,19 @@ export default defineConfig<ConfigOptions>({
   // Run your local dev server before starting the tests
   webServer: process.env.CI
     ? {
-      command: "npm run preview:test",
-      url: "http://localhost:3000",
-      reuseExistingServer: false,
-      timeout: 120000, // 2 minutes
-      stdout: "pipe",
-      stderr: "pipe",
-    }
+        command: "npm run preview:test",
+        url: "http://localhost:3000",
+        reuseExistingServer: false,
+        timeout: 120000, // 2 minutes
+        stdout: "pipe",
+        stderr: "pipe",
+      }
     : {
-      command: "npm run dev:test",
-      url: "http://localhost:3000",
-      reuseExistingServer: true,
-      timeout: 180000,
-      stdout: "pipe",
-      stderr: "pipe",
-    },
+        command: "npm run dev:test",
+        url: "http://localhost:3000",
+        reuseExistingServer: true,
+        timeout: 180000,
+        stdout: "pipe",
+        stderr: "pipe",
+      },
 })
