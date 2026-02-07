@@ -20,15 +20,17 @@ export default defineEventHandler(async (event) => {
   })
 
   if (existing) {
-    await prisma.favorite.delete({
+    await prisma.favorite.update({
       where: { id: existing.id },
+      data: { active: !existing.active },
     })
-    return { favorited: false }
+    return { favorited: !existing.active }
   } else {
     await prisma.favorite.create({
       data: {
         userId: userId,
         experimentId: experimentId,
+        active: true,
         numberForSequence: Math.pow(2, 31) - 1, // Max value for 32-bit signed integer
       },
     })

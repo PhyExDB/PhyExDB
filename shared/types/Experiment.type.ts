@@ -52,6 +52,7 @@ export interface ExperimentList extends SlugList {
   isFavorited?: boolean
 
   favoriteNumberForSequence?: number
+  favoriteCategory?: string | null
 }
 
 /**
@@ -273,3 +274,9 @@ export const experimentReviewSchema = z.object({
 }, {
   message: "Nachricht wird benötigt",
 })
+
+export interface ReorderEvent {
+  added?: { element: ExperimentList; newIndex: number };
+  removed?: { element: ExperimentList; oldIndex: number };
+  moved?: { element: ExperimentList; oldIndex: number; newIndex: number };
+}
