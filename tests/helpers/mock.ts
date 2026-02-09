@@ -1,6 +1,7 @@
-import { Prisma } from "~~/generated/prisma/client"
 import { vi } from "vitest"
 import type { TestContext } from "./utils"
+import { Prisma } from "../../generated/prisma/client"
+import prisma from "../../server/lib/prisma"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type CheckWhereClause = (where: any) => boolean

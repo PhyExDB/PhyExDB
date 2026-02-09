@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
 import { v4 as uuidv4 } from "uuid"
-import * as u from "~~/tests/helpers/utils"
-import * as unit from "~~/server/utils/prisma"
-import { Prisma } from "#prisma/client";
+import { Prisma } from "../../../../generated/prisma/client"
+import * as u from "../../../../tests/helpers/utils"
+import * as unit from "../../../../server/utils/prisma"
 
 describe("Test utils prisma", async () => {
   it("getSlugOrIdPrismaWhereClause", async () => {

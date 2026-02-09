@@ -1,6 +1,5 @@
 import { Prisma } from "~~/generated/prisma/browser";
 
-
 /**
  * Configuration object for selecting specific attributes and their nested properties
  * in an experiment list query.

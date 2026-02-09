@@ -39,7 +39,7 @@
     "@vueuse/core": "^13.1.0",
     "@vueuse/nuxt": "^13.1.0",
     "bcrypt": "^5.1.1",
-    "better-auth": "^1.2.5",
+    "better-auth": "^1.4.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.2.5",
@@ -61,7 +61,7 @@
     "vue-router": "latest",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
-    "zod": "^3.24.2"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@anatine/zod-mock": "^3.13.5",
@@ -82,7 +82,7 @@
     "autoprefixer": "^10.4.21",
     "dotenv-cli": "^8.0.0",
     "happy-dom": "^17.4.4",
-    "nodemailer": "^6.10.0",
+    "nodemailer": "^7.0.13",
     "nuxt-file-storage": "^0.3.0",
     "nuxt-nodemailer": "^1.1.2",
     "playwright-core": "^1.49.1",
@@ -94,5 +94,8 @@
     "unplugin-auto-import": "^19.1.1",
     "vitest": "^3.0.0",
     "vitest-mock-extended": "^3.0.1"
+  },
+  "overrides": {
+    "vite": "^6.4.1"
   }
 }
