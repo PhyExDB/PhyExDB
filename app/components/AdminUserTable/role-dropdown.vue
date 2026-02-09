@@ -55,7 +55,7 @@ watch(position, async (newVal, oldVal) => {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <div class="flex flex-nowrap">
-          <span>{{ capitalizeFirstLetter(props.role) }}</span>
+          <span>{{ capitalizeFirstLetter(position) }}</span>
           <Icon
             v-if="canChangeRole"
             size="1.2em"

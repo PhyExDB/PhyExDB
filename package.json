@@ -2,12 +2,12 @@
   "name": "nuxt-app",
   "private": true,
   "type": "module",
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "scripts": {
-    "build": "prisma generate && nuxt build",
-    "dev": "prisma generate && dotenv -e .env.development nuxt dev",
+    "build": "npx nuxi prepare && prisma generate && nuxt build",
+    "db:setup": "prisma migrate dev && prisma db seed",
+    "db:reset": "prisma migrate reset --force && prisma db seed",
+    "dev": "npx nuxi prepare && dotenv -e .env.development nuxt dev && prisma generate && npm run db:setup",
+    "prismagenerate": "dotenv -e .env.development nuxt dev && prisma generate",
     "generate": "nuxt generate",
     "preview": "dotenv -e .env.development nuxt preview",
     "postinstall": "nuxt prepare",

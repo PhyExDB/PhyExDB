@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import vue from "@vitejs/plugin-vue"
-import { copyPrismaAssets } from "./server/utils/copy-prisma-assets"
+import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
   modules: [
@@ -19,6 +19,7 @@ export default defineNuxtConfig({
     "@nuxtjs/robots",
     "nuxt-schema-org",
   ],
+
 
   devtools: { enabled: true },
 
@@ -79,10 +80,6 @@ export default defineNuxtConfig({
       tailwindcss: {},
       autoprefixer: {},
     },
-  },
-
-  hooks: {
-    "nitro:build:public-assets": copyPrismaAssets,
   },
 
   eslint: {
