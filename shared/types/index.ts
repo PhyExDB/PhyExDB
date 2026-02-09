@@ -1,4 +1,3 @@
-export * from "./Base.type"
 export * from "./Legal.type"
 export * from "./User.type"
 export * from "./ExperimentAttribute.type"

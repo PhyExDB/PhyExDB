@@ -1,6 +1,6 @@
 import { validate as uuidValidate } from "uuid"
 import type { Event } from "./utils"
-import { PrismaClientKnownRequestError } from "~~/generated/prisma/internal/prismaNamespace"
+import { Prisma } from "~~/generated/prisma/client";
 
 /**
  * Generates a Prisma where clause based on a slug or ID parameter from the event.
@@ -36,22 +36,11 @@ export function getIdPrismaWhereClause(event: Event) {
  */
 export async function catchPrismaUniqueError<T>(
   call: () => Promise<T>,
-  attribute: string,
 ): Promise<T | "NOTUNIQUE"> {
   try {
     return await call()
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2002"
-        && error.meta?.target && error.meta?.target instanceof Array
-        && error.meta.target.includes(attribute)) {
-        return "NOTUNIQUE"
-      } else {
-        throw error
-      }
-    } else {
-      throw error
-    }
+    throw error
   }
 }
 
@@ -65,7 +54,7 @@ export async function untilSlugUnique<T>(
 ): Promise<T> {
   let result: T | undefined | "NOTUNIQUE" = "NOTUNIQUE"
   while (result === "NOTUNIQUE") {
-    result = await catchPrismaUniqueError(() => call(slugBase + (slugSuffix === 1 ? "" : slugSuffix)), "slug")
+    result = await catchPrismaUniqueError(() => call(slugBase + (slugSuffix === 1 ? "" : slugSuffix)))
     slugSuffix++
   }
   return result
@@ -81,12 +70,8 @@ export async function prismaRecordNotFoundTo404<T>(
   try {
     return await call()
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        throw createError({ status: 404, message: "Not found" })
-      } else {
-        throw error
-      }
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw createError({ status: 404, message: "Not found" })
     } else {
       throw error
     }

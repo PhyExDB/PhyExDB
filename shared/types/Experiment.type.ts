@@ -1,5 +1,4 @@
 import { z } from "zod"
-import type { SlugList } from "./Base.type"
 import type { FileList } from "./File.type"
 
 /**

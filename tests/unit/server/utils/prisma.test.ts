@@ -1,9 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest"
 import { v4 as uuidv4 } from "uuid"
-import * as u from "../../../helpers/utils"
-
+import * as u from "~~/tests/helpers/utils"
 import * as unit from "~~/server/utils/prisma"
-import { PrismaClientKnownRequestError } from "#prisma/internal/prismaNamespace"
+import { Prisma } from "#prisma/client";
 
 describe("Test utils prisma", async () => {
   it("getSlugOrIdPrismaWhereClause", async () => {
@@ -26,21 +25,21 @@ describe("Test utils prisma", async () => {
   })
 
   {
-    const error = new PrismaClientKnownRequestError("", {
+    const error = new Prisma.PrismaClientKnownRequestError("", {
       code: "P2002",
       meta: { target: ["slug"] },
       clientVersion: "test",
     })
 
     it("catchPrismaUniqueError", async () => {
-      expect(await unit.catchPrismaUniqueError(async () => "result", "slug")).toEqual("result")
-      expect(error instanceof PrismaClientKnownRequestError).toBeTruthy()
+      expect(await unit.catchPrismaUniqueError(async () => "result")).toEqual("result")
+      expect(error instanceof Prisma.PrismaClientKnownRequestError).toBeTruthy()
       expect(await unit.catchPrismaUniqueError(async () => {
         throw error
-      }, "slug")).toEqual("NOTUNIQUE")
+      })).toEqual("NOTUNIQUE")
       await expect(unit.catchPrismaUniqueError(async () => {
         throw new Error()
-      }, "attribute")).rejects.toThrowError()
+      })).rejects.toThrowError()
     })
 
     it("untilSlugUnique", async () => {
@@ -55,7 +54,7 @@ describe("Test utils prisma", async () => {
   }
 
   {
-    const error = new PrismaClientKnownRequestError("", {
+    const error = new Prisma.PrismaClientKnownRequestError("", {
       code: "P2025",
       meta: {},
       clientVersion: "test",

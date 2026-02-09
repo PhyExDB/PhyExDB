@@ -1,5 +1,4 @@
-import type { Prisma } from "~~/generated/prisma/client"
-import { PrismaClientKnownRequestError } from "~~/generated/prisma/internal/prismaNamespace"
+import { Prisma } from "~~/generated/prisma/client"
 import { vi } from "vitest"
 import type { TestContext } from "./utils"
 
@@ -84,12 +83,11 @@ export function mockPrismaForPut<Data, Exp>(
 
   prisma[table].update = vi.fn().mockImplementation(({ where }) => {
     if (!checkWhereClause(where)) {
-      const error = new PrismaClientKnownRequestError("", {
+      throw new Prisma.PrismaClientKnownRequestError("", {
         code: "P2025",
         meta: {},
         clientVersion: "test",
       })
-      throw error
     }
     return Promise.resolve(c.expected)
   })

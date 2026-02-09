@@ -1,8 +1,8 @@
-import type { Prisma } from "~~/generated/prisma/client"
 import { getSlugOrIdPrismaWhereClause, untilSlugUnique } from "~~/server/utils/prisma"
 import slugify from "~~/server/utils/slugify"
 import { experimentAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
+import { Prisma } from "~~/generated/prisma/client";
 
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({

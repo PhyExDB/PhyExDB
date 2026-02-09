@@ -1,5 +1,5 @@
-import { Prisma } from "~~/generated/prisma/client"
 import type { Page } from "~~/shared/types"
+import { Prisma } from "~~/generated/prisma/client";
 
 export default defineEventHandler(async (event) => {
   // Attribute Filter
@@ -109,7 +109,7 @@ export default defineEventHandler(async (event) => {
   })
 
   return {
-    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
+    items: experiments.map((experiment: globalThis.ExperimentIncorrectList) => mapExperimentToList(experiment as ExperimentIncorrectList)),
     pagination: pageMeta,
   } as Page<ExperimentList>
 })

@@ -4,7 +4,6 @@ import { vitest } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
 import { ref } from "vue"
 import { createDomPurify } from "~~/server/utils/dompurify"
-import { createError } from "nuxt/app"
 
 const prisma = mockDeep<PrismaClient>()
 vitest.stubGlobal("prisma", prisma)

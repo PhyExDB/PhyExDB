@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import UserLoginForm from "~/components/user/UserLoginForm.vue"
 
 definePageMeta({
   title: "Login",
