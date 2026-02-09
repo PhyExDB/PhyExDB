@@ -56,8 +56,8 @@ async function signOut() {
 
       <DropdownMenuSeparator v-if="canSeeUsers || canReviewExperiments" />
       <DropdownMenuItem
-          v-if="data?.session.impersonatedBy"
-          @click="stopImpersonating"
+        v-if="data?.session.impersonatedBy"
+        @click="stopImpersonating"
       >
         <UserX />
         <span>Imitieren beenden</span>
@@ -75,8 +75,8 @@ async function signOut() {
         </DropdownMenuItem>
       </NuxtLink>
       <NuxtLink
-          v-if="canReviewExperiments"
-          href="/experiments/review"
+        v-if="canReviewExperiments"
+        href="/experiments/review"
       >
         <DropdownMenuItem>
           <ClipboardCheck />
@@ -86,8 +86,8 @@ async function signOut() {
 
       <DropdownMenuSeparator />
       <DropdownMenuItem
-          class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
-          @click="signOut"
+        class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
+        @click="signOut"
       >
         <LogOut />
         <span>Abmelden</span>
@@ -95,7 +95,7 @@ async function signOut() {
     </DropdownMenuContent>
   </DropdownMenu>
   <NuxtLink
-      to="/login"
+    to="/login"
   >
     <Button v-if="!user">
       Anmelden
