@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const user = await useUser()
 </script>
 
 <template>
@@ -32,17 +31,6 @@ const user = await useUser()
         class="text-muted-foreground hidden sm:block"
       >
         Versuche entdecken
-      </Button>
-    </NuxtLink>
-    <NuxtLink
-      v-if="user"
-      href="/experiments/favorites"
-    >
-      <Button
-        variant="link"
-        class="text-muted-foreground hidden sm:block"
-      >
-        Meine Favoriten
       </Button>
     </NuxtLink>
     <div class="flex-grow" />
