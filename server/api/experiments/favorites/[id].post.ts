@@ -2,7 +2,6 @@ import prisma from "~~/server/lib/prisma"
 
 export default defineEventHandler(async (event) => {
   const user = await getUserOrThrowError(event)
-
   const experimentId = getRouterParam(event, "id")
   const userId = user.id
 
@@ -10,32 +9,25 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Experiment ID missing" })
   }
 
-  const existing = await prisma.favorite.findUnique({
-    where: {
-      userId_experimentId: {
-        userId: userId,
-        experimentId: experimentId,
-      },
-    },
+  const current = await prisma.favorite.findUnique({
+    where: { userId_experimentId: { userId, experimentId } },
+    select: { active: true },
   })
 
-  if (existing) {
-    await prisma.favorite.update({
-      where: { id: existing.id },
-      data: { active: !existing.active },
-    })
-    return { favorited: !existing.active }
-  } else {
-    await prisma.favorite.create({
-      data: {
-        userId: userId,
-        experimentId: experimentId,
-        active: true,
-        numberForSequence: Math.pow(2, 31) - 1, // Max value for 32-bit signed integer
-      },
-    })
-    return { favorited: true }
-  }
+  // Toggles between active true and false for the favorite entry. If no entry exists, creates one with active true.
+  const result = await prisma.favorite.upsert({
+    where: { userId_experimentId: { userId, experimentId } },
+    update: { active: !(current?.active ?? false) },
+    create: {
+      userId,
+      experimentId,
+      active: true,
+      numberForSequence: Math.pow(2, 31) - 1,
+    },
+    select: { active: true },
+  })
+
+  return { favorited: result.active }
 })
 
 defineRouteMeta({
@@ -64,7 +56,7 @@ defineRouteMeta({
               properties: {
                 favorited: {
                   type: "boolean",
-                  description: "True if it is not a favorite, false if not",
+                  description: "True if experiment is now favorited, false if unfavorited",
                 },
               },
             },

@@ -8,7 +8,10 @@ import { toast } from "~/components/ui/toast"
 
 const isLoading = ref(true)
 const newCategoryName = ref("")
-const { data: experiments, refresh } = await useFetch<ExperimentList[]>("/api/experiments/favorites")
+const { data: experiments, refresh } = await useFetch<ExperimentList[]>(
+  "/api/experiments/favorites",
+  { method: "POST" },
+)
 const { data: attributes } = await useFetch<ExperimentAttributeDetail[]>("/api/experiments/attributes")
 
 const isGroupedByUser = ref(true)
