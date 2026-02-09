@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { User, FlaskConical, Heart, UserX, Users, FolderTree, ClipboardCheck, LogOut } from "lucide-vue-next"
 import getInitials from "~~/shared/utils/initials"
 
 const user = await useUser()
@@ -28,13 +29,28 @@ async function signOut() {
     <DropdownMenuContent>
       <NuxtLink href="/profile">
         <DropdownMenuItem as-child>
-          <span>Profil</span>
+          <span>
+            <User />
+            Profil
+          </span>
         </DropdownMenuItem>
       </NuxtLink>
 
       <NuxtLink href="/experiments/mine">
         <DropdownMenuItem as-child>
-          <span>Meine Versuche</span>
+          <span>
+            <FlaskConical />
+            Meine Versuche
+          </span>
+        </DropdownMenuItem>
+      </NuxtLink>
+
+      <NuxtLink href="/experiments/favorites">
+        <DropdownMenuItem as-child>
+          <span>
+            <Heart />
+            Meine Favoriten
+          </span>
         </DropdownMenuItem>
       </NuxtLink>
 
@@ -43,19 +59,18 @@ async function signOut() {
         v-if="data?.session.impersonatedBy"
         @click="stopImpersonating"
       >
+        <UserX />
         <span>Imitieren beenden</span>
       </DropdownMenuItem>
       <NuxtLink href="/users">
-        <DropdownMenuItem
-          v-if="canSeeUsers"
-        >
+        <DropdownMenuItem v-if="canSeeUsers">
+          <Users />
           <span>Nutzerverwaltung</span>
         </DropdownMenuItem>
       </NuxtLink>
       <NuxtLink href="/admin/categories">
-        <DropdownMenuItem
-          v-if="canSeeUsers"
-        >
+        <DropdownMenuItem v-if="canSeeUsers">
+          <FolderTree />
           <span>Kategorien verwalten</span>
         </DropdownMenuItem>
       </NuxtLink>
@@ -64,6 +79,7 @@ async function signOut() {
         href="/experiments/review"
       >
         <DropdownMenuItem>
+          <ClipboardCheck />
           <span>Versuche überprüfen</span>
         </DropdownMenuItem>
       </NuxtLink>
@@ -73,6 +89,7 @@ async function signOut() {
         class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
         @click="signOut"
       >
+        <LogOut />
         <span>Abmelden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
