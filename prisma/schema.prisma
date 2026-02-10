@@ -26,6 +26,7 @@ model User {
   files         File[]
   userFile      UserFile?
   experiments   Experiment[]
+  reviews       Review[]
 
   twoFactorEnabled       Boolean     @default(false)
   twoFactorSecret        String?
@@ -87,6 +88,7 @@ model Experiment {
   changeRequest  String?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
+  reviews        Review[]
 }
 
 enum ExperimentStatus {
@@ -116,6 +118,7 @@ model ExperimentSectionContent {
   files               ExperimentFile[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
+  sectionsCritiques   SectionCritique[]
 
   @@unique([experimentId, experimentSectionId])
 }
@@ -251,6 +254,36 @@ model Comment {
   children     Comment[]   @relation("CommentToComment")
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+}
+
+model Review {
+  id                String            @id @default(uuid())
+  experiment        Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experimentId      String
+  reviewer          User              @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewerId        String
+  status            ReviewStatus      @default(IN_PROGRESS)
+  sectionsCritiques SectionCritique[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+enum ReviewStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model SectionCritique {
+  id               String                   @id @default(uuid())
+  review           Review                   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId         String
+  sectionContent   ExperimentSectionContent @relation(fields: [sectionContentId], references: [id], onDelete: Cascade)
+  sectionContentId String
+  critique         String                   @db.Text
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  @@unique([reviewId, sectionContentId])
 }
 
 model SeedStatus {

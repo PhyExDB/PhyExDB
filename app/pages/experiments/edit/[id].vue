@@ -130,6 +130,10 @@ async function uploadPreviewImage(newFiles: [File]) {
   }
 }
 
+const { data: reviews } = await useFetch(
+  `/api/experiments/review/by-experiment?experimentId=${experimentId}`,
+)
+
 async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
   const oldFiles = form.values.sections?.[sectionIndex]?.files ?? []
   const fileData = await uploadFile(newFiles)
@@ -525,6 +529,42 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
               </Card>
             </template>
           </DraggableList>
+          <!-- Critiques für diese Section -->
+          <div
+            v-if="reviews && reviews.length"
+            class="mt-6"
+          >
+            <div
+              v-for="review in [[...reviews].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]]"
+              :key="review?.id"
+            >
+              <div
+                v-if="review && review.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === section.id)"
+                class="space-y-2"
+              >
+                <h3 class="font-semibold text-sm flex items-center gap-2">
+                  <Icon
+                    name="heroicons:user-circle"
+                    class="w-4 h-4"
+                  />
+                  Aktuelles Feedback
+                </h3>
+
+                <div
+                  v-for="critique in review.sectionsCritiques.filter(c => c.sectionContent.experimentSection.id === section.id)"
+                  :key="critique.id"
+                  class="border rounded-lg p-4 bg-destructive/5 border-destructive/20 shadow-sm"
+                >
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
+                    Korrekturhinweis
+                  </p>
+                  <div class="prose prose-sm dark:prose-invert">
+                    <LatexContent :content="critique.critique" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </template>
       </form>
       <div class="lg:relative lg:w-1/3">

@@ -17,5 +17,6 @@ import Toaster from "@/components/ui/toast/Toaster.vue"
 
     <WebsiteFooter />
     <Toaster />
+    <NotificationPopups />
   </div>
 </template>
