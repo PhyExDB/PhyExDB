@@ -10,8 +10,11 @@ if (!user.value || user.value.role === "USER") {
 const route = useRoute()
 const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${route.params.slug}`)
 
-if (!experiment) {
-  showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
+if (!experiment.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: "Versuch nicht gefunden",
+  })
 }
 
 if (experiment.value && experiment.value.status !== "IN_REVIEW") {

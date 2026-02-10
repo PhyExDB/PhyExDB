@@ -1,8 +1,8 @@
-import { ModeratorTask } from "#shared/types/Review.type";
+import type { ModeratorTask } from "#shared/types/Review.type"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
-  if (!user) return { needsRevisionCount: 0, moderatorNotifications: 0, lastRejectedAt: 0, moderatorLastUpdate: 0 }
+  if (!user) return { needsRevisionCount: 0, moderatorNotifications: 0, lastRejectedAt: null, moderatorLastUpdate: null }
 
   const [rejected, moderatorData] = await Promise.all([
     // REJECTED Versuche des Users
