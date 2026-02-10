@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth"
 import { APIError } from "better-auth/api"
 import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma"
+import type { User as PrismaUser } from "@prisma/client"
 import { render } from "@vue-email/render"
 import prisma from "../lib/prisma"
 import type { Event } from "./utils"
@@ -18,6 +19,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+    beforeSignIn: async ({ user }: { user: PrismaUser }) => {
+      if (user.banned) {
+        throw new APIError("FORBIDDEN", {
+          message: "Your account has been banned. Please contact an administrator.",
+        })
+      }
+    },
     sendResetPassword: async ({ user, url }, _) => {
       const runtimeConfig = useRuntimeConfig()
       await useNodeMailer().sendMail({
