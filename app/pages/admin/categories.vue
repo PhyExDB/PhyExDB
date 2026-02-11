@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Draggable from "vuedraggable"
 import { useToast } from "@/components/ui/toast/use-toast"
 import { experimentAttributeAbilities } from "~~/shared/utils/abilities"
 
@@ -11,6 +12,24 @@ authorize(experimentAttributeAbilities.getAll)
 
 const { toast } = useToast()
 const { data: attributes, refresh } = await useFetch("/api/experiments/attributes")
+
+const sortedAttributes = computed({
+  get: () => attributes.value?.slice().sort((a, b) => a.order - b.order) ?? [],
+  set: async (newOrder) => {
+    try {
+      await $fetch("/api/experiments/attributes/reorder", {
+        method: "PUT",
+        body: {
+          ids: newOrder.map(attr => attr.id),
+        },
+      })
+      await refresh()
+    } catch (e) {
+      console.error(e)
+      toast({ title: "Fehler beim Sortieren", variant: "destructive" })
+    }
+  },
+})
 
 const MIN_NAME_LENGTH = 4
 const newAttributeName = ref("")
@@ -91,7 +110,9 @@ async function updateAttribute() {
     return
   }
 
-  const exists = attributes.value?.some(attr => attr.name.toLowerCase() === name.toLowerCase())
+  const exists = attributes.value?.some(
+    attr => attr.id !== editingAttribute.value!.id && attr.name.toLowerCase() === name.toLowerCase(),
+  )
   if (exists) {
     toast({
       title: "Kategorie existiert bereits",
@@ -115,6 +136,26 @@ async function updateAttribute() {
   } catch (e) {
     console.error(e)
     toast({ title: "Fehler beim Aktualisieren", variant: "destructive" })
+  }
+}
+
+function getSortedValues(attribute: ExperimentAttributeDetail) {
+  return attribute.values.slice().sort((a, b) => a.order - b.order)
+}
+
+async function reorderValues(attribute: ExperimentAttributeDetail, newOrder: ExperimentAttributeDetail[]) {
+  try {
+    await $fetch("/api/experiments/attributes/values/reorder", {
+      method: "PUT",
+      body: {
+        attributeId: attribute.id,
+        ids: newOrder.map(val => val.id),
+      },
+    })
+    await refresh()
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Sortieren", variant: "destructive" })
   }
 }
 
@@ -260,112 +301,136 @@ async function updateValue() {
       </Dialog>
     </div>
 
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      <Card
-        v-for="attribute in attributes"
-        :key="attribute.id"
-      >
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-xl font-bold">
-            {{ attribute.name }}
-          </CardTitle>
-          <div class="flex space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              @click="startEditing(attribute)"
-            >
-              <Icon name="heroicons:pencil" />
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger as-child>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  class="text-destructive"
-                >
-                  <Icon name="heroicons:trash" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Kategorie löschen?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Dies wird die Kategorie und alle ihre zugeordneten Werte dauerhaft löschen.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                  <AlertDialogAction
-                    class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    @click="deleteAttribute(attribute.slug)"
-                  >
-                    Löschen
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div class="text-xs text-muted-foreground mb-4">
-            {{ attribute.multipleSelection ? 'Mehrfachauswahl' : 'Einfachauswahl' }}
-          </div>
-
-          <div class="space-y-2">
-            <div class="font-semibold text-sm">
-              Optionen:
+    <Draggable
+      v-model="sortedAttributes"
+      item-key="id"
+      class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+      handle=".drag-handle"
+    >
+      <template #item="{ element: attribute }">
+        <Card>
+          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div class="flex items-center gap-2">
+              <button class="drag-handle cursor-move text-muted-foreground hover:text-foreground">
+                <Icon
+                  name="heroicons:bars-3"
+                  size="20"
+                />
+              </button>
+              <CardTitle class="text-xl font-bold">
+                {{ attribute.name }}
+              </CardTitle>
             </div>
-            <div class="flex flex-wrap gap-2">
-              <Badge
-                v-for="val in attribute.values"
-                :key="val.id"
-                variant="secondary"
-                class="flex items-center gap-1"
-              >
-                {{ val.value }}
-                <div class="flex items-center ml-1 space-x-1">
-                  <button
-                    class="hover:text-primary transition-colors"
-                    @click="startEditingValue(val)"
-                  >
-                    <Icon
-                      name="heroicons:pencil"
-                      size="12"
-                    />
-                  </button>
-                  <button
-                    class="hover:text-destructive transition-colors"
-                    @click="deleteValue(val.slug)"
-                  >
-                    <Icon
-                      name="heroicons:x-mark"
-                      size="12"
-                    />
-                  </button>
-                </div>
-              </Badge>
-            </div>
-            <div class="flex gap-2 mt-2">
-              <Input
-                v-model="newValueNames[attribute.id]"
-                placeholder="Neue Option..."
-                class="h-8"
-                @keyup.enter="!isNameInvalid(newValueNames[attribute.id]) && addValue(attribute.id)"
-              />
+            <div class="flex space-x-2">
               <Button
-                size="sm"
-                class="h-8"
-                :disabled="isNameInvalid(newValueNames[attribute.id])"
-                @click="addValue(attribute.id)"
+                variant="ghost"
+                size="icon"
+                @click="startEditing(attribute)"
               >
-                <Icon name="heroicons:plus" />
+                <Icon name="heroicons:pencil" />
               </Button>
+              <AlertDialog>
+                <AlertDialogTrigger as-child>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    class="text-destructive"
+                  >
+                    <Icon name="heroicons:trash" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Kategorie löschen?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Dies wird die Kategorie und alle ihre zugeordneten Werte dauerhaft löschen.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                    <AlertDialogAction
+                      class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      @click="deleteAttribute(attribute.slug)"
+                    >
+                      Löschen
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardHeader>
+          <CardContent>
+            <div class="text-xs text-muted-foreground mb-4">
+              {{ attribute.multipleSelection ? 'Mehrfachauswahl' : 'Einfachauswahl' }}
+            </div>
+
+            <div class="space-y-2">
+              <div class="font-semibold text-sm">
+                Optionen:
+              </div>
+              <Draggable
+                :model-value="getSortedValues(attribute)"
+                item-key="id"
+                class="flex flex-wrap gap-2"
+                handle=".value-drag-handle"
+                @update:model-value="reorderValues(attribute, $event)"
+              >
+                <template #item="{ element: val }">
+                  <Badge
+                    variant="secondary"
+                    class="flex items-center gap-1"
+                  >
+                    <button class="value-drag-handle cursor-move">
+                      <Icon
+                        name="heroicons:bars-2"
+                        size="10"
+                      />
+                    </button>
+                    {{ val.value }}
+                    <div class="flex items-center ml-1 space-x-1">
+                      <button
+                        class="hover:text-primary transition-colors"
+                        @click="startEditingValue(val)"
+                      >
+                        <Icon
+                          name="heroicons:pencil"
+                          size="12"
+                        />
+                      </button>
+                      <button
+                        class="hover:text-destructive transition-colors"
+                        @click="deleteValue(val.slug)"
+                      >
+                        <Icon
+                          name="heroicons:x-mark"
+                          size="12"
+                        />
+                      </button>
+                    </div>
+                  </Badge>
+                </template>
+              </Draggable>
+              <div class="flex gap-2 mt-2">
+                <Input
+                  v-model="newValueNames[attribute.id]"
+                  placeholder="Neue Option..."
+                  class="h-8"
+                  @keyup.enter="!isNameInvalid(newValueNames[attribute.id]) && addValue(attribute.id)"
+                />
+                <Button
+                  size="sm"
+                  class="h-8"
+                  :disabled="isNameInvalid(newValueNames[attribute.id])"
+                  @click="addValue(attribute.id)"
+                >
+                  <Icon name="heroicons:plus" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </template>
+    </Draggable>
 
     <!-- Edit Attribute Dialog -->
     <Dialog
