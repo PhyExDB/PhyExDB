@@ -12,6 +12,7 @@ export const lists = [
   "Beobachtung",
   "Ergebnis",
   "Tipps und Tricks",
+  "Gefährdungsbeurteilung",
 ].map((section, index) => ({
   id: uuidv4(),
   name: section,
