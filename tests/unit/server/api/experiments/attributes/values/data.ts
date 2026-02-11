@@ -7,4 +7,5 @@ export const detail = {
   id: uuidv4(),
   value: "value",
   slug: "value",
+  order: 0,
 } satisfies ExperimentAttributeValueList
