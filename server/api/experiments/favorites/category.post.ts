@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   await prisma.favorite.updateMany({
     where: {
       userId: userId,
-      experimentId: experimentId
+      experimentId: experimentId,
     },
     data: { category: category || null },
   })

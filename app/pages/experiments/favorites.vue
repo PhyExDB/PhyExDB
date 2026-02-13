@@ -145,6 +145,90 @@ function addUserCategory() {
   newCategoryName.value = ""
   isAddCategoryDialogOpen.value = false
 }
+
+const isRenameDialogOpen = ref(false)
+const categoryToEdit = ref("")
+const renamedCategoryName = ref("")
+
+async function renameCategory() {
+  const oldName = categoryToEdit.value
+  const newName = renamedCategoryName.value.trim()
+
+  if (!newName || oldName === newName) return
+
+  if (userCategories.value.includes(newName)) {
+    toast({ title: "Fehler", description: "Name existiert bereits", variant: "destructive" })
+    return
+  }
+
+  try {
+    await $fetch("/api/experiments/favorites/category-action", {
+      method: "POST",
+      body: { action: "rename", oldName, newName },
+    })
+
+    if (rawExperiments.value) {
+      rawExperiments.value = rawExperiments.value.map((exp) => {
+        if (exp.favoriteCategory === oldName) {
+          return { ...exp, favoriteCategory: newName }
+        }
+        return exp
+      })
+    }
+
+    temporaryCategories.value = temporaryCategories.value.map(c => c === oldName ? newName : c)
+
+    isRenameDialogOpen.value = false
+    toast({ title: "Erfolg", description: "Kategorie umbenannt" })
+    await refresh()
+  } catch {
+    toast({ title: "Fehler", description: "Umbenennen fehlgeschlagen", variant: "destructive" })
+  }
+}
+
+const isDeleteDialogOpen = ref(false)
+const categoryToDelete = ref("")
+
+function openDeleteDialog(name: string) {
+  categoryToDelete.value = name
+  isDeleteDialogOpen.value = true
+}
+
+async function deleteCategory() {
+  const name = categoryToDelete.value
+  if (!name) return
+
+  try {
+    await $fetch("/api/experiments/favorites/category-action", {
+      method: "POST",
+      body: { action: "delete", oldName: name },
+    })
+
+    if (rawExperiments.value) {
+      rawExperiments.value = rawExperiments.value.map((exp) => {
+        if (exp.favoriteCategory === name) {
+          return { ...exp, favoriteCategory: null }
+        }
+        return exp
+      })
+    }
+
+    temporaryCategories.value = temporaryCategories.value.filter(c => c !== name)
+
+    isDeleteDialogOpen.value = false
+    toast({ title: "Kategorie aufgelöst", description: "Die Experimente sind nun unter 'Unkategorisiert' zu finden." })
+
+    await refresh()
+  } catch {
+    toast({ title: "Fehler", description: "Löschen fehlgeschlagen", variant: "destructive" })
+  }
+}
+
+function openRenameDialog(name: string) {
+  categoryToEdit.value = name
+  renamedCategoryName.value = name
+  isRenameDialogOpen.value = true
+}
 </script>
 
 <template>
@@ -259,9 +343,68 @@ function addUserCategory() {
         class="space-y-4"
       >
         <div class="flex items-center justify-between border-b pb-2">
-          <h2 class="text-2xl font-semibold">
-            {{ group.name }}
-          </h2>
+          <div class="flex items-center gap-3">
+            <h2 class="text-2xl font-semibold">
+              {{ group.name }}
+            </h2>
+            <div
+              v-if="group.id !== null && group.id !== 'all'"
+              class="flex gap-1"
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-8 w-8"
+                @click="openRenameDialog(group.name)"
+              >
+                <Icon
+                  name="heroicons:pencil-square"
+                  class="h-4 w-4"
+                />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-8 w-8 text-destructive"
+                @click="openDeleteDialog(group.name)"
+              >
+                <Icon
+                  name="heroicons:trash"
+                  class="h-4 w-4"
+                />
+              </Button>
+            </div>
+
+            <Dialog
+              :open="isDeleteDialogOpen"
+              @update:open="isDeleteDialogOpen = $event"
+            >
+              <DialogContent class="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Kategorie löschen?</DialogTitle>
+                  <DialogDescription>
+                    Möchtest du die Kategorie <strong>"{{ categoryToDelete }}"</strong> wirklich auflösen?
+                    Die enthaltenen Favoriten werden nicht gelöscht, sondern landen wieder unter "Unkategorisiert".
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter class="gap-2 sm:gap-0">
+                  <Button
+                    variant="outline"
+                    @click="isDeleteDialogOpen = false"
+                  >
+                    Abbrechen
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    @click="deleteCategory"
+                  >
+                    Kategorie auflösen
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
           <span class="text-sm text-muted-foreground">{{ group.items.length }} Experimente</span>
         </div>
 
@@ -295,24 +438,20 @@ function addUserCategory() {
                         class: 'absolute inset-0 w-full h-full ' + (experiment.previewImage?.path ? 'object-contain' : 'object-cover'),
                       }"
                     />
-                    <div
-                      class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
-                    >
+                    <div class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center">
                       <div class="grid grid-cols-2 gap-1 text-[10px]">
                         <template
                           v-for="attribute in attributes"
                           :key="attribute.id"
                         >
-                          <div class="text-right">
-                            {{ attribute.name }}:
-                          </div>
+                          <div class="text-right">{{ attribute.name }}:</div>
                           <div class="flex flex-wrap gap-1">
                             <template
-                              v-for="attributeValue in experiment.attributes.map((attr: ExperimentList[]) => attr.values).flat()"
+                              v-for="attributeValue in (experiment.attributes?.flatMap((a: ExperimentList[]) => a.values) || [])"
                               :key="attributeValue.id"
                             >
                               <Badge
-                                v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
+                                v-if="attribute.values.some(v => v.id === attributeValue.id)"
                                 class="h-4 text-[8px] px-1 bg-primary text-primary-foreground border-0"
                               >
                                 {{ attributeValue.value }}
@@ -356,5 +495,35 @@ function addUserCategory() {
         </p>
       </div>
     </div>
+
+    <Dialog
+      :open="isRenameDialogOpen"
+      @update:open="isRenameDialogOpen = $event"
+    >
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Kategorie umbenennen</DialogTitle>
+          <DialogDescription>Gib einen neuen Namen für "{{ categoryToEdit }}" ein.</DialogDescription>
+        </DialogHeader>
+        <div class="py-4">
+          <Input
+            v-model="renamedCategoryName"
+            placeholder="Neuer Name..."
+            @keyup.enter="renameCategory"
+          />
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            @click="isRenameDialogOpen = false"
+          >
+            Abbrechen
+          </Button>
+          <Button @click="renameCategory">
+            Speichern
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
