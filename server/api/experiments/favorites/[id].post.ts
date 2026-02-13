@@ -3,31 +3,26 @@ import prisma from "~~/server/lib/prisma"
 export default defineEventHandler(async (event) => {
   const user = await getUserOrThrowError(event)
   const experimentId = getRouterParam(event, "id")
-  const userId = user.id
 
   if (!experimentId) {
-    throw createError({ statusCode: 400, statusMessage: "Experiment ID missing" })
+    throw createError({ statusCode: 400, statusMessage: "Invalid ID" })
   }
 
-  const current = await prisma.favorite.findUnique({
+  const userId = user.id
+  const existing = await prisma.favorite.findUnique({
     where: { userId_experimentId: { userId, experimentId } },
-    select: { active: true },
   })
 
-  // Toggles between active true and false for the favorite entry. If no entry exists, creates one with active true.
-  const result = await prisma.favorite.upsert({
-    where: { userId_experimentId: { userId, experimentId } },
-    update: { active: !(current?.active ?? false) },
-    create: {
-      userId,
-      experimentId,
-      active: true,
-      numberForSequence: Math.pow(2, 31) - 1,
-    },
-    select: { active: true },
+  if (existing) {
+    await prisma.favorite.delete({ where: { id: existing.id } })
+    return { favorited: false }
+  }
+
+  await prisma.favorite.create({
+    data: { userId, experimentId, numberForSequence: 2147483647 },
   })
 
-  return { favorited: result.active }
+  return { favorited: true }
 })
 
 defineRouteMeta({

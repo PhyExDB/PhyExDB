@@ -12,8 +12,11 @@ export default defineEventHandler(async (event) => {
 
   await prisma.$transaction(
     experimentIds.map((id, index) =>
-      prisma.favorite.update({
-        where: { userId_experimentId: { userId, experimentId: id } },
+      prisma.favorite.updateMany({
+        where: {
+          userId: userId,
+          experimentId: id
+        },
         data: {
           numberForSequence: index,
           ...(category !== undefined ? { category: category || null } : {}),

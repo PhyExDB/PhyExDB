@@ -10,8 +10,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Experiment ID missing" })
   }
 
-  await prisma.favorite.update({
-    where: { userId_experimentId: { userId, experimentId } },
+  await prisma.favorite.updateMany({
+    where: {
+      userId: userId,
+      experimentId: experimentId
+    },
     data: { category: category || null },
   })
 

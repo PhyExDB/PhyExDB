@@ -6,20 +6,29 @@ import type { ExperimentList, ReorderEvent } from "~~/shared/types/Experiment.ty
 import type { ExperimentAttributeDetail } from "~~/shared/types/ExperimentAttribute.type"
 import { toast } from "~/components/ui/toast"
 
-const isLoading = ref(true)
 const newCategoryName = ref("")
-const { data: experiments, refresh } = await useFetch<ExperimentList[]>(
-  "/api/experiments/favorites",
-  { method: "POST" },
-)
-const { data: attributes } = await useFetch<ExperimentAttributeDetail[]>("/api/experiments/attributes")
-
 const isGroupedByUser = ref(true)
 const isAddCategoryDialogOpen = ref(false)
+const { favoriteState } = useFavorite()
+const { data: rawExperiments, refresh } = await useFetch<ExperimentList[]>("/api/experiments/favorites")
+const { data: attributes } = await useFetch<ExperimentAttributeDetail[]>("/api/experiments/attributes")
+const experiments = computed(() => {
+  return rawExperiments.value?.filter(exp => favoriteState.value[exp.id]) ?? []
+})
+
+watch(rawExperiments, (newExps) => {
+  if (newExps) {
+    newExps.forEach((exp) => {
+      if (favoriteState.value[exp.id] === undefined) {
+        favoriteState.value[exp.id] = true
+      }
+    })
+  }
+}, { immediate: true })
 
 const userCategories = computed(() => {
   const cats = new Set<string>()
-  experiments.value?.forEach((exp) => {
+  experiments.value.forEach((exp) => {
     if (exp.favoriteCategory) cats.add(exp.favoriteCategory)
   })
   return Array.from(cats).sort()
@@ -136,17 +145,6 @@ function addUserCategory() {
   newCategoryName.value = ""
   isAddCategoryDialogOpen.value = false
 }
-
-const { favoriteState } = useFavorite()
-watch(experiments, (newExps) => {
-  if (newExps) {
-    newExps.forEach((exp) => {
-      favoriteState.value[exp.id] = true
-    })
-  }
-}, { immediate: true })
-
-isLoading.value = false
 </script>
 
 <template>
@@ -333,9 +331,6 @@ isLoading.value = false
                     <FavoriteButton
                       :experiment-id="experiment.id"
                       :is-favorited-initial="true"
-                      @update:is-favorited="(val: boolean) => {
-                        experiment.isFavorited=val;
-                      }"
                     />
                   </CardTitle>
                   <div class="flex gap-2">

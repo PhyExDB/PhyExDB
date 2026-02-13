@@ -456,7 +456,6 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                 <FavoriteButton
                   :experiment-id="experiment.id"
                   :is-favorited-initial="experiment.isFavorited ?? false"
-                  @update:is-favorited="(val: boolean) => experiment.isFavorited = val"
                 />
               </CardTitle>
               <div class="flex flex-col sm:flex-row gap-2 w-full">
