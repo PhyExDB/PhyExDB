@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import FavoriteButton from "~/components/experiment/favourites/FavoriteButton.vue"
+import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
 
 const route = useRoute()
 const user = await useUser()
