@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Draggable from "vuedraggable"
-import FavoriteButton from "~/components/experiment/FavoriteButton.vue"
-import { useFetch } from "#app"
+import FavoriteButton from "~/components/experiment/favourites/FavoriteButton.vue"
 import type { ExperimentList, ReorderEvent } from "~~/shared/types/Experiment.type"
 import type { ExperimentAttributeDetail } from "~~/shared/types/ExperimentAttribute.type"
 import { toast } from "~/components/ui/toast"
@@ -9,6 +8,13 @@ import { toast } from "~/components/ui/toast"
 const newCategoryName = ref("")
 const isGroupedByUser = ref(true)
 const isAddCategoryDialogOpen = ref(false)
+const isRenameDialogOpen = ref(false)
+const isDeleteDialogOpen = ref(false)
+const categoryToEdit = ref("")
+const categoryToDelete = ref("")
+const renamedCategoryName = ref("")
+const temporaryCategories = ref<string[]>([])
+
 const { favoriteState } = useFavorite()
 const { data: rawExperiments, refresh } = await useFetch<ExperimentList[]>("/api/experiments/favorites")
 const { data: attributes } = await useFetch<ExperimentAttributeDetail[]>("/api/experiments/attributes")
@@ -17,146 +23,66 @@ const experiments = computed(() => {
 })
 
 watch(rawExperiments, (newExps) => {
-  if (newExps) {
-    newExps.forEach((exp) => {
-      if (favoriteState.value[exp.id] === undefined) {
-        favoriteState.value[exp.id] = true
-      }
-    })
-  }
+  newExps?.forEach((exp) => {
+    if (favoriteState.value[exp.id] === undefined) favoriteState.value[exp.id] = true
+  })
 }, { immediate: true })
 
-const userCategories = computed(() => {
-  const cats = new Set<string>()
-  experiments.value.forEach((exp) => {
-    if (exp.favoriteCategory) cats.add(exp.favoriteCategory)
-  })
-  return Array.from(cats).sort()
-})
-
 const groupedFavorites = computed(() => {
-  if (!experiments.value) return []
+  if (!experiments.value.length) return []
 
-  if (isGroupedByUser.value) {
-    const groups: Record<string, { name: string, id: string | null, items: ExperimentList[] }> = {}
-
-    userCategories.value.forEach((cat) => {
-      groups[cat] = { name: cat, id: cat, items: [] }
-    })
-
-    if (!groups["Unkategorisiert"]) {
-      groups["Unkategorisiert"] = { name: "Unkategorisiert", id: null, items: [] }
-    }
-
-    experiments.value.forEach((exp) => {
-      const cat = exp.favoriteCategory || "Unkategorisiert"
-      if (!groups[cat]) {
-        groups[cat] = { name: cat, id: exp.favoriteCategory || null, items: [] }
-      }
-      groups[cat].items.push(exp)
-    })
-
-    // Unkategorisiert at the top, then alphabetically
-    const sortedGroups = Object.values(groups).sort((a, b) => {
-      if (a.name === "Unkategorisiert") return -1
-      if (b.name === "Unkategorisiert") return 1
-      return a.name.localeCompare(b.name)
-    })
-
-    return sortedGroups.map(g => ({
-      ...g,
-      items: g.items.sort((a, b) => (a.favoriteNumberForSequence || 0) - (b.favoriteNumberForSequence || 0)),
-    }))
+  if (!isGroupedByUser.value) {
+    return [{
+      name: "Alle Favoriten",
+      id: "all",
+      items: [...experiments.value].sort((a, b) => (a.favoriteNumberForSequence || 0) - (b.favoriteNumberForSequence || 0)),
+    }]
   }
 
-  return [{
-    name: "Alle Favoriten",
-    id: "all",
-    items: [...experiments.value].sort((a, b) => (a.favoriteNumberForSequence || 0) - (b.favoriteNumberForSequence || 0)),
-  }]
+  const groups: Record<string, { name: string, id: string | null, items: ExperimentList[] }> = {}
+
+  const allCats = new Set([...temporaryCategories.value, ...experiments.value.map(e => e.favoriteCategory).filter(Boolean) as string[]])
+
+  if (!allCats.has("Unkategorisiert")) groups["Unkategorisiert"] = { name: "Unkategorisiert", id: null, items: [] }
+  allCats.forEach(cat => groups[cat] = { name: cat, id: cat, items: [] })
+
+  experiments.value.forEach((exp) => {
+    const cat = exp.favoriteCategory || "Unkategorisiert"
+    if (!groups[cat]) groups[cat] = { name: cat, id: null, items: [] }
+    groups[cat].items.push(exp)
+  })
+
+  return Object.values(groups)
+    .sort((a, b) => a.name === "Unkategorisiert" ? -1 : (b.name === "Unkategorisiert" ? 1 : a.name.localeCompare(b.name)))
+    .map(g => ({ ...g, items: g.items.sort((a, b) => (a.favoriteNumberForSequence || 0) - (b.favoriteNumberForSequence || 0)) }))
 })
 
 async function onReorder(event: ReorderEvent, group: { name: string, id: string | null, items: ExperimentList[] }) {
-  const groupIds = group.items.map((exp: ExperimentList) => exp.id)
-
-  if (isGroupedByUser.value) {
-    const experimentId = event.added?.element?.id || event.moved?.element?.id
-    if (experimentId) {
-      const newCategory = group.id
-
-      await $fetch(`/api/experiments/favorites/category`, {
-        method: "POST",
-        body: { experimentId, category: newCategory },
-      })
-
-      const exp = experiments.value?.find(e => e.id === experimentId)
-      if (exp) {
-        exp.favoriteCategory = newCategory
-      }
-    }
-  }
-
   if (event.removed) return
+  const experimentId = event.added?.element?.id || event.moved?.element?.id
 
-  if (groupIds.length > 0) {
-    await $fetch(`/api/experiments/favorites/reorder`, {
+  if (isGroupedByUser.value && experimentId) {
+    await $fetch("/api/experiments/favorites/category", {
       method: "POST",
-      body: {
-        experimentIds: groupIds,
-        category: isGroupedByUser.value ? group.id : undefined,
-      },
+      body: { experimentId, category: group.id },
     })
-
-    await refresh()
+    const exp = rawExperiments.value?.find(e => e.id === experimentId)
+    if (exp) exp.favoriteCategory = group.id
   }
+
+  await $fetch("/api/experiments/favorites/reorder", {
+    method: "POST",
+    body: { experimentIds: group.items.map((e: ExperimentList) => e.id), category: isGroupedByUser.value ? group.id : undefined },
+  })
+  await refresh()
 }
 
-const temporaryCategories = ref<string[]>([])
-const allGroups = computed(() => {
-  const groups = [...groupedFavorites.value]
-
-  if (isGroupedByUser.value) {
-    temporaryCategories.value.forEach((cat) => {
-      if (!groups.find(g => g.name === cat)) {
-        groups.push({ name: cat, id: cat, items: [] })
-      }
-    })
-  }
-  return groups
-})
-
-function addUserCategory() {
-  const name = newCategoryName.value.trim()
-  if (!name) return
-
-  const exists = userCategories.value.some(cat => cat.toLowerCase() === name.toLowerCase())
-    || temporaryCategories.value.some(cat => cat.toLowerCase() === name.toLowerCase())
-
-  if (exists) {
-    toast({
-      title: "Kategorie existiert bereits",
-      description: `Die Kategorie "${name}" ist bereits vorhanden.`,
-      variant: "destructive",
-    })
-    return
-  }
-
-  temporaryCategories.value.push(name)
-  newCategoryName.value = ""
-  isAddCategoryDialogOpen.value = false
-}
-
-const isRenameDialogOpen = ref(false)
-const categoryToEdit = ref("")
-const renamedCategoryName = ref("")
-
-async function renameCategory() {
-  const oldName = categoryToEdit.value
+async function executeCategoryAction(action: "rename" | "delete") {
+  const oldName = action === "rename" ? categoryToEdit.value : categoryToDelete.value
   const newName = renamedCategoryName.value.trim()
 
-  if (!newName || oldName === newName) return
-
-  if (userCategories.value.includes(newName)) {
+  if (action === "rename" && (!newName || oldName === newName)) return
+  if (action === "rename" && groupedFavorites.value.some(g => g.name === newName)) {
     toast({ title: "Fehler", description: "Name existiert bereits", variant: "destructive" })
     return
   }
@@ -164,70 +90,55 @@ async function renameCategory() {
   try {
     await $fetch("/api/experiments/favorites/category-action", {
       method: "POST",
-      body: { action: "rename", oldName, newName },
+      body: { action, oldName, newName: action === "rename" ? newName : undefined },
     })
 
     if (rawExperiments.value) {
       rawExperiments.value = rawExperiments.value.map((exp) => {
         if (exp.favoriteCategory === oldName) {
-          return { ...exp, favoriteCategory: newName }
+          return { ...exp, favoriteCategory: action === "rename" ? newName : null }
         }
         return exp
       })
     }
 
-    temporaryCategories.value = temporaryCategories.value.map(c => c === oldName ? newName : c)
+    if (action === "rename") {
+      temporaryCategories.value = temporaryCategories.value.map(c => c === oldName ? newName : c)
+      toast({ title: "Erfolg", description: "Kategorie umbenannt" })
+    } else {
+      temporaryCategories.value = temporaryCategories.value.filter(c => c !== oldName)
+      toast({ title: "Kategorie aufgelöst", description: "Die Experimente sind nun unter 'Unkategorisiert' zu finden." })
+    }
 
     isRenameDialogOpen.value = false
-    toast({ title: "Erfolg", description: "Kategorie umbenannt" })
-    await refresh()
-  } catch {
-    toast({ title: "Fehler", description: "Umbenennen fehlgeschlagen", variant: "destructive" })
-  }
-}
-
-const isDeleteDialogOpen = ref(false)
-const categoryToDelete = ref("")
-
-function openDeleteDialog(name: string) {
-  categoryToDelete.value = name
-  isDeleteDialogOpen.value = true
-}
-
-async function deleteCategory() {
-  const name = categoryToDelete.value
-  if (!name) return
-
-  try {
-    await $fetch("/api/experiments/favorites/category-action", {
-      method: "POST",
-      body: { action: "delete", oldName: name },
-    })
-
-    if (rawExperiments.value) {
-      rawExperiments.value = rawExperiments.value.map((exp) => {
-        if (exp.favoriteCategory === name) {
-          return { ...exp, favoriteCategory: null }
-        }
-        return exp
-      })
-    }
-
-    temporaryCategories.value = temporaryCategories.value.filter(c => c !== name)
-
     isDeleteDialogOpen.value = false
-    toast({ title: "Kategorie aufgelöst", description: "Die Experimente sind nun unter 'Unkategorisiert' zu finden." })
-
     await refresh()
   } catch {
-    toast({ title: "Fehler", description: "Löschen fehlgeschlagen", variant: "destructive" })
+    toast({ title: "Fehler", description: `${action === "rename" ? "Umbenennen" : "Löschen"} fehlgeschlagen`, variant: "destructive" })
   }
+}
+
+function addUserCategory() {
+  const name = newCategoryName.value.trim()
+  if (!name) return
+  if (groupedFavorites.value.some(g => g.name.toLowerCase() === name.toLowerCase())) {
+    toast({ title: "Kategorie existiert bereits", description: `Die Kategorie "${name}" ist bereits vorhanden.`, variant: "destructive" })
+    return
+  }
+  temporaryCategories.value.push(name)
+  newCategoryName.value = ""
+  isAddCategoryDialogOpen.value = false
 }
 
 function openRenameDialog(name: string) {
   categoryToEdit.value = name
   renamedCategoryName.value = name
   isRenameDialogOpen.value = true
+}
+
+function openDeleteDialog(name: string) {
+  categoryToDelete.value = name
+  isDeleteDialogOpen.value = true
 }
 </script>
 
@@ -237,7 +148,6 @@ function openRenameDialog(name: string) {
       <h1 class="text-3xl font-bold text-primary">
         Meine Favoriten
       </h1>
-
       <div class="flex flex-col sm:flex-row gap-4 items-end">
         <div
           v-if="isGroupedByUser"
@@ -338,7 +248,7 @@ function openRenameDialog(name: string) {
       class="space-y-12"
     >
       <div
-        v-for="group in allGroups"
+        v-for="group in groupedFavorites"
         :key="group.name"
         class="space-y-4"
       >
@@ -375,35 +285,6 @@ function openRenameDialog(name: string) {
                 />
               </Button>
             </div>
-
-            <Dialog
-              :open="isDeleteDialogOpen"
-              @update:open="isDeleteDialogOpen = $event"
-            >
-              <DialogContent class="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Kategorie löschen?</DialogTitle>
-                  <DialogDescription>
-                    Möchtest du die Kategorie <strong>"{{ categoryToDelete }}"</strong> wirklich auflösen?
-                    Die enthaltenen Favoriten werden nicht gelöscht, sondern landen wieder unter "Unkategorisiert".
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter class="gap-2 sm:gap-0">
-                  <Button
-                    variant="outline"
-                    @click="isDeleteDialogOpen = false"
-                  >
-                    Abbrechen
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    @click="deleteCategory"
-                  >
-                    Kategorie auflösen
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </div>
           <span class="text-sm text-muted-foreground">{{ group.items.length }} Experimente</span>
         </div>
@@ -509,7 +390,7 @@ function openRenameDialog(name: string) {
           <Input
             v-model="renamedCategoryName"
             placeholder="Neuer Name..."
-            @keyup.enter="renameCategory"
+            @keyup.enter="executeCategoryAction('rename')"
           />
         </div>
         <DialogFooter>
@@ -519,8 +400,34 @@ function openRenameDialog(name: string) {
           >
             Abbrechen
           </Button>
-          <Button @click="renameCategory">
+          <Button @click="executeCategoryAction('rename')">
             Speichern
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <Dialog
+      :open="isDeleteDialogOpen"
+      @update:open="isDeleteDialogOpen = $event"
+    >
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Kategorie löschen?</DialogTitle>
+          <DialogDescription>Möchtest du die Kategorie <strong>"{{ categoryToDelete }}"</strong> wirklich auflösen? Die enthaltenen Favoriten werden nicht gelöscht, sondern landen wieder unter "Unkategorisiert".</DialogDescription>
+        </DialogHeader>
+        <DialogFooter class="gap-2 sm:gap-0">
+          <Button
+            variant="outline"
+            @click="isDeleteDialogOpen = false"
+          >
+            Abbrechen
+          </Button>
+          <Button
+            variant="destructive"
+            @click="executeCategoryAction('delete')"
+          >
+            Kategorie auflösen
           </Button>
         </DialogFooter>
       </DialogContent>
