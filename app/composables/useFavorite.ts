@@ -13,10 +13,11 @@ export const useFavorite = () => {
 
       favoriteState.value[experimentId] = favorited
       return favorited
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Aktion fehlgeschlagen"
       toast({
         title: "Fehler",
-        description: error.statusMessage || "Aktion fehlgeschlagen",
+        description: message,
         variant: "destructive",
       })
       return null

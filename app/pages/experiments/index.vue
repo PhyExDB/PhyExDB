@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import Draggable from "vuedraggable"
-import FavoriteButton from "~/components/experiment/FavoriteButton.vue"
+import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
 
 const route = useRoute()
+const user = await useUser()
 const search = ref<string>((route.query.search as string) || "")
 const sectionSearch = ref<string>((route.query.sections as string) || "")
 const fetched = ref<boolean>(false)
@@ -204,30 +204,6 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
   const newUrl = { path: route.path, query }
   router.replace(newUrl)
 })
-
-/* Favorite Experiments Drag-and-Drop */
-const favData = ref<any[]>([])
-watchEffect(() => {
-  favData.value = (data.value?.items || [])
-    .filter((exp: any) => exp.isFavorited)
-    .sort((a: any, b: any) => a.favoriteNumberForSequence - b.favoriteNumberForSequence)
-})
-for (const exp of favData.value) {
-  console.log("Fav Experiment:", exp.name, "Experiment ID:", exp.id, "Sequence Number:", exp.favoriteNumberForSequence)
-}
-
-async function onReorder(event: any) {
-  if (favData.value.length === 0) {
-    return
-  }
-  await fetch(`/api/experiments/favorites/reorder`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ experimentIds: favData.value.map(exp => exp.id) }),
-  })
-}
 </script>
 
 <template>
@@ -373,8 +349,24 @@ async function onReorder(event: any) {
 
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
-      <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">
-        {{ isLoading ? '...' : data?.items.length || 0 }} Experimente gefunden
+      <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto flex items-center gap-4">
+        <span>{{ isLoading ? '...' : data?.items.length || 0 }} Experimente gefunden</span>
+        <Button
+          variant="outline"
+          size="sm"
+          as-child
+        >
+          <NuxtLink
+            v-if="user"
+            to="/experiments/favorites"
+          >
+            <Icon
+              name="heroicons:heart"
+              class="mr-2 h-4 w-4 text-red-500"
+            />
+            Zu meinen Favoriten
+          </NuxtLink>
+        </Button>
       </div>
       <div class="w-full sm:w-64 order-1 sm:order-2">
         <MultiSelect
@@ -399,103 +391,6 @@ async function onReorder(event: any) {
     </div>
     <!-- Experiments -->
     <div v-if="!isLoading">
-      <div v-show="favData.length > 0">
-        <div class="order-3 sm:order-2 pt-2 sm:pt-0 w-full sm:w-auto text-xl font-bold">
-          Favoriten
-        </div>
-        <div class="text-sm text-gray-500 mb-2">
-          Ziehen um zu sortieren
-        </div>
-        <Draggable
-          v-model="favData"
-          item-key="id"
-          tag="div"
-          class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-          @end="onReorder"
-        >
-          <template #item="{ element: experiment }">
-            <NuxtLink
-              :to="`/experiments/${experiment.slug}`"
-              class="relative group border-0"
-            >
-              <Card class="flex flex-col h-full">
-                <CardContent class="relative grow flex flex-col p-0 rounded-t-lg overflow-hidden">
-                  <!-- Image + Overlay Container (size determined by overlay) -->
-                  <div class="relative w-full min-h-[150px] flex flex-col items-center justify-center h-full">
-                    <!-- Image that adjusts to overlay size -->
-                    <NuxtPicture
-                      format="webp,avif"
-                      width="470"
-                      :src="experiment.previewImage?.path ?? 'experiment_placeholder.png'"
-                      alt="Preview Image"
-                      :img-attrs="{
-                        class:
-                          'absolute inset-0 w-full h-full '
-                          + (experiment.previewImage?.path ? 'object-contain' : 'object-cover'),
-                      }"
-                    />
-
-                    <!-- Overlay Content (Defines Section Size) -->
-                    <div
-                      class="relative z-10 p-3 w-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity h-full flex items-center justify-center"
-                    >
-                      <div class="grid grid-cols-2 gap-1">
-                        <template
-                          v-for="attribute in attributes"
-                          :key="attribute.id"
-                        >
-                          <div class="text-right">
-                            {{ attribute.name }}
-                          </div>
-                          <div class="flex flex-wrap gap-1">
-                            <template
-                              v-for="attributeValue in experiment.attributes.map((attr: any) => attr.values).flat()"
-                              :key="attributeValue.id"
-                            >
-                              <Badge
-                                v-if="attribute.values.map((value) => value.id).includes(attributeValue.id)"
-                                class="h-5"
-                              >
-                                {{ attributeValue.value }}
-                              </Badge>
-                            </template>
-                          </div>
-                        </template>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-                <Separator />
-                <!-- Bottom Content -->
-                <CardFooter class="flex flex-col items-start p-4 gap-2 w-full">
-                  <CardTitle class="text-primary/80 text-left">
-                    {{ experiment.name }}
-                    <FavoriteButton
-                      :experiment-id="experiment.id"
-                      :is-favorited-initial="experiment.isFavorited ?? false"
-                      @update:is-favorited="(val) => experiment.isFavorited = val"
-                    />
-                  </CardTitle>
-                  <div class="flex flex-col sm:flex-row gap-2 w-full">
-                    <Badge class="text-left">
-                      <Icon
-                        name="heroicons:clock"
-                        class="mr-2 h-4 w-4"
-                      />
-                      {{ experiment.duration }} Min.
-                    </Badge>
-                    <ExperimentRating
-                      :experiment="experiment"
-                      :small="true"
-                    />
-
-                  </div>
-                </CardFooter>
-              </Card>
-            </NuxtLink>
-          </template>
-        </Draggable>
-      </div>
       <div class="order-3 sm:order-2 pt-2 sm:pt-0 w-full sm:w-auto text-xl font-bold mt-4">
         Alle Experimente
       </div>
@@ -561,7 +456,6 @@ async function onReorder(event: any) {
                 <FavoriteButton
                   :experiment-id="experiment.id"
                   :is-favorited-initial="experiment.isFavorited ?? false"
-                  @update:is-favorited="(val) => experiment.isFavorited = val"
                 />
               </CardTitle>
               <div class="flex flex-col sm:flex-row gap-2 w-full">

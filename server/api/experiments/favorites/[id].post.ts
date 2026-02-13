@@ -2,38 +2,27 @@ import prisma from "~~/server/lib/prisma"
 
 export default defineEventHandler(async (event) => {
   const user = await getUserOrThrowError(event)
-
   const experimentId = getRouterParam(event, "id")
-  const userId = user.id
 
   if (!experimentId) {
-    throw createError({ statusCode: 400, statusMessage: "Experiment ID missing" })
+    throw createError({ statusCode: 400, statusMessage: "Invalid ID" })
   }
 
+  const userId = user.id
   const existing = await prisma.favorite.findUnique({
-    where: {
-      userId_experimentId: {
-        userId: userId,
-        experimentId: experimentId,
-      },
-    },
+    where: { userId_experimentId: { userId, experimentId } },
   })
 
   if (existing) {
-    await prisma.favorite.delete({
-      where: { id: existing.id },
-    })
+    await prisma.favorite.delete({ where: { id: existing.id } })
     return { favorited: false }
-  } else {
-    await prisma.favorite.create({
-      data: {
-        userId: userId,
-        experimentId: experimentId,
-        numberForSequence: Math.pow(2, 31) - 1, // Max value for 32-bit signed integer
-      },
-    })
-    return { favorited: true }
   }
+
+  await prisma.favorite.create({
+    data: { userId, experimentId, numberForSequence: 2147483647 },
+  })
+
+  return { favorited: true }
 })
 
 defineRouteMeta({
@@ -62,7 +51,7 @@ defineRouteMeta({
               properties: {
                 favorited: {
                   type: "boolean",
-                  description: "True if it is not a favorite, false if not",
+                  description: "True if experiment is now favorited, false if unfavorited",
                 },
               },
             },
