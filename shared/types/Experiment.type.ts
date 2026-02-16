@@ -224,8 +224,8 @@ export function getExperimentReadyForReviewSchema(
         i === riskAssessmentIndex
         || (sec.text.length > 0 && !/^<p><\/p>$/.test(sec.text)
           && sec.files.every(f => f.description?.trim().length > 0)),
-      ), "Beschreibung wird benötigt"
-    ),
+      ), "Beschreibung wird benötigt",
+      ),
     attributes: z.array(z.object({
       attributeId: z.string().uuid(),
       valueIds: z.array(z.string().uuid()).nonempty("Attribut wird benötigt"),
