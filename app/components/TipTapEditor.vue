@@ -444,13 +444,13 @@ function insertMathFormula() {
 
 /* Custom Paragraph Spacing */
 .prose p {
-  @apply my-0;
+  @apply my-0; /* Reduce the default margin between paragraphs */
 }
 .prose li {
-  @apply my-0;
+  @apply my-0; /* Reduce the default margin between list items */
 }
 .prose ul {
-  @apply my-2;
+  @apply my-2; /* Add a margin to the left of unordered lists */
 }
 
 /* Attachments container for rendering */
