@@ -18,6 +18,22 @@ watch(() => props.activeFileIndex, (newVal) => {
   localIndex.value = newVal
 }, { immediate: true })
 
+const sectionOffsets = computed(() => {
+  if (!props.experimentSections) return new Map<string, number>()
+
+  const offsets = new Map<string, number>()
+  let currentTotal = 0
+
+  for (const section of props.experimentSections) {
+    if (typeof section.id === "string") {
+      offsets.set(section.id, currentTotal)
+    }
+    currentTotal += section.files.length
+  }
+
+  return offsets
+})
+
 const activeFile = computed(() => {
   if (localIndex.value === null || !props.activeSection) return null
   return props.activeSection.files[localIndex.value]
@@ -28,13 +44,10 @@ const activeTitle = computed(() => {
   if (props.activeSection.isPreview) return "Titelbild"
   if (!props.experimentSections) return `Abb. ${localIndex.value + 1}`
 
-  const sectionIndex = props.experimentSections.findIndex(s => s.id === props.activeSection?.id)
+  const sectionId = String(props.activeSection.id)
+  const offset = sectionOffsets.value.get(sectionId) ?? 0
 
-  return `Abb. ${
-    props.experimentSections
-      .slice(0, sectionIndex)
-      .reduce((sum, s) => sum + s.files.length, 0) + localIndex.value + 1
-  }`
+  return `Abb. ${offset + localIndex.value + 1}`
 })
 
 const nav = (dir: number) => {
