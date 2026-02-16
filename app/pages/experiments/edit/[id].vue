@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
+import SignGrid from "../../../components/signs/SignGrid.vue"
 import { useToast } from "@/components/ui/toast/use-toast"
 import FormControl from "~/components/ui/form/FormControl.vue"
+import type { Sign } from "~/types/sign"
 
 const user = await useUser()
 
@@ -25,6 +27,8 @@ if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECT
 
 const { data: sections } = await useFetch("/api/experiments/sections")
 const { data: attributes } = await useFetch("/api/experiments/attributes")
+const { data: allSigns } = await useFetch<Sign[]>("/api/signs")
+const selectedSigns = ref<Sign[]>([])
 
 const runtimeConfig = useRuntimeConfig()
 const previewImageAccepts = ["image/png", "image/jpeg", "image/webp"]
@@ -56,7 +60,26 @@ const form = useForm({
         })) ?? [],
       }
     }) ?? [],
+    signs: [],
   },
+})
+
+watch(
+  [allSigns, experiment],
+  () => {
+    if (!allSigns.value || !experiment.value?.signs) return
+
+    selectedSigns.value = experiment.value.signs
+      .map(s => allSigns.value!.find(a => a.id === s.id))
+      .filter((s): s is Sign => !!s)
+
+    form.setFieldValue("signs", selectedSigns.value)
+  },
+  { immediate: true },
+)
+
+watch(selectedSigns, (newSigns) => {
+  form.setFieldValue("signs", newSigns)
 })
 
 let formValuesClone = JSON.stringify(form.values)
@@ -389,6 +412,14 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </FormItem>
           </FormField>
         </template>
+
+        <h2 class="text-3xl font-semibold mt-4">
+          Sicherheitszeichen
+        </h2>
+        <SignGrid
+          v-model="selectedSigns"
+          :availableSigns="allSigns"
+        />
 
         <FormField
           v-slot="{ componentField, value }"
