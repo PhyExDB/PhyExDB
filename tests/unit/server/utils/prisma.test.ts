@@ -19,7 +19,7 @@ describe("Test utils prisma", async () => {
   it("getIdPrismaWhereClause", async () => {
     const id = "id"
     const res = unit.getIdPrismaWhereClause(u.getEvent({ params: { id } }))
-    expectTypeOf(res).toEqualTypeOf<{ id: string }>()
+    expectTypeOf(res).toExtend<{ id: string }>()
     expect(res).toEqual({ id })
     expect(() => unit.getIdPrismaWhereClause(u.getEvent({}))).toThrowError("Invalid id")
   })

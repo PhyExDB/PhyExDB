@@ -1,5 +1,5 @@
 import { experimentReviewSchema } from "~~/shared/types"
-import { ExperimentStatus } from "~~/generated/prisma/enums";
+import { ExperimentStatus } from "~~/generated/prisma";
 
 export default defineEventHandler(async (event) => {
   await authorizeUser(event, experimentAbilities.review)
