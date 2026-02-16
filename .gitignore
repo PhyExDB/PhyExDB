@@ -43,6 +43,7 @@ auto-imports.d.ts
 
 # Uploaded Files
 public/uploads
+!public/uploads/*.png
 
 # Mailpit data 
 data
