@@ -31,9 +31,9 @@ const activeTitle = computed(() => {
   const sectionIndex = props.experimentSections.findIndex(s => s.id === props.activeSection?.id)
 
   return `Abb. ${
-      props.experimentSections
-          .slice(0, sectionIndex)
-          .reduce((sum, s) => sum + s.files.length, 0) + localIndex.value + 1
+    props.experimentSections
+      .slice(0, sectionIndex)
+      .reduce((sum, s) => sum + s.files.length, 0) + localIndex.value + 1
   }`
 })
 

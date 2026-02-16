@@ -62,9 +62,9 @@ function openLightbox(section: LightboxSection, index: number) {
 function openPreviewLightbox() {
   if (!experiment?.previewImage) return
   activeSectionForLightbox.value = {
-    id: 'preview',
+    id: "preview",
     isPreview: true,
-    files: [{ file: experiment.previewImage, description: "" }]
+    files: [{ file: experiment.previewImage, description: "" }],
   }
   activeLightboxIndex.value = 0
   document.body.style.overflow = "hidden"
