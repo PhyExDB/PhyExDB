@@ -352,7 +352,7 @@ function getServerFileName(path: string) {
                 {{ getImageTitle(experiment.sections.indexOf(section), index) }}
               </p>
               <p
-                class="w-full whitespace-normal text-center text-muted-foreground pb-3"
+                class="w-full whitespace-normal text-center text-muted-foreground pb-3 px-6"
                 style="overflow-wrap: anywhere;"
               >
                 {{ item.description }}
