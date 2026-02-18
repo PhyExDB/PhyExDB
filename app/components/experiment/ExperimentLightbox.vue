@@ -121,13 +121,13 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown))
           class="max-h-[75vh] w-auto object-contain rounded-lg shadow-2xl border bg-card/50"
           alt="File Preview"
         >
-        <div class="text-center space-y-3">
+        <div class="text-center space-y-3 max-w-5xl mx-auto">
           <h3 class="text-2xl font-bold tracking-tight">
             {{ activeTitle }}
           </h3>
           <p
             v-if="activeFile.description"
-            class="text-muted-foreground text-sm bg-muted/50 px-4 py-2 rounded-lg border"
+            class="text-muted-foreground text-sm bg-muted/50 px-4 py-2 rounded-lg border break-words"
           >
             {{ activeFile.description }}
           </p>
