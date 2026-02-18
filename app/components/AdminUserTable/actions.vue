@@ -12,15 +12,6 @@ const emit = defineEmits<{
   (e: "changed", updated: { banned: boolean }): void
 }>()
 
-async function handleImpersonate() {
-  await useAuth().client.admin.impersonateUser({ userId: user.id })
-  await navigateTo("/profile")
-  toast({
-    title: "Account imitiert",
-    description: `${user.name} wird imitiert.`,
-    variant: "success",
-  })
-}
 async function handleBan() {
   await useAuth().client.admin.banUser({ userId: user.id })
   emit("changed", { banned: true })
@@ -53,18 +44,6 @@ async function handleDelete() {
 <template>
   <div class="flex flex-nowrap">
     <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <Icon
-            class="mx-1 h-4 w-4"
-            name="heroicons:eye"
-            @click="handleImpersonate"
-          />
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Imitieren</p>
-        </TooltipContent>
-      </Tooltip>
       <Tooltip v-if="user.banned">
         <TooltipTrigger>
           <Icon
