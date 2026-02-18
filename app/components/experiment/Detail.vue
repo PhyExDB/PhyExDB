@@ -48,6 +48,10 @@ function attributeValuesString(attribute: ExperimentAttributeDetail) {
 const isImageFile = (mimeType: string) => mimeType.startsWith("image/")
 const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
 
+function isRiskAssessmentSection(section: ExperimentSectionContentDetail) {
+  return section.experimentSection.name === "Gefährdungsbeurteilung"
+}
+
 const router = useRouter()
 const canGoBack = ref(false)
 
@@ -256,19 +260,21 @@ function formatDate(dateString: string | Date) {
         :key="section.id"
         class="space-y-6"
       >
-        <h2 class="text-3xl font-bold">
-          {{ section.experimentSection.name }}
-        </h2>
-        <LatexContent
-          v-if="section.text && section.text.length && section.text != '<p></p>'"
-          :content="section.text"
-        />
-        <p
-          v-else
-          class="text-muted-foreground"
-        >
-          Keine Beschreibung vorhanden
-        </p>
+        <template v-if="!isRiskAssessmentSection(section) || section.files.length > 0">
+          <h2 class="text-3xl font-bold">
+            {{ section.experimentSection.name }}
+          </h2>
+          <LatexContent
+            v-if="!isRiskAssessmentSection(section) && section.text && section.text.length && section.text != '<p></p>'"
+            :content="section.text"
+          />
+          <p
+            v-else-if="!isRiskAssessmentSection(section)"
+            class="text-muted-foreground"
+          >
+            Keine Beschreibung vorhanden
+          </p>
+        </template>
 
         <CarouselWithPreview
           v-if="section.files.length"

@@ -202,6 +202,26 @@ async function updateValue() {
     toast({ title: "Fehler beim Aktualisieren", variant: "destructive" })
   }
 }
+async function toggleSelectionType(attribute: ExperimentAttributeDetail) {
+  try {
+    await $fetch(`/api/experiments/attributes/${attribute.slug}`, {
+      method: "PUT",
+      body: {
+        name: attribute.name,
+        multipleSelection: !attribute.multipleSelection,
+      },
+    })
+    await refresh()
+    toast({
+      title: "Auswahlmodus geändert",
+      description: `Jetzt ${!attribute.multipleSelection ? "Einfachauswahl" : "Mehrfachauswahl"}`,
+      variant: "success",
+    })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Ändern", variant: "destructive" })
+  }
+}
 </script>
 
 <template>
@@ -308,9 +328,23 @@ async function updateValue() {
           </div>
         </CardHeader>
         <CardContent>
-          <div class="text-xs text-muted-foreground mb-4">
-            {{ attribute.multipleSelection ? 'Mehrfachauswahl' : 'Einfachauswahl' }}
-          </div>
+          <button
+            class="mb-4 flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted transition"
+            @click="toggleSelectionType(attribute)"
+          >
+            <div
+              class="w-9 h-5 rounded-full transition"
+              :class="attribute.multipleSelection ? 'bg-primary' : 'bg-muted-foreground/30'"
+            >
+              <div
+                class="w-4 h-4 mt-0.5 bg-background rounded-full shadow transition-transform"
+                :class="attribute.multipleSelection ? 'ml-[18px]' : 'ml-0.5'"
+              />
+            </div>
+            <span class="text-xs text-muted-foreground">
+              {{ attribute.multipleSelection ? 'Mehrfachauswahl' : 'Einfachauswahl' }}
+            </span>
+          </button>
 
           <div class="space-y-2">
             <div class="font-semibold text-sm">
