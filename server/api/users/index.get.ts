@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "~~/generated/prisma/client"
 import { getQuery } from "h3"
 import { userAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"

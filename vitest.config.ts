@@ -10,6 +10,7 @@ export default defineVitestConfig({
       ],
       dirs: [
         "./server/utils",
+        "./shared/types",
       ],
       dts: true,
     }),

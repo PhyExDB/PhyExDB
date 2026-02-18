@@ -1,4 +1,41 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
   "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "strict": false,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": true,
+    "useDefineForClassFields": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./app/*"],
+      "~~/*": ["./*"],
+      "@/*": ["./app/*"],
+      "@@/*": ["./*"],
+      "#shared/*": ["./shared/*"],
+      "#tests/*": ["./tests/*"],
+      "#prisma/*": ["./generated/prisma/*"]
+    },
+    "types": ["node", "vitest/globals"]
+  },
+  "include": [
+    "./auto-imports.d.ts",
+    "**/*.ts",
+    "**/*.vue",
+    ".nuxt/**/*"
+  ]
 }

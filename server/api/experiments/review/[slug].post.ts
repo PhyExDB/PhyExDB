@@ -1,4 +1,4 @@
-import { ExperimentStatus } from "@prisma/client"
+import { ExperimentStatus } from "~~/generated/prisma/client"
 import { experimentReviewSchema } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {

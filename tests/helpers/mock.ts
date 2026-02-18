@@ -1,5 +1,5 @@
-import type { Prisma } from "@prisma/client"
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
+import type { Prisma } from "~~/generated/prisma/client"
+import { PrismaClientKnownRequestError } from "~~/generated/prisma/internal/prismaNamespace"
 import { vi } from "vitest"
 import type { TestContext } from "./utils"
 

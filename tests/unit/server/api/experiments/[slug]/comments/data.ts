@@ -14,7 +14,7 @@ export const comment = {
 } satisfies ExperimentComment
 
 /**
- * Experiement
+ * Experiment
  */
 export const experiment = {
   id: uuidv4(),
