@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import SignGrid from "../../../components/signs/SignGrid.vue"
+import SignGrid from "~/components/signs/SignGrid.vue"
 import { useToast } from "@/components/ui/toast/use-toast"
 import FormControl from "~/components/ui/form/FormControl.vue"
 import type { Sign } from "~/types/sign"

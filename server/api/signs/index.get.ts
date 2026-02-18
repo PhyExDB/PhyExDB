@@ -7,7 +7,7 @@ export default defineEventHandler(() =>
       id: sign.filename.replace(/\s+/g, "_"),
       name: sign.name,
       type: sign.category.toUpperCase() as "WARNING" | "SAFETY",
-      iconPath: `/uploads/${sign.category}/${sign.filename}`,
+      iconPath: `/${sign.category}/${sign.filename}`,
     }),
   ),
 )
