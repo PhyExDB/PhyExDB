@@ -20,6 +20,14 @@ const form = useForm({
   initialValues: { message: "" },
 })
 
+const props = defineProps<{
+  experiment: Pick<ExperimentList, "id" | "userId" | "status">
+  comment: ExperimentComment
+  user: UserDetail | null
+}>()
+
+const user = props.user
+
 const onSubmit = form.handleSubmit(async (values) => {
   loading.value = true
   serverError.value = ""
@@ -54,7 +62,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     :open="open"
     @update:open="open = $event"
   >
-    <DialogTrigger as-child>
+    <DialogTrigger as-child v-if="user">
       <Button
         variant="outline"
         class="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
