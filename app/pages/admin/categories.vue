@@ -259,6 +259,26 @@ async function updateValue() {
     toast({ title: "Fehler beim Aktualisieren", variant: "destructive" })
   }
 }
+async function toggleSelectionType(attribute: ExperimentAttributeDetail) {
+  try {
+    await $fetch(`/api/experiments/attributes/${attribute.slug}`, {
+      method: "PUT",
+      body: {
+        name: attribute.name,
+        multipleSelection: !attribute.multipleSelection,
+      },
+    })
+    await refresh()
+    toast({
+      title: "Auswahlmodus geändert",
+      description: `Jetzt ${!attribute.multipleSelection ? "Einfachauswahl" : "Mehrfachauswahl"}`,
+      variant: "success",
+    })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Ändern", variant: "destructive" })
+  }
+}
 </script>
 
 <template>
@@ -318,127 +338,95 @@ async function updateValue() {
     </div>
 
     <Draggable
-      v-model="sortedAttributes"
-      item-key="id"
-      class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-      handle=".drag-handle"
+        v-model="sortedAttributes"
+        item-key="id"
+        class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        handle=".drag-handle"
     >
       <template #item="{ element: attribute }">
         <Card>
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <div class="flex items-center gap-2">
               <button class="drag-handle cursor-move text-muted-foreground hover:text-foreground">
-                <Icon
-                  name="heroicons:bars-3"
-                  size="20"
-                />
+                <Icon name="heroicons:bars-3" size="20" />
               </button>
-              <CardTitle class="text-xl font-bold">
-                {{ attribute.name }}
-              </CardTitle>
+              <CardTitle class="text-xl font-bold">{{ attribute.name }}</CardTitle>
             </div>
             <div class="flex space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                @click="startEditing(attribute)"
-              >
+              <Button variant="ghost" size="icon" @click="startEditing(attribute)">
                 <Icon name="heroicons:pencil" />
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger as-child>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="text-destructive"
-                  >
+                  <Button variant="ghost" size="icon" class="text-destructive">
                     <Icon name="heroicons:trash" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Kategorie löschen?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Dies wird die Kategorie und alle ihre zugeordneten Werte dauerhaft löschen.
-                    </AlertDialogDescription>
+                    <AlertDialogDescription>Dies löscht die Kategorie und alle zugehörigen Optionen.</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                    <AlertDialogAction
-                      class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      @click="deleteAttribute(attribute.slug)"
-                    >
-                      Löschen
-                    </AlertDialogAction>
+                    <AlertDialogAction class="bg-destructive" @click="deleteAttribute(attribute.slug)">Löschen</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             </div>
           </CardHeader>
+
           <CardContent>
-            <div class="text-xs text-muted-foreground mb-4">
-              {{ attribute.multipleSelection ? 'Mehrfachauswahl' : 'Einfachauswahl' }}
-            </div>
+            <button
+                class="mb-4 flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted transition w-full"
+                @click="toggleSelectionType(attribute)"
+            >
+              <div
+                  class="w-9 h-5 rounded-full transition relative"
+                  :class="attribute.multipleSelection ? 'bg-primary' : 'bg-muted-foreground/30'"
+              >
+                <div
+                    class="w-4 h-4 absolute top-0.5 bg-background rounded-full shadow transition-all"
+                    :class="attribute.multipleSelection ? 'left-[18px]' : 'left-0.5'"
+                />
+              </div>
+              <span class="text-xs text-muted-foreground">
+                {{ attribute.multipleSelection ? 'Mehrfachauswahl' : 'Einfachauswahl' }}
+              </span>
+            </button>
 
             <div class="space-y-2">
-              <div class="font-semibold text-sm">
-                Optionen:
-              </div>
+              <div class="font-semibold text-sm">Optionen:</div>
+
               <Draggable
-                :model-value="getSortedValues(attribute)"
-                item-key="id"
-                class="flex flex-wrap gap-2"
-                handle=".value-drag-handle"
-                @update:model-value="reorderValues(attribute, $event)"
+                  :model-value="getSortedValues(attribute)"
+                  item-key="id"
+                  class="flex flex-wrap gap-2"
+                  handle=".value-drag-handle"
+                  @update:model-value="reorderValues(attribute, $event)"
               >
                 <template #item="{ element: val }">
-                  <Badge
-                    variant="secondary"
-                    class="flex items-center gap-1"
-                  >
-                    <button class="value-drag-handle cursor-move">
-                      <Icon
-                        name="heroicons:bars-2"
-                        size="10"
-                      />
+                  <Badge variant="secondary" class="flex items-center gap-1">
+                    <button class="value-drag-handle cursor-move mr-1">
+                      <Icon name="heroicons:bars-2" size="10" />
                     </button>
                     {{ val.value }}
                     <div class="flex items-center ml-1 space-x-1">
-                      <button
-                        class="hover:text-primary transition-colors"
-                        @click="startEditingValue(val)"
-                      >
-                        <Icon
-                          name="heroicons:pencil"
-                          size="12"
-                        />
-                      </button>
-                      <button
-                        class="hover:text-destructive transition-colors"
-                        @click="deleteValue(val.slug)"
-                      >
-                        <Icon
-                          name="heroicons:x-mark"
-                          size="12"
-                        />
-                      </button>
+                      <button @click="startEditingValue(val)" class="hover:text-primary"><Icon name="heroicons:pencil" size="12" /></button>
+                      <button @click="deleteValue(val.slug)" class="hover:text-destructive"><Icon name="heroicons:x-mark" size="12" /></button>
                     </div>
                   </Badge>
                 </template>
               </Draggable>
+
               <div class="flex gap-2 mt-2">
                 <Input
-                  v-model="newValueNames[attribute.id]"
-                  placeholder="Neue Option..."
-                  class="h-8"
-                  @keyup.enter="!isNameInvalid(newValueNames[attribute.id]) && addValue(attribute.id)"
+                    v-model="newValueNames[attribute.id]"
+                    placeholder="Neue Option..."
+                    class="h-8"
+                    @keyup.enter="!isNameInvalid(newValueNames[attribute.id]) && addValue(attribute.id)"
                 />
-                <Button
-                  size="sm"
-                  class="h-8"
-                  :disabled="isNameInvalid(newValueNames[attribute.id])"
-                  @click="addValue(attribute.id)"
-                >
+                <Button size="sm" class="h-8" :disabled="isNameInvalid(newValueNames[attribute.id])" @click="addValue(attribute.id)">
                   <Icon name="heroicons:plus" />
                 </Button>
               </div>
