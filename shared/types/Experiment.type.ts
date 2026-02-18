@@ -124,7 +124,7 @@ export function getExperimentSchema(
       text: z.string(),
       files: z.array(z.object({
         fileId: z.string().uuid(),
-        description: z.string().optional(),
+        description: z.string().max(1000, "Die Beschreibung darf maximal 1000 Zeichen lang sein.").optional(),
       })),
     })).refine((sections) => {
       const sectionIds = sections.map(section => section.experimentSectionContentId)

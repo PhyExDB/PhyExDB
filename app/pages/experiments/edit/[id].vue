@@ -510,35 +510,41 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                 />
                 <div class="flex flex-col flex-1 md:flex-row items-center">
                   <FormField
-                    v-slot="{ componentField }"
+                    v-slot="{ componentField, value }"
                     :name="`sections[${section.order}].files[${index}].description`"
                   >
                     <FormItem class="flex-1 p-4 w-full">
-                      <FormLabel>
-                        <div
-                          v-if="item.file.mimeType.startsWith('image')"
-                          class="font-semibold"
-                        >
-                          {{ getImageTitle(section.order, index) }}
+                      <FormLabel class="flex justify-between items-end">
+                        <div>
+                          <div
+                            v-if="item.file.mimeType.startsWith('image')"
+                            class="font-semibold"
+                          >
+                            {{ getImageTitle(section.order, index) }}
+                          </div>
+                          <NuxtLink
+                            :to="item.file.path"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="hover:underline"
+                            external
+                          >
+                            {{ item.file.originalName }}
+                            <Icon name="heroicons:arrow-top-right-on-square" />
+                          </NuxtLink>
                         </div>
-
-                        <NuxtLink
-                          :to="item.file.path"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="hover:underline"
-                          external
+                        <span
+                          :class="['text-[10px] font-medium transition-colors text-muted-foreground']"
                         >
-                          {{ item.file.originalName }}
-                          <Icon name="heroicons:arrow-top-right-on-square" />
-                        </NuxtLink>
+                          {{ value?.length || 0 }} / 1000
+                        </span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           v-bind="componentField"
-                          type="text"
-                          placeholder="Beschreibung"
-                          class="resize-y min-h-[80px] max-h-[350px] overflow-auto"
+                          placeholder="Beschreibung (max. 1.000 Zeichen)"
+                          class="resize-y min-h-[80px] max-h-[350px] "
+                          :maxlength="1000"
                         />
                       </FormControl>
                       <FormMessage />
