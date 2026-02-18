@@ -22,31 +22,63 @@ async function handleImpersonate() {
   })
 }
 async function handleBan() {
-  await useAuth().client.admin.banUser({ userId: user.id })
-  emit("changed", { banned: true })
-  toast({
-    title: "Account gesperrt",
-    description: `${user.name}'s Account wurde erfolgreich gesperrt.`,
-    variant: "success",
-  })
+  try {
+    await $fetch(`/api/users/${user.id}/ban`, { method: "POST" })
+
+    emit("changed", { banned: true })
+
+    toast({
+      title: "Account gesperrt",
+      description: `${user.name}'s Account wurde erfolgreich gesperrt.`,
+      variant: "success",
+    })
+  } catch {
+    toast({
+      title: "Fehler beim Sperren",
+      description: "Der Account konnte nicht gesperrt werden.",
+      variant: "destructive",
+    })
+  }
 }
 async function handleUnban() {
-  await useAuth().client.admin.unbanUser({ userId: user.id })
-  emit("changed", { banned: false })
-  toast({
-    title: "Accountsperre aufgehoben",
-    description: `${user.name}'s Accountsperre wurde erfolgreich aufgehoben.`,
-    variant: "success",
-  })
+  try {
+    await $fetch(`/api/users/${user.id}/unban`, { method: "POST" })
+
+    emit("changed", { banned: false })
+
+    toast({
+      title: "Accountsperre aufgehoben",
+      description: `${user.name}'s Accountsperre wurde erfolgreich aufgehoben.`,
+      variant: "success",
+    })
+  } catch {
+    toast({
+      title: "Fehler beim Aufheben der Sperre",
+      description: "Die Accountsperre konnte nicht aufgehoben werden.",
+      variant: "destructive",
+    })
+  }
 }
 async function handleDelete() {
-  await useAuth().client.admin.removeUser({ userId: user.id })
-  emit("deleted")
-  toast({
-    title: "Account gelöscht",
-    description: `${user.name}'s Account wurde erfolgreich gelöscht.`,
-    variant: "success",
-  })
+  try {
+    await $fetch(`/api/users/${user.id}/delete`, {
+      method: "POST",
+    })
+
+    emit("deleted")
+
+    toast({
+      title: "Account gelöscht",
+      description: `${user.name}'s Account wurde erfolgreich gelöscht.`,
+      variant: "success",
+    })
+  } catch {
+    toast({
+      title: "Fehler beim Löschen",
+      description: "Der Accound konnte nicht gelöscht werden.",
+      variant: "destructive",
+    })
+  }
 }
 </script>
 
@@ -94,17 +126,15 @@ async function handleDelete() {
         message="Diese Aktion kann nicht rückgängig gemacht werden. Der Account wird dauerhaft gelöscht."
         :on-delete="handleDelete"
       >
-        <Tooltip>
-          <TooltipTrigger>
-            <Icon
-              class="mx-1 h-4 w-4"
-              name="heroicons:trash"
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Löschen</p>
-          </TooltipContent>
-        </Tooltip>
+        <button
+          type="button"
+          class="mx-1"
+        >
+          <Icon
+            class="h-4 w-4 text-destructive"
+            name="heroicons:trash"
+          />
+        </button>
       </ConfirmDeleteAlertDialog>
     </TooltipProvider>
   </div>
