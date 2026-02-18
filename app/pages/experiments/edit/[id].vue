@@ -135,7 +135,7 @@ async function uploadPreviewImage(newFiles: [File]) {
 }
 
 const { data: reviews } = await useFetch(
-    `/api/experiments/review/by-experiment?experimentId=${experimentId}`,
+  `/api/experiments/review/by-experiment?experimentId=${experimentId}`,
 )
 
 async function uploadSectionFile(sectionIndex: number, newFiles: File[]) {
@@ -143,8 +143,8 @@ async function uploadSectionFile(sectionIndex: number, newFiles: File[]) {
   const isRA = isRiskAssessmentSection(sectionName)
 
   const filesToUpload: File[] = isRA
-      ? [newFiles.find(f => f.type === "application/pdf")].filter((f): f is File => !!f)
-      : newFiles
+    ? [newFiles.find(f => f.type === "application/pdf")].filter((f): f is File => !!f)
+    : newFiles
 
   if (filesToUpload.length === 0) {
     toast({
