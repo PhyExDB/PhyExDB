@@ -39,30 +39,30 @@ const dropdownOpen = ref(false)
 
 <template>
   <DropdownMenu
-    v-if="user"
-    v-model:open="dropdownOpen"
+      v-if="user"
+      v-model:open="dropdownOpen"
   >
     <DropdownMenuTrigger as-child>
       <button
-        class="focus:outline-none"
-        type="button"
+          class="focus:outline-none"
+          type="button"
       >
         <div class="relative inline-block">
-          <Avatar>
+          <Avatar react>
             <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
           </Avatar>
 
           <div
-            v-if="canReviewExperiments && pendingReviewCount > 0 && !dropdownOpen"
-            class="absolute -right-0.5 -top-0.5 flex h-4 w-4"
+              v-if="canReviewExperiments && pendingReviewCount > 0 && !dropdownOpen"
+              class="absolute -right-0.5 -top-0.5 flex h-4 w-4"
           >
             <Badge
-              variant="destructive"
-              class="absolute inset-0 h-full w-full animate-ping rounded-full min-w-0 p-0 opacity-75 border-none"
+                variant="destructive"
+                class="absolute inset-0 h-full w-full animate-ping rounded-full min-w-0 p-0 opacity-75 border-none"
             />
             <Badge
-              variant="destructive"
-              class="relative h-full w-full rounded-full min-w-0 p-0 border-2 border-background"
+                variant="destructive"
+                class="relative h-full w-full rounded-full min-w-0 p-0 border-2 border-background"
             />
           </div>
         </div>
@@ -98,8 +98,8 @@ const dropdownOpen = ref(false)
 
       <DropdownMenuSeparator v-if="canSeeUsers || canReviewExperiments" />
       <DropdownMenuItem
-        v-if="data?.session.impersonatedBy"
-        @click="stopImpersonating"
+          v-if="data?.session.impersonatedBy"
+          @click="stopImpersonating"
       >
         <UserX />
         <span>Imitieren beenden</span>
@@ -117,16 +117,16 @@ const dropdownOpen = ref(false)
         </DropdownMenuItem>
       </NuxtLink>
       <NuxtLink
-        v-if="canReviewExperiments"
-        href="/experiments/review"
+          v-if="canReviewExperiments"
+          href="/experiments/review"
       >
         <DropdownMenuItem class="flex items-center gap-2">
           <ClipboardCheck />
           <span>Versuche überprüfen</span>
           <Badge
-            v-if="pendingReviewCount > 0"
-            variant="destructive"
-            class="ml-auto"
+              v-if="pendingReviewCount > 0"
+              variant="destructive"
+              class="ml-auto"
           >
             {{ pendingReviewCount }}
           </Badge>
@@ -135,8 +135,8 @@ const dropdownOpen = ref(false)
 
       <DropdownMenuSeparator />
       <DropdownMenuItem
-        class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
-        @click="signOut"
+          class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
+          @click="signOut"
       >
         <LogOut />
         <span>Abmelden</span>
@@ -144,7 +144,7 @@ const dropdownOpen = ref(false)
     </DropdownMenuContent>
   </DropdownMenu>
   <NuxtLink
-    to="/login"
+      to="/login"
   >
     <Button v-if="!user">
       Anmelden
