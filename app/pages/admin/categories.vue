@@ -218,11 +218,27 @@ function startEditingValue(val: ExperimentAttributeValueList) {
 }
 
 async function updateValue() {
-  const name = editingValue.value?.value?.trim()
+  const name = editingValue.value?.value?.trim() ?? ""
   if (isNameInvalid(name)) {
     toast({
       title: "Name zu kurz",
       description: "Der Name muss mindestens 4 Zeichen lang sein.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const parentAttribute = attributes.value?.find(attr =>
+    attr.values.some(v => v.id === editingValue.value!.id),
+  )
+  const exists = parentAttribute?.values.some(
+    val => val.id !== editingValue.value!.id && val.value.toLowerCase() === name.toLowerCase(),
+  )
+
+  if (exists) {
+    toast({
+      title: "Option existiert bereits",
+      description: "Eine andere Option mit diesem Namen existiert bereits in dieser Kategorie.",
       variant: "destructive",
     })
     return
