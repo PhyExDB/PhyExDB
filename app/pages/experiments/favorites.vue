@@ -58,23 +58,35 @@ const groupedFavorites = computed(() => {
 })
 
 async function onReorder(event: ReorderEvent, group: { name: string, id: string | null, items: ExperimentList[] }) {
-  if (event.removed) return
-  const experimentId = event.added?.element?.id || event.moved?.element?.id
+  const movedElement = event.added?.element || event.moved?.element
+  if (!movedElement) return
 
-  if (isGroupedByUser.value && experimentId) {
-    await $fetch("/api/experiments/favorites/category", {
+  try {
+    if (event.added && isGroupedByUser.value) {
+      await $fetch("/api/experiments/favorites/category", {
+        method: "POST",
+        body: {
+          experimentId: movedElement.id,
+          category: group.id,
+        },
+      })
+    }
+
+    const newOrderIds = group.items.map(e => e.id)
+
+    await $fetch("/api/experiments/favorites/reorder", {
       method: "POST",
-      body: { experimentId, category: group.id },
+      body: {
+        experimentIds: newOrderIds,
+        category: isGroupedByUser.value ? group.id : undefined,
+      },
     })
-    const exp = rawExperiments.value?.find(e => e.id === experimentId)
-    if (exp) exp.favoriteCategory = group.id
+  } catch (err) {
+    console.error("Reorder failed:", err)
+    toast({ title: "Fehler", description: "Sortierung konnte nicht gespeichert werden", variant: "destructive" })
+  } finally {
+    await refresh()
   }
-
-  await $fetch("/api/experiments/favorites/reorder", {
-    method: "POST",
-    body: { experimentIds: group.items.map((e: ExperimentList) => e.id), category: isGroupedByUser.value ? group.id : undefined },
-  })
-  await refresh()
 }
 
 async function executeCategoryAction(action: "rename" | "delete", newNameInput?: string) {
@@ -120,7 +132,10 @@ async function executeCategoryAction(action: "rename" | "delete", newNameInput?:
 
 function addUserCategory() {
   const name = newCategoryName.value.trim()
-  if (!name) return
+  if (!name) {
+    toast({ title: "Fehler", description: "Name darf nicht leer sein", variant: "destructive" })
+    return
+  }
   if (groupedFavorites.value.some(g => g.name.toLowerCase() === name.toLowerCase())) {
     toast({ title: "Fehler", description: "Kategorie existiert bereits", variant: "destructive" })
     return
@@ -287,17 +302,14 @@ function openDeleteDialog(name: string) {
         </div>
 
         <Draggable
-          v-model="group.items"
+          :list="group.items"
           item-key="id"
           tag="div"
           class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 min-h-[150px] p-4 rounded-xl bg-muted/10 border-2 border-transparent transition-colors duration-200"
           ghost-class="opacity-50"
-          chosen-class="scale-[1.02]"
-          drag-class="rotate-1"
           :animation="200"
           :group="isGroupedByUser ? 'favorites' : undefined"
-          :disabled="!isGroupedByUser && group.id !== 'all'"
-          @change="(event: any) => onReorder(event, group)"
+          @change="(event: ReorderEvent) => onReorder(event, group)"
         >
           <template #item="{ element }">
             <FavoriteCard

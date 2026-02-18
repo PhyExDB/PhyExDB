@@ -44,7 +44,10 @@ watch(() => props.isRenameOpen, (isOpen) => {
           >
             Abbrechen
           </Button>
-          <Button @click="emit('confirmRename', localNewName)">
+          <Button
+            :disabled="!localNewName.trim()"
+            @click="emit('confirmRename', localNewName.trim())"
+          >
             Speichern
           </Button>
         </DialogFooter>
