@@ -46,3 +46,6 @@ public/uploads
 
 # Mailpit data 
 data
+
+# Prisma
+/generated/

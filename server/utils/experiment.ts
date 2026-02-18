@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client"
+import { Prisma } from "~~/generated/prisma/browser";
 
 /**
  * Configuration object for selecting specific attributes and their nested properties

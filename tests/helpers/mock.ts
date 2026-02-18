@@ -1,7 +1,7 @@
-import type { Prisma } from "@prisma/client"
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { vi } from "vitest"
 import type { TestContext } from "./utils"
+import { Prisma } from "../../generated/prisma/client"
+import prisma from "../../server/lib/prisma"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type CheckWhereClause = (where: any) => boolean
@@ -84,12 +84,11 @@ export function mockPrismaForPut<Data, Exp>(
 
   prisma[table].update = vi.fn().mockImplementation(({ where }) => {
     if (!checkWhereClause(where)) {
-      const error = new PrismaClientKnownRequestError("", {
+      throw new Prisma.PrismaClientKnownRequestError("", {
         code: "P2025",
         meta: {},
         clientVersion: "test",
       })
-      throw error
     }
     return Promise.resolve(c.expected)
   })

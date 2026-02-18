@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "~~/generated/prisma/client"
 import { vitest } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
 import { ref } from "vue"

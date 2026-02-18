@@ -1,8 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import vue from "@vitejs/plugin-vue"
-import { copyPrismaAssets } from "./server/utils/copy-prisma-assets"
+import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
+  alias: {
+    "@prisma/client": "./generated/prisma",
+  },
+
   modules: [
     "@nuxt/eslint",
     "@nuxt/test-utils/module",
@@ -19,6 +23,7 @@ export default defineNuxtConfig({
     "@nuxtjs/robots",
     "nuxt-schema-org",
   ],
+
 
   devtools: { enabled: true },
 
@@ -49,6 +54,9 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
 
   nitro: {
+    externals: {
+      external: ["@prisma/client"],
+    },
     experimental: {
       openAPI: true,
       tasks: true,
@@ -70,6 +78,9 @@ export default defineNuxtConfig({
 
   vite: {
     resolve: {
+      alias: {
+        ".prisma/client/index-browser": "./generated/prisma/index-browser.js",
+      },
       preserveSymlinks: true,
     },
   },
@@ -79,10 +90,6 @@ export default defineNuxtConfig({
       tailwindcss: {},
       autoprefixer: {},
     },
-  },
-
-  hooks: {
-    "nitro:build:public-assets": copyPrismaAssets,
   },
 
   eslint: {
