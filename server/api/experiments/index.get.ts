@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client"
-import type { Page } from "~~/shared/types"
 
 export default defineEventHandler(async (event) => {
   // Attribute Filter
@@ -35,10 +34,10 @@ export default defineEventHandler(async (event) => {
     ? query.sections.split(",")
     : undefined
   let shouldSearchTitle = false
-  let shouldSearchSections = false
+  let shouldSearchSections: boolean
   if (querySearchSections?.includes("titel")) {
     shouldSearchTitle = true
-    shouldSearchSections = querySearchSections.length > 1 ? true : false
+    shouldSearchSections = querySearchSections.length > 1
   } else {
     shouldSearchSections = true
   }
@@ -108,10 +107,29 @@ export default defineEventHandler(async (event) => {
     orderBy: sortOption,
   })
 
+  // Favorite Experiments
+  const user = await getUser(event)
+  let favoriteIds: string[] = []
+  let userFavorites: { experimentId: string, numberForSequence: number }[] = []
+  if (user) {
+    userFavorites = await prisma.favorite.findMany({
+      where: { userId: user.id },
+      select: { experimentId: true, numberForSequence: true },
+    })
+    favoriteIds = userFavorites.map(f => f.experimentId)
+  }
+
   return {
-    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
+    items: experiments.map((experiment) => {
+      const mapped = mapExperimentToList(experiment as ExperimentIncorrectList)
+      return {
+        ...mapped,
+        isFavorited: favoriteIds.includes(mapped.id), // Hier wird die Info gebündelt hinzugefügt
+        favoriteNumberForSequence: userFavorites.find(f => f.experimentId === mapped.id)?.numberForSequence,
+      }
+    }),
     pagination: pageMeta,
-  } as Page<ExperimentList>
+  }
 })
 
 defineRouteMeta({

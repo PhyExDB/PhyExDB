@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { LightboxSection } from "~/components/ui/carousel/interface"
+import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
 
 const user = await useUser()
 
@@ -25,6 +26,10 @@ function attributeValuesString(attribute: ExperimentAttributeDetail) {
 
 const isImageFile = (mimeType: string) => mimeType.startsWith("image/")
 const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
+
+function isRiskAssessmentSection(section: ExperimentSectionContentDetail) {
+  return section.experimentSection.name === "Gefährdungsbeurteilung"
+}
 
 const router = useRouter()
 const canGoBack = ref(false)
@@ -119,6 +124,12 @@ function getServerFileName(path: string) {
       <h1 class="text-4xl font-extrabold mr-2">
         {{ experiment.name }}
       </h1>
+
+      <FavoriteButton
+        :experiment-id="experiment.id"
+        :is-favorited-initial="experiment.isFavorited ?? false"
+      />
+
       <DropdownMenu
         v-if="user"
       >
@@ -190,14 +201,12 @@ function getServerFileName(path: string) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
       <ConfirmDeleteAlertDialogBool
         v-model="showDeleteDialog"
         :on-delete="() => deleteExperiment(experiment.id).then(async () => await navigateTo('/experiments'))"
         header="Versuch löschen?"
       />
     </div>
-
     <!-- Rating -->
     <ExperimentRating
       :experiment="experiment"
@@ -260,19 +269,21 @@ function getServerFileName(path: string) {
         :key="section.id"
         class="space-y-6"
       >
-        <h2 class="text-3xl font-bold">
-          {{ section.experimentSection.name }}
-        </h2>
-        <LatexContent
-          v-if="section.text && section.text.length && section.text != '<p></p>'"
-          :content="section.text"
-        />
-        <p
-          v-else
-          class="text-muted-foreground"
-        >
-          Keine Beschreibung vorhanden
-        </p>
+        <template v-if="!isRiskAssessmentSection(section) || section.files.length > 0">
+          <h2 class="text-3xl font-bold">
+            {{ section.experimentSection.name }}
+          </h2>
+          <LatexContent
+            v-if="!isRiskAssessmentSection(section) && section.text && section.text.length && section.text != '<p></p>'"
+            :content="section.text"
+          />
+          <p
+            v-else-if="!isRiskAssessmentSection(section)"
+            class="text-muted-foreground"
+          >
+            Keine Beschreibung vorhanden
+          </p>
+        </template>
 
         <CarouselWithPreview
           v-if="section.files.length"
