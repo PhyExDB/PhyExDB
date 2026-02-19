@@ -101,7 +101,7 @@ const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, prop
       class="mb-8"
     >
       <form
-        class="flex flex-col gap-4 border p-4 bg-card rounded-lg"
+        class="flex flex-col gap-4 border p-4 bg-card rounded-2xl"
         @submit="onSubmit"
       >
         <h2 class="text-xl font-bold">
@@ -178,7 +178,7 @@ const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, prop
           @reply="setReply"
         >
           <template #reply-form>
-            <div class="bg-accent/10 p-4 rounded-lg border border-l-4 border-l-primary mb-6 animate-in fade-in slide-in-from-top-2">
+            <div class="bg-accent/10 p-4 rounded-2xl border border-l-4 border-l-primary mb-6 animate-in fade-in slide-in-from-top-2">
               <div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-bold">Deine Antwort</span>
                 <Button
@@ -196,7 +196,7 @@ const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, prop
                   :model-value="values.text"
                   :show-headings="false"
                   :class="{ 'border-destructive': errors.text }"
-                  editor-class="p-4 h-32 overflow-auto bg-background focus:outline-none border rounded-md"
+                  editor-class="p-4 h-32 overflow-auto bg-background focus:outline-none border"
                   auto-focus
                   @update:model-value="setFieldValue('text', $event)"
                 />
@@ -228,7 +228,7 @@ const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, prop
 
       <div
         v-if="data?.pagination.total === 0"
-        class="text-muted-foreground py-16 text-center border-2 border-dashed rounded-xl"
+        class="text-muted-foreground py-16 text-center border-2 border-dashed rounded-2xl"
       >
         Bisher gibt es keine Kommentare.
       </div>
@@ -242,7 +242,7 @@ const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, prop
   </div>
   <div
     v-else
-    class="flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-xl text-muted-foreground"
+    class="flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-2xl text-muted-foreground"
   >
     <Icon
       name="lucide:message-square-off"
