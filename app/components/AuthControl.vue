@@ -47,6 +47,12 @@ async function signOut() {
         </DropdownMenuItem>
       </NuxtLink>
 
+      <NuxtLink href="/experiments/favorites">
+        <DropdownMenuItem as-child>
+          <span>Meine Favoriten</span>
+        </DropdownMenuItem>
+      </NuxtLink>
+
       <DropdownMenuSeparator v-if="canSeeUsers || canReviewExperiments" />
 
       <NuxtLink href="/users">

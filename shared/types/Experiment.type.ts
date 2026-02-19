@@ -46,6 +46,13 @@ export interface ExperimentList extends SlugList {
    * The sum of all ratings
    */
   ratingsSum: number
+  /*
+    Is the expiment favorited?
+     */
+  isFavorited?: boolean
+
+  favoriteNumberForSequence?: number
+  favoriteCategory?: string | null
 }
 
 /**
@@ -250,3 +257,9 @@ export const experimentReviewSchema = z.object({
 }, {
   message: "Nachricht wird benötigt",
 })
+
+export interface ReorderEvent {
+  added?: { element: ExperimentList, newIndex: number }
+  removed?: { element: ExperimentList, oldIndex: number }
+  moved?: { element: ExperimentList, oldIndex: number, newIndex: number }
+}
