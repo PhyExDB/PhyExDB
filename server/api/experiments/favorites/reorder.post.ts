@@ -3,8 +3,7 @@ import prisma from "~~/server/lib/prisma"
 export default defineEventHandler(async (event) => {
   const user = await getUserOrThrowError(event)
 
-  const res = await readBody(event)
-  const experimentIds: string[] = res.experimentIds
+  const { experimentIds, category } = await readBody(event)
   const userId = user.id
 
   if (!experimentIds || !Array.isArray(experimentIds)) {
@@ -13,9 +12,15 @@ export default defineEventHandler(async (event) => {
 
   await prisma.$transaction(
     experimentIds.map((id, index) =>
-      prisma.favorite.update({
-        where: { userId_experimentId: { userId, experimentId: id } },
-        data: { numberForSequence: index },
+      prisma.favorite.updateMany({
+        where: {
+          userId: userId,
+          experimentId: id,
+        },
+        data: {
+          numberForSequence: index,
+          ...(category !== undefined ? { category: category || null } : {}),
+        },
       }),
     ),
   )
@@ -40,6 +45,11 @@ defineRouteMeta({
                   format: "uuid",
                 },
                 description: "Array of experiment IDs in the desired order",
+              },
+              category: {
+                type: "string",
+                nullable: true,
+                description: "Optional category to assign to all these experiments",
               },
             },
             required: ["experimentIds"],

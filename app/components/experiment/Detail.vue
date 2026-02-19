@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import FavoriteButton from "~/components/experiment/FavoriteButton.vue"
+import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
 
 const user = await useUser()
 
@@ -76,7 +76,6 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
       <FavoriteButton
         :experiment-id="experiment.id"
         :is-favorited-initial="experiment.isFavorited ?? false"
-        @update:is-favorited="(val: boolean | undefined) => experiment.isFavorited = val"
       />
 
       <DropdownMenu

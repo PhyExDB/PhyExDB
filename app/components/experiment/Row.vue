@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import FavoriteButton from "~/components/experiment/FavoriteButton.vue"
+import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
 
 const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   experiment: {
@@ -35,7 +35,6 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
         <FavoriteButton
           :experiment-id="experiment.id"
           :is-favorited-initial="experiment.isFavorited ?? false"
-          @update:is-favorited="(val: boolean | undefined) => experiment.isFavorited = val"
         />
 
         <p class="font-medium">
