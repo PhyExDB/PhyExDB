@@ -47,11 +47,17 @@ export interface ExperimentList extends SlugList {
    * The sum of all ratings
    */
   ratingsSum: number
-
   /**
    * Count of completed reviews for current round
    */
   completedReviewsCount: number
+  /*
+    Is the expiment favorited?
+     */
+  isFavorited?: boolean
+
+  favoriteNumberForSequence?: number
+  favoriteCategory?: string | null
 }
 
 /**
@@ -137,7 +143,7 @@ export function getExperimentSchema(
       text: z.string(),
       files: z.array(z.object({
         fileId: z.string().uuid(),
-        description: z.string().optional(),
+        description: z.string().max(1000, "Die Beschreibung darf maximal 1000 Zeichen lang sein.").optional(),
       })),
     })).refine((sections) => {
       const sectionIds = sections.map(section => section.experimentSectionContentId)
@@ -263,3 +269,9 @@ export const experimentReviewSchema = z.object({
 }, {
   message: "Nachricht wird benötigt",
 })
+
+export interface ReorderEvent {
+  added?: { element: ExperimentList, newIndex: number }
+  removed?: { element: ExperimentList, oldIndex: number }
+  moved?: { element: ExperimentList, oldIndex: number, newIndex: number }
+}

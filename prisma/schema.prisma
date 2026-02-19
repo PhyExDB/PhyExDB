@@ -35,6 +35,7 @@ model User {
   banned     Boolean?
   banReason  String?
   banExpires DateTime?
+  Favorite   Favorite[]
 
   @@unique([email])
   @@map("user")
@@ -89,6 +90,20 @@ model Experiment {
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
   reviews        Review[]
+  Favorite       Favorite[]
+}
+
+model Favorite {
+  id                String     @id @default(uuid())
+  userId            String
+  experimentId      String
+  category          String?
+  createdAt         DateTime   @default(now())
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experiment        Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  numberForSequence Int        @default(autoincrement())
+
+  @@unique([userId, experimentId])
 }
 
 enum ExperimentStatus {
@@ -141,6 +156,7 @@ model ExperimentAttributeValue {
   attributeId String
   value       String
   slug        String              @unique
+  order       Int                 @default(0)
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 }
