@@ -124,7 +124,7 @@ model ExperimentAttribute {
   id                String                     @id @default(uuid())
   name              String
   slug              String                     @unique
-  order             Int                        @unique
+  order             Int
   multipleSelection Boolean
   values            ExperimentAttributeValue[]
   createdAt         DateTime                   @default(now())
@@ -138,6 +138,7 @@ model ExperimentAttributeValue {
   attributeId String
   value       String
   slug        String              @unique
+  order       Int                 @default(0)
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 }
