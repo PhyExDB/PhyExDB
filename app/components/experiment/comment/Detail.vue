@@ -79,7 +79,11 @@ const canSeeMenu = computed(
         </div>
         <div class="flex flex-col space-y-2 flex-grow">
           <div class="flex flex-row items-center space-x-2">
-            <Avatar class="w-8 h-8">
+            <Avatar
+              class="w-8 h-8"
+              :react="canViewUser"
+              @click="canViewUser ? navigateTo(`/users?search=${comment.user.id}`) : null"
+            >
               <AvatarFallback class="text-xs">
                 {{ getInitials(comment.user.name) }}
               </AvatarFallback>

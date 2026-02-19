@@ -8,6 +8,10 @@ export interface ExperimentAttributeValueList extends SlugList {
    * The value of the attribute
    */
   value: string
+  /**
+   * The order of the attribute value within its attribute
+   */
+  order: number
 }
 
 /**

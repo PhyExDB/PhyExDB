@@ -22,6 +22,7 @@ export default class ExperimentSectionSeed extends Seed {
       "Beobachtung",
       "Ergebnis",
       "Tipps und Tricks",
+      "Gefährdungsbeurteilung",
     ]
 
     await prisma.experimentSection.createMany({
