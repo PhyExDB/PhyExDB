@@ -1,14 +1,8 @@
 <script lang="ts" setup>
+import { User, FlaskConical, Heart, UserX, Users, FolderTree, ClipboardCheck, LogOut } from "lucide-vue-next"
 import getInitials from "~~/shared/utils/initials"
 
 const user = await useUser()
-
-const { data } = await useAuth().session
-async function stopImpersonating() {
-  await useAuth().client.admin.stopImpersonating()
-  await navigateTo("/users")
-}
-
 const canSeeUsers = await allows(userAbilities.getAll)
 const canReviewExperiments = await allows(experimentAbilities.review)
 
@@ -21,41 +15,55 @@ async function signOut() {
 <template>
   <DropdownMenu v-if="user">
     <DropdownMenuTrigger as-child>
-      <Avatar>
+      <Avatar react>
         <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
       </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
       <NuxtLink href="/profile">
         <DropdownMenuItem as-child>
-          <span>Profil</span>
+          <span>
+            <User />
+            Profil
+          </span>
         </DropdownMenuItem>
       </NuxtLink>
 
       <NuxtLink href="/experiments/mine">
         <DropdownMenuItem as-child>
-          <span>Meine Versuche</span>
+          <span>
+            <FlaskConical />
+            Meine Versuche
+          </span>
+        </DropdownMenuItem>
+      </NuxtLink>
+
+      <NuxtLink href="/experiments/favorites">
+        <DropdownMenuItem as-child>
+          <span>
+            <Heart />
+            Meine Favoriten
+          </span>
+        </DropdownMenuItem>
+      </NuxtLink>
+
+      <NuxtLink href="/experiments/favorites">
+        <DropdownMenuItem as-child>
+          <span>Meine Favoriten</span>
         </DropdownMenuItem>
       </NuxtLink>
 
       <DropdownMenuSeparator v-if="canSeeUsers || canReviewExperiments" />
-      <DropdownMenuItem
-        v-if="data?.session.impersonatedBy"
-        @click="stopImpersonating"
-      >
-        <span>Imitieren beenden</span>
-      </DropdownMenuItem>
+
       <NuxtLink href="/users">
-        <DropdownMenuItem
-          v-if="canSeeUsers"
-        >
+        <DropdownMenuItem v-if="canSeeUsers">
+          <Users />
           <span>Nutzerverwaltung</span>
         </DropdownMenuItem>
       </NuxtLink>
       <NuxtLink href="/admin/categories">
-        <DropdownMenuItem
-          v-if="canSeeUsers"
-        >
+        <DropdownMenuItem v-if="canSeeUsers">
+          <FolderTree />
           <span>Kategorien verwalten</span>
         </DropdownMenuItem>
       </NuxtLink>
@@ -64,6 +72,7 @@ async function signOut() {
         href="/experiments/review"
       >
         <DropdownMenuItem>
+          <ClipboardCheck />
           <span>Versuche überprüfen</span>
         </DropdownMenuItem>
       </NuxtLink>
@@ -73,6 +82,7 @@ async function signOut() {
         class="text-destructive focus:text-destructive-foreground focus:bg-destructive"
         @click="signOut"
       >
+        <LogOut />
         <span>Abmelden</span>
       </DropdownMenuItem>
     </DropdownMenuContent>

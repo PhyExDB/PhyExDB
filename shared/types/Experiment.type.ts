@@ -51,6 +51,13 @@ export interface ExperimentList extends SlugList {
    * The signs associated with this experiment
    */
   signs: Sign[]
+  /*
+    Is the expiment favorited?
+  */
+  isFavorited?: boolean
+
+  favoriteNumberForSequence?: number
+  favoriteCategory?: string | null
 }
 
 /**
@@ -142,7 +149,7 @@ export function getExperimentSchema(
       text: z.string(),
       files: z.array(z.object({
         fileId: z.string().uuid(),
-        description: z.string().optional(),
+        description: z.string().max(1000, "Die Beschreibung darf maximal 1000 Zeichen lang sein.").optional(),
       })),
     })).refine((sections) => {
       const sectionIds = sections.map(section => section.experimentSectionContentId)
@@ -224,14 +231,12 @@ export function getExperimentReadyForReviewSchema(
   sections: ExperimentSectionList[],
   attributes: ExperimentAttributeDetail[],
 ) {
-  const attributeIds = new Set(attributes.map(attribute => attribute.id))
-  const requiredNumAttributes = attributes.length
-  const requiredNumSections = sections.length
+  const riskAssessmentIndex = sections.findIndex(s => s.name === "Gefährdungsbeurteilung")
 
-  const experimentSchema = z.object({
+  return z.object({
     name: z.string().trim().nonempty("Name wird benötigt"),
     duration: z.array(z.number()).length(1),
-    previewImageId: z.string({ message: "Vorschaubild wird benötigt" }).uuid("Vorschaubild wird benötigt"),
+    previewImageId: z.string({ message: "Vorschaubild wird benötigt" }).uuid(),
 
     signs: z.array(
       z.object({
@@ -241,42 +246,27 @@ export function getExperimentReadyForReviewSchema(
 
     sections: z.array(z.object({
       experimentSectionContentId: z.string().uuid(),
-      text: z.string().trim()
-        .nonempty("Beschreibung wird benötigt")
-        .regex(/^(?!<p><\/p>$).*/, "Beschreibung wird benötigt"),
+      text: z.string().trim(),
       files: z.array(z.object({
         fileId: z.string().uuid(),
         description: z.string({ message: "Beschreibung wird benötigt" }),
       })),
-    })).refine((sections) => {
-      const sectionIds = sections.map(section => section.experimentSectionContentId)
-      return new Set(sectionIds).size === sectionIds.length
-    }, {
-      message: "Sections must be unique",
-    }).refine((sections) => {
-      return sections.length === requiredNumSections
-    }, {
-      message: "Not enough sections defined",
-    }),
+    }))
+      .length(sections.length)
+      .refine(secs => new Set(secs.map(s => s.experimentSectionContentId)).size === secs.length)
+      .refine(secs => secs.every((sec, i) =>
+        i === riskAssessmentIndex
+        || (sec.text.length > 0 && !/^<p><\/p>$/.test(sec.text)
+          && sec.files.every(f => f.description?.trim().length > 0)),
+      ), "Beschreibung wird benötigt",
+      ),
     attributes: z.array(z.object({
       attributeId: z.string().uuid(),
       valueIds: z.array(z.string().uuid()).nonempty("Attribut wird benötigt"),
-    })).refine(async (attributes) => {
-      const attributesContained = new Set()
-      attributes.forEach((attribute) => {
-        if (!attribute.valueIds.length) {
-          return
-        }
-        if (attributeIds.has(attribute.attributeId)) {
-          attributesContained.add(attribute.attributeId)
-        }
-      })
-      return attributesContained.size === requiredNumAttributes
-    }, {
-      message: "Not all attributes specified",
-    }),
+    })).refine(attrs =>
+      attrs.filter(a => a.valueIds.length).length === attributes.length,
+    ),
   })
-  return experimentSchema
 }
 
 /**
@@ -294,3 +284,9 @@ export const experimentReviewSchema = z.object({
 }, {
   message: "Nachricht wird benötigt",
 })
+
+export interface ReorderEvent {
+  added?: { element: ExperimentList, newIndex: number }
+  removed?: { element: ExperimentList, oldIndex: number }
+  moved?: { element: ExperimentList, oldIndex: number, newIndex: number }
+}
