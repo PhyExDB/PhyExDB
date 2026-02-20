@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import SignGrid from "~/components/signs/SignGrid.vue"
 import { useToast } from "@/components/ui/toast/use-toast"
 import FormControl from "~/components/ui/form/FormControl.vue"
 import type { Sign } from "~/types/sign"
+import SignGrid from "~/components/signs/SignGrid.vue"
 
 const user = await useUser()
 
@@ -27,8 +27,12 @@ if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECT
 
 const { data: sections } = await useFetch("/api/experiments/sections")
 const { data: attributes } = await useFetch("/api/experiments/attributes")
-const { data: allSigns } = await useFetch<Sign[]>("/api/signs")
-const selectedSigns = ref<Sign[]>([])
+
+const allSigns = ref<Sign[]>([])
+
+const { data: allSignsData } = await useFetch<Sign[]>("/api/signs")
+allSigns.value = allSignsData.value ?? []
+const availableSigns = computed(() => allSigns.value)
 
 const runtimeConfig = useRuntimeConfig()
 const previewImageAccepts = ["image/png", "image/jpeg", "image/webp"]
@@ -60,26 +64,8 @@ const form = useForm({
         })) ?? [],
       }
     }) ?? [],
-    signs: [],
+    signs: experiment.value?.signs.map(s => ({ id: s.id })) ?? [],
   },
-})
-
-watch(
-  [allSigns, experiment],
-  () => {
-    if (!allSigns.value || !experiment.value?.signs) return
-
-    selectedSigns.value = experiment.value.signs
-      .map(s => allSigns.value!.find(a => a.id === s.id))
-      .filter((s): s is Sign => !!s)
-
-    form.setFieldValue("signs", selectedSigns.value)
-  },
-  { immediate: true },
-)
-
-watch(selectedSigns, (newSigns) => {
-  form.setFieldValue("signs", newSigns)
 })
 
 let formValuesClone = JSON.stringify(form.values)
@@ -416,11 +402,23 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         <h2 class="text-3xl font-semibold mt-4">
           Sicherheitszeichen
         </h2>
-        <SignGrid
-          v-model="selectedSigns"
-          :availableSigns="allSigns"
-        />
-
+        <!-- Sicherheitszeichen Section -->
+        <FormField
+          v-slot="{ componentField }"
+          name="signs"
+        >
+          <FormItem>
+            <FormLabel>Wähle die Sicherheitszeichen aus:</FormLabel>
+            <FormControl>
+              <SignGrid
+                :model-value="componentField.modelValue"
+                :available-signs="availableSigns"
+                @update:model-value="componentField.onChange"
+              />
+            </FormControl>
+            <FormMessage name="signs" />
+          </FormItem>
+        </FormField>
         <FormField
           v-slot="{ componentField, value }"
           name="duration"

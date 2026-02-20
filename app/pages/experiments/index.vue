@@ -1,4 +1,6 @@
 <script setup lang='ts'>
+import type { Sign } from "~/types/sign"
+
 const route = useRoute()
 const search = ref<string>(route.query.search as string || "")
 const sectionSearch = ref<string>(route.query.sections as string || "")
@@ -8,6 +10,29 @@ const sort = ref<string[]>([route.query.sort as string || "none"])
 const attributeFilter = ref<string>(route.query.attributes as string || "")
 
 const { page, pageSize } = getRequestPageMeta()
+
+// Limit for previewing signs in the card
+const SIGN_PREVIEW_LIMIT = 6
+
+function getPreviewSigns(signs: Sign[]) {
+  return signs.slice(0, SIGN_PREVIEW_LIMIT)
+}
+
+function hasMoreSigns(signs: Sign[]) {
+  return signs.length > SIGN_PREVIEW_LIMIT
+}
+
+function getSignIconUrl(sign: Sign) {
+  if (sign.iconPath.includes("/")) {
+    return "/" + sign.iconPath
+  }
+
+  // Fallback if only filename is stored
+  if (sign.type === "WARNING") return `/warning/${sign.iconPath}`
+  if (sign.type === "SAFETY") return `/safety/${sign.iconPath}`
+
+  return "/" + sign.iconPath
+}
 
 const isLoading = ref(false)
 const { data } = useLazyFetch("/api/experiments", {
@@ -454,6 +479,28 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                   :experiment="experiment"
                   :small="true"
                 />
+              </div>
+              <!-- Signs Preview -->
+              <div class="flex items-center gap-1 flex-wrap mt-1">
+                <template
+                  v-for="sign in getPreviewSigns(experiment.signs)"
+                  :key="sign.id"
+                >
+                  <img
+                    :src="getSignIconUrl(sign)"
+                    :alt="sign.name"
+                    class="w-8 h-8 object-contain"
+                    :title="sign.name"
+                  >
+                </template>
+
+                <!-- Simple overflow indicator -->
+                <span
+                  v-if="hasMoreSigns(experiment.signs)"
+                  class="text-gray-500 text-sm font-semibold"
+                >
+                  …
+                </span>
               </div>
             </CardFooter>
           </Card>

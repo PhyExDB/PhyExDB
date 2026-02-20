@@ -34,6 +34,7 @@ export const experimentIncludeForToList = {
   },
   revisionOf: true,
   revisedBy: true,
+  signs: true,
 }
 
 /**

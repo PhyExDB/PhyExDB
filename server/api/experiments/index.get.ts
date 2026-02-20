@@ -109,7 +109,10 @@ export default defineEventHandler(async (event) => {
   })
 
   return {
-    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
+    items: experiments.map(experiment => ({
+      ...mapExperimentToList(experiment as ExperimentIncorrectList),
+      signs: experiment.signs ?? [],
+    })),
     pagination: pageMeta,
   } as Page<ExperimentList>
 })

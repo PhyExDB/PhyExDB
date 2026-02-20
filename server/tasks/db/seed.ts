@@ -5,6 +5,7 @@ import LegalSeed from "~~/server/seeds/legal"
 import UserSeed from "~~/server/seeds/user"
 import { logger } from "~~/server/lib/loggers"
 import StartpageSeed from "~~/server/seeds/startpage"
+import SyncSignsSeed from "~~/server/seeds/syncSignsSeed"
 
 export default defineTask({
   meta: {
@@ -21,6 +22,7 @@ export default defineTask({
       new ExperimentAttributeSeed(),
       new ExperimentSeed(),
       new StartpageSeed(),
+      new SyncSignsSeed(),
     ]
 
     try {

@@ -1,13 +1,26 @@
-import type { Sign } from "~/types/sign"
-import { SIGNS } from "~/utils/constants/signs"
+export default defineEventHandler(async () => {
+  const signs = await prisma.sign.findMany({
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      iconPath: true,
+    },
+  })
 
-export default defineEventHandler(() =>
-  SIGNS.map(
-    (sign): Sign => ({
-      id: sign.filename.replace(/\s+/g, "_"),
-      name: sign.name,
-      type: sign.category.toUpperCase() as "WARNING" | "SAFETY",
-      iconPath: `/${sign.category}/${sign.filename}`,
-    }),
-  ),
-)
+  // Sort by type first (WARNING first, SAFETY second), then alphabetically by filename
+  const typeOrder = { WARNING: 0, SAFETY: 1 }
+
+  const sortedSigns = signs
+    .map(sign => ({
+      ...sign,
+      iconPath: `/${sign.type.toLowerCase()}/${sign.iconPath}`,
+    }))
+    .sort((a, b) => {
+      const typeDiff = typeOrder[a.type] - typeOrder[b.type]
+      if (typeDiff !== 0) return typeDiff
+      return a.iconPath.localeCompare(b.iconPath)
+    })
+
+  return sortedSigns
+})

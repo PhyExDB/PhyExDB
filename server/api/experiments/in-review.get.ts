@@ -9,6 +9,11 @@ export default defineEventHandler(async (event) => {
 
   const pageMeta = getPageMeta(event, totalExperiments)
 
+  const includeForReview = {
+    ...experimentIncludeForToList,
+    signs: true,
+  } as const
+
   const experiments = await prisma.experiment.findMany({
     ...getPaginationPrismaParam(pageMeta),
     where: {
@@ -17,7 +22,7 @@ export default defineEventHandler(async (event) => {
     orderBy: {
       createdAt: "asc",
     },
-    include: experimentIncludeForToList,
+    include: includeForReview,
   })
 
   return {

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { Sign } from "~/types/sign"
+
 const user = await useUser()
 
 const { experiment } = defineProps<{
@@ -46,6 +48,11 @@ const sectionImageStartIndices = computed(() => {
 function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
+}
+const getSignIconUrl = (sign: Sign) => {
+  if (sign.type === "WARNING") return `/warning/${sign.iconPath}`
+  if (sign.type === "SAFETY") return `/safety/${sign.iconPath}`
+  return `/${sign.iconPath}`
 }
 </script>
 
@@ -197,6 +204,66 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         class="text-muted-foreground"
       >
         Attribute noch nicht gesetzt
+      </div>
+    </Card>
+
+    <!-- Signs Preview -->
+    <Card class="px-4 py-2 space-y-4 shadow-lg mt-6">
+      <!-- No signs at all -->
+      <p
+        v-if="!experiment.signs?.length"
+        class="text-muted-foreground"
+      >
+        Keine Sicherheitszeichen gesetzt!
+      </p>
+      <!-- Warning Signs -->
+      <div v-if="experiment.signs.some(s => s.type === 'WARNING')">
+        <h3 class="text-lg font-semibold mb-2">
+          Warnzeichen
+        </h3>
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
+        >
+          <div
+            v-for="sign in experiment.signs.filter(s => s.type === 'WARNING')"
+            :key="sign.id"
+            class="flex flex-col items-center text-xs h-28 justify-between"
+          >
+            <div class="w-16 h-16 flex items-center justify-center">
+              <img
+                :src="getSignIconUrl(sign)"
+                :alt="sign.name"
+                class="max-w-full max-h-full object-contain"
+              >
+            </div>
+            <span class="text-center break-words min-h-[1.5rem] w-full">{{ sign.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safety Signs -->
+      <div v-if="experiment.signs.some(s => s.type === 'SAFETY')">
+        <h3 class="text-lg font-semibold mb-2 mt-4">
+          Schutzzeichen
+        </h3>
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
+        >
+          <div
+            v-for="sign in experiment.signs.filter(s => s.type === 'SAFETY')"
+            :key="sign.id"
+            class="flex flex-col items-center text-xs h-28 justify-between"
+          >
+            <div class="w-16 h-16 flex items-center justify-center">
+              <img
+                :src="getSignIconUrl(sign)"
+                :alt="sign.name"
+                class="max-w-full max-h-full object-contain"
+              >
+            </div>
+            <span class="text-center break-words min-h-[1.5rem] w-full">{{ sign.name }}</span>
+          </div>
+        </div>
       </div>
     </Card>
 
