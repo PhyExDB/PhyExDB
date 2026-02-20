@@ -8,6 +8,7 @@ import { Textarea } from "~~/app/components/ui/textarea"
 import { Button } from "~~/app/components/ui/button"
 import { experimentReportSchema } from "~~/server/schemas/experimentReportSchema"
 import { useToast } from "@/components/ui/toast/use-toast"
+import {useAuth} from "~/composables/useAuth";
 
 const { toast } = useToast()
 const loading = ref(false)
@@ -20,13 +21,10 @@ const form = useForm({
   initialValues: { message: "" },
 })
 
-const props = defineProps<{
-  experiment: Pick<ExperimentList, "id" | "userId" | "status">
-  comment: ExperimentComment
-  user: UserDetail | null
-}>()
+const { session } = useAuth()
 
-const user = props.user
+const result = await session
+const user = result.data.value?.user ?? null
 
 const onSubmit = form.handleSubmit(async (values) => {
   loading.value = true
@@ -62,7 +60,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     :open="open"
     @update:open="open = $event"
   >
-    <DialogTrigger as-child v-if="user">
+    <DialogTrigger v-if="user" as-child >
       <Button
         variant="outline"
         class="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
