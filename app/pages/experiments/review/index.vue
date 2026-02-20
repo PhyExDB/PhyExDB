@@ -48,19 +48,31 @@ watch([page, pageSize], () => {
           :to="`/experiments/review/${experiment.slug}`"
           class="no-underline"
         >
-          <Card class="mt-4">
+          <Card class="mt-4 hover:border-primary transition-colors">
             <CardContent class="p-4">
               <div class="flex items-center flex-col sm:flex-row justify-between">
-                <div class="flex items-center space-x-2">
-                  <p class="font-medium">
+                <div class="flex items-center space-x-3">
+                  <p class="font-medium text-lg">
                     {{ experiment.name }}
                   </p>
-                </div>
-                <div class="flex items-center space-x-2 pt-2 sm:pt-0">
-                  <Button
-                    variant="outline"
+                  <Badge
+                    v-if="experiment.completedReviewsCount === 1"
+                    variant="secondary"
+                    class="bg-blue-100 text-blue-700 border-blue-200"
                   >
-                    Überprüfen
+                    1/2 Bestätigungen
+                  </Badge>
+                  <Badge
+                    v-else
+                    variant="outline"
+                    class="text-muted-foreground"
+                  >
+                    Neu hinzugefügt
+                  </Badge>
+                </div>
+                <div class="flex items-center pt-2 sm:pt-0">
+                  <Button variant="outline">
+                    {{ experiment.completedReviewsCount === 1 ? 'Final prüfen' : 'Überprüfen' }}
                   </Button>
                 </div>
               </div>

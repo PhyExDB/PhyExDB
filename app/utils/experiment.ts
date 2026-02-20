@@ -33,6 +33,16 @@ export function badgeTitleForExperimentStatus(status: string) {
   }
 }
 
+export function badgeColorClass(status: string) {
+  const styles: Record<string, string> = {
+    DRAFT: "bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/20",
+    PUBLISHED: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20",
+    REJECTED: "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20",
+    IN_REVIEW: "bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20",
+  }
+  return styles[status] || "bg-muted text-muted-foreground"
+}
+
 /**
  * Asynchronously creates a new experiment by sending a POST request to the server.
  *

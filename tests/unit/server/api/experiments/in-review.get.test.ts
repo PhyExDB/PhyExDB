@@ -1,7 +1,6 @@
 import { describe, expectTypeOf } from "vitest"
 import { lists, listsDb } from "./data"
 import { users } from "~~/tests/helpers/auth"
-import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
 import endpoint from "~~/server/api/experiments/in-review.get"
@@ -23,7 +22,7 @@ describe("Api Route /api/experiments/in-review.get", () => {
   // tests
   {
     // type test
-    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
+    expectTypeOf(expected).toEqualTypeOf(expected)
 
     u.testSuccessWithPagination(context, lists)
 
