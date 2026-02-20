@@ -2,6 +2,41 @@ import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/prisma"
 import { experimentAbilities } from "~~/shared/utils/abilities"
 import { authorize } from "~~/server/utils/authorization"
 
+// Define a type for a sign
+type SignType = {
+  id: string
+  name: string
+  type: "WARNING" | "SAFETY"
+  iconPath: string
+}
+
+/**
+ * Sort experiment signs:
+ * 1. WARNING group: ghs-*, gas-* first, then w*
+ * 2. SAFETY group: m*
+ * 3. Numeric order inside each group
+ */
+function sortSigns(signs: SignType[]): SignType[] {
+  return [...signs].sort((a, b) => {
+    const pathA = a.iconPath ?? ""
+    const pathB = b.iconPath ?? ""
+
+    const getGroupPriority = (path: string): number => {
+      if (path.startsWith("ghs-") || path.startsWith("gas-")) return 1
+      if (path.startsWith("w")) return 2
+      if (path.startsWith("m")) return 3
+      return 99
+    }
+
+    const groupA = getGroupPriority(pathA)
+    const groupB = getGroupPriority(pathB)
+
+    if (groupA !== groupB) return groupA - groupB
+
+    return pathA.localeCompare(pathB, undefined, { numeric: true, sensitivity: "base" })
+  })
+}
+
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
@@ -14,9 +49,12 @@ export default defineEventHandler(async (event) => {
 
   await authorize(event, experimentAbilities.get, experiment)
 
+  const signs: SignType[] = (experiment.signs ?? []) as SignType[]
+  const sortedSigns = sortSigns(signs)
+
   return {
     ...mapExperimentToDetail(experiment as ExperimentIncorrectDetail),
-    signs: experiment.signs ?? [],
+    signs: sortedSigns,
   }
 })
 
