@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
+import { badgeColorClass } from "~/utils/experiment"
 
 const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   experiment: {
@@ -40,7 +41,10 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
         <p class="font-medium">
           {{ nameOrPlaceholderForExperiment(experiment) }}
         </p>
-        <Badge variant="secondary">
+        <Badge
+          variant="outline"
+          :class="[badgeColorClass(experiment.status), 'hover:bg-current hover:bg-opacity-10 transition-all']"
+        >
           {{ badgeTitleForExperimentStatus(experiment.status) }}
         </Badge>
       </div>

@@ -1,100 +1,59 @@
 <script lang="ts" setup>
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
+import type { PropType } from "vue"
 
-const { onDelete } = defineProps({
+const props = defineProps({
   onDelete: {
-    type: Function as PropType<(message: string) => Promise<void>>,
+    type: Function as PropType<() => Promise<void>>,
     required: true,
   },
 })
 
+const open = defineModel<boolean>("open", { default: false })
 const loading = ref(false)
-const open = ref(false)
 
-const schema = experimentReviewSchema
-const formSchema = toTypedSchema(schema)
-const form = useForm({
-  validationSchema: formSchema,
-  initialValues: {
-    approve: false,
-    message: "",
-  },
-})
-
-const onSubmit = form.handleSubmit(async (values) => {
+async function submit() {
   if (loading.value) return
   loading.value = true
 
-  if (values.message == undefined) return
-
-  await onDelete(values.message)
-
-  open.value = false
-  loading.value = false
-})
-
-const openForm = (event: boolean) => {
-  open.value = event
-  if (event) {
-    form.resetForm({
-      values: {
-        approve: false,
-        message: "",
-      },
-    })
+  try {
+    await props.onDelete()
+    open.value = false
+  } finally {
+    loading.value = false
   }
 }
 </script>
 
 <template>
   <Dialog
-    :open="open"
-    @update:open="openForm"
+    v-model:open="open"
   >
-    <DialogTrigger as-child>
-      <slot />
-    </DialogTrigger>
+    <slot />
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Versuch beanstanden</DialogTitle>
         <DialogDescription>
-          Beanstande den Versuch und gib einen Grund an.
+          Möchten Sie diesen Versuch wirklich beanstanden?
+          <br>
+          Die Beanstandungen werden gespeichert und dem Autor angezeigt.
         </DialogDescription>
       </DialogHeader>
-      <form
-        class="grid gap-4"
-        @submit="onSubmit"
-      >
-        <FormField
-          v-slot="{ componentField }"
-          name="message"
-        >
-          <FormItem>
-            <FormLabel>Begründung</FormLabel>
-            <FormControl>
-              <Textarea
-                id="name"
-                v-bind="componentField"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        </FormField>
-      </form>
       <DialogFooter class="flex flex-col sm:flex-row gap-2">
+        <DialogClose as-child>
+          <Button
+            type="button"
+            variant="outline"
+            :disabled="loading"
+          >
+            Abbrechen
+          </Button>
+        </DialogClose>
         <Button
-          type="submit"
-          @click="open = false"
-        >
-          Abbrechen
-        </Button>
-        <Button
-          type="submit"
           variant="destructive"
-          @click="onSubmit"
+          :disabled="loading"
+          @click="submit"
         >
-          Beanstanden
+          Beanstandung senden
         </Button>
       </DialogFooter>
     </DialogContent>
