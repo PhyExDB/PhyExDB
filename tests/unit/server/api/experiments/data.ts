@@ -10,6 +10,7 @@ export const lists: ExperimentList[] = [
     userId: users.user.id,
     status: "DRAFT",
     duration: 1,
+    completedReviewsCount: 0,
     favoriteNumberForSequence: undefined,
     isFavorited: false,
     attributes: [
@@ -50,6 +51,7 @@ export const lists: ExperimentList[] = [
     userId: users.user.id,
     status: "DRAFT",
     duration: 1,
+    completedReviewsCount: 0,
     favoriteNumberForSequence: undefined,
     isFavorited: false,
     attributes: [],
@@ -64,6 +66,8 @@ export const lists: ExperimentList[] = [
 /** A resource detail */
 export const detail: ExperimentDetail = {
   ...lists[0]!,
+  updatedAt: new Date().toISOString(),
+  reviews: [],
   sections: [{
     id: uuidv4(),
     text: "text",
@@ -76,6 +80,8 @@ export const detail: ExperimentDetail = {
     },
   }],
   changeRequest: undefined,
+  completedReviewsCount: 0,
+  alreadyReviewedByMe: false,
 }
 
 function attributesToDb(attributes: ExperimentList["attributes"]): ExperimentIncorrectList["attributes"] {
