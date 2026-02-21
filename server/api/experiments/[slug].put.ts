@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
     slugify(sanitizedExperimentData.name),
   )
 
-  return mapExperimentToDetail(updatedExperiment as ExperimentIncorrectDetail)
+  return mapExperimentToDetail(updatedExperiment as unknown as ExperimentIncorrectDetail)
 })
 
 defineRouteMeta({

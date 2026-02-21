@@ -120,12 +120,16 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    items: experiments.map(experiment => ({
-      ...mapExperimentToList(experiment as ExperimentIncorrectList),
-      signs: experiment.signs ?? [],
-      isFavorited: favoriteIds.includes(mapped.id), // Hier wird die Info gebündelt hinzugefügt
-      favoriteNumberForSequence: userFavorites.find(f => f.experimentId === mapped.id)?.numberForSequence,
-    })),
+    items: experiments.map((experiment) => {
+      const mappedExperiment = mapExperimentToList(experiment as unknown as ExperimentIncorrectList)
+
+      return {
+        ...mappedExperiment,
+        signs: experiment.signs ?? [],
+        isFavorited: favoriteIds.includes(mappedExperiment.id),
+        favoriteNumberForSequence: userFavorites.find(f => f.experimentId === mappedExperiment.id)?.numberForSequence,
+      }
+    }),
     pagination: pageMeta,
   }
 })

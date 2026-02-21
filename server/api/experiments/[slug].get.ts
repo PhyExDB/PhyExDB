@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
   const sortedSigns = sortSigns(signs)
 
   return {
-    ...mapExperimentToDetail(experiment as ExperimentIncorrectDetail),
+    ...mapExperimentToDetail(experiment as unknown as ExperimentIncorrectDetail),
     signs: sortedSigns,
     completedReviewsCount: currentRoundReviews.length,
     alreadyReviewedByMe: user ? currentRoundReviews.some(r => r.reviewerId === user.id) : false,
