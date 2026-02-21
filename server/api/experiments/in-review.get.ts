@@ -1,13 +1,23 @@
 export default defineEventHandler(async (event) => {
   await authorizeUser(event, experimentAbilities.review)
+  const user = await getUserOrThrowError(event)
 
-  const totalExperiments = await prisma.experiment.count({
+  const allExperiments = await prisma.experiment.findMany({
     where: {
       status: "IN_REVIEW",
+      userId: { not: user.id },
+    },
+    include: {
+      ...experimentIncludeForToList,
+      reviews: {
+        orderBy: { updatedAt: "desc" },
+        select: { reviewerId: true, updatedAt: true, status: true },
+      },
     },
   })
 
-  const pageMeta = getPageMeta(event, totalExperiments)
+  const filteredAndMapped = allExperiments.reduce<(ExperimentList & { completedReviewsCount: number })[]>((acc, exp) => {
+    const expTime = new Date(exp.updatedAt).getTime()
 
   const includeForReview = {
     ...experimentIncludeForToList,
@@ -24,11 +34,32 @@ export default defineEventHandler(async (event) => {
     },
     include: includeForReview,
   })
+    const currentRoundReviews = (exp.reviews || []).filter(r =>
+      r.status === "COMPLETED"
+      && new Date(r.updatedAt).getTime() >= expTime,
+    )
+
+    const alreadyParticipatedInThisRound = currentRoundReviews.some(r => r.reviewerId === user.id)
+
+    if (!alreadyParticipatedInThisRound) {
+      const mapped = mapExperimentToList(exp as ExperimentIncorrectList) as ExperimentList
+      acc.push({
+        ...mapped,
+        completedReviewsCount: currentRoundReviews.length,
+      })
+    }
+    return acc
+  }, [])
+
+  const total = filteredAndMapped.length
+  const pageMeta = getPageMeta(event, total)
+  const start = (pageMeta.page - 1) * pageMeta.pageSize
+  const paginatedItems = filteredAndMapped.slice(start, start + pageMeta.pageSize)
 
   return {
-    items: experiments.map(experiment => mapExperimentToList(experiment as ExperimentIncorrectList)),
+    items: paginatedItems,
     pagination: pageMeta,
-  } as Page<ExperimentList>
+  }
 })
 
 defineRouteMeta({
@@ -72,6 +103,7 @@ defineRouteMeta({
                           createdById: { type: "string" },
                           createdAt: { type: "string", format: "date-time" },
                           updatedAt: { type: "string", format: "date-time" },
+                          completedReviewsCount: { type: "integer" },
                         },
                       },
                       attributes: {

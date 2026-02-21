@@ -1,6 +1,7 @@
 import { z } from "zod"
 import type { FileList } from "./File.type"
 import type { Sign } from "~/types/sign"
+import type { ReviewSummary } from "#shared/types/Review.type"
 
 /**
  * ExperimentList
@@ -38,6 +39,11 @@ export interface ExperimentList extends SlugList {
    * The id of the experiment this experiment is revised by
    */
   revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "signs"> | undefined
+  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
+  /**
+   * The id of the experiment this experiment is revised by
+   */
+  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
 
   /**
    * The count of all ratings
@@ -51,6 +57,10 @@ export interface ExperimentList extends SlugList {
    * The signs associated with this experiment
    */
   signs: Sign[]
+  /**
+   * Count of completed reviews for current round
+   */
+  completedReviewsCount: number
   /*
     Is the expiment favorited?
   */
@@ -72,12 +82,16 @@ export interface ExperimentDetail extends ExperimentList {
    * The change request of the experiment, if any.
    */
   changeRequest: string | undefined
+
+  reviews: ReviewSummary[]
+  updatedAt: string | Date
+  alreadyReviewedByMe: boolean
 }
 
 /**
  * Experiment List object with attribute values instead of attributes
  */
-export interface ExperimentIncorrectList extends Omit<ExperimentList, "attributes"> {
+export interface ExperimentIncorrectList extends Omit<ExperimentList, "attributes" | "completedReviewsCount"> {
   /**
    * The attribute values associated with the experiment.
    */
@@ -91,7 +105,7 @@ export interface ExperimentIncorrectList extends Omit<ExperimentList, "attribute
 /**
  * Experiment Detail object with attribute values instead of attributes
  */
-export interface ExperimentIncorrectDetail extends Omit<ExperimentDetail, "attributes"> {
+export interface ExperimentIncorrectDetail extends Omit<ExperimentDetail, "attributes" | "completedReviewsCount" | "alreadyReviewedByMe"> {
   /**
    * The attribute values associated with the experiment.
    */
@@ -100,6 +114,9 @@ export interface ExperimentIncorrectDetail extends Omit<ExperimentDetail, "attri
    * Including signs for mapping
    */
   signs: Sign[]
+  // These are optional here so the DB object can be cast to this type
+  completedReviewsCount?: number
+  alreadyReviewedByMe?: boolean
 }
 
 /**
