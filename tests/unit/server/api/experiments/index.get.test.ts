@@ -8,12 +8,15 @@ import endpoint from "~~/server/api/experiments/index.get"
 
 describe("Api Route /api/experiments/index.get", () => {
   // definitions
-  const data = listsDb
-  const expected = u.page(lists)
+  const data = listsDb.map(exp => ({ ...exp, signs: [] }))
+  const expected = u.page(
+    lists.map(exp => ({ ...exp, signs: [] })),
+  )
 
   const context = u.getTestContext({
-    data, expected, endpoint,
-
+    data,
+    expected,
+    endpoint,
     user: users.guest,
   })
 

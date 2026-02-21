@@ -15,15 +15,29 @@ describe("Api Route api/experiments/ratings/[slug].put", () => {
   const expected = { ...data, ...body }
 
   const context = u.getTestContext({
-    data, expected, endpoint,
-
+    data,
+    expected,
+    endpoint,
     params: { slug: experiment.slug },
     body,
     user: users.user,
   })
 
   // mocks
-  u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
+  u.mockPrismaForSlugOrIdGet(
+    {
+      data: {
+        ...experiment,
+        signs: experiment.signs ?? [],
+        previewImage: experiment.previewImage ?? {
+          id: "dummy",
+          path: "dummy.png",
+          mimeType: "img/png",
+        },
+      },
+    },
+    "experiment",
+  )
   u.mockPrismaForPut(context, "rating",
     (where: { compoundId?: { experimentId?: string, userId?: string } }) =>
       where.compoundId?.experimentId === experiment.id

@@ -1,10 +1,16 @@
 import { ExperimentStatus } from "@prisma/client"
 import { getExperimentReadyForReviewSchema } from "~~/shared/types"
+import { transformExperimentToSchemaType } from "~~/shared/types/Experiment.type"
+import { authorize } from "~~/server/utils/authorization"
+import { getIdPrismaWhereClause } from "~~/server/utils/prisma"
 
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
     where: getIdPrismaWhereClause(event),
-    include: experimentIncludeForToDetail,
+    include: {
+      ...experimentIncludeForToDetail,
+      signs: true,
+    },
   })
 
   if (!experiment) {
