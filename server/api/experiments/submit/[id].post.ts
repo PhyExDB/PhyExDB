@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   const sections = await $fetch("/api/experiments/sections")
   const attributes = await $fetch("/api/experiments/attributes")
 
-  const experimentForReview = transformExperimentToSchemaType(mapExperimentToDetail(experiment as ExperimentIncorrectDetail), attributes)
+  const experimentForReview = transformExperimentToSchemaType(mapExperimentToDetail(experiment as unknown as ExperimentIncorrectDetail), attributes)
 
   const experimentReviewSchema = getExperimentReadyForReviewSchema(sections, attributes)
   await experimentReviewSchema.parseAsync(experimentForReview)
