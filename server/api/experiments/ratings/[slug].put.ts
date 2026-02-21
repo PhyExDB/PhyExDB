@@ -10,10 +10,7 @@ export default defineEventHandler(async (event) => {
   )
 
   const where = {
-    compoundId: {
-      experimentId: experiment.id,
-      userId: user.id,
-    },
+    compoundId: { userId: user.id, experimentId: experiment.id },
   }
 
   const { oldRating, rating } = await prisma.$transaction(async (prisma) => {

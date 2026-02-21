@@ -8,6 +8,7 @@ export const experiment = {
   slug: "slug",
   ratingsSum: 0,
   ratingsCount: 0,
+  signs: [],
 } as unknown as ExperimentList
 
 /**

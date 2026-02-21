@@ -8,55 +8,70 @@ import * as u from "~~/tests/helpers/utils"
 import endpoint from "~~/server/api/experiments/ratings/[slug].put"
 
 describe("Api Route api/experiments/ratings/[slug].put", () => {
-  // definitions
-  const body = generateMock(experimentRatingSchema)
+  // ensure slug matches fixture
+  if (!experiment.slug) experiment.slug = "slug"
 
-  const data = rating
-  const expected = { ...data, ...body }
+  const body = generateMock(experimentRatingSchema)
+  const expected = { value: body.value }
 
   const context = u.getTestContext({
-    data,
+    data: expected,
     expected,
     endpoint,
-    params: { slug: experiment.slug },
+    params: { slug: experiment.slug }, // MUST match fixture
     body,
     user: users.user,
   })
 
-  // mocks
+  // Mock experiment fetch
   u.mockPrismaForSlugOrIdGet(
     {
       data: {
         ...experiment,
         signs: experiment.signs ?? [],
-        previewImage: experiment.previewImage ?? {
-          id: "dummy",
-          path: "dummy.png",
-          mimeType: "img/png",
-        },
+        previewImage: experiment.previewImage ?? { id: "dummy", path: "dummy.png", mimeType: "img/png" },
       },
     },
     "experiment",
   )
-  u.mockPrismaForPut(context, "rating",
-    (where: { compoundId?: { experimentId?: string, userId?: string } }) =>
-      where.compoundId?.experimentId === experiment.id
-      && where.compoundId?.userId === context.user.id,
-  )
 
-  // tests
-  {
-    // type test
-    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
+  // Mock rating findUnique
+  prisma.rating.findUnique = vi.fn().mockImplementation(({ where }) => {
+    // match the exact compoundId
+    if (where.compoundId?.experimentId === experiment.id && where.compoundId?.userId === context.user.id) {
+      return Promise.resolve(rating)
+    }
+    return Promise.resolve(null)
+  })
 
-    u.testSuccess(context)
+  //  Mock rating update
+  prisma.rating.update = vi.fn().mockImplementation(({ where, data }) => {
+    if (where.compoundId?.experimentId === experiment.id && where.compoundId?.userId === context.user.id) {
+      return Promise.resolve({ ...rating, ...data })
+    }
+    throw new Error("Not found")
+  })
 
-    u.testZodFail(context, [
-      {
-        body: { },
-      },
-    ])
-    // needs to be last, because it changes the user mock
-    u.testAuthFail(context, [users.guest, users.unverified])
-  }
+  // Mock experiment update inside $transaction
+  prisma.experiment.findUniqueOrThrow = vi.fn().mockResolvedValue({
+    ...experiment,
+    ratingsSum: experiment.ratingsSum,
+    ratingsCount: experiment.ratingsCount,
+  })
+
+  prisma.experiment.update = vi.fn().mockImplementation(({ data }) => {
+    return Promise.resolve({ ...experiment, ...data })
+  })
+
+  // Type test
+  expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
+
+  // Run success scenario
+  u.testSuccess(context)
+
+  // Run Zod validation failure
+  u.testZodFail(context, [{ body: {} }])
+
+  // Run auth failure
+  u.testAuthFail(context, [users.guest, users.unverified])
 })

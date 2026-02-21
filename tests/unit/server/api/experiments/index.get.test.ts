@@ -7,10 +7,21 @@ import * as u from "~~/tests/helpers/utils"
 import endpoint from "~~/server/api/experiments/index.get"
 
 describe("Api Route /api/experiments/index.get", () => {
-  // definitions
-  const data = listsDb.map(exp => ({ ...exp, signs: [] }))
-  const expected = u.page(
-    lists.map(exp => ({ ...exp, signs: [] })),
+  type Result = EndpointResult<typeof endpoint>
+
+  const data = listsDb.map(exp => ({
+    ...exp,
+    signs: [],
+  }))
+
+  const expected: Result = u.page(
+    lists.map(exp => ({
+      ...exp,
+      previewImage: exp.previewImage ?? undefined,
+      signs: [] as Result["items"][number]["signs"],
+      isFavorited: false,
+      favoriteNumberForSequence: undefined,
+    })),
   )
 
   const context = u.getTestContext({
@@ -20,14 +31,9 @@ describe("Api Route /api/experiments/index.get", () => {
     user: users.guest,
   })
 
-  // mocks
   u.mockPrismaForGetAll(context, "experiment")
 
-  // tests
-  {
-    // type test
-    expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<typeof expected>()
+  expectTypeOf<Result>().toEqualTypeOf<typeof expected>()
 
-    u.testSuccessWithPagination(context, lists)
-  }
+  u.testSuccessWithPagination(context, lists)
 })
