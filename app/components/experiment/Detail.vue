@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Sign } from "~/types/sign"
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
+import type { Review } from "~~/shared/types/Review.type"
 
 const user = await useUser()
 
@@ -20,7 +21,10 @@ watch(
     if (!id || !experiment || !canReviewExperiments) return
 
     const reviewExperimentId = experiment.revisionOf?.id ?? id
-    const { data, error } = await useFetch(`/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`)
+
+    const { data, error } = await useFetch<Review[]>(
+      `/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`,
+    )
 
     if (!error.value) {
       reviews.value = data.value ?? []
