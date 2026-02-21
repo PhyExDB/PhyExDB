@@ -16,40 +16,29 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  const filteredAndMapped = allExperiments.reduce<(ExperimentList & { completedReviewsCount: number })[]>((acc, exp) => {
-    const expTime = new Date(exp.updatedAt).getTime()
+  const filteredAndMapped = allExperiments.reduce<
+    (ExperimentList & { completedReviewsCount: number })[]
+  >((acc, exp) => {
+        const expTime = new Date(exp.updatedAt).getTime()
 
-  const includeForReview = {
-    ...experimentIncludeForToList,
-    signs: true,
-  } as const
+        const currentRoundReviews = (exp.reviews || []).filter(r =>
+          r.status === "COMPLETED"
+          && new Date(r.updatedAt).getTime() >= expTime,
+        )
 
-  const experiments = await prisma.experiment.findMany({
-    ...getPaginationPrismaParam(pageMeta),
-    where: {
-      status: "IN_REVIEW",
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-    include: includeForReview,
-  })
-    const currentRoundReviews = (exp.reviews || []).filter(r =>
-      r.status === "COMPLETED"
-      && new Date(r.updatedAt).getTime() >= expTime,
-    )
+        const alreadyParticipatedInThisRound
+    = currentRoundReviews.some(r => r.reviewerId === user.id)
 
-    const alreadyParticipatedInThisRound = currentRoundReviews.some(r => r.reviewerId === user.id)
+        if (!alreadyParticipatedInThisRound) {
+          const mapped = mapExperimentToList(exp as unknown as ExperimentIncorrectList)
+          acc.push({
+            ...mapped,
+            completedReviewsCount: currentRoundReviews.length,
+          })
+        }
 
-    if (!alreadyParticipatedInThisRound) {
-      const mapped = mapExperimentToList(exp as ExperimentIncorrectList) as ExperimentList
-      acc.push({
-        ...mapped,
-        completedReviewsCount: currentRoundReviews.length,
-      })
-    }
-    return acc
-  }, [])
+        return acc
+      }, [])
 
   const total = filteredAndMapped.length
   const pageMeta = getPageMeta(event, total)

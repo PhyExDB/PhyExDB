@@ -82,6 +82,7 @@ const getSignIconUrl = (sign: Sign) => {
   if (sign.type === "WARNING") return `/warning/${sign.iconPath}`
   if (sign.type === "SAFETY") return `/safety/${sign.iconPath}`
   return `/${sign.iconPath}`
+}
 
 function getReviewsForSection(sectionId: string) {
   return reviews.value
