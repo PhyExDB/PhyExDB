@@ -103,7 +103,10 @@ export default defineEventHandler(async (event) => {
       ...attributeFilter,
       ...searchCondition,
     },
-    include: experimentIncludeForToList,
+    include: {
+      ...experimentIncludeForToList,
+      signs: true,
+    },
     orderBy: sortOption,
   })
 

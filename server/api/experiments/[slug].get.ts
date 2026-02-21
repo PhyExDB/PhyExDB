@@ -1,6 +1,8 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/prisma"
 
-// Define a type for a sign
+/**
+ * Sign type definition
+ */
 type SignType = {
   id: string
   name: string
@@ -41,6 +43,7 @@ export default defineEventHandler(async (event) => {
     where: getSlugOrIdPrismaWhereClause(event),
     include: {
       ...experimentIncludeForToDetail,
+      signs: true,
       reviews: {
         where: { status: "COMPLETED" },
         select: { reviewerId: true, updatedAt: true },
