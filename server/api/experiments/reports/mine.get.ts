@@ -1,5 +1,5 @@
 import {auth} from "~~/server/utils/auth";
-
+console.log("REPORT ENDPOINT HIT")
 export default defineEventHandler(async (event) => {
 
     const session = await auth.api.getSession({
@@ -10,18 +10,20 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 401, statusMessage: "Nicht authentifiziert" })
     }
 
+    const experiments = await prisma.experiment.findMany({
+        where: { userId: session.user.id },
+        select: { id: true }
+    });
+    const experimentIds = experiments.map(e => e.id);
 
     const reports = await prisma.report.findMany({
         where: {
-            experiment: {
-                userId: session.user.id,
-            }
+            experimentId: { in: experimentIds }
         },
-    })
-
-    if (reports.length === 0) {
-        return false
-    }
+        include: {
+            experiment: true
+        }
+    });
 
     return reports
 })
