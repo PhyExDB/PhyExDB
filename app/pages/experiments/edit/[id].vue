@@ -448,16 +448,12 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           </FormField>
         </template>
 
-        <h2 class="text-3xl font-semibold mt-4">
-          Sicherheitszeichen
-        </h2>
-        <!-- Sicherheitszeichen Section -->
         <FormField
           v-slot="{ componentField }"
           name="signs"
         >
           <FormItem>
-            <FormLabel>Wähle die Sicherheitszeichen aus:</FormLabel>
+            <FormLabel>Sicherheitszeichen</FormLabel>
             <FormControl>
               <SignGrid
                 :model-value="componentField.modelValue"
