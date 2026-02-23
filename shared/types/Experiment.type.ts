@@ -227,7 +227,7 @@ export function transformExperimentToSchemaType(
         valueIds: experimentAttribute?.values.map(value => value.id) ?? [],
       }
     }),
-    signs: experiment.signs.map(sign => ({
+    signs: (experiment.signs ?? []).map(sign => ({
       id: sign.id,
     })),
   }
