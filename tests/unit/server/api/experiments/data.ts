@@ -13,7 +13,6 @@ export const lists: ExperimentList[] = [
     completedReviewsCount: 0,
     favoriteNumberForSequence: undefined,
     isFavorited: false,
-    signs: [],
     attributes: [
       {
         id: uuidv4(),
@@ -55,7 +54,6 @@ export const lists: ExperimentList[] = [
     completedReviewsCount: 0,
     favoriteNumberForSequence: undefined,
     isFavorited: false,
-    signs: [],
     attributes: [],
     previewImage: undefined,
     revisedBy: undefined,

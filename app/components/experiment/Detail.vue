@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import type { Sign } from "~/types/sign"
+import type { Sign } from "~~/shared/types/Sign.type"
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
 import type { Review } from "~~/shared/types/Review.type"
+import { getSignIconUrl } from "~/utils/signs"
 
 const user = await useUser()
 
@@ -14,6 +15,14 @@ const { experiment } = defineProps<{
 const reviews = ref<Review[]>([])
 
 const canReviewExperiments = await allows(experimentAbilities.review)
+
+const warningSigns = computed(() =>
+  (experiment?.signs ?? []).filter((s: Sign) => s.type === "WARNING"),
+)
+
+const safetySigns = computed(() =>
+  (experiment?.signs ?? []).filter((s: Sign) => s.type === "SAFETY"),
+)
 
 watch(
   () => experiment?.id,
@@ -81,11 +90,6 @@ const sectionImageStartIndices = computed(() => {
 function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
-}
-const getSignIconUrl = (sign: Sign) => {
-  if (sign.type === "WARNING") return `/warning/${sign.iconPath}`
-  if (sign.type === "SAFETY") return `/safety/${sign.iconPath}`
-  return `/${sign.iconPath}`
 }
 
 function getReviewsForSection(sectionId: string) {
@@ -284,7 +288,7 @@ function formatDate(dateString: string | Date) {
           class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
         >
           <div
-            v-for="sign in experiment.signs.filter(s => s.type === 'WARNING')"
+            v-for="sign in warningSigns"
             :key="sign.id"
             class="flex flex-col items-center text-xs h-28 justify-between"
           >
@@ -309,7 +313,7 @@ function formatDate(dateString: string | Date) {
           class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
         >
           <div
-            v-for="sign in experiment.signs.filter(s => s.type === 'SAFETY')"
+            v-for="sign in safetySigns"
             :key="sign.id"
             class="flex flex-col items-center text-xs h-28 justify-between"
           >

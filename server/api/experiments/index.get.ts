@@ -122,19 +122,17 @@ export default defineEventHandler(async (event) => {
     favoriteIds = userFavorites.map(f => f.experimentId)
   }
 
-  return {
-    items: experiments.map((experiment) => {
-      const mappedExperiment = mapExperimentToList(experiment as unknown as ExperimentIncorrectList)
+  const items = experiments.map((experiment) => {
+    const mapped = mapExperimentToList(experiment)
 
-      return {
-        ...mappedExperiment,
-        signs: experiment.signs ?? [],
-        isFavorited: favoriteIds.includes(mappedExperiment.id),
-        favoriteNumberForSequence: userFavorites.find(f => f.experimentId === mappedExperiment.id)?.numberForSequence,
-      }
-    }),
-    pagination: pageMeta,
-  }
+    return {
+      ...mapped,
+      isFavorited: favoriteIds.includes(mapped.id),
+      favoriteNumberForSequence: userFavorites.find(f => f.experimentId === mapped.id)?.numberForSequence,
+    }
+  })
+
+  return { items, pagination: pageMeta }
 })
 
 defineRouteMeta({

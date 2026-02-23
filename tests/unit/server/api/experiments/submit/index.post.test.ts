@@ -15,7 +15,6 @@ describe("Api Route /api/experiments/submit/[id].post", () => {
     ...detailDb,
     sections: [],
     attributes: [],
-    signs: [],
   }
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   const expected: void = undefined

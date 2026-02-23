@@ -90,7 +90,6 @@ model Experiment {
   changeRequest  String?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
-
   reviews        Review[]
   Favorite       Favorite[]
 }
@@ -127,7 +126,6 @@ enum SignType {
   WARNING
   SAFETY
 }
-
 
 model ExperimentSection {
   id          String                     @id @default(uuid())

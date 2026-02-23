@@ -1,6 +1,7 @@
 <script setup lang='ts'>
-import type { Sign } from "~/types/sign"
+import type { Sign } from "~~/shared/types/Sign.type"
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
+import { getSignIconUrl } from "~/utils/signs"
 
 const route = useRoute()
 const user = await useUser()
@@ -29,18 +30,6 @@ function getPreviewSigns(signs: Sign[]) {
 
 function hasMoreSigns(signs: Sign[]) {
   return signs.length > SIGN_PREVIEW_LIMIT
-}
-
-function getSignIconUrl(sign: Sign) {
-  if (sign.iconPath.includes("/")) {
-    return "/" + sign.iconPath
-  }
-
-  // Fallback if only filename is stored
-  if (sign.type === "WARNING") return `/warning/${sign.iconPath}`
-  if (sign.type === "SAFETY") return `/safety/${sign.iconPath}`
-
-  return "/" + sign.iconPath
 }
 
 const isLoading = ref(false)

@@ -8,13 +8,12 @@ import endpoint from "~~/server/api/experiments/[slug].get"
 
 describe("Api Route /api/experiments/[slug].get", () => {
   // definitions
-  const data = { ...detailDb, signs: [] }
-  const expected = { ...detail, signs: [] }
+  const data = detailDb
+  const expected = detail
 
   const context = u.getTestContext({
-    data,
-    expected,
-    endpoint,
+    data, expected, endpoint,
+
     params: { slug: data.slug },
     user: users.user,
   })

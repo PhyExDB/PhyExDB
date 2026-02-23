@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import type { Sign } from "~/types/sign"
+import type { Sign } from "~~/shared/types/Sign.type"
+
+type SignRef = { id: string }
 
 /**
  * Props for SignGrid component.
  */
 const props = defineProps<{
-  modelValue: Sign[]
+  modelValue: SignRef[]
   availableSigns: Sign[] | undefined
 }>()
 

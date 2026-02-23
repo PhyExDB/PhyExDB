@@ -1,4 +1,43 @@
 import type { Prisma } from "@prisma/client"
+/**
+ * Reusable includes
+ */
+export const experimentSignsInclude = {
+  select: {
+    id: true,
+    name: true,
+    type: true,
+    iconPath: true,
+  },
+} satisfies Prisma.ExperimentInclude["signs"]
+
+export const experimentAttributesInclude = {
+  orderBy: [
+    {
+      attribute: {
+        order: "asc" as Prisma.SortOrder,
+      },
+    },
+    {
+      value: "asc" as Prisma.SortOrder,
+    },
+  ],
+  select: {
+    id: true,
+    slug: true,
+    value: true,
+    order: true,
+    attribute: {
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        order: true,
+        multipleSelection: true,
+      },
+    },
+  },
+} satisfies Prisma.ExperimentInclude["attributes"]
 
 /**
  * Configuration object for selecting specific attributes and their nested properties
@@ -6,36 +45,11 @@ import type { Prisma } from "@prisma/client"
  */
 export const experimentIncludeForToList = {
   previewImage: true,
-  attributes: {
-    orderBy: [
-      {
-        attribute: {
-          order: "asc" as Prisma.SortOrder,
-        },
-      },
-      {
-        value: "asc" as Prisma.SortOrder,
-      },
-    ],
-    select: {
-      id: true,
-      slug: true,
-      value: true,
-      attribute: {
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          order: true,
-          multipleSelection: true,
-        },
-      },
-    },
-  },
+  attributes: experimentAttributesInclude,
   revisionOf: true,
   revisedBy: true,
-  signs: true,
-}
+  signs: experimentSignsInclude,
+} satisfies Prisma.ExperimentInclude
 
 /**
  * Configuration object for selecting specific attributes and their nested properties
@@ -80,41 +94,73 @@ export const experimentIncludeForToDetail = {
       },
     },
   },
-}
+} satisfies Prisma.ExperimentInclude
+
+/**
+ * Prisma payload types
+ */
+export type ExperimentListPrismaPayload =
+  Prisma.ExperimentGetPayload<{
+    include: typeof experimentIncludeForToList
+  }>
+
+export type ExperimentDetailPrismaPayload =
+  Prisma.ExperimentGetPayload<{
+    include: typeof experimentIncludeForToDetail
+  }>
 
 /**
  * Maps the attributes of an experiment to conform to the experiment detail type.
  */
-export function mapExperimentToList(experiment: ExperimentIncorrectList): ExperimentList {
-  const experimentAttributes = experiment.attributes.map((attributeValue) => {
-    const { attribute, ...value } = attributeValue
-    return {
+export function mapExperimentToList(
+  experiment: ExperimentListPrismaPayload): ExperimentList {
+  const attributes = experiment.attributes
+    .map(({ attribute, ...value }) => ({
       ...attribute,
       values: [value],
-    }
-  }).reduce((acc, attribute) => {
-    const existingAttribute = acc.find(a => a.id === attribute.id)
-    if (existingAttribute) {
-      existingAttribute.values.push(...attribute.values)
-    } else {
-      acc.push(attribute)
-    }
-    return acc
-  }, [] as ExperimentAttributeDetail[])
+    }))
+    .reduce((acc, attribute) => {
+      const existing = acc.find(a => a.id === attribute.id)
+      if (existing) existing.values.push(...attribute.values)
+      else acc.push(attribute)
+      return acc
+    }, [] as ExperimentAttributeDetail[])
 
   return {
     ...experiment,
-    attributes: experimentAttributes,
-  } as ExperimentDetail
+    attributes,
+    completedReviewsCount: 0,
+    previewImage: experiment.previewImage ?? undefined,
+    revisionOf: experiment.revisionOf ?? undefined,
+    revisedBy: experiment.revisedBy ?? undefined,
+  }
 }
 
 /**
  * Maps the attributes of an experiment to conform to the experiment detail type.
  */
-export function mapExperimentToDetail(experiment: ExperimentIncorrectDetail): ExperimentDetail {
-  const listObject = mapExperimentToList(experiment)
+export function mapExperimentToDetail(
+  experiment: ExperimentDetailPrismaPayload): ExperimentDetail {
+  const listMapped = mapExperimentToList(experiment)
+
   return {
     ...experiment,
-    ...listObject,
-  } as ExperimentDetail
+    ...listMapped,
+    previewImage: experiment.previewImage ?? undefined,
+
+    sections: experiment.sections.map(section => ({
+      id: section.id,
+      text: section.text,
+      experimentSection: section.experimentSection,
+      files: section.files.map(file => ({
+        id: file.id,
+        order: file.order,
+        description: file.description ?? undefined,
+        file: file.file,
+      })),
+    })),
+    reviews: [],
+    alreadyReviewedByMe: false,
+    changeRequest: experiment.changeRequest ?? undefined,
+  }
 }

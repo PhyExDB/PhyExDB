@@ -3,7 +3,7 @@ import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
 import FormControl from "~/components/ui/form/FormControl.vue"
-import type { Sign } from "~/types/sign"
+import type { Sign } from "~~/shared/types/Sign.type"
 import SignGrid from "~/components/signs/SignGrid.vue"
 
 const user = await useUser()

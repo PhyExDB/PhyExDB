@@ -1,6 +1,6 @@
 import { z } from "zod"
 import type { FileList } from "./File.type"
-import type { Sign } from "~/types/sign"
+import type { Sign } from "./Sign.type"
 import type { ReviewSummary } from "#shared/types/Review.type"
 
 /**
@@ -34,16 +34,11 @@ export interface ExperimentList extends SlugList {
   /**
    * The id of the experiment this experiment revises
    */
-  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "signs"> | undefined
+  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount" | "signs"> | undefined
   /**
    * The id of the experiment this experiment is revised by
    */
-  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "signs"> | undefined
-  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
-  /**
-   * The id of the experiment this experiment is revised by
-   */
-  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
+  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount" | "signs"> | undefined
 
   /**
    * The count of all ratings

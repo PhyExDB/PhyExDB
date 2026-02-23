@@ -53,6 +53,9 @@ export default defineEventHandler(async (event) => {
 
   if (!experiment) throw createError({ status: 404, message: "Experiment not found!" })
 
+  // Map to type-safe domain object
+  const experimentDetail = mapExperimentToDetail(experiment)
+
   const currentRoundReviews = experiment.reviews.filter(r =>
     new Date(r.updatedAt).getTime() >= new Date(experiment.updatedAt).getTime(),
   )
@@ -61,7 +64,7 @@ export default defineEventHandler(async (event) => {
   const sortedSigns = sortSigns(signs)
 
   return {
-    ...mapExperimentToDetail(experiment as unknown as ExperimentIncorrectDetail),
+    ...experimentDetail,
     signs: sortedSigns,
     completedReviewsCount: currentRoundReviews.length,
     alreadyReviewedByMe: user ? currentRoundReviews.some(r => r.reviewerId === user.id) : false,

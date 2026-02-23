@@ -3,35 +3,27 @@ export default defineEventHandler(async (event) => {
 
   const content = await readValidatedBody(event, experimentRatingSchema.parse)
 
-  const slug = getRouterParam(event, "slug")!
-
   const experiment = await nullTo404(async () =>
-    prisma.experiment.findFirst({
-      where: {
-        OR: [
-          { id: slug },
-          { slug },
-        ],
-      },
+    await prisma.experiment.findFirst({
+      where: getSlugOrIdPrismaWhereClause(event),
     }),
   )
 
-  const ratingWhere = {
+  const where = {
     compoundId: {
       experimentId: experiment.id,
       userId: user.id,
     },
   }
 
-  const { oldRating, rating } = await prisma.$transaction(async (tx) => {
+  const { oldRating, rating } = await prisma.$transaction(async (prisma) => {
     const oldRating = await nullTo404(async () =>
-      tx.rating.findUnique({
-        where: ratingWhere,
+      await prisma.rating.findUnique({
+        where,
       }),
     )
-
-    const rating = await tx.rating.update({
-      where: ratingWhere,
+    const rating = await prisma.rating.update({
+      where,
       data: {
         value: content.value,
       },
@@ -40,24 +32,14 @@ export default defineEventHandler(async (event) => {
     return { oldRating, rating }
   })
 
-  await prisma.$transaction(async (tx) => {
-    const experimentWhere = { id: experiment.id }
-
-    const exp = await tx.experiment.findUnique({
-      where: experimentWhere,
-    })
-
-    if (!exp) {
-      throw createError({ statusCode: 404, statusMessage: "Not found" })
-    }
-
-    const newSum = exp.ratingsSum + content.value - oldRating.value
-
-    await tx.experiment.update({
-      where: experimentWhere,
+  prisma.$transaction(async (prisma) => {
+    const where = { id: experiment.id }
+    const exp = await prisma.experiment.findUniqueOrThrow({ where })
+    await prisma.experiment.update({
+      where,
       data: {
-        ratingsSum: newSum,
-        ratingsAvg: newSum / exp.ratingsCount,
+        ratingsSum: exp.ratingsSum + content.value - oldRating.value,
+        ratingsAvg: (exp.ratingsSum + content.value - oldRating.value) / (exp.ratingsCount),
       },
     })
   })
