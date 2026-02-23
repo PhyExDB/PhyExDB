@@ -1,5 +1,5 @@
 import Seed from "./seed"
-import { prisma } from "~~/server/utils/prisma"
+import prisma from "~~/server/lib/prisma"
 import { SIGNS } from "~~/app/utils/constants/signs"
 
 /**

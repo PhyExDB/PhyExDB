@@ -17,7 +17,14 @@ const { page, pageSize } = getRequestPageMeta()
 const SIGN_PREVIEW_LIMIT = 6
 
 function getPreviewSigns(signs: Sign[]) {
-  return signs.slice(0, SIGN_PREVIEW_LIMIT)
+  return [...signs]
+    .sort((a, b) => {
+      if (a.type !== b.type) {
+        return a.type === "WARNING" ? -1 : 1
+      }
+      return a.iconPath.localeCompare(b.iconPath)
+    })
+    .slice(0, SIGN_PREVIEW_LIMIT)
 }
 
 function hasMoreSigns(signs: Sign[]) {
