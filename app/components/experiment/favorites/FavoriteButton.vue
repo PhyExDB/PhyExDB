@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { toast } from "~/components/ui/toast"
+
 const props = defineProps<{
   experimentId: string
   isFavoritedInitial: boolean
@@ -10,12 +12,26 @@ syncFavoriteState(props.experimentId, props.isFavoritedInitial)
 
 const isFavorited = computed(() => favoriteState.value[props.experimentId] ?? props.isFavoritedInitial)
 const isLoading = ref(false)
+const canRate = await allows(experimentAbilities.rate)
 
 async function handleToggle() {
+  if (!canRate.value) {
+    toast({
+      title: "Anmeldung erforderlich",
+      description: "Bitte logge dich ein, um Favoriten zu speichern.",
+      variant: "destructive",
+    })
+    return navigateTo("/login")
+  }
+
   if (isLoading.value) return
   isLoading.value = true
-  await toggleFavorite(props.experimentId)
-  isLoading.value = false
+
+  try {
+    await toggleFavorite(props.experimentId)
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
