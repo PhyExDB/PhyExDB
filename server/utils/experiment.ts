@@ -94,6 +94,12 @@ export const experimentIncludeForToDetail = {
       },
     },
   },
+  reviews: {
+    select: {
+      reviewerId: true,
+      updatedAt: true,
+    },
+  },
 } satisfies Prisma.ExperimentInclude
 
 /**
