@@ -21,6 +21,7 @@ export const experimentIncludeForToList = {
       id: true,
       slug: true,
       value: true,
+      order: true,
       attribute: {
         select: {
           id: true,
@@ -77,6 +78,12 @@ export const experimentIncludeForToDetail = {
           order: true,
         },
       },
+    },
+  },
+  reviews: {
+    select: {
+      reviewerId: true,
+      updatedAt: true,
     },
   },
 }
