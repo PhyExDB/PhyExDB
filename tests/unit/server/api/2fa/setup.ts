@@ -11,6 +11,31 @@ import { users } from "~~/tests/helpers/auth"
  */
 import * as u from "~~/tests/helpers/utils"
 
+import prisma from "~~/server/lib/prisma"
+
+vi.mock("~~/server/lib/prisma", () => {
+  const prisma = {
+    user: {
+      findUnique: vi.fn(),
+      update: vi.fn(),
+    },
+    experiment: {
+      findUnique: vi.fn(),
+      findUniqueOrThrow: vi.fn(),
+      update: vi.fn(),
+    },
+    rating: {
+      findUnique: vi.fn(),
+      update: vi.fn(),
+    },
+    $transaction: vi.fn(async (callback: any) => {
+      return callback(prisma)
+    }),
+  }
+
+  return { default: prisma }
+})
+
 /**
  * Common mock functions - initialized as empty vi.fn()
  * Their behavior can be customized in beforeEach of individual tests

@@ -7,6 +7,16 @@ import * as u from "~~/tests/helpers/utils"
 
 import endpoint from "~~/server/api/2fa/status.get"
 
+import prisma from "~~/server/lib/prisma"
+
+vi.mock("~~/server/lib/prisma", () => ({
+  default: {
+    user: {
+      findUnique: vi.fn(),
+    },
+  },
+}))
+
 setupH3Mocks()
 setupAuthMocks()
 setupTwofaMocks()
