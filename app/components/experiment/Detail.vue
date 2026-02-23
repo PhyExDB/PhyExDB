@@ -81,14 +81,14 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
 
 function getReviewsForSection(sectionId: string) {
   return reviews.value
-      .filter(review =>
-          review.sectionsCritiques?.some(c => c.sectionContent?.experimentSection?.id === sectionId),
-      )
-      .map(review => ({
-        ...review,
-        critiques: (review.sectionsCritiques ?? []).filter(c => c.sectionContent?.experimentSection?.id === sectionId),
-      }))
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .filter(review =>
+      review.sectionsCritiques?.some(c => c.sectionContent?.experimentSection?.id === sectionId),
+    )
+    .map(review => ({
+      ...review,
+      critiques: (review.sectionsCritiques ?? []).filter(c => c.sectionContent?.experimentSection?.id === sectionId),
+    }))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 }
 
 function formatDate(dateString: string | Date) {
