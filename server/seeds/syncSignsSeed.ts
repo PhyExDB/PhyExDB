@@ -1,6 +1,6 @@
 import Seed from "./seed"
 import prisma from "~~/server/lib/prisma"
-import { SIGNS } from "~~/app/utils/constants/signs"
+import { SIGNS } from "~~/server/constants/signs"
 
 /**
  * Seeds the databse with safety and warning seeds

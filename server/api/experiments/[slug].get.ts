@@ -1,41 +1,5 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/prisma"
-
-/**
- * Sign type definition
- */
-type SignType = {
-  id: string
-  name: string
-  type: "WARNING" | "SAFETY"
-  iconPath: string
-}
-
-/**
- * Sort experiment signs:
- * 1. WARNING group: ghs-*, gas-* first, then w*
- * 2. SAFETY group: m*
- * 3. Numeric order inside each group
- */
-function sortSigns(signs: SignType[]): SignType[] {
-  return [...signs].sort((a, b) => {
-    const pathA = a.iconPath ?? ""
-    const pathB = b.iconPath ?? ""
-
-    const getGroupPriority = (path: string): number => {
-      if (path.startsWith("ghs-") || path.startsWith("gas-")) return 1
-      if (path.startsWith("w")) return 2
-      if (path.startsWith("m")) return 3
-      return 99
-    }
-
-    const groupA = getGroupPriority(pathA)
-    const groupB = getGroupPriority(pathB)
-
-    if (groupA !== groupB) return groupA - groupB
-
-    return pathA.localeCompare(pathB, undefined, { numeric: true, sensitivity: "base" })
-  })
-}
+import { sortSigns } from "~~/server/utils/sign"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
@@ -59,8 +23,7 @@ export default defineEventHandler(async (event) => {
     new Date(r.updatedAt).getTime() >= new Date(experiment.updatedAt).getTime(),
   )
 
-  const signs: SignType[] = (experiment.signs ?? []) as SignType[]
-  const sortedSigns = sortSigns(signs)
+  const sortedSigns = experiment.signs ? sortSigns(experiment.signs) : []
 
   return {
     ...experimentDetail,
