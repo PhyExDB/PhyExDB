@@ -265,4 +265,5 @@ model Report {
   experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
   createdAt    DateTime   @default(now())
+  seenByOwner  Boolean    @default(false)
 }

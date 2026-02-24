@@ -6,9 +6,15 @@ const user = await useUser()
 
 const { data } = await useAuth().session
 
-if(user && data.value?.user){
-  checkNewReports()
-}
+watch(
+    () => data.value?.user,
+    (newUser) => {
+      if (newUser) {
+        checkNewReports()
+      }
+    },
+    { immediate: true }
+)
 
 type ReportWithExperiment = Prisma.ReportGetPayload<{
   include: { experiment: true }
@@ -27,6 +33,11 @@ async function checkNewReports() {
       newReports.value = reports
       console.log("Gesetztes Array:", newReports.value)
       showReportsPopup.value = true
+
+      await $fetch('/api/experiments/reports/mark-seen', {
+        method: 'POST',
+        body: { reportsIds: reports.map(r => r.id) }
+      })
     }
   } catch(err) {
     console.error("Fehler beim Abrufen der Reports:", err)

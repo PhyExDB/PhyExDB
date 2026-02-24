@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
 
     const reports = await prisma.report.findMany({
         where: {
-            experimentId: { in: experimentIds }
+            experiment: {
+                userId: session.user.id
+            },
+            seenByOwner: false
         },
         include: {
             experiment: true
