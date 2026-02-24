@@ -43,7 +43,6 @@ export default defineEventHandler(async (event) => {
     where: getSlugOrIdPrismaWhereClause(event),
     include: {
       ...experimentIncludeForToDetail,
-      signs: true,
       reviews: {
         where: { status: "COMPLETED" },
         select: { reviewerId: true, updatedAt: true },

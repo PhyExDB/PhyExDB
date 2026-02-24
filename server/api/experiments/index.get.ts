@@ -105,7 +105,6 @@ export default defineEventHandler(async (event) => {
     },
     include: {
       ...experimentIncludeForToList,
-      signs: true,
     },
     orderBy: sortOption,
   })
