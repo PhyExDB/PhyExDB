@@ -5,18 +5,18 @@ import type { Sign } from "~~/shared/types/Sign.type"
  * Works for WARNING and SAFETY types.
  */
 export function getSignIconUrl(sign: Sign): string {
-  // If iconPath is already a relative path or contains folders, use as-is
-  if (sign.iconPath.includes("/")) {
-    return "/" + sign.iconPath
+  let path = sign.iconPath
+
+  if (!path.includes("/")) {
+    switch (sign.type) {
+      case "WARNING":
+        path = `warning/${path}`
+        break
+      case "SAFETY":
+        path = `safety/${path}`
+        break
+    }
   }
 
-  // Map by type
-  switch (sign.type) {
-    case "WARNING":
-      return `/warning/${sign.iconPath}`
-    case "SAFETY":
-      return `/safety/${sign.iconPath}`
-    default:
-      return `/${sign.iconPath}`
-  }
+  return `/${path.replace(/^\/+/, "")}`
 }
