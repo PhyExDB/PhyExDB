@@ -227,7 +227,7 @@ function getServerFileName(path: string) {
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            v-else-if="user.id === experiment.userId && experiment.status === 'DRAFT' || experiment.status === 'REJECTED'"
+            v-else-if="user.id === experiment.userId && (experiment.status === 'DRAFT' || experiment.status === 'REJECTED')"
           >
             <NuxtLink
               :to="`/experiments/edit/${experiment.id}`"
