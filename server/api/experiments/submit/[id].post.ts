@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
     where: getIdPrismaWhereClause(event),
     include: {
       ...experimentIncludeForToDetail,
-      signs: true,
     },
   })
 
