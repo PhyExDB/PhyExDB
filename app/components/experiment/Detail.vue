@@ -1,5 +1,9 @@
 <script lang="ts" setup>
+import type { Sign } from "~~/shared/types/Sign.type"
+import type { LightboxSection } from "~/components/ui/carousel/interface"
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
+import type { Review } from "~~/shared/types/Review.type"
+import { getSignIconUrl } from "~/utils/signs"
 
 const user = await useUser()
 
@@ -13,13 +17,24 @@ const reviews = ref<Review[]>([])
 
 const canReviewExperiments = await allows(experimentAbilities.review)
 
+const warningSigns = computed(() =>
+  (experiment?.signs ?? []).filter((s: Sign) => s.type === "WARNING"),
+)
+
+const safetySigns = computed(() =>
+  (experiment?.signs ?? []).filter((s: Sign) => s.type === "SAFETY"),
+)
+
 watch(
   () => experiment?.id,
   async (id) => {
     if (!id || !experiment || !canReviewExperiments) return
 
     const reviewExperimentId = experiment.revisionOf?.id ?? id
-    const { data, error } = await useFetch(`/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`)
+
+    const { data, error } = await useFetch<Review[]>(
+      `/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`,
+    )
 
     if (!error.value) {
       reviews.value = data.value ?? []
@@ -98,6 +113,53 @@ function formatDate(dateString: string | Date) {
     hour: "2-digit",
     minute: "2-digit",
   })
+}
+
+const activeLightboxIndex = ref<number | null>(null)
+const activeSectionForLightbox = ref<LightboxSection | null>(null)
+
+function openLightbox(section: LightboxSection, index: number) {
+  activeSectionForLightbox.value = section
+  activeLightboxIndex.value = index
+  document.body.style.overflow = "hidden"
+}
+
+function openPreviewLightbox() {
+  if (!experiment?.previewImage) return
+  activeSectionForLightbox.value = {
+    id: "preview",
+    isPreview: true,
+    files: [{ file: experiment.previewImage, description: "" }],
+  }
+  activeLightboxIndex.value = 0
+  document.body.style.overflow = "hidden"
+}
+
+function closeLightbox() {
+  activeLightboxIndex.value = null
+  activeSectionForLightbox.value = null
+  document.body.style.overflow = "auto"
+}
+
+async function downloadFile(url: string) {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = blobUrl
+    link.download = getServerFileName(url)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(blobUrl)
+  } catch (error) {
+    console.error("Download failed", error)
+  }
+}
+
+function getServerFileName(path: string) {
+  return path.split("/").pop() || "download"
 }
 </script>
 
@@ -179,7 +241,7 @@ function formatDate(dateString: string | Date) {
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            v-else-if="user.id === experiment.userId && experiment.status === 'DRAFT' || experiment.status === 'REJECTED'"
+            v-else-if="user.id === experiment.userId && (experiment.status === 'DRAFT' || experiment.status === 'REJECTED')"
           >
             <NuxtLink
               :to="`/experiments/edit/${experiment.id}`"
@@ -214,6 +276,7 @@ function formatDate(dateString: string | Date) {
     <Card
       v-if="experiment.previewImage"
       class="flex justify-center shadow-md max-h-200"
+      @click="openPreviewLightbox"
     >
       <NuxtPicture
         format="webp,avif"
@@ -256,6 +319,66 @@ function formatDate(dateString: string | Date) {
       </div>
     </Card>
 
+    <!-- Signs Preview -->
+    <Card class="px-4 py-2 space-y-4 shadow-lg mt-6">
+      <!-- No signs at all -->
+      <p
+        v-if="!experiment.signs?.length"
+        class="text-muted-foreground"
+      >
+        Keine Sicherheitszeichen gesetzt!
+      </p>
+      <!-- Warning Signs -->
+      <div v-if="experiment.signs.some(s => s.type === 'WARNING')">
+        <h3 class="text-lg font-semibold mb-2">
+          Warnzeichen
+        </h3>
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
+        >
+          <div
+            v-for="sign in warningSigns"
+            :key="sign.id"
+            class="flex flex-col items-center text-xs h-28 justify-between"
+          >
+            <div class="w-16 h-16 flex items-center justify-center">
+              <img
+                :src="getSignIconUrl(sign)"
+                :alt="sign.name"
+                class="max-w-full max-h-full object-contain"
+              >
+            </div>
+            <span class="text-center break-words min-h-[1.5rem] w-full">{{ sign.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safety Signs -->
+      <div v-if="experiment.signs.some(s => s.type === 'SAFETY')">
+        <h3 class="text-lg font-semibold mb-2 mt-4">
+          Schutzzeichen
+        </h3>
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
+        >
+          <div
+            v-for="sign in safetySigns"
+            :key="sign.id"
+            class="flex flex-col items-center text-xs h-28 justify-between"
+          >
+            <div class="w-16 h-16 flex items-center justify-center">
+              <img
+                :src="getSignIconUrl(sign)"
+                :alt="sign.name"
+                class="max-w-full max-h-full object-contain"
+              >
+            </div>
+            <span class="text-center break-words min-h-[1.5rem] w-full">{{ sign.name }}</span>
+          </div>
+        </div>
+      </div>
+    </Card>
+
     <!-- Sections with Files -->
     <div
       v-if="experiment.sections?.length"
@@ -290,7 +413,7 @@ function formatDate(dateString: string | Date) {
           <!-- Main Carousel Item -->
           <template #item="{ item, index }">
             <Card>
-              <CardContent class="h-80 flex items-center justify-center p-0">
+              <CardContent class="h-80 flex items-center justify-center p-0 relative overflow-hidden rounded-t-lg">
                 <!-- Image File -->
                 <template v-if="isImageFile(item.file.mimeType)">
                   <NuxtPicture
@@ -299,8 +422,11 @@ function formatDate(dateString: string | Date) {
                     fit="inside"
                     :src="item.file.path"
                     alt="File Preview"
-                    :img-attrs="{ class: 'object-contain w-full h-full rounded' }"
-                    class="object-contain w-full h-full rounded"
+                    :img-attrs="{
+                      class: 'object-contain w-full h-full cursor-zoom-in transition-all duration-300 hover:scale-[1.03]',
+                      onClick: () => openLightbox(section, index),
+                    }"
+                    class="w-full h-full flex items-center justify-center"
                   />
                 </template>
 
@@ -335,6 +461,19 @@ function formatDate(dateString: string | Date) {
                     </div>
                   </NuxtLink>
                 </template>
+
+                <Button
+                  v-if="item.file.path"
+                  variant="secondary"
+                  size="icon"
+                  class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
+                  @click.stop="downloadFile(item.file.path)"
+                >
+                  <Icon
+                    name="heroicons:arrow-down-tray"
+                    class="w-5 h-5"
+                  />
+                </Button>
               </CardContent>
               <Separator class="mb-3" />
               <p
@@ -344,7 +483,7 @@ function formatDate(dateString: string | Date) {
                 {{ getImageTitle(experiment.sections.indexOf(section), index) }}
               </p>
               <p
-                class="w-full whitespace-normal text-center text-muted-foreground pb-3"
+                class="w-full whitespace-normal text-center text-muted-foreground pb-3 px-6"
                 style="overflow-wrap: anywhere;"
               >
                 {{ item.description }}
@@ -354,7 +493,7 @@ function formatDate(dateString: string | Date) {
 
           <!-- Thumbnail -->
           <template #thumbnail="{ item }">
-            <Card class="h-20 w-full flex items-center justify-center rounded">
+            <Card class="h-20 w-full flex items-center justify-center rounded overflow-hidden border-2 border-transparent hover:border-primary/30 hover:bg-black/5 transition-all cursor-pointer">
               <template v-if="isImageFile(item.file.mimeType)">
                 <NuxtPicture
                   format="webp,avif"
@@ -507,4 +646,11 @@ function formatDate(dateString: string | Date) {
       :experiment="experiment"
     />
   </div>
+
+  <ExperimentLightbox
+    :active-file-index="activeLightboxIndex"
+    :active-section="activeSectionForLightbox"
+    @close="closeLightbox"
+    @download="(path) => downloadFile(path)"
+  />
 </template>

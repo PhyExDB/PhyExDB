@@ -70,6 +70,7 @@ model Experiment {
   id             String                     @id @default(uuid())
   name           String
   slug           String                     @unique
+  signs          Sign[]                     @relation("ExperimentSigns")
   user           User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId         String?
   status         ExperimentStatus           @default(DRAFT)
@@ -112,6 +113,19 @@ enum ExperimentStatus {
   IN_REVIEW
   PUBLISHED
   REJECTED
+}
+
+model Sign {
+  id          String                        @id @default(uuid())
+  name        String                        @unique
+  type        SignType
+  iconPath    String
+  experiments Experiment[]                  @relation("ExperimentSigns")
+}
+
+enum SignType {
+  WARNING
+  SAFETY
 }
 
 model ExperimentSection {

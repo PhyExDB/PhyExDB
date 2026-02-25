@@ -68,10 +68,10 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
             />
           </CarouselItem>
         </CarouselContent>
-        <div class="absolute top-1/2 left-2 flex items-center justify-center">
+        <div class="absolute top-40 left-2 flex items-center justify-center">
           <CarouselPrevious class="relative left-0 translate-x-0 hover:translate-x-0 hover:bg-primary/90" />
         </div>
-        <div class="absolute top-1/2 right-2 flex items-center justify-center">
+        <div class="absolute top-40 right-2 flex items-center justify-center">
           <CarouselNext class="relative right-0 translate-x-0 hover:translate-x-0 hover:bg-primary/90" />
         </div>
       </Carousel>

@@ -1,4 +1,5 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/prisma"
+import { sortSigns } from "~~/server/utils/sign"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
@@ -15,14 +16,18 @@ export default defineEventHandler(async (event) => {
 
   if (!experiment) throw createError({ status: 404, message: "Experiment not found!" })
 
+  // Map to type-safe domain object
+  const experimentDetail = mapExperimentToDetail(experiment)
+
   const currentRoundReviews = experiment.reviews.filter(r =>
     new Date(r.updatedAt).getTime() >= new Date(experiment.updatedAt).getTime(),
   )
 
-  const mapped = mapExperimentToDetail(experiment as ExperimentIncorrectDetail)
+  const sortedSigns = experiment.signs ? sortSigns(experiment.signs) : []
 
   return {
-    ...mapped,
+    ...experimentDetail,
+    signs: sortedSigns,
     completedReviewsCount: currentRoundReviews.length,
     alreadyReviewedByMe: user ? currentRoundReviews.some(r => r.reviewerId === user.id) : false,
   }

@@ -1,5 +1,7 @@
-<script setup lang="ts">
+<script setup lang='ts'>
+import type { Sign } from "~~/shared/types/Sign.type"
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
+import { getSignIconUrl } from "~/utils/signs"
 
 const route = useRoute()
 const user = await useUser()
@@ -11,6 +13,24 @@ const sort = ref<string[]>([(route.query.sort as string) || "none"])
 const attributeFilter = ref<string>((route.query.attributes as string) || "")
 
 const { page, pageSize } = getRequestPageMeta()
+
+// Limit for previewing signs in the card
+const SIGN_PREVIEW_LIMIT = 6
+
+function getPreviewSigns(signs: Sign[]) {
+  return [...signs]
+    .sort((a, b) => {
+      if (a.type !== b.type) {
+        return a.type === "WARNING" ? -1 : 1
+      }
+      return a.iconPath.localeCompare(b.iconPath)
+    })
+    .slice(0, SIGN_PREVIEW_LIMIT)
+}
+
+function hasMoreSigns(signs: Sign[]) {
+  return signs.length > SIGN_PREVIEW_LIMIT
+}
 
 const isLoading = ref(false)
 const { data } = useLazyFetch("/api/experiments", {
@@ -470,6 +490,28 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                   :experiment="experiment"
                   :small="true"
                 />
+              </div>
+              <!-- Signs Preview -->
+              <div class="flex items-center gap-1 flex-wrap mt-1">
+                <template
+                  v-for="sign in getPreviewSigns(experiment.signs)"
+                  :key="sign.id"
+                >
+                  <img
+                    :src="getSignIconUrl(sign)"
+                    :alt="sign.name"
+                    class="w-8 h-8 object-contain"
+                    :title="sign.name"
+                  >
+                </template>
+
+                <!-- Simple overflow indicator -->
+                <span
+                  v-if="hasMoreSigns(experiment.signs)"
+                  class="text-gray-500 text-sm font-semibold"
+                >
+                  …
+                </span>
               </div>
             </CardFooter>
           </Card>

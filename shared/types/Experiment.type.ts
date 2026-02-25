@@ -1,5 +1,6 @@
 import { z } from "zod"
 import type { FileList } from "./File.type"
+import type { Sign } from "./Sign.type"
 import type { ReviewSummary } from "#shared/types/Review.type"
 
 /**
@@ -33,11 +34,11 @@ export interface ExperimentList extends SlugList {
   /**
    * The id of the experiment this experiment revises
    */
-  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
+  revisionOf: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount" | "signs"> | undefined
   /**
    * The id of the experiment this experiment is revised by
    */
-  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount"> | undefined
+  revisedBy: Omit<ExperimentList, "revisionOf" | "revisedBy" | "attributes" | "completedReviewsCount" | "signs"> | undefined
 
   /**
    * The count of all ratings
@@ -48,12 +49,16 @@ export interface ExperimentList extends SlugList {
    */
   ratingsSum: number
   /**
+   * The signs associated with this experiment
+   */
+  signs: Sign[]
+  /**
    * Count of completed reviews for current round
    */
   completedReviewsCount: number
   /*
     Is the expiment favorited?
-     */
+  */
   isFavorited?: boolean
 
   favoriteNumberForSequence?: number
@@ -86,6 +91,10 @@ export interface ExperimentIncorrectList extends Omit<ExperimentList, "attribute
    * The attribute values associated with the experiment.
    */
   attributes: ExperimentAttributeValueDetail[]
+  /**
+   * Including signs for mapping
+   */
+  signs: Sign[]
 }
 
 /**
@@ -96,6 +105,10 @@ export interface ExperimentIncorrectDetail extends Omit<ExperimentDetail, "attri
    * The attribute values associated with the experiment.
    */
   attributes: ExperimentAttributeValueDetail[]
+  /**
+   * Including signs for mapping
+   */
+  signs: Sign[]
   // These are optional here so the DB object can be cast to this type
   completedReviewsCount?: number
   alreadyReviewedByMe?: boolean
@@ -137,6 +150,11 @@ export function getExperimentSchema(
     name: z.string(),
     duration: z.array(z.number()).length(1),
     previewImageId: z.string().uuid().optional(),
+    signs: z.array(
+      z.object({
+        id: z.string().uuid(),
+      }),
+    ).default([]),
 
     sections: z.array(z.object({
       experimentSectionContentId: z.string().uuid().optional(),
@@ -209,6 +227,9 @@ export function transformExperimentToSchemaType(
         valueIds: experimentAttribute?.values.map(value => value.id) ?? [],
       }
     }),
+    signs: (experiment.signs ?? []).map(sign => ({
+      id: sign.id,
+    })),
   }
 }
 
@@ -228,6 +249,12 @@ export function getExperimentReadyForReviewSchema(
     name: z.string().trim().nonempty("Name wird benötigt"),
     duration: z.array(z.number()).length(1),
     previewImageId: z.string({ message: "Vorschaubild wird benötigt" }).uuid(),
+
+    signs: z.array(
+      z.object({
+        id: z.string().uuid(),
+      }),
+    ).default([]),
 
     sections: z.array(z.object({
       experimentSectionContentId: z.string().uuid(),
