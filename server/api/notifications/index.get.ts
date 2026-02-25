@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
   if (!user) throw createError({ statusCode: 401, statusMessage: "Nicht eingeloggt" })
@@ -7,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const pageSize = Number(query.pageSize) || 20
   const filter = query.filter as string | undefined
 
-  const where: any = { userId: user.id }
+  const where: Prisma.NotificationWhereInput = { userId: user.id }
   if (filter === "unread") where.isRead = false
   if (filter === "read") where.isRead = true
 

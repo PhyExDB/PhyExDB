@@ -38,7 +38,7 @@ export async function notifyModerators(
   })
 
   await prisma.notification.createMany({
-    data: moderators.map((mod) => ({
+    data: moderators.map(mod => ({
       userId: mod.id,
       type: options.type,
       title: options.title,

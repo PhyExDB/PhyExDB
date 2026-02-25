@@ -16,7 +16,7 @@ const { data: notifications, refresh } = await useLazyFetch("/api/notifications"
   },
 })
 
-interface Config { icon: string; colorClass: string }
+interface Config { icon: string, colorClass: string }
 
 const typeConfig: Record<string, Config> = {
   REPORT_NEW: { icon: "lucide:triangle-alert", colorClass: "bg-destructive/10 text-destructive" },
@@ -86,10 +86,10 @@ async function handleMarkAllRead() {
       </div>
       <div class="flex items-center gap-2">
         <Button
-            variant="outline"
-            size="sm"
-            :disabled="!notifications?.unreadCount"
-            @click="handleMarkAllRead"
+          variant="outline"
+          size="sm"
+          :disabled="!notifications?.unreadCount"
+          @click="handleMarkAllRead"
         >
           <CheckCheck class="h-4 w-4 mr-1" />
           Alle gelesen
@@ -100,11 +100,11 @@ async function handleMarkAllRead() {
     <!-- Filter Tabs -->
     <div class="flex gap-1 mb-4 p-1 rounded-lg bg-muted w-fit">
       <Button
-          v-for="f in (['all', 'unread', 'read'] as const)"
-          :key="f"
-          :variant="activeFilter === f ? 'default' : 'ghost'"
-          size="sm"
-          @click="activeFilter = f; page = 1"
+        v-for="f in (['all', 'unread', 'read'] as const)"
+        :key="f"
+        :variant="activeFilter === f ? 'default' : 'ghost'"
+        size="sm"
+        @click="activeFilter = f; page = 1"
       >
         {{ f === 'all' ? 'Alle' : f === 'unread' ? 'Ungelesen' : 'Gelesen' }}
       </Button>
@@ -112,13 +112,13 @@ async function handleMarkAllRead() {
 
     <!-- Notification List -->
     <div
-        v-if="notifications && notifications.items.length > 0"
-        class="space-y-2"
+      v-if="notifications && notifications.items.length > 0"
+      class="space-y-2"
     >
       <div
-          v-for="notif in notifications.items"
-          :key="notif.id"
-          :class="[
+        v-for="notif in notifications.items"
+        :key="notif.id"
+        :class="[
           'group flex items-start gap-4 rounded-lg border p-4 transition-colors',
           notif.isRead
             ? 'bg-card border-border opacity-70'
@@ -129,13 +129,13 @@ async function handleMarkAllRead() {
         <div class="relative flex-shrink-0">
           <div :class="['flex h-10 w-10 items-center justify-center rounded-full', getConfig(notif.type).colorClass]">
             <Icon
-                :name="getConfig(notif.type).icon"
-                class="h-5 w-5"
+              :name="getConfig(notif.type).icon"
+              class="h-5 w-5"
             />
           </div>
           <span
-              v-if="!notif.isRead"
-              class="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary border-2 border-background"
+            v-if="!notif.isRead"
+            class="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary border-2 border-background"
           />
         </div>
 
@@ -156,11 +156,11 @@ async function handleMarkAllRead() {
           <!-- Actions -->
           <div class="flex items-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
-                v-if="notif.link"
-                variant="ghost"
-                size="sm"
-                as-child
-                class="h-7 text-xs"
+              v-if="notif.link"
+              variant="ghost"
+              size="sm"
+              as-child
+              class="h-7 text-xs"
             >
               <NuxtLink :to="notif.link">
                 <ExternalLink class="h-3 w-3 mr-1" />
@@ -169,31 +169,31 @@ async function handleMarkAllRead() {
             </Button>
 
             <Button
-                v-if="!notif.isRead"
-                variant="ghost"
-                size="sm"
-                class="h-7 text-xs"
-                @click="handleMarkRead(notif.id)"
+              v-if="!notif.isRead"
+              variant="ghost"
+              size="sm"
+              class="h-7 text-xs"
+              @click="handleMarkRead(notif.id)"
             >
               <MailOpen class="h-3 w-3 mr-1" />
               Gelesen
             </Button>
             <Button
-                v-else
-                variant="ghost"
-                size="sm"
-                class="h-7 text-xs"
-                @click="handleMarkUnread(notif.id)"
+              v-else
+              variant="ghost"
+              size="sm"
+              class="h-7 text-xs"
+              @click="handleMarkUnread(notif.id)"
             >
               <Mail class="h-3 w-3 mr-1" />
               Ungelesen
             </Button>
 
             <Button
-                variant="ghost"
-                size="sm"
-                class="h-7 text-xs text-destructive hover:text-destructive"
-                @click="handleDelete(notif.id)"
+              variant="ghost"
+              size="sm"
+              class="h-7 text-xs text-destructive hover:text-destructive"
+              @click="handleDelete(notif.id)"
             >
               <Trash2 class="h-3 w-3 mr-1" />
               Löschen
@@ -205,8 +205,8 @@ async function handleMarkAllRead() {
 
     <!-- Empty State -->
     <div
-        v-else
-        class="flex flex-col items-center justify-center py-20 text-muted-foreground"
+      v-else
+      class="flex flex-col items-center justify-center py-20 text-muted-foreground"
     >
       <Bell class="h-12 w-12 mb-4 opacity-30" />
       <p class="text-lg font-medium">
@@ -219,10 +219,10 @@ async function handleMarkAllRead() {
 
     <!-- Pagination -->
     <MyPagination
-        v-if="notifications && notifications.pagination.total > 0"
-        v-model="page"
-        :page-meta="notifications.pagination"
-        class="mt-4"
+      v-if="notifications && notifications.pagination.total > 0"
+      v-model="page"
+      :page-meta="notifications.pagination"
+      class="mt-4"
     />
   </div>
 </template>

@@ -2,28 +2,21 @@
 import type { ReportWithExperiment } from "~~/shared/types"
 
 const user = await useUser()
-const newReports = ref<ReportWithExperiment[]>([])
 const showPopup = ref(false)
-const hasChecked = ref(false)
 
-watch(
-  user,
-  async (currentUser) => {
-    if (!currentUser || hasChecked.value) return
-    hasChecked.value = true
-
-    try {
-      const reports = await $fetch<ReportWithExperiment[]>("/api/experiments/reports/mine")
-      if (reports.length > 0) {
-        newReports.value = reports
-        showPopup.value = true
-      }
-    } catch (err) {
-      console.error("Fehler beim Abrufen der Reports:", err)
-    }
+const { data: newReports } = await useFetch<ReportWithExperiment[]>(
+  "/api/experiments/reports/mine",
+  {
+    immediate: !!user.value,
+    default: () => [],
   },
-  { immediate: true },
 )
+
+watch(newReports, (reports) => {
+  if (reports && reports.length > 0) {
+    showPopup.value = true
+  }
+})
 </script>
 
 <template>

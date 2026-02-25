@@ -45,34 +45,38 @@ export default defineEventHandler(async (event) => {
         })),
       },
       sections: {
-        update: sanitizedExperimentData.sections.map(section => ({
-          where: {
-            id: section.experimentSectionContentId,
-          },
-          data: {
-            text: section.text,
-            files: {
-              upsert: section.files.map((file, index) => ({
-                where: {
-                  id: file.fileId,
-                },
-                update: {
-                  description: file.description,
-                  order: index,
-                },
-                create: {
-                  description: file.description,
-                  order: index,
-                  file: {
-                    connect: {
-                      id: file.fileId,
-                    },
-                  },
-                },
-              })),
+        update: sanitizedExperimentData.sections
+          .filter(section => section.experimentSectionContentId != null)
+          .map(section => ({
+            where: {
+              id: section.experimentSectionContentId!,
             },
-          },
-        })),
+            data: {
+              text: section.text,
+              files: {
+                upsert: section.files.map((file, index) => ({
+                  where: { id: file.fileId },
+                  update: { description: file.description, order: index },
+                  create: {
+                    description: file.description,
+                    order: index,
+                    file: { connect: { id: file.fileId } },
+                  },
+                })),
+              },
+            },
+          })),
+        create: sanitizedExperimentData.sections
+          .map((section, index) => ({ section, index }))
+          .filter(({ section }) => section.experimentSectionContentId == null)
+          .map(({ section, index }) => ({
+            text: section.text,
+            experimentSection: {
+              connect: {
+                id: sections[index]!.id,
+              },
+            },
+          })),
       },
       attributes: {
         set: [],

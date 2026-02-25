@@ -76,17 +76,17 @@ const dropdownOpen = ref(false)
 
       <NuxtLink href="/inbox">
         <DropdownMenuItem as-child>
-    <span>
-      <Bell />
-      Postfach
-      <Badge
-          v-if="pendingReviewCount > 0"
-          variant="destructive"
-          class="ml-auto h-5 min-w-5 text-[10px]"
-      >
-        {{ pendingReviewCount }}
-      </Badge>
-    </span>
+          <span>
+            <Bell />
+            Postfach
+            <Badge
+              v-if="pendingReviewCount > 0"
+              variant="destructive"
+              class="ml-auto h-5 min-w-5 text-[10px]"
+            >
+              {{ pendingReviewCount }}
+            </Badge>
+          </span>
         </DropdownMenuItem>
       </NuxtLink>
 

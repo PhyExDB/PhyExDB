@@ -28,10 +28,6 @@ async function markAsDone(reportId: string) {
   }
 }
 
-function editExperiment(slug: string) {
-  router.push(`/experiments/edit/${slug}`)
-}
-
 await loadReports()
 </script>
 
@@ -42,16 +38,16 @@ await loadReports()
     </h1>
 
     <div
-        v-if="reports.length === 0"
-        class="text-muted-foreground text-center py-8"
+      v-if="reports.length === 0"
+      class="text-muted-foreground text-center py-8"
     >
       Keine offenen Reports.
     </div>
 
     <div
-        v-for="report in reports"
-        :key="report.id"
-        class="border rounded-lg p-4 flex justify-between items-center"
+      v-for="report in reports"
+      :key="report.id"
+      class="border rounded-lg p-4 flex justify-between items-center"
     >
       <div>
         <p class="font-semibold">
@@ -68,17 +64,17 @@ await loadReports()
       <div class="flex gap-2">
         <NuxtLink :to="`/experiments/edit/${report.experiment.slug}`">
           <Button
-              size="sm"
-              variant="outline"
+            size="sm"
+            variant="outline"
           >
             Bearbeiten
           </Button>
         </NuxtLink>
         <Button
-            size="sm"
-            variant="secondary"
-            :disabled="loading"
-            @click="markAsDone(report.id)"
+          size="sm"
+          variant="secondary"
+          :disabled="loading"
+          @click="markAsDone(report.id)"
         >
           Erledigt
         </Button>
