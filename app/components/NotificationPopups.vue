@@ -4,6 +4,7 @@ const user = userRef.value
 const { data } = await useFetch("/api/notifications/check")
 const showUserPopup = ref(false)
 const showModeratorPopup = ref(false)
+const showUnreadPopup = ref(false)
 
 const hasNewRejected = computed(() => {
   if (!data.value?.lastRejectedAt) return false
@@ -17,13 +18,22 @@ const hasNewModeratorTasks = computed(() => {
   return data.value.moderatorLastUpdate > lastSeen
 })
 
+const hasUnreadNotifications = computed(() => {
+  return (data.value?.unreadCount || 0) > 0
+})
+
 onMounted(() => {
   if (!data.value || !user) return
 
+  // Priorität 1: Ablehnungen
+  // Priorität 2: Moderator Aufgaben
+  // Priorität 3: Allgemeine ungelesene Nachrichten
   if (hasNewRejected.value && data.value.needsRevisionCount > 0) {
     showUserPopup.value = true
   } else if (user.role !== "USER" && hasNewModeratorTasks.value) {
     showModeratorPopup.value = true
+  } else if (hasUnreadNotifications.value) {
+    showUnreadPopup.value = true
   }
 })
 
@@ -32,9 +42,10 @@ function closeUserPopup() {
   if (data.value?.lastRejectedAt) {
     localStorage.setItem("last-rejected-seen", data.value.lastRejectedAt.toString())
   }
-
   if (user?.role !== "USER" && hasNewModeratorTasks.value) {
     showModeratorPopup.value = true
+  } else if (hasUnreadNotifications.value) {
+    showUnreadPopup.value = true
   }
 }
 
@@ -43,6 +54,13 @@ function closeModeratorPopup() {
   if (data.value?.moderatorLastUpdate) {
     localStorage.setItem("last-mod-notif-seen", data.value.moderatorLastUpdate.toString())
   }
+  if (hasUnreadNotifications.value) {
+    showUnreadPopup.value = true
+  }
+}
+
+function closeUnreadPopup() {
+  showUnreadPopup.value = false
 }
 </script>
 
@@ -63,7 +81,6 @@ function closeModeratorPopup() {
       />
       <template #footer>
         <Button
-          as-child
           class="w-full"
           @click="closeUserPopup"
         >
@@ -87,7 +104,6 @@ function closeModeratorPopup() {
           Offene Reviews
         </p>
       </div>
-
       <template #footer>
         <div class="flex gap-3">
           <Button
@@ -98,13 +114,35 @@ function closeModeratorPopup() {
             Später
           </Button>
           <Button
-            as-child
             class="flex-1"
             @click="closeModeratorPopup"
           >
             <NuxtLink href="/experiments/review">Prüfen</NuxtLink>
           </Button>
         </div>
+      </template>
+    </NotificationDialog>
+
+    <NotificationDialog
+      :open="showUnreadPopup"
+      icon-name="heroicons:bell"
+      title="Benachrichtigungen"
+      description="Du hast neue Nachrichten in deinem Postfach."
+      @update:open="(val) => !val && closeUnreadPopup()"
+    >
+      <NotificationItem
+        :title="`${data?.unreadCount} neue Nachricht(en)`"
+        description="Schau in dein Postfach, um die Details zu sehen."
+        icon="heroicons:envelope"
+        color-class="bg-blue-500/10 text-blue-600"
+      />
+      <template #footer>
+        <Button
+          class="w-full"
+          @click="closeUnreadPopup"
+        >
+          <NuxtLink href="/notifications">Zum Postfach</NuxtLink>
+        </Button>
       </template>
     </NotificationDialog>
   </div>
