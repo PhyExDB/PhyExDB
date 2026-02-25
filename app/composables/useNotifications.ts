@@ -12,12 +12,15 @@ export function useNotifications() {
 
   // Polling alle 30 Sekunden
   let interval: ReturnType<typeof setInterval> | null = null
-  onMounted(() => {
-    interval = setInterval(() => refreshCount(), 30_000)
-  })
-  onUnmounted(() => {
-    if (interval) clearInterval(interval)
-  })
+
+  if (import.meta.client) {
+    onMounted(() => {
+      interval = setInterval(() => refreshCount(), 30_000)
+    })
+    onUnmounted(() => {
+      if (interval) clearInterval(interval)
+    })
+  }
 
   async function markAsRead(id: string) {
     await $fetch(`/api/notifications/${id}`, {

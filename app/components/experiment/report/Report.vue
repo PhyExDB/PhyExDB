@@ -2,10 +2,6 @@
 import type { ReportWithExperiment } from "~~/shared/types"
 import { useToast } from "@/components/ui/toast/use-toast"
 
-definePageMeta({
-  title: "Offene Reports",
-})
-
 const { toast } = useToast()
 const loading = ref(false)
 

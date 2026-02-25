@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { User, FlaskConical, Heart, Users, FolderTree, ClipboardCheck, LogOut, AlertTriangle, Bell } from "lucide-vue-next"
-import { ref, watch } from "vue"
 import getInitials from "~~/shared/utils/initials"
-import InboxBadge from "~/components/InboxBadge.vue";
 
 const user = await useUser()
 const canSeeUsers = await allows(userAbilities.getAll)
@@ -38,6 +36,8 @@ const dropdownOpen = ref(false)
     v-if="user"
     v-model:open="dropdownOpen"
   >
+    <ReportNotification />
+
     <DropdownMenuTrigger as-child>
       <button
         class="focus:outline-none"
@@ -165,6 +165,4 @@ const dropdownOpen = ref(false)
       Anmelden
     </Button>
   </NuxtLink>
-
-  <ReportNotification />
 </template>
