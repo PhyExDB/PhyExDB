@@ -40,7 +40,7 @@ function ratingsString() {
     >
       <Icon
         name="heroicons:star"
-        class="w-4 h-4"
+        class="w-4! h-4!"
       />
       <p>
         {{ ratingsAvg }}

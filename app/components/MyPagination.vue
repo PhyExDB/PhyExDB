@@ -39,7 +39,7 @@ function update(newPage: number) {
           >
             <Button
               class="w-10 h-10 p-0"
-              :variant="item.value === page ? 'default' : 'outline'"
+              :variant="item.value === page ? 'default' : 'outline-solid'"
             >
               {{ item.value }}
             </Button>

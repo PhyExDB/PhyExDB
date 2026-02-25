@@ -54,7 +54,7 @@ function handleImageClick(event: MouseEvent) {
   >
     <Card>
       <CardContent class="flex justify-between flex-col sm:flex-row p-4 gap-4">
-        <div class="flex flex-col space-y-2 flex-grow">
+        <div class="flex flex-col space-y-2 grow">
           <div class="flex flex-row items-center space-x-2">
             <Avatar
               class="w-8 h-8"

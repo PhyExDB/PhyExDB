@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from "@tailwindcss/vite"
 import vue from "@vitejs/plugin-vue"
 import { copyPrismaAssets } from "./server/utils/copy-prisma-assets"
 
@@ -6,7 +7,6 @@ export default defineNuxtConfig({
   modules: [
     "@nuxt/eslint",
     "@nuxt/test-utils/module",
-    "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
     "@nuxt/icon",
@@ -69,15 +69,11 @@ export default defineNuxtConfig({
   },
 
   vite: {
+    plugins: [
+      tailwindcss(),
+    ],
     resolve: {
       preserveSymlinks: true,
-    },
-  },
-
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
     },
   },
 

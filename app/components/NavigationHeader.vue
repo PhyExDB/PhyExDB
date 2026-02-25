@@ -33,7 +33,7 @@
         Versuche entdecken
       </Button>
     </NuxtLink>
-    <div class="flex-grow" />
+    <div class="grow" />
     <ColorModeButton />
     <!-- Add user dropdown here and put in separate component -->
     <AuthControl />

@@ -27,7 +27,7 @@ function update(value: string) {
     <span class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
       <Icon
         name="heroicons:magnifying-glass"
-        class="w-5 h-5 text-muted-foreground"
+        class="w-5! h-5! text-muted-foreground"
       />
     </span>
     <button
@@ -37,7 +37,7 @@ function update(value: string) {
     >
       <Icon
         name="heroicons:x-mark"
-        class="w-5 h-5 text-muted-foreground"
+        class="w-5! h-5! text-muted-foreground"
       />
     </button>
   </div>
