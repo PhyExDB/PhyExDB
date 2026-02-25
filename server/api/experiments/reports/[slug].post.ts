@@ -7,7 +7,12 @@ export default defineEventHandler(async (event) => {
   const experiment = await nullTo404(async () =>
     await prisma.experiment.findFirst({
       where: getSlugOrIdPrismaWhereClause(event),
-      select: { id: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        userId: true
+      },
     }),
   )
 
@@ -20,6 +25,18 @@ export default defineEventHandler(async (event) => {
       experimentId: experiment.id,
     },
   })
+
+  if (experiment.userId && experiment.userId !== user.id) {
+    await prisma.notification.create({
+      data: {
+        userId: experiment.userId,
+        type: "REPORT_NEW",
+        title: "Versuch gemeldet",
+        message: `Dein Versuch "${experiment.name}" wurde gemeldet.`,
+        link: `/experiments/${experiment.slug}`,
+      },
+    })
+  }
 
   return { success: true, reportId: report.id }
 })
