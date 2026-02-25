@@ -1,13 +1,36 @@
 <script setup lang='ts'>
+import type { Sign } from "~~/shared/types/Sign.type"
+import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
+import { getSignIconUrl } from "~/utils/signs"
+
 const route = useRoute()
-const search = ref<string>(route.query.search as string || "")
-const sectionSearch = ref<string>(route.query.sections as string || "")
+const user = await useUser()
+const search = ref<string>((route.query.search as string) || "")
+const sectionSearch = ref<string>((route.query.sections as string) || "")
 const fetched = ref<boolean>(false)
 const searchApiInput = ref<string>(search.value)
-const sort = ref<string[]>([route.query.sort as string || "none"])
-const attributeFilter = ref<string>(route.query.attributes as string || "")
+const sort = ref<string[]>([(route.query.sort as string) || "none"])
+const attributeFilter = ref<string>((route.query.attributes as string) || "")
 
 const { page, pageSize } = getRequestPageMeta()
+
+// Limit for previewing signs in the card
+const SIGN_PREVIEW_LIMIT = 6
+
+function getPreviewSigns(signs: Sign[]) {
+  return [...signs]
+    .sort((a, b) => {
+      if (a.type !== b.type) {
+        return a.type === "WARNING" ? -1 : 1
+      }
+      return a.iconPath.localeCompare(b.iconPath)
+    })
+    .slice(0, SIGN_PREVIEW_LIMIT)
+}
+
+function hasMoreSigns(signs: Sign[]) {
+  return signs.length > SIGN_PREVIEW_LIMIT
+}
 
 const isLoading = ref(false)
 const { data } = useLazyFetch("/api/experiments", {
@@ -38,9 +61,7 @@ watch([searchApiInput, sort, attributeFilter], () => {
 })
 
 /* Search */
-const { data: sections } = await useFetch(
-  `/api/experiments/sections`,
-)
+const { data: sections } = await useFetch(`/api/experiments/sections`)
 
 const searchDialogOpen = ref(false)
 const searchTitle = ref(false)
@@ -49,13 +70,13 @@ const searchSections = ref<string[]>([])
 const temporarySearchSections = ref<string[]>([])
 
 function updateSectionSearch() {
-  sectionSearch.value = (searchTitle.value ? "titel" : "")
-    + (searchSections.value.length > 0 && searchTitle.value ? "," : "")
-    + searchSections.value.join(",")
-  if (sectionSearch.value.length === 0) {
-    sectionSearch.value = "keine"
-  }
+  const parts = []
+  if (searchTitle.value) parts.push("titel")
+  if (searchSections.value.length > 0) parts.push(...searchSections.value)
+
+  sectionSearch.value = parts.length > 0 ? parts.join(",") : "keine"
 }
+
 function initializeSearchSections() {
   if (sectionSearch.value.length > 0) {
     sectionSearch.value.split(",").forEach((sec) => {
@@ -108,9 +129,7 @@ function submitSearchOptions() {
 }
 
 /* Attributes */
-const { data: attributes } = await useFetch(
-  `/api/experiments/attributes`,
-)
+const { data: attributes } = await useFetch(`/api/experiments/attributes`)
 
 function initializeFilterChecklist(list: string[][]) {
   if (!attributes) {
@@ -163,20 +182,16 @@ function mapFilterIdToSlug(id: string) {
   return ""
 }
 watch(checked, () => {
-  attributeFilter.value = checked.value.map(
-    attribute => attribute.map(
-      attributeValue => mapFilterIdToSlug(attributeValue),
-    ).join(","),
-  ).filter(
-    attribute => attribute.length > 0,
-  ).join(",")
+  attributeFilter.value = checked.value
+    .map(attribute => attribute.map(attributeValue => mapFilterIdToSlug(attributeValue)).join(","))
+    .filter(attribute => attribute.length > 0)
+    .join(",")
 })
 
 const router = useRouter()
 /* Update the URL */
 watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch], () => {
-  const query:
-  {
+  const query: {
     attributes?: string
     page?: number
     pageSize?: number
@@ -238,9 +253,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
             />
           </Button>
         </DialogTrigger>
-        <DialogContent
-          class="sm:max-w-[425px]"
-        >
+        <DialogContent class="sm:max-w-[425px]">
           <div
             class="flex flex-col gap-4 justify-items-stretch items-center content-center justify-self-stretch w-full"
           >
@@ -252,7 +265,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                 <Checkbox
                   :value="'Titel'"
                   :checked="temporarySearchTitle"
-                  @update:checked="(isChecked) => temporarySearchTitle = isChecked"
+                  @update:checked="(isChecked) => (temporarySearchTitle = isChecked)"
                 />
                 <label
                   for="title"
@@ -322,9 +335,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
             />
           </Button>
         </DialogTrigger>
-        <DialogContent
-          class="sm:max-w-[425px] max-h-full overflow-auto"
-        >
+        <DialogContent class="sm:max-w-[425px] max-h-full overflow-auto">
           <div
             class="flex flex-col gap-4 justify-items-stretch items-center content-center justify-self-stretch w-full"
           >
@@ -358,14 +369,30 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
 
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
-      <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto">
-        {{ isLoading ? "..." : data?.pagination.total }} Versuche gefunden
+      <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto flex items-center gap-4">
+        <span>{{ isLoading ? '...' : data?.items.length || 0 }} Experimente gefunden</span>
+        <Button
+          variant="outline"
+          size="sm"
+          as-child
+        >
+          <NuxtLink
+            v-if="user"
+            to="/experiments/favorites"
+          >
+            <Icon
+              name="heroicons:heart"
+              class="mr-2 h-4 w-4 text-red-500"
+            />
+            Zu meinen Favoriten
+          </NuxtLink>
+        </Button>
       </div>
       <div class="w-full sm:w-64 order-1 sm:order-2">
         <MultiSelect
           :model-value="sort"
           :options="sortOptions"
-          :value-for-option="option => option.label"
+          :value-for-option="(option) => option.label"
           search-placeholder="Sortierung"
           :allow-none="false"
           @update:model-value="sort = $event"
@@ -374,7 +401,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
             Sortierung
           </template>
           <template #preview="{ selected }">
-            {{ sortOptions.find(option => option.id === selected[0])?.label }}
+            {{ sortOptions.find((option) => option.id === selected[0])?.label }}
           </template>
           <template #option="{ option }">
             {{ option.label }}
@@ -383,9 +410,10 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
       </div>
     </div>
     <!-- Experiments -->
-    <div
-      v-if="!isLoading"
-    >
+    <div v-if="!isLoading">
+      <div class="order-3 sm:order-2 pt-2 sm:pt-0 w-full sm:w-auto text-xl font-bold mt-4">
+        Alle Experimente
+      </div>
       <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <NuxtLink
           v-for="experiment in data?.items"
@@ -403,7 +431,11 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                   width="470"
                   :src="experiment.previewImage?.path ?? 'experiment_placeholder.png'"
                   alt="Preview Image"
-                  :img-attrs="{ class: 'absolute inset-0 w-full h-full ' + (experiment.previewImage?.path ? 'object-contain' : 'object-cover') }"
+                  :img-attrs="{
+                    class:
+                      'absolute inset-0 w-full h-full '
+                      + (experiment.previewImage?.path ? 'object-contain' : 'object-cover'),
+                  }"
                 />
 
                 <!-- Overlay Content (Defines Section Size) -->
@@ -441,6 +473,10 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
             <CardFooter class="flex flex-col items-start p-4 gap-2 w-full">
               <CardTitle class="text-primary/80 text-left">
                 {{ experiment.name }}
+                <FavoriteButton
+                  :experiment-id="experiment.id"
+                  :is-favorited-initial="experiment.isFavorited ?? false"
+                />
               </CardTitle>
               <div class="flex flex-col sm:flex-row gap-2 w-full">
                 <Badge class="text-left">
@@ -455,6 +491,28 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
                   :small="true"
                 />
               </div>
+              <!-- Signs Preview -->
+              <div class="flex items-center gap-1 flex-wrap mt-1">
+                <template
+                  v-for="sign in getPreviewSigns(experiment.signs)"
+                  :key="sign.id"
+                >
+                  <img
+                    :src="getSignIconUrl(sign)"
+                    :alt="sign.name"
+                    class="w-8 h-8 object-contain"
+                    :title="sign.name"
+                  >
+                </template>
+
+                <!-- Simple overflow indicator -->
+                <span
+                  v-if="hasMoreSigns(experiment.signs)"
+                  class="text-gray-500 text-sm font-semibold"
+                >
+                  …
+                </span>
+              </div>
             </CardFooter>
           </Card>
         </NuxtLink>
@@ -465,9 +523,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
         :page-meta="data?.pagination"
       />
     </div>
-    <div
-      v-if="isLoading"
-    >
+    <div v-if="isLoading">
       <div class="grid gap-4 min-h-96 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <div
           v-for="index in 8"

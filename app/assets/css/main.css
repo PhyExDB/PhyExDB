@@ -119,6 +119,7 @@
     --destructive-foreground: 210 40% 98%;
 
     --ring: 222.2 84% 4.9%;
+
     --radius: 0.5rem;
   }
 
@@ -191,4 +192,16 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
+    ::-webkit-scrollbar {
+        @apply w-1.5 h-1.5;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
+    }
 }

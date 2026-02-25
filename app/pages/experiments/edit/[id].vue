@@ -3,12 +3,28 @@ import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
 import FormControl from "~/components/ui/form/FormControl.vue"
+import type { Sign } from "~~/shared/types/Sign.type"
+import SignGrid from "~/components/signs/SignGrid.vue"
 
 const user = await useUser()
+
+watch(
+  user,
+  (newUser) => {
+    if (!newUser) {
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
+      navigateTo("/", { replace: true })
+    }
+  },
+)
 
 if (!user.value) {
   await navigateTo("/")
 }
+
 const emailVerified = user.value?.emailVerified
 
 const loading = ref(false)
@@ -25,6 +41,15 @@ if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECT
 
 const { data: sections } = await useFetch("/api/experiments/sections")
 const { data: attributes } = await useFetch("/api/experiments/attributes")
+
+const allSigns = ref<Sign[]>([])
+
+const { data: allSignsData } = await useFetch<Sign[]>("/api/signs")
+allSigns.value = allSignsData.value ?? []
+const availableSigns = computed(() => allSigns.value)
+function isRiskAssessmentSection(sectionName: string | undefined) {
+  return sectionName === "Gefährdungsbeurteilung"
+}
 
 const runtimeConfig = useRuntimeConfig()
 const previewImageAccepts = ["image/png", "image/jpeg", "image/webp"]
@@ -56,6 +81,7 @@ const form = useForm({
         })) ?? [],
       }
     }) ?? [],
+    signs: experiment.value?.signs.map(s => ({ id: s.id })) ?? [],
   },
 })
 
@@ -81,6 +107,7 @@ onUnmounted(() => {
 })
 
 onBeforeRouteLeave(async () => {
+  if (!user.value) return
   await onSubmit()
 })
 
@@ -130,10 +157,38 @@ async function uploadPreviewImage(newFiles: [File]) {
   }
 }
 
-async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
+const { data: reviews } = await useFetch(
+  `/api/experiments/review/by-experiment?experimentId=${experimentId}`,
+)
+
+async function uploadSectionFile(sectionIndex: number, newFiles: File[]) {
+  const sectionName = sections.value?.[sectionIndex]?.name
+  const isRA = isRiskAssessmentSection(sectionName)
+
+  const filesToUpload: File[] = isRA
+    ? [newFiles.find(f => f.type === "application/pdf")].filter((f): f is File => !!f)
+    : newFiles
+
+  if (filesToUpload.length === 0) {
+    toast({
+      title: "Fehler",
+      description: isRA ? "Bitte nur eine PDF hochladen." : "Keine Dateien ausgewählt.",
+      variant: "error",
+    })
+    return
+  }
+
   const oldFiles = form.values.sections?.[sectionIndex]?.files ?? []
-  const fileData = await uploadFile(newFiles)
-  if (fileData.length === 0) {
+
+  await handleFileInput({ target: { files: filesToUpload } })
+  const fileData = await $fetch("/api/files", {
+    method: "POST",
+    body: {
+      files: files.value,
+    },
+  })
+
+  if (!fileData || fileData.length === 0 || !fileData[0]) {
     toast({
       title: "Fehler beim Hochladen",
       description: "Es ist ein Fehler beim Hochladen der Datei aufgetreten.",
@@ -141,12 +196,19 @@ async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
     })
     return
   }
-  form.setFieldValue(`sections.${sectionIndex}.files`, [
-    ...(form.values.sections?.[sectionIndex]?.files ?? []),
-    ...fileData.map(file => ({
-      fileId: file.id,
-    })),
-  ])
+
+  if (isRA) {
+    const oldFileIds = oldFiles.map(f => f.fileId)
+    form.setFieldValue(`sections.${sectionIndex}.files`, [{
+      fileId: fileData[0].id,
+    }])
+    if (oldFileIds.length > 0) await deleteFiles(oldFileIds)
+  } else {
+    form.setFieldValue(`sections.${sectionIndex}.files`, [
+      ...(form.values.sections?.[sectionIndex]?.files ?? []),
+      ...fileData.map(file => ({ fileId: file.id })),
+    ])
+  }
   await onSubmit()
 
   toast({
@@ -154,11 +216,6 @@ async function uploadSectionFile(sectionIndex: number, newFiles: [File]) {
     description: `Die ${fileData.length === 1 ? "Datei wurde" : "Dateien wurden"} erfolgreich hochgeladen.`,
     variant: "success",
   })
-
-  const oldFileIds = oldFiles
-    .map(file => file.fileId)
-    .filter(fileId => !form.values.sections?.[sectionIndex]?.files.some(file => file.fileId === fileId))
-  deleteFiles(oldFileIds)
 }
 
 async function updateFiles(sectionIndex: number, newFileOrder: ExperimentFileList[]) {
@@ -196,6 +253,7 @@ async function saveForm(values: typeof form.values) {
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
+  if (!user.value) return
   if (!emailVerified) return
   if (loading.value) return
   loading.value = true
@@ -391,6 +449,22 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         </template>
 
         <FormField
+          v-slot="{ componentField }"
+          name="signs"
+        >
+          <FormItem>
+            <FormLabel>Sicherheitszeichen</FormLabel>
+            <FormControl>
+              <SignGrid
+                :model-value="componentField.modelValue"
+                :available-signs="availableSigns"
+                @update:model-value="componentField.onChange"
+              />
+            </FormControl>
+            <FormMessage name="signs" />
+          </FormItem>
+        </FormField>
+        <FormField
           v-slot="{ componentField, value }"
           name="duration"
         >
@@ -420,9 +494,16 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         >
           <h2 class="text-3xl font-semibold mt-2">
             {{ section.name }}
+            <span
+              v-if="isRiskAssessmentSection(section.name)"
+              class="text-sm text-muted-foreground font-normal"
+            >
+              (optional)
+            </span>
           </h2>
 
           <FormField
+            v-if="!isRiskAssessmentSection(section.name)"
             v-slot="{ componentField }"
             :name="`sections[${section.order}].text`"
           >
@@ -443,9 +524,11 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           <Label>Dateien</Label>
           <Dropfile
             :title="`Dateien für ${section.name}`"
-            :subtext="`Ziehe Dateien hierher oder klicke, um Dateien hochzuladen.`"
+            :subtext="isRiskAssessmentSection(section.name)
+              ? 'Ziehe die PDF-Gefährdungsbeurteilung hierher.'
+              : 'Ziehe Dateien hierher oder klicke, um Dateien hochzuladen.'"
             icon="heroicons:cloud-arrow-up"
-            :accept="sectionFileAccepts"
+            :accept="isRiskAssessmentSection(section.name) ? ['application/pdf'] : sectionFileAccepts"
             @dropped="event => uploadSectionFile(section.order, event)"
           />
           <DraggableList
@@ -471,35 +554,41 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                 />
                 <div class="flex flex-col flex-1 md:flex-row items-center">
                   <FormField
-                    v-slot="{ componentField }"
+                    v-slot="{ componentField, value }"
                     :name="`sections[${section.order}].files[${index}].description`"
                   >
                     <FormItem class="flex-1 p-4 w-full">
-                      <FormLabel>
-                        <div
-                          v-if="item.file.mimeType.startsWith('image')"
-                          class="font-semibold"
-                        >
-                          {{ getImageTitle(section.order, index) }}
+                      <FormLabel class="flex justify-between items-end">
+                        <div>
+                          <div
+                            v-if="item.file.mimeType.startsWith('image')"
+                            class="font-semibold"
+                          >
+                            {{ getImageTitle(section.order, index) }}
+                          </div>
+                          <NuxtLink
+                            :to="item.file.path"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="hover:underline"
+                            external
+                          >
+                            {{ item.file.originalName }}
+                            <Icon name="heroicons:arrow-top-right-on-square" />
+                          </NuxtLink>
                         </div>
-
-                        <NuxtLink
-                          :to="item.file.path"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="hover:underline"
-                          external
+                        <span
+                          :class="['text-[10px] font-medium transition-colors text-muted-foreground']"
                         >
-                          {{ item.file.originalName }}
-                          <Icon name="heroicons:arrow-top-right-on-square" />
-                        </NuxtLink>
+                          {{ value?.length || 0 }} / 1000
+                        </span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           v-bind="componentField"
-                          type="text"
-                          placeholder="Beschreibung"
-                          class="resize-y min-h-[80px] max-h-[350px] overflow-auto"
+                          placeholder="Beschreibung (max. 1.000 Zeichen)"
+                          class="resize-y min-h-[80px] max-h-[350px] "
+                          :maxlength="1000"
                         />
                       </FormControl>
                       <FormMessage />
@@ -525,6 +614,42 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
               </Card>
             </template>
           </DraggableList>
+          <!-- Critiques für diese Section -->
+          <div
+            v-if="reviews && reviews.length"
+            class="mt-6"
+          >
+            <div
+              v-for="review in [[...reviews].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]]"
+              :key="review?.id"
+            >
+              <div
+                v-if="review && review.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === section.id)"
+                class="space-y-2"
+              >
+                <h3 class="font-semibold text-sm flex items-center gap-2">
+                  <Icon
+                    name="heroicons:user-circle"
+                    class="w-4 h-4"
+                  />
+                  Aktuelles Feedback
+                </h3>
+
+                <div
+                  v-for="critique in review.sectionsCritiques.filter(c => c.sectionContent.experimentSection.id === section.id)"
+                  :key="critique.id"
+                  class="border rounded-lg p-4 bg-destructive/5 border-destructive/20 shadow-sm"
+                >
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
+                    Korrekturhinweis
+                  </p>
+                  <div class="prose prose-sm dark:prose-invert">
+                    <LatexContent :content="critique.critique" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </template>
       </form>
       <div class="lg:relative lg:w-1/3">

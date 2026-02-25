@@ -38,6 +38,12 @@ export default defineEventHandler(async (event) => {
       name: sanitizedExperimentData.name,
       slug: slug,
       duration: sanitizedExperimentData.duration[0]!,
+      signs: {
+        set: [],
+        connect: sanitizedExperimentData.signs.map(sign => ({
+          id: sign.id,
+        })),
+      },
       sections: {
         update: sanitizedExperimentData.sections.map(section => ({
           where: {
@@ -113,7 +119,7 @@ export default defineEventHandler(async (event) => {
     slugify(sanitizedExperimentData.name),
   )
 
-  return mapExperimentToDetail(updatedExperiment as ExperimentIncorrectDetail)
+  return mapExperimentToDetail(updatedExperiment)
 })
 
 defineRouteMeta({

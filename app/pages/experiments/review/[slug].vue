@@ -3,80 +3,107 @@ import { useToast } from "@/components/ui/toast/use-toast"
 
 const user = await useUser()
 
-if (!user.value || user.value.role == "USER") {
+if (!user.value || user.value.role === "USER") {
   await navigateTo("/")
 }
 
 const route = useRoute()
-const experimentSlug = route.params.slug as string
-const { data: experiment } = useFetch<ExperimentDetail>(`/api/experiments/${experimentSlug}`)
+const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${route.params.slug}`)
 
-if (!experiment) {
-  showError({ statusCode: 404, statusMessage: "Versuch nicht gefunden" })
+if (!experiment.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: "Versuch nicht gefunden",
+  })
 }
 
 if (experiment.value && experiment.value.status !== "IN_REVIEW") {
   await navigateTo("/")
 }
 
-const { toast } = useToast()
-
-async function onDelete(message: string) {
-  await $fetch(`/api/experiments/review/${experimentSlug}`, {
-    method: "POST",
-    body: JSON.stringify({ approve: false, message }),
-  })
-
-  toast({
-    title: "Versuch beanstandet",
-    description: "Der Versuch wurde erfolgreich beanstandet.",
-    variant: "success",
-  })
-
+if (experiment.value && experiment.value.userId === user.value?.id) {
   await navigateTo("/experiments/review")
+}
+
+const { toast } = useToast()
+const hasToggled = ref(false)
+const openDialog = ref(false)
+const comments = ref<Record<string, string>>({})
+
+const handleAction = () => {
+  if (!hasToggled.value) {
+    hasToggled.value = true
+    toast({
+      title: "Review-Modus aktiviert",
+      description: "Du kannst nun Beanstandungen direkt in den Abschnitten verfassen.",
+    })
+  } else {
+    openDialog.value = true
+  }
+}
+
+async function submitReject() {
+  if (!experiment.value) return
+
+  try {
+    await $fetch("/api/experiments/review/save", {
+      method: "POST",
+      body: {
+        experimentId: experiment.value.id,
+        comments: comments.value,
+        approve: false,
+      },
+    })
+    toast({ title: "Gesendet", description: "Beanstandungen wurden erfolgreich gespeichert." })
+    await navigateTo("/experiments/review")
+  } catch {
+    toast({ title: "Fehler", variant: "destructive", description: "Speichern fehlgeschlagen." })
+  }
 }
 </script>
 
 <template>
-  <div>
-    <h2 class="text-4xl font-extrabold pb-4">
-      Zu überprüfender Versuch
-    </h2>
-    <h3
-      v-if="experiment?.revisionOf"
-      class="text-2xl font-bold pb-4"
-    >
-      Dies ist eine Überarbeitung von
-      <NuxtLink
-        :to="`/experiments/${experiment?.revisionOf?.slug}`"
-        class="underline"
-      >
-        {{ experiment?.revisionOf?.name }}
-      </NuxtLink>
-    </h3>
-    <Card>
-      <CardContent class="my-6 mx-4">
-        <ExperimentDetail
-          :experiment="experiment"
-          :show-dropdown="false"
-          :preview="true"
-        />
-      </CardContent>
-    </Card>
-    <div class="mt-4 flex flex-col sm:flex-row gap-2">
-      <ExperimentReviewAcceptDialog
-        :experiment="experiment"
-      />
+  <div
+    v-if="experiment"
+    class="container py-10 pb-32"
+  >
+    <ExperimentDetail
+      v-model:comments="comments"
+      :experiment="experiment"
+      :review-started="hasToggled"
+      preview
+    />
+
+    <div class="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur-md border-t p-6 flex justify-center gap-4 z-50">
+      <ExperimentReviewAcceptDialog :experiment="experiment" />
+
       <ExperimentReviewRejectDialog
-        :on-delete="onDelete"
+        v-model:open="openDialog"
+        :on-delete="submitReject"
       >
         <Button
-          variant="destructive"
-          class="flex-1"
+          :variant="hasToggled ? 'default' : 'outline'"
+          size="lg"
+          class="transition-all duration-300 shadow-md"
+          :class="'bg-red-600 hover:bg-red-700 text-white border-red-700'"
+          @click="handleAction"
         >
-          Beanstanden
+          <Icon
+            :name="hasToggled ? 'heroicons:paper-airplane' : 'heroicons:exclamation-triangle'"
+            class="mr-2 w-5 h-5"
+          />
+          {{ hasToggled ? "Review jetzt absenden" : "Beanstanden" }}
         </Button>
       </ExperimentReviewRejectDialog>
     </div>
+  </div>
+  <div
+    v-else
+    class="flex justify-center py-20"
+  >
+    <Icon
+      name="heroicons:arrow-path"
+      class="w-10 h-10 animate-spin text-muted"
+    />
   </div>
 </template>

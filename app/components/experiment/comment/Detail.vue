@@ -36,6 +36,15 @@ const canViewProfile = computed(
 const canSeeMenu = computed(
   () => isLoggedIn.value && (canDelete.value || canViewProfile.value),
 )
+
+const selectedImage = ref<string | null>(null)
+
+function handleImageClick(event: MouseEvent) {
+  const target = event.target as HTMLElement
+  if (target.tagName === "IMG" && (target.classList.contains("editor-attachment") || target.closest(".attachments-container"))) {
+    selectedImage.value = (target as HTMLImageElement).src
+  }
+}
 </script>
 
 <template>
@@ -47,7 +56,11 @@ const canSeeMenu = computed(
       <CardContent class="flex justify-between flex-col sm:flex-row p-4 gap-4">
         <div class="flex flex-col space-y-2 grow">
           <div class="flex flex-row items-center space-x-2">
-            <Avatar class="w-8 h-8">
+            <Avatar
+              class="w-8 h-8"
+              :react="canViewUser"
+              @click="canViewUser ? navigateTo(`/users?search=${comment.user.id}`) : null"
+            >
               <AvatarFallback class="text-xs">
                 {{ getInitials(comment.user.name) }}
               </AvatarFallback>
@@ -58,6 +71,7 @@ const canSeeMenu = computed(
           </div>
           <div
             class="prose dark:prose-invert max-w-full text-sm"
+            @click="handleImageClick"
             v-html="comment.text"
           />
         </div>
@@ -133,4 +147,20 @@ const canSeeMenu = computed(
       </div>
     </div>
   </div>
+
+  <!-- Lightbox Dialog -->
+  <Dialog
+    :open="!!selectedImage"
+    @update:open="selectedImage = null"
+  >
+    <DialogContent class="max-w-[90vw] max-h-[90vh] p-0 border-none bg-transparent shadow-none flex items-center justify-center">
+      <img
+        v-if="selectedImage"
+        :src="selectedImage"
+        class="max-w-full max-h-full object-contain rounded-2xl"
+        alt="Bildvorschau"
+        @click="selectedImage = null"
+      >
+    </DialogContent>
+  </Dialog>
 </template>

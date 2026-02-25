@@ -24,3 +24,17 @@ export interface CarouselEmits {
 export interface WithClassAsProps {
   class?: HTMLAttributes["class"]
 }
+
+export interface LightboxFile {
+  file: {
+    path: string
+    mimeType: string
+  }
+  description?: string
+}
+
+export interface LightboxSection {
+  id?: string | number
+  isPreview?: boolean
+  files: LightboxFile[]
+}

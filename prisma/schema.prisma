@@ -26,6 +26,7 @@ model User {
   files         File[]
   userFile      UserFile?
   experiments   Experiment[]
+  reviews       Review[]
 
   twoFactorEnabled       Boolean     @default(false)
   twoFactorSecret        String?
@@ -34,6 +35,7 @@ model User {
   banned     Boolean?
   banReason  String?
   banExpires DateTime?
+  Favorite   Favorite[]
 
   @@unique([email])
   @@map("user")
@@ -67,6 +69,7 @@ model Experiment {
   id             String                     @id @default(uuid())
   name           String
   slug           String                     @unique
+  signs          Sign[]                     @relation("ExperimentSigns")
   user           User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId         String?
   status         ExperimentStatus           @default(DRAFT)
@@ -87,6 +90,21 @@ model Experiment {
   changeRequest  String?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
+  reviews        Review[]
+  Favorite       Favorite[]
+}
+
+model Favorite {
+  id                String     @id @default(uuid())
+  userId            String
+  experimentId      String
+  category          String?
+  createdAt         DateTime   @default(now())
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experiment        Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  numberForSequence Int        @default(autoincrement())
+
+  @@unique([userId, experimentId])
 }
 
 enum ExperimentStatus {
@@ -94,6 +112,19 @@ enum ExperimentStatus {
   IN_REVIEW
   PUBLISHED
   REJECTED
+}
+
+model Sign {
+  id          String                        @id @default(uuid())
+  name        String                        @unique
+  type        SignType
+  iconPath    String
+  experiments Experiment[]                  @relation("ExperimentSigns")
+}
+
+enum SignType {
+  WARNING
+  SAFETY
 }
 
 model ExperimentSection {
@@ -116,6 +147,7 @@ model ExperimentSectionContent {
   files               ExperimentFile[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
+  sectionsCritiques   SectionCritique[]
 
   @@unique([experimentId, experimentSectionId])
 }
@@ -138,6 +170,7 @@ model ExperimentAttributeValue {
   attributeId String
   value       String
   slug        String              @unique
+  order       Int                 @default(0)
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 }
@@ -251,6 +284,36 @@ model Comment {
   children     Comment[]   @relation("CommentToComment")
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+}
+
+model Review {
+  id                String            @id @default(uuid())
+  experiment        Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experimentId      String
+  reviewer          User              @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewerId        String
+  status            ReviewStatus      @default(IN_PROGRESS)
+  sectionsCritiques SectionCritique[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+enum ReviewStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model SectionCritique {
+  id               String                   @id @default(uuid())
+  review           Review                   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId         String
+  sectionContent   ExperimentSectionContent @relation(fields: [sectionContentId], references: [id], onDelete: Cascade)
+  sectionContentId String
+  critique         String                   @db.Text
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  @@unique([reviewId, sectionContentId])
 }
 
 model SeedStatus {

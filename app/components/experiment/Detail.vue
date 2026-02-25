@@ -1,10 +1,51 @@
 <script lang="ts" setup>
+import type { Sign } from "~~/shared/types/Sign.type"
+import type { LightboxSection } from "~/components/ui/carousel/interface"
+import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
+import type { Review } from "~~/shared/types/Review.type"
+import { getSignIconUrl } from "~/utils/signs"
+
 const user = await useUser()
 
 const { experiment } = defineProps<{
   experiment?: ExperimentDetail
   preview?: boolean
+  reviewStarted?: boolean
 }>()
+
+const reviews = ref<Review[]>([])
+
+const canReviewExperiments = await allows(experimentAbilities.review)
+
+const warningSigns = computed(() =>
+  (experiment?.signs ?? []).filter((s: Sign) => s.type === "WARNING"),
+)
+
+const safetySigns = computed(() =>
+  (experiment?.signs ?? []).filter((s: Sign) => s.type === "SAFETY"),
+)
+
+watch(
+  () => experiment?.id,
+  async (id) => {
+    if (!id || !experiment || !canReviewExperiments) return
+
+    const reviewExperimentId = experiment.revisionOf?.id ?? id
+
+    const { data, error } = await useFetch<Review[]>(
+      `/api/experiments/review/by-experiment?experimentId=${reviewExperimentId}`,
+    )
+
+    if (!error.value) {
+      reviews.value = data.value ?? []
+    }
+  },
+  { immediate: true },
+)
+
+const comments = defineModel<Record<string, string>>("comments", {
+  default: {},
+})
 
 const attributesWithoutDuration = computed(() => {
   return experiment?.attributes.filter(
@@ -23,6 +64,10 @@ function attributeValuesString(attribute: ExperimentAttributeDetail) {
 
 const isImageFile = (mimeType: string) => mimeType.startsWith("image/")
 const isVideoFile = (mimeType: string) => mimeType.startsWith("video/")
+
+function isRiskAssessmentSection(section: ExperimentSectionContentDetail) {
+  return section.experimentSection.name === "Gefährdungsbeurteilung"
+}
 
 const router = useRouter()
 const canGoBack = ref(false)
@@ -47,6 +92,75 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
 }
+
+function getReviewsForSection(sectionId: string) {
+  return reviews.value
+    .filter(review =>
+      review.sectionsCritiques?.some(c => c.sectionContent?.experimentSection?.id === sectionId),
+    )
+    .map(review => ({
+      ...review,
+      critiques: (review.sectionsCritiques ?? []).filter(c => c.sectionContent?.experimentSection?.id === sectionId),
+    }))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+}
+
+function formatDate(dateString: string | Date) {
+  return new Date(dateString).toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+const activeLightboxIndex = ref<number | null>(null)
+const activeSectionForLightbox = ref<LightboxSection | null>(null)
+
+function openLightbox(section: LightboxSection, index: number) {
+  activeSectionForLightbox.value = section
+  activeLightboxIndex.value = index
+  document.body.style.overflow = "hidden"
+}
+
+function openPreviewLightbox() {
+  if (!experiment?.previewImage) return
+  activeSectionForLightbox.value = {
+    id: "preview",
+    isPreview: true,
+    files: [{ file: experiment.previewImage, description: "" }],
+  }
+  activeLightboxIndex.value = 0
+  document.body.style.overflow = "hidden"
+}
+
+function closeLightbox() {
+  activeLightboxIndex.value = null
+  activeSectionForLightbox.value = null
+  document.body.style.overflow = "auto"
+}
+
+async function downloadFile(url: string) {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = blobUrl
+    link.download = getServerFileName(url)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(blobUrl)
+  } catch (error) {
+    console.error("Download failed", error)
+  }
+}
+
+function getServerFileName(path: string) {
+  return path.split("/").pop() || "download"
+}
 </script>
 
 <template>
@@ -70,6 +184,12 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
       <h1 class="text-4xl font-extrabold mr-2">
         {{ experiment.name }}
       </h1>
+
+      <FavoriteButton
+        :experiment-id="experiment.id"
+        :is-favorited-initial="experiment.isFavorited ?? false"
+      />
+
       <DropdownMenu
         v-if="user"
       >
@@ -87,7 +207,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
-            v-if="user !== null && (user.role === 'ADMIN')"
+            v-if="(user.role === 'ADMIN')"
             @click="navigateTo(`/users?search=${experiment.userId}`)"
           >
             <span>
@@ -121,7 +241,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            v-else-if="user.id === experiment.userId && experiment.status === 'DRAFT' || experiment.status === 'REJECTED'"
+            v-else-if="user.id === experiment.userId && (experiment.status === 'DRAFT' || experiment.status === 'REJECTED')"
           >
             <NuxtLink
               :to="`/experiments/edit/${experiment.id}`"
@@ -131,7 +251,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </NuxtLink>
           </DropdownMenuItem>
           <DropdownMenuItem
-            v-if="user !== null && (user.id === experiment.userId || user.role === 'ADMIN')"
+            v-if="(user.id === experiment.userId || user.role === 'ADMIN')"
             class="text-destructive"
             @click="showDeleteDialog = true"
           >
@@ -141,14 +261,12 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
       <ConfirmDeleteAlertDialogBool
         v-model="showDeleteDialog"
         :on-delete="() => deleteExperiment(experiment.id).then(async () => await navigateTo('/experiments'))"
         header="Versuch löschen?"
       />
     </div>
-
     <!-- Rating -->
     <ExperimentRating
       :experiment="experiment"
@@ -158,6 +276,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     <Card
       v-if="experiment.previewImage"
       class="flex justify-center shadow-md max-h-200"
+      @click="openPreviewLightbox"
     >
       <NuxtPicture
         format="webp,avif"
@@ -200,6 +319,66 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
       </div>
     </Card>
 
+    <!-- Signs Preview -->
+    <Card class="px-4 py-2 space-y-4 shadow-lg mt-6">
+      <!-- No signs at all -->
+      <p
+        v-if="!experiment.signs?.length"
+        class="text-muted-foreground"
+      >
+        Keine Sicherheitszeichen gesetzt!
+      </p>
+      <!-- Warning Signs -->
+      <div v-if="experiment.signs.some(s => s.type === 'WARNING')">
+        <h3 class="text-lg font-semibold mb-2">
+          Warnzeichen
+        </h3>
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
+        >
+          <div
+            v-for="sign in warningSigns"
+            :key="sign.id"
+            class="flex flex-col items-center text-xs h-28 justify-between"
+          >
+            <div class="w-16 h-16 flex items-center justify-center">
+              <img
+                :src="getSignIconUrl(sign)"
+                :alt="sign.name"
+                class="max-w-full max-h-full object-contain"
+              >
+            </div>
+            <span class="text-center break-words min-h-[1.5rem] w-full">{{ sign.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safety Signs -->
+      <div v-if="experiment.signs.some(s => s.type === 'SAFETY')">
+        <h3 class="text-lg font-semibold mb-2 mt-4">
+          Schutzzeichen
+        </h3>
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
+        >
+          <div
+            v-for="sign in safetySigns"
+            :key="sign.id"
+            class="flex flex-col items-center text-xs h-28 justify-between"
+          >
+            <div class="w-16 h-16 flex items-center justify-center">
+              <img
+                :src="getSignIconUrl(sign)"
+                :alt="sign.name"
+                class="max-w-full max-h-full object-contain"
+              >
+            </div>
+            <span class="text-center break-words min-h-[1.5rem] w-full">{{ sign.name }}</span>
+          </div>
+        </div>
+      </div>
+    </Card>
+
     <!-- Sections with Files -->
     <div
       v-if="experiment.sections?.length"
@@ -210,19 +389,21 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         :key="section.id"
         class="space-y-6"
       >
-        <h2 class="text-3xl font-bold">
-          {{ section.experimentSection.name }}
-        </h2>
-        <LatexContent
-          v-if="section.text && section.text.length && section.text != '<p></p>'"
-          :content="section.text"
-        />
-        <p
-          v-else
-          class="text-muted-foreground"
-        >
-          Keine Beschreibung vorhanden
-        </p>
+        <template v-if="!isRiskAssessmentSection(section) || section.files.length > 0">
+          <h2 class="text-3xl font-bold">
+            {{ section.experimentSection.name }}
+          </h2>
+          <LatexContent
+            v-if="!isRiskAssessmentSection(section) && section.text && section.text.length && section.text != '<p></p>'"
+            :content="section.text"
+          />
+          <p
+            v-else-if="!isRiskAssessmentSection(section)"
+            class="text-muted-foreground"
+          >
+            Keine Beschreibung vorhanden
+          </p>
+        </template>
 
         <CarouselWithPreview
           v-if="section.files.length"
@@ -232,7 +413,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           <!-- Main Carousel Item -->
           <template #item="{ item, index }">
             <Card>
-              <CardContent class="h-80 flex items-center justify-center p-0">
+              <CardContent class="h-80 flex items-center justify-center p-0 relative overflow-hidden rounded-t-lg">
                 <!-- Image File -->
                 <template v-if="isImageFile(item.file.mimeType)">
                   <NuxtPicture
@@ -241,8 +422,11 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                     fit="inside"
                     :src="item.file.path"
                     alt="File Preview"
-                    :img-attrs="{ class: 'object-contain w-full h-full rounded' }"
-                    class="object-contain w-full h-full rounded"
+                    :img-attrs="{
+                      class: 'object-contain w-full h-full cursor-zoom-in transition-all duration-300 hover:scale-[1.03]',
+                      onClick: () => openLightbox(section, index),
+                    }"
+                    class="w-full h-full flex items-center justify-center"
                   />
                 </template>
 
@@ -277,6 +461,19 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                     </div>
                   </NuxtLink>
                 </template>
+
+                <Button
+                  v-if="item.file.path"
+                  variant="secondary"
+                  size="icon"
+                  class="absolute top-2 right-2 bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white border-none transition-all z-20 text-slate-900"
+                  @click.stop="downloadFile(item.file.path)"
+                >
+                  <Icon
+                    name="heroicons:arrow-down-tray"
+                    class="w-5 h-5"
+                  />
+                </Button>
               </CardContent>
               <Separator class="mb-3" />
               <p
@@ -286,7 +483,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
                 {{ getImageTitle(experiment.sections.indexOf(section), index) }}
               </p>
               <p
-                class="w-full whitespace-normal text-center text-muted-foreground pb-3"
+                class="w-full whitespace-normal text-center text-muted-foreground pb-3 px-6"
                 style="overflow-wrap: anywhere;"
               >
                 {{ item.description }}
@@ -296,7 +493,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
 
           <!-- Thumbnail -->
           <template #thumbnail="{ item }">
-            <Card class="h-20 w-full flex items-center justify-center rounded">
+            <Card class="h-20 w-full flex items-center justify-center rounded overflow-hidden border-2 border-transparent hover:border-primary/30 hover:bg-black/5 transition-all cursor-pointer">
               <template v-if="isImageFile(item.file.mimeType)">
                 <NuxtPicture
                   format="webp,avif"
@@ -322,11 +519,124 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             </Card>
           </template>
         </CarouselWithPreview>
+
+        <div
+          v-if="canReviewExperiments && getReviewsForSection(section.experimentSection.id).length > 0"
+          class="mt-10 rounded-xl border bg-muted/30 p-6"
+        >
+          <h3 class="text-xl font-bold flex items-center gap-3 mb-6">
+            <div class="p-2 bg-primary/10 rounded-lg">
+              <Icon
+                name="heroicons:chat-bubble-left-right"
+                class="w-6 h-6 text-primary"
+              />
+            </div>
+            Review Historie
+          </h3>
+
+          <div class="space-y-6 relative before:absolute before:inset-y-0 before:left-4 before:w-0.5 before:bg-border">
+            <div
+              v-for="(review, index) in getReviewsForSection(section.experimentSection.id)"
+              :key="review.id"
+              class="relative pl-10"
+            >
+              <div
+                :class="[
+                  'absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-background z-10',
+                  index === 0 ? 'bg-emerald-500 ring-4 ring-emerald-500/20' : 'bg-slate-400',
+                ]"
+              />
+
+              <div
+                :class="[
+                  'rounded-xl border p-5 shadow-sm transition-all',
+                  index === 0
+                    ? 'bg-background border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-500/5'
+                    : 'bg-background/50 border-border opacity-90',
+                ]"
+              >
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div class="flex items-center gap-3">
+                    <Badge
+                      v-if="index === 0"
+                      variant="default"
+                      class="bg-emerald-600 hover:bg-emerald-600 text-white"
+                    >
+                      Letzte Beanstandung
+                    </Badge>
+                    <Badge
+                      v-else
+                      variant="secondary"
+                      class="font-normal"
+                    >
+                      Archiviert
+                    </Badge>
+
+                    <div class="flex items-center gap-1.5 text-sm font-medium">
+                      <Avatar
+                        v-if="review.reviewer?.image"
+                        class="w-6 h-6"
+                      >
+                        <AvatarImage :src="review.reviewer.image" />
+                        <AvatarFallback>{{ review.reviewer.name[0] }}</AvatarFallback>
+                      </Avatar>
+                      <span class="text-foreground/80">{{ review.reviewer?.name }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-4 text-xs text-muted-foreground">
+                    <div
+                      v-if="review.experimentId !== experiment?.id"
+                      class="flex items-center gap-1 px-2 py-0.5 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 rounded"
+                    >
+                      <Icon
+                        name="heroicons:arrow-uturn-left"
+                        class="w-3 h-3"
+                      />
+                      Vorherige Version
+                    </div>
+                    <time>{{ formatDate(review.updatedAt) }}</time>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div
+                    v-for="critique in review.critiques"
+                    :key="critique.id"
+                    class="prose prose-sm dark:prose-invert max-w-none bg-muted/20 rounded-lg p-3 border border-border/40"
+                  >
+                    <LatexContent :content="critique.critique" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Textfeld für Review-Modul -->
+        <div
+          v-if="reviewStarted"
+          class="mt-6"
+        >
+          <label class="block text-2xl font-extrabold mb-3">
+            Beanstandung:
+          </label>
+
+          <TipTapEditor
+            :model-value="comments[section.id] ?? ''"
+            :show-headings="false"
+            editor-class="p-4 min-h-[160px] resize-y overflow-auto border rounded"
+            @update:model-value="val => comments[section.id] = val"
+          />
+
+          <p class="text-sm text-muted-foreground mt-2">
+            Optional: Hinweise oder Beanstandungen für diesen Abschnitt
+          </p>
+        </div>
       </div>
     </div>
 
     <!-- Own rating -->
-    <!-- <div v-if="!preview"> -->
     <Separator />
     <ExperimentRatingOwn
       v-if="user"
@@ -335,6 +645,12 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
     <ExperimentComment
       :experiment="experiment"
     />
-    <!-- </div> -->
   </div>
+
+  <ExperimentLightbox
+    :active-file-index="activeLightboxIndex"
+    :active-section="activeSectionForLightbox"
+    @close="closeLightbox"
+    @download="(path) => downloadFile(path)"
+  />
 </template>
