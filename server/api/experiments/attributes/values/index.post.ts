@@ -9,6 +9,23 @@ export default defineEventHandler(async (event) => {
 
   const content = await readValidatedBody(event, body => experimentAttributeValueCreateSchema.parse(body))
 
+  const existingValue = await prisma.experimentAttributeValue.findFirst({
+    where: {
+      attributeId: content.attribute,
+      value: {
+        equals: content.value,
+        mode: "insensitive",
+      },
+    },
+  })
+
+  if (existingValue) {
+    throw createError({
+      status: 409,
+      message: "Eine Option mit diesem Namen existiert bereits in dieser Kategorie.",
+    })
+  }
+
   const result = await untilSlugUnique(
     (slug: string) => {
       return prisma.experimentAttributeValue.create({
@@ -47,7 +64,7 @@ defineRouteMeta({
       },
     },
     responses: {
-      200: {
+      201: {
         description: "The created value",
         content: {
           "application/json": {
@@ -60,6 +77,9 @@ defineRouteMeta({
             },
           },
         },
+      },
+      409: {
+        description: "Value with this name already exists in this attribute",
       },
     },
   },

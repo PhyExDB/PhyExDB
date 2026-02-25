@@ -18,17 +18,35 @@ const user = await useUser()
 const canChangeRole = computed(() => user.value?.id !== props.id)
 
 const position = ref<UserRole>(props.role)
-watch(position, async (newVal) => {
-  await useAuth().client.admin.setRole({
-    userId: props.id,
-    role: newVal as UserRole,
-  })
-  emit("changed", { role: newVal })
-  toast({
-    title: "Rolle geändert",
-    description: `${props.name}'s Rolle wurde erfolgreich zu ${capitalizeFirstLetter(newVal)} geändert.`,
-    variant: "success",
-  })
+
+watch(
+  () => props.role,
+  (newVal) => {
+    if (newVal !== position.value) position.value = newVal
+  },
+)
+
+watch(position, async (newVal, oldVal) => {
+  if (newVal === oldVal) return
+  try {
+    await $fetch(`/api/users/${props.id}/role`, {
+      method: "PUT",
+      body: { role: newVal as UserRole },
+    })
+    emit("changed", { role: newVal })
+    toast({
+      title: "Rolle geändert",
+      description: `${props.name}'s Rolle wurde erfolgreich zu ${capitalizeFirstLetter(newVal)} geändert.`,
+      variant: "success",
+    })
+  } catch {
+    position.value = oldVal as UserRole
+    toast({
+      title: "Fehler beim Ändern der Rolle",
+      description: "Die Rolle konnte nicht aktualisiert werden. Bitte versuche es erneut.",
+      variant: "destructive",
+    })
+  }
 })
 </script>
 
@@ -37,7 +55,7 @@ watch(position, async (newVal) => {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <div class="flex flex-nowrap">
-          <span>{{ capitalizeFirstLetter(props.role) }}</span>
+          <span>{{ capitalizeFirstLetter(position) }}</span>
           <Icon
             v-if="canChangeRole"
             size="1.2em"

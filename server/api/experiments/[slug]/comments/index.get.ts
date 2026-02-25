@@ -25,6 +25,16 @@ export default defineEventHandler(async (event) => {
           name: true,
         },
       },
+      children: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

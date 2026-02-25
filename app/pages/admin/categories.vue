@@ -1,0 +1,577 @@
+<script setup lang="ts">
+import Draggable from "vuedraggable"
+import { useToast } from "@/components/ui/toast/use-toast"
+import { experimentAttributeAbilities } from "~~/shared/utils/abilities"
+
+definePageMeta({
+  title: "Kategorien verwalten",
+  description: "Verwalte die Kategorien für Experimente",
+})
+
+authorize(experimentAttributeAbilities.getAll)
+
+const { toast } = useToast()
+const { data: attributes, refresh } = await useFetch("/api/experiments/attributes")
+
+const sortedAttributes = computed({
+  get: () => attributes.value?.slice().sort((a, b) => a.order - b.order) ?? [],
+  set: async (newOrder) => {
+    try {
+      await $fetch("/api/experiments/attributes/reorder", {
+        method: "PUT",
+        body: {
+          ids: newOrder.map(attr => attr.id),
+        },
+      })
+      await refresh()
+    } catch (e) {
+      console.error(e)
+      toast({ title: "Fehler beim Sortieren", variant: "destructive" })
+    }
+  },
+})
+
+const MIN_NAME_LENGTH = 4
+const newAttributeName = ref("")
+const newAttributeMultipleSelection = ref(false)
+const isAddingAttribute = ref(false)
+
+function isNameInvalid(name?: string | null) {
+  return (name?.trim().length ?? 0) < MIN_NAME_LENGTH
+}
+
+async function addAttribute() {
+  const name = newAttributeName.value.trim()
+  if (isNameInvalid(name)) {
+    toast({
+      title: "Name zu kurz",
+      description: "Der Name muss mindestens 4 Zeichen lang sein.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const exists = attributes.value?.some(attr => attr.name.toLowerCase() === name.toLowerCase())
+  if (exists) {
+    toast({
+      title: "Kategorie existiert bereits",
+      description: "Eine Kategorie mit diesem Namen existiert bereits.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  try {
+    await $fetch("/api/experiments/attributes", {
+      method: "POST",
+      body: {
+        name: newAttributeName.value,
+        multipleSelection: newAttributeMultipleSelection.value,
+        values: [],
+      },
+    })
+    newAttributeName.value = ""
+    newAttributeMultipleSelection.value = false
+    isAddingAttribute.value = false
+    await refresh()
+    toast({ title: "Kategorie hinzugefügt", variant: "success" })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Hinzufügen", variant: "destructive" })
+  }
+}
+
+async function deleteAttribute(slug: string) {
+  try {
+    await $fetch(`/api/experiments/attributes/${slug}`, {
+      method: "DELETE",
+    })
+    await refresh()
+    toast({ title: "Kategorie gelöscht", variant: "success" })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Löschen", variant: "destructive" })
+  }
+}
+
+const editingAttribute = ref<ExperimentAttributeDetail | null>(null)
+function startEditing(attribute: ExperimentAttributeDetail) {
+  editingAttribute.value = structuredClone(attribute)
+}
+
+async function updateAttribute() {
+  const name = editingAttribute.value?.name?.trim() ?? ""
+  if (isNameInvalid(name)) {
+    toast({
+      title: "Name zu kurz",
+      description: "Der Name muss mindestens 4 Zeichen lang sein.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const exists = attributes.value?.some(
+    attr => attr.id !== editingAttribute.value!.id && attr.name.toLowerCase() === name.toLowerCase(),
+  )
+  if (exists) {
+    toast({
+      title: "Kategorie existiert bereits",
+      description: "Eine andere Kategorie mit diesem Namen existiert bereits.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  try {
+    await $fetch(`/api/experiments/attributes/${editingAttribute.value!.slug}`, {
+      method: "PUT",
+      body: {
+        name: name,
+        multipleSelection: editingAttribute.value!.multipleSelection,
+      },
+    })
+    editingAttribute.value = null
+    await refresh()
+    toast({ title: "Kategorie aktualisiert", variant: "success" })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Aktualisieren", variant: "destructive" })
+  }
+}
+
+function getSortedValues(attribute: ExperimentAttributeDetail) {
+  return attribute.values.slice().sort((a, b) => a.order - b.order)
+}
+
+async function reorderValues(attribute: ExperimentAttributeDetail, newOrder: ExperimentAttributeDetail[]) {
+  try {
+    await $fetch("/api/experiments/attributes/values/reorder", {
+      method: "PUT",
+      body: {
+        attributeId: attribute.id,
+        ids: newOrder.map(val => val.id),
+      },
+    })
+    await refresh()
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Sortieren", variant: "destructive" })
+  }
+}
+
+const newValueNames = ref<Record<string, string>>({})
+async function addValue(attributeId: string) {
+  const name = newValueNames.value[attributeId]?.trim() ?? ""
+  if (isNameInvalid(name)) {
+    toast({
+      title: "Name zu kurz",
+      description: "Der Name muss mindestens 4 Zeichen lang sein.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const attribute = attributes.value?.find(attr => attr.id === attributeId)
+  const exists = attribute?.values.some(val => val.value.toLowerCase() === name.toLowerCase())
+  if (exists) {
+    toast({
+      title: "Option existiert bereits",
+      description: "Eine Option mit diesem Namen existiert bereits in dieser Kategorie.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  try {
+    await $fetch("/api/experiments/attributes/values", {
+      method: "POST",
+      body: {
+        value: name,
+        attribute: attributeId,
+      },
+    })
+    newValueNames.value[attributeId] = ""
+    await refresh()
+    toast({ title: "Option hinzugefügt", variant: "success" })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Hinzufügen", variant: "destructive" })
+  }
+}
+
+async function deleteValue(slug: string) {
+  try {
+    await $fetch(`/api/experiments/attributes/values/${slug}`, {
+      method: "DELETE",
+    })
+    await refresh()
+    toast({ title: "Option gelöscht", variant: "success" })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Löschen", variant: "destructive" })
+  }
+}
+
+const editingValue = ref<ExperimentAttributeValueList | null>(null)
+function startEditingValue(val: ExperimentAttributeValueList) {
+  editingValue.value = structuredClone(val)
+}
+
+async function updateValue() {
+  const name = editingValue.value?.value?.trim() ?? ""
+  if (isNameInvalid(name)) {
+    toast({
+      title: "Name zu kurz",
+      description: "Der Name muss mindestens 4 Zeichen lang sein.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const parentAttribute = attributes.value?.find(attr =>
+    attr.values.some(v => v.id === editingValue.value!.id),
+  )
+  const exists = parentAttribute?.values.some(
+    val => val.id !== editingValue.value!.id && val.value.toLowerCase() === name.toLowerCase(),
+  )
+
+  if (exists) {
+    toast({
+      title: "Option existiert bereits",
+      description: "Eine andere Option mit diesem Namen existiert bereits in dieser Kategorie.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  try {
+    await $fetch(`/api/experiments/attributes/values/${editingValue.value!.slug}`, {
+      method: "PUT",
+      body: {
+        value: name,
+      },
+    })
+    editingValue.value = null
+    await refresh()
+    toast({ title: "Option aktualisiert", variant: "success" })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Aktualisieren", variant: "destructive" })
+  }
+}
+async function toggleSelectionType(attribute: ExperimentAttributeDetail) {
+  try {
+    await $fetch(`/api/experiments/attributes/${attribute.slug}`, {
+      method: "PUT",
+      body: {
+        name: attribute.name,
+        multipleSelection: !attribute.multipleSelection,
+      },
+    })
+    await refresh()
+    toast({
+      title: "Auswahlmodus geändert",
+      description: `Jetzt ${!attribute.multipleSelection ? "Einfachauswahl" : "Mehrfachauswahl"}`,
+      variant: "success",
+    })
+  } catch (e) {
+    console.error(e)
+    toast({ title: "Fehler beim Ändern", variant: "destructive" })
+  }
+}
+</script>
+
+<template>
+  <div class="container py-10 mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">
+        Kategorien verwalten
+      </h1>
+      <Dialog v-model:open="isAddingAttribute">
+        <DialogTrigger as-child>
+          <Button>Kategorie hinzufügen</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Neue Kategorie</DialogTitle>
+          </DialogHeader>
+          <div class="space-y-4 py-4">
+            <div class="space-y-2">
+              <Label for="name">Name</Label>
+              <Input
+                id="name"
+                v-model="newAttributeName"
+                placeholder="z.B. Themenbereich"
+              />
+              <p
+                v-if="isNameInvalid(newAttributeName) && newAttributeName.length > 0"
+                class="text-[10px] text-destructive"
+              >
+                Mindestens 4 Zeichen erforderlich.
+              </p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <Checkbox
+                id="multiple"
+                :checked="newAttributeMultipleSelection"
+                @update:checked="newAttributeMultipleSelection = $event"
+              />
+              <Label for="multiple">Mehrfachauswahl erlauben</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              @click="isAddingAttribute = false"
+            >
+              Abbrechen
+            </Button>
+            <Button
+              :disabled="isNameInvalid(newAttributeName)"
+              @click="addAttribute"
+            >
+              Speichern
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+
+    <Draggable
+      v-model="sortedAttributes"
+      item-key="id"
+      class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+      handle=".drag-handle"
+    >
+      <template #item="{ element: attribute }">
+        <Card>
+          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div class="flex items-center gap-2">
+              <button class="drag-handle cursor-move text-muted-foreground hover:text-foreground">
+                <Icon
+                  name="heroicons:bars-3"
+                  size="20"
+                />
+              </button>
+              <CardTitle class="text-xl font-bold">
+                {{ attribute.name }}
+              </CardTitle>
+            </div>
+            <div class="flex space-x-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                @click="startEditing(attribute)"
+              >
+                <Icon name="heroicons:pencil" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger as-child>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    class="text-destructive"
+                  >
+                    <Icon name="heroicons:trash" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Kategorie löschen?</AlertDialogTitle>
+                    <AlertDialogDescription>Dies löscht die Kategorie und alle zugehörigen Optionen.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                    <AlertDialogAction
+                      class="bg-destructive"
+                      @click="deleteAttribute(attribute.slug)"
+                    >
+                      Löschen
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </CardHeader>
+
+          <CardContent>
+            <button
+              class="mb-4 flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted transition w-full"
+              @click="toggleSelectionType(attribute)"
+            >
+              <div
+                class="w-9 h-5 rounded-full transition relative"
+                :class="attribute.multipleSelection ? 'bg-primary' : 'bg-muted-foreground/30'"
+              >
+                <div
+                  class="w-4 h-4 absolute top-0.5 bg-background rounded-full shadow transition-all"
+                  :class="attribute.multipleSelection ? 'left-[18px]' : 'left-0.5'"
+                />
+              </div>
+              <span class="text-xs text-muted-foreground">
+                {{ attribute.multipleSelection ? 'Mehrfachauswahl' : 'Einfachauswahl' }}
+              </span>
+            </button>
+
+            <div class="space-y-2">
+              <div class="font-semibold text-sm">
+                Optionen:
+              </div>
+
+              <Draggable
+                :model-value="getSortedValues(attribute)"
+                item-key="id"
+                class="flex flex-wrap gap-2"
+                handle=".value-drag-handle"
+                @update:model-value="reorderValues(attribute, $event)"
+              >
+                <template #item="{ element: val }">
+                  <Badge
+                    variant="secondary"
+                    class="flex items-center gap-1"
+                  >
+                    <button class="value-drag-handle cursor-move mr-1">
+                      <Icon
+                        name="heroicons:bars-2"
+                        size="10"
+                      />
+                    </button>
+                    {{ val.value }}
+                    <div class="flex items-center ml-1 space-x-1">
+                      <button
+                        class="hover:text-primary"
+                        @click="startEditingValue(val)"
+                      >
+                        <Icon
+                          name="heroicons:pencil"
+                          size="12"
+                        />
+                      </button>
+                      <button
+                        class="hover:text-destructive"
+                        @click="deleteValue(val.slug)"
+                      >
+                        <Icon
+                          name="heroicons:x-mark"
+                          size="12"
+                        />
+                      </button>
+                    </div>
+                  </Badge>
+                </template>
+              </Draggable>
+
+              <div class="flex gap-2 mt-2">
+                <Input
+                  v-model="newValueNames[attribute.id]"
+                  placeholder="Neue Option..."
+                  class="h-8"
+                  @keyup.enter="!isNameInvalid(newValueNames[attribute.id]) && addValue(attribute.id)"
+                />
+                <Button
+                  size="sm"
+                  class="h-8"
+                  :disabled="isNameInvalid(newValueNames[attribute.id])"
+                  @click="addValue(attribute.id)"
+                >
+                  <Icon name="heroicons:plus" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </template>
+    </Draggable>
+
+    <!-- Edit Attribute Dialog -->
+    <Dialog
+      :open="!!editingAttribute"
+      @update:open="editingAttribute = null"
+    >
+      <DialogContent v-if="editingAttribute">
+        <DialogHeader>
+          <DialogTitle>Kategorie bearbeiten</DialogTitle>
+        </DialogHeader>
+        <div class="space-y-4 py-4">
+          <div class="space-y-2">
+            <Label for="edit-name">Name</Label>
+            <Input
+              id="edit-name"
+              v-model="editingAttribute.name"
+            />
+            <p
+              v-if="isNameInvalid(editingAttribute.name)"
+              class="text-[10px] text-destructive"
+            >
+              Mindestens 4 Zeichen erforderlich.
+            </p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <Checkbox
+              id="edit-multiple"
+              :checked="editingAttribute.multipleSelection"
+              @update:checked="editingAttribute.multipleSelection = $event"
+            />
+            <Label for="edit-multiple">Mehrfachauswahl erlauben</Label>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            @click="editingAttribute = null"
+          >
+            Abbrechen
+          </Button>
+          <Button
+            :disabled="isNameInvalid(editingAttribute.name)"
+            @click="updateAttribute"
+          >
+            Speichern
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <!-- Edit Value Dialog -->
+    <Dialog
+      :open="!!editingValue"
+      @update:open="editingValue = null"
+    >
+      <DialogContent v-if="editingValue">
+        <DialogHeader>
+          <DialogTitle>Option bearbeiten</DialogTitle>
+        </DialogHeader>
+        <div class="space-y-4 py-4">
+          <div class="space-y-2">
+            <Label for="edit-value">Name der Option</Label>
+            <Input
+              id="edit-value"
+              v-model="editingValue.value"
+              @keyup.enter="!isNameInvalid(editingValue.value?.trim()) && updateValue()"
+            />
+            <p
+              v-if="isNameInvalid(editingValue.value?.trim())"
+              class="text-[10px] text-destructive"
+            >
+              Mindestens 4 Zeichen erforderlich.
+            </p>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            @click="editingValue = null"
+          >
+            Abbrechen
+          </Button>
+          <Button
+            :disabled="isNameInvalid(editingValue.value?.trim())"
+            @click="updateValue"
+          >
+            Speichern
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  </div>
+</template>

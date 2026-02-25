@@ -2,6 +2,7 @@
 import type { PrismaClient } from "@prisma/client"
 import { vitest } from "vitest"
 import { mockDeep } from "vitest-mock-extended"
+import { ref } from "vue"
 import { createDomPurify } from "~~/server/utils/dompurify"
 
 const prisma = mockDeep<PrismaClient>()
@@ -70,3 +71,43 @@ vitest.mock(import("~~/server/utils/files"), async (importOriginal) => {
     myDeleteFile: vitest.fn(),
   }
 })
+
+vitest.mock("#app", async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>
+  return {
+    ...actual,
+    useFetch: vitest.fn().mockImplementation((url: string) => {
+      const responses: Record<string, unknown> = {
+        "/api/2fa/status": { enabled: false, required: false },
+        "/api/auth/session": { user: null },
+      }
+
+      for (const [pattern, data] of Object.entries(responses)) {
+        if (url.includes(pattern)) {
+          return {
+            data: ref(data),
+            pending: ref(false),
+            error: ref(null),
+            refresh: vitest.fn(),
+          }
+        }
+      }
+
+      return {
+        data: ref(null),
+        pending: ref(false),
+        error: ref(null),
+        refresh: vitest.fn(),
+      }
+    }),
+    navigateTo: vitest.fn(),
+    useRuntimeConfig: vitest.fn(() => ({})),
+  }
+})
+
+vitest.mock("~~/server/lib/prisma", () => ({ default: prisma }))
+
+vitest.mock("~~/server/utils/authorization", async importOriginal => ({
+  ...(await importOriginal() as any),
+  ensureTwofaIfRequired: vitest.fn(),
+}))

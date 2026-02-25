@@ -17,7 +17,7 @@ export default class ExperimentAttributeSeed extends Seed {
     const attributes = [
       {
         name: "Themenbereich",
-        multipleSelection: false,
+        multipleSelection: true,
         values: [
           "Optik",
           "Wärmelehre",
@@ -65,9 +65,10 @@ export default class ExperimentAttributeSeed extends Seed {
           multipleSelection: attribute.multipleSelection,
           order: index,
           values: {
-            create: attribute.values.map(value => ({
+            create: attribute.values.map((value, valueIndex) => ({
               value: value,
               slug: slugify(value),
+              order: valueIndex,
             })),
           },
         },

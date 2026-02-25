@@ -1,20 +1,36 @@
 import { getSlugOrIdPrismaWhereClause } from "~~/server/utils/prisma"
-import { experimentAbilities } from "~~/shared/utils/abilities"
-import { authorize } from "~~/server/utils/authorization"
+import { sortSigns } from "~~/server/utils/sign"
 
 export default defineEventHandler(async (event) => {
+  const user = await getUser(event)
   const experiment = await prisma.experiment.findFirst({
     where: getSlugOrIdPrismaWhereClause(event),
-    include: experimentIncludeForToDetail,
+    include: {
+      ...experimentIncludeForToDetail,
+      reviews: {
+        where: { status: "COMPLETED" },
+        select: { reviewerId: true, updatedAt: true },
+      },
+    },
   })
 
-  if (!experiment) {
-    throw createError({ status: 404, message: "Experiment not found!" })
+  if (!experiment) throw createError({ status: 404, message: "Experiment not found!" })
+
+  // Map to type-safe domain object
+  const experimentDetail = mapExperimentToDetail(experiment)
+
+  const currentRoundReviews = experiment.reviews.filter(r =>
+    new Date(r.updatedAt).getTime() >= new Date(experiment.updatedAt).getTime(),
+  )
+
+  const sortedSigns = experiment.signs ? sortSigns(experiment.signs) : []
+
+  return {
+    ...experimentDetail,
+    signs: sortedSigns,
+    completedReviewsCount: currentRoundReviews.length,
+    alreadyReviewedByMe: user ? currentRoundReviews.some(r => r.reviewerId === user.id) : false,
   }
-
-  await authorize(event, experimentAbilities.get, experiment)
-
-  return mapExperimentToDetail(experiment as ExperimentIncorrectDetail)
 })
 
 defineRouteMeta({
