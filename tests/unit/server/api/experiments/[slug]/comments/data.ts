@@ -21,7 +21,8 @@ export const comment = {
   userHasVoted: false,
   parentId: null,
   children: [],
-  user: { id: users.user.id, name: "name" },
-  _count: { votes: 0 },
-  votes: []
-}
+  user: {
+    id: users.user.id,
+    name: "name",
+  },
+} satisfies ExperimentComment
