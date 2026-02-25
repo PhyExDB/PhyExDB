@@ -3,7 +3,7 @@ import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
 import { z } from "zod"
 import { ExperimentCommentDetail } from "#components"
-import Report from "~/components/experiment/report/report.vue"
+import ReportDialog from "~/components/experiment/report/ReportDialog.vue"
 
 const props = defineProps<{
   experiment: Pick<ExperimentList, "id" | "userId" | "status">
@@ -260,5 +260,5 @@ const canEnable = allowsUser(user.value, experimentCommentAbilities.enable, prop
     </Button>
   </div>
 
-  <Report />
+  <ReportDialog />
 </template>

@@ -1,25 +1,24 @@
-import { auth } from "~~/server/utils/auth"
-
 export default defineEventHandler(async (event) => {
-  const session = await auth.api.getSession({
-    headers: new Headers(event.node.req.headers as HeadersInit),
-  })
+  const user = await getUserOrThrowError(event)
 
-  if (!session?.user) {
-    throw createError({ statusCode: 401, statusMessage: "Nicht authentifiziert" })
-  }
-
-  const reports = await prisma.report.findMany({
+  return prisma.report.findMany({
     where: {
-      experiment: {
-        userId: session.user.id,
-      },
+      experiment: { userId: user.id },
       seenByOwner: false,
     },
     include: {
-      experiment: true,
+      experiment: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          createdAt: true,
+          updatedAt: true,
+          userId: true,
+          status: true,
+        },
+      },
     },
+    orderBy: { createdAt: "desc" },
   })
-
-  return reports
 })

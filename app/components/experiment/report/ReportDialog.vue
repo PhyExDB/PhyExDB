@@ -1,39 +1,28 @@
 <script lang="ts" setup>
-import { ref } from "vue"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "~~/app/components/ui/dialog"
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "~~/app/components/ui/form"
-import { Textarea } from "~~/app/components/ui/textarea"
-import { Button } from "~~/app/components/ui/button"
-import { experimentReportSchema } from "~~/server/schemas/experimentReportSchema"
+import { reportSchema } from "~~/shared/schemas/report.schema"
 import { useToast } from "@/components/ui/toast/use-toast"
-import { useAuth } from "~/composables/useAuth"
 
 const { toast } = useToast()
 const loading = ref(false)
 const open = ref(false)
 const serverError = ref("")
 const route = useRoute()
-const formSchema = toTypedSchema(experimentReportSchema)
+const user = await useUser()
+
+const formSchema = toTypedSchema(reportSchema)
 const form = useForm({
   validationSchema: formSchema,
   initialValues: { message: "" },
 })
 
-const { session } = useAuth()
-
-const result = await session
-const user = result.data.value?.user ?? null
-
 const onSubmit = form.handleSubmit(async (values) => {
   loading.value = true
   serverError.value = ""
 
-  const identifier = route.params.slug
-
   try {
-    await $fetch(`/api/experiments/reports/${identifier}`, {
+    await $fetch(`/api/experiments/reports/${route.params.slug}`, {
       method: "POST",
       body: { message: values.message },
     })
@@ -43,11 +32,11 @@ const onSubmit = form.handleSubmit(async (values) => {
 
     toast({
       title: "Report",
-      description: "Report erfolgreich gesendet! Vielen Dank!",
+      description: "ReportDialog erfolgreich gesendet! Vielen Dank!",
       variant: "success",
     })
   } catch {
-    serverError.value = err?.data?.statusMessage || "Fehler beim Senden"
+    serverError.value = "Fehler beim Senden"
   } finally {
     loading.value = false
   }
@@ -65,16 +54,16 @@ const onSubmit = form.handleSubmit(async (values) => {
     >
       <Button
         variant="outline"
-        class="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+        class="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
       >
         Experiment melden
       </Button>
     </DialogTrigger>
 
-    <DialogContent class="bg-gray-900 text-white">
+    <DialogContent>
       <DialogHeader>
         <DialogTitle>Versuch melden</DialogTitle>
-        <DialogDescription class="text-gray-400">
+        <DialogDescription class="text-muted-foreground">
           Melde den Versuch und gib einen Grund an.
         </DialogDescription>
       </DialogHeader>
@@ -93,17 +82,16 @@ const onSubmit = form.handleSubmit(async (values) => {
               <Textarea
                 v-bind="componentField"
                 placeholder="Schreibe hier deine Meldung..."
-                class="bg-gray-900 text-white border-gray-700"
                 rows="5"
               />
             </FormControl>
-            <FormMessage class="text-red-400" />
+            <FormMessage />
           </FormItem>
         </FormField>
 
         <p
           v-if="serverError"
-          class="text-sm text-red-500 font-medium text-center"
+          class="text-sm text-destructive font-medium text-center"
         >
           {{ serverError }}
         </p>
@@ -123,7 +111,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             variant="destructive"
             :disabled="loading"
           >
-            <span>Melden</span>
+            Melden
           </Button>
         </DialogFooter>
       </form>
