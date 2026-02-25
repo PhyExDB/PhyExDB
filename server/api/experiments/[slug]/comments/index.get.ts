@@ -45,12 +45,12 @@ export default defineEventHandler(async (event) => {
     ],
   })
 
-  const items = result.map(comment => ({
+  const items = result.map(({ votes, ...comment }) => ({
     ...comment,
-    userHasVoted: !!comment.votes?.length,
-    children: comment.children.map(child => ({
+    userHasVoted: !!votes?.length,
+    children: comment.children.map(({ votes: childVotes, ...child }) => ({
       ...child,
-      userHasVoted: !!child.votes?.length,
+      userHasVoted: !!childVotes?.length,
     })),
   }))
 
