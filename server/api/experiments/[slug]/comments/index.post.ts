@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
       userId: user.id,
       text: content.text,
       parentId: content.parentId ?? null,
-      upvotesCount: 0,
     },
     include: {
       user: {
@@ -29,7 +28,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...result,
-    upvotesCount: 0,
     userHasVoted: false,
     children: [],
   } as ExperimentComment
