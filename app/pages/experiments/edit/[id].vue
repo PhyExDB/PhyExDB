@@ -3,6 +3,8 @@ import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
 import FormControl from "~/components/ui/form/FormControl.vue"
+import type { Sign } from "~~/shared/types/Sign.type"
+import SignGrid from "~/components/signs/SignGrid.vue"
 
 const user = await useUser()
 
@@ -40,6 +42,11 @@ if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECT
 const { data: sections } = await useFetch("/api/experiments/sections")
 const { data: attributes } = await useFetch("/api/experiments/attributes")
 
+const allSigns = ref<Sign[]>([])
+
+const { data: allSignsData } = await useFetch<Sign[]>("/api/signs")
+allSigns.value = allSignsData.value ?? []
+const availableSigns = computed(() => allSigns.value)
 function isRiskAssessmentSection(sectionName: string | undefined) {
   return sectionName === "Gefährdungsbeurteilung"
 }
@@ -74,6 +81,7 @@ const form = useForm({
         })) ?? [],
       }
     }) ?? [],
+    signs: experiment.value?.signs.map(s => ({ id: s.id })) ?? [],
   },
 })
 
@@ -440,6 +448,22 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           </FormField>
         </template>
 
+        <FormField
+          v-slot="{ componentField }"
+          name="signs"
+        >
+          <FormItem>
+            <FormLabel>Sicherheitszeichen</FormLabel>
+            <FormControl>
+              <SignGrid
+                :model-value="componentField.modelValue"
+                :available-signs="availableSigns"
+                @update:model-value="componentField.onChange"
+              />
+            </FormControl>
+            <FormMessage name="signs" />
+          </FormItem>
+        </FormField>
         <FormField
           v-slot="{ componentField, value }"
           name="duration"

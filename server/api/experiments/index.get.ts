@@ -103,7 +103,9 @@ export default defineEventHandler(async (event) => {
       ...attributeFilter,
       ...searchCondition,
     },
-    include: experimentIncludeForToList,
+    include: {
+      ...experimentIncludeForToList,
+    },
     orderBy: sortOption,
   })
 
@@ -119,17 +121,17 @@ export default defineEventHandler(async (event) => {
     favoriteIds = userFavorites.map(f => f.experimentId)
   }
 
-  return {
-    items: experiments.map((experiment) => {
-      const mapped = mapExperimentToList(experiment as ExperimentIncorrectList)
-      return {
-        ...mapped,
-        isFavorited: favoriteIds.includes(mapped.id), // Hier wird die Info gebündelt hinzugefügt
-        favoriteNumberForSequence: userFavorites.find(f => f.experimentId === mapped.id)?.numberForSequence,
-      }
-    }),
-    pagination: pageMeta,
-  }
+  const items = experiments.map((experiment) => {
+    const mapped = mapExperimentToList(experiment)
+
+    return {
+      ...mapped,
+      isFavorited: favoriteIds.includes(mapped.id),
+      favoriteNumberForSequence: userFavorites.find(f => f.experimentId === mapped.id)?.numberForSequence,
+    }
+  })
+
+  return { items, pagination: pageMeta }
 })
 
 defineRouteMeta({

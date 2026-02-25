@@ -43,6 +43,7 @@ export const lists: ExperimentList[] = [
     revisionOf: undefined,
     ratingsSum: 0,
     ratingsCount: 0,
+    signs: [],
   },
   {
     id: uuidv4(),
@@ -60,6 +61,7 @@ export const lists: ExperimentList[] = [
     revisionOf: undefined,
     ratingsSum: 0,
     ratingsCount: 0,
+    signs: [],
   },
 ] as ExperimentList[]
 

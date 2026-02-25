@@ -1,10 +1,14 @@
 import { ExperimentStatus } from "@prisma/client"
 import { getExperimentReadyForReviewSchema } from "~~/shared/types"
+import { transformExperimentToSchemaType } from "~~/shared/types/Experiment.type"
+import { authorize } from "~~/server/utils/authorization"
 
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
     where: getIdPrismaWhereClause(event),
-    include: experimentIncludeForToDetail,
+    include: {
+      ...experimentIncludeForToDetail,
+    },
   })
 
   if (!experiment) {
@@ -18,8 +22,13 @@ export default defineEventHandler(async (event) => {
   const sections = await $fetch("/api/experiments/sections")
   const attributes = await $fetch("/api/experiments/attributes")
 
-  const experimentForReview = transformExperimentToSchemaType(mapExperimentToDetail(experiment as ExperimentIncorrectDetail), attributes)
+  // Map experiment to type-safe domain model
+  const experimentDetail = mapExperimentToDetail(experiment)
 
+  // Transform to schema type for validation
+  const experimentForReview = transformExperimentToSchemaType(experimentDetail, attributes)
+
+  // Validate against schema
   const experimentReviewSchema = getExperimentReadyForReviewSchema(sections, attributes)
   await experimentReviewSchema.parseAsync(experimentForReview)
 
