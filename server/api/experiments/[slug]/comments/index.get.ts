@@ -52,12 +52,13 @@ export default defineEventHandler(async (event) => {
 
   const items = result.map(({ votes, _count, children, ...comment }) => ({
     ...comment,
-    upvotesCount: _count.votes,
+    upvotesCount: _count?.votes ?? 0,
     userHasVoted: !!votes?.length,
-    children: children.map(({ votes: childVotes, _count: childCount, ...child }) => ({
+    children: (children ?? []).map(({ votes: cVotes, _count: cCount, ...child }) => ({
       ...child,
-      upvotesCount: childCount.votes,
-      userHasVoted: !!childVotes?.length,
+      upvotesCount: cCount?.votes ?? 0,
+      userHasVoted: !!cVotes?.length,
+      children: [],
     })),
   }))
 
@@ -141,6 +142,18 @@ defineRouteMeta({
             },
           },
         },
+      },
+      400: {
+        description: "Invalid slug",
+      },
+      401: {
+        description: "No user is logged in",
+      },
+      403: {
+        description: "Unauthorized",
+      },
+      404: {
+        description: "Experiment not found",
       },
     },
   },

@@ -5,12 +5,16 @@ import type { EndpointResult } from "~~/tests/helpers/utils"
 import * as u from "~~/tests/helpers/utils"
 
 import endpoint from "~~/server/api/experiments/[slug]/comments/[id]/vote.post"
-import { experiment } from "~~/tests/unit/server/api/experiments/ratings/data"
-import { comment } from "~~/tests/unit/server/api/experiments/[slug]/comments/data"
+import { experiment, comment } from "~~/tests/unit/server/api/experiments/[slug]/comments/data"
+
+const commentForVote = {
+  ...comment,
+  experimentId: experiment.id,
+}
 
 describe("Api Route /api/experiments/[slug]/comments/[id].vote.post", () => {
   u.mockPrismaForSlugOrIdGet({ data: experiment }, "experiment")
-  u.mockPrismaForIdGet({ data: comment }, "comment")
+  u.mockPrismaForIdGet({ data: commentForVote }, "comment")
 
   expectTypeOf<EndpointResult<typeof endpoint>>().toEqualTypeOf<{ voted: boolean }>()
 
@@ -19,7 +23,7 @@ describe("Api Route /api/experiments/[slug]/comments/[id].vote.post", () => {
       vi.mocked(prisma.commentVote.findUnique).mockResolvedValue(null)
 
       const context = u.getTestContext({
-        data: comment,
+        data: commentForVote,
         expected: { voted: true },
         endpoint,
         params: { slug: experiment.slug, id: comment.id },
@@ -37,7 +41,7 @@ describe("Api Route /api/experiments/[slug]/comments/[id].vote.post", () => {
       } as CommentVote)
 
       const context = u.getTestContext({
-        data: comment,
+        data: commentForVote,
         expected: { voted: false },
         endpoint,
         params: { slug: experiment.slug, id: comment.id },
@@ -50,7 +54,7 @@ describe("Api Route /api/experiments/[slug]/comments/[id].vote.post", () => {
 
   describe("common failures", () => {
     const baseContext = u.getTestContext({
-      data: comment,
+      data: commentForVote,
       expected: { voted: true },
       endpoint,
       params: { slug: experiment.slug, id: comment.id },

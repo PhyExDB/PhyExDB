@@ -1,4 +1,4 @@
-import { describe, expectTypeOf, vi } from "vitest"
+import { describe, expectTypeOf } from "vitest"
 import { generateMock } from "@anatine/zod-mock"
 import { experiment, comment } from "./data"
 import { users } from "~~/tests/helpers/auth"
