@@ -55,39 +55,47 @@ await loadReports()
 
 <template>
   <div class="max-w-4xl mx-auto space-y-6 py-8">
-    <h1 class="text-3xl font-bold mb-4">Offene Reports</h1>
+    <h1 class="text-3xl font-bold mb-4">
+      Offene Reports
+    </h1>
 
     <div
-        v-if="reports.length === 0"
-        class="text-gray-400 text-center py-8"
+      v-if="reports.length === 0"
+      class="text-gray-400 text-center py-8"
     >
       Keine offenen Reports.
     </div>
 
     <div
-        v-for="report in reports"
-        :key="report.id"
-        class="border rounded-lg p-4 flex justify-between items-center"
+      v-for="report in reports"
+      :key="report.id"
+      class="border rounded-lg p-4 flex justify-between items-center"
     >
       <div>
-        <p class="font-semibold">{{ report.experiment.name }}</p>
-        <p class="text-sm text-gray-400">{{ report.message }}</p>
-        <p class="text-xs text-gray-500">{{ new Date(report.createdAt).toLocaleString() }}</p>
+        <p class="font-semibold">
+          {{ report.experiment.name }}
+        </p>
+        <p class="text-sm text-gray-400">
+          {{ report.message }}
+        </p>
+        <p class="text-xs text-gray-500">
+          {{ new Date(report.createdAt).toLocaleString() }}
+        </p>
       </div>
 
       <div class="flex gap-2">
         <Button
-            size="sm"
-            variant="outline"
-            @click="editExperiment(report.experiment.id)"
+          size="sm"
+          variant="outline"
+          @click="editExperiment(report.experiment.id)"
         >
           Bearbeiten
         </Button>
         <Button
-            size="sm"
-            variant="secondary"
-            @click="markAsDone(report.id)"
-            :disabled="loading"
+          size="sm"
+          variant="secondary"
+          :disabled="loading"
+          @click="markAsDone(report.id)"
         >
           Erledigt
         </Button>

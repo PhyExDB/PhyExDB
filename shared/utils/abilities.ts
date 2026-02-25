@@ -102,13 +102,13 @@ export const experimentAbilities = {
   listOwn: notNull,
   review: minModerator,
   rate: verified,
-  report: verified, // report hinzugefügt
+  report: verified,
   delete: adminOrUserId(experiment => experiment.userId),
 } satisfies CRUD<Experiment>
 & { listOwn?: Ability<[]> }
 & { review?: Ability<[]> }
 & { rate?: Ability<[]> }
-& { report?: Ability<[]> } // report auch hinzugefügt
+& { report?: Ability<[]> }
 
 /** Abilities for files */
 export const fileAbilities = {

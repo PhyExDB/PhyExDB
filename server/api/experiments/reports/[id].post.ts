@@ -48,8 +48,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       reportId: newReport.id,
     }
-  } catch (error: any) {
-    console.error("Prisma Error:", error)
+  } catch {
     throw createError({
       statusCode: 500,
       statusMessage: "Fehler beim Speichern des Berichts.",

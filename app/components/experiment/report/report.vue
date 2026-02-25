@@ -8,7 +8,7 @@ import { Textarea } from "~~/app/components/ui/textarea"
 import { Button } from "~~/app/components/ui/button"
 import { experimentReportSchema } from "~~/server/schemas/experimentReportSchema"
 import { useToast } from "@/components/ui/toast/use-toast"
-import {useAuth} from "~/composables/useAuth";
+import { useAuth } from "~/composables/useAuth"
 
 const { toast } = useToast()
 const loading = ref(false)
@@ -46,8 +46,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       description: "Report erfolgreich gesendet! Vielen Dank!",
       variant: "success",
     })
-  } catch (err: any) {
-    console.error(err)
+  } catch {
     serverError.value = err?.data?.statusMessage || "Fehler beim Senden"
   } finally {
     loading.value = false
@@ -60,7 +59,10 @@ const onSubmit = form.handleSubmit(async (values) => {
     :open="open"
     @update:open="open = $event"
   >
-    <DialogTrigger v-if="user" as-child >
+    <DialogTrigger
+      v-if="user"
+      as-child
+    >
       <Button
         variant="outline"
         class="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"

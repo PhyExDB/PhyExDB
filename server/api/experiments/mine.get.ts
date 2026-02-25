@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
   const pageMeta = getPageMeta(event, totalExperiments)
 
-    const experiments = await prisma.experiment.findMany({
+  const experiments = await prisma.experiment.findMany({
     ...getPaginationPrismaParam(pageMeta),
     where: {
       userId: user.id,
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
         createdAt: "desc",
       },
     ],
-      include: experimentIncludeForToList,
+    include: experimentIncludeForToList,
   })
 
   return {
