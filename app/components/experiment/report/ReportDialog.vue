@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { TriangleAlert } from "lucide-vue-next"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
 import { reportSchema } from "~~/shared/schemas/report.schema"
@@ -56,6 +57,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         variant="outline"
         class="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
       >
+        <TriangleAlert />
         Experiment melden
       </Button>
     </DialogTrigger>
