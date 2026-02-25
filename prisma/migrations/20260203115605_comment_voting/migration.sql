@@ -1,6 +1,3 @@
--- AlterTable
-ALTER TABLE "Comment" ADD COLUMN     "upvotesCount" INTEGER NOT NULL DEFAULT 0;
-
 -- CreateTable
 CREATE TABLE "CommentVote" (
     "userId" TEXT NOT NULL,

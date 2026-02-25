@@ -8,7 +8,10 @@ export default defineEventHandler(async (event) => {
     }),
   )
   if (!experiment.commentsEnabled) {
-    return false
+    return {
+      items: [],
+      pagination: { page: 1, pageSize: 0, total: 0, totalPages: 0 },
+    }
   }
 
   const where = { experimentId: experiment.id, parentId: null }
@@ -21,6 +24,7 @@ export default defineEventHandler(async (event) => {
     where,
     include: {
       user: { select: { id: true, name: true } },
+      _count: { select: { votes: true } },
       votes: user
         ? {
             where: { userId: user.id },
@@ -30,6 +34,7 @@ export default defineEventHandler(async (event) => {
       children: {
         include: {
           user: { select: { id: true, name: true } },
+          _count: { select: { votes: true } },
           votes: user
             ? {
                 where: { userId: user.id },
@@ -40,16 +45,18 @@ export default defineEventHandler(async (event) => {
       },
     },
     orderBy: [
-      { upvotesCount: "desc" },
+      { votes: { _count: "desc" } },
       { createdAt: "desc" },
     ],
   })
 
-  const items = result.map(({ votes, ...comment }) => ({
+  const items = result.map(({ votes, _count, children, ...comment }) => ({
     ...comment,
+    upvotesCount: _count.votes,
     userHasVoted: !!votes?.length,
-    children: comment.children.map(({ votes: childVotes, ...child }) => ({
+    children: children.map(({ votes: childVotes, _count: childCount, ...child }) => ({
       ...child,
+      upvotesCount: childCount.votes,
       userHasVoted: !!childVotes?.length,
     })),
   }))
@@ -62,7 +69,7 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    description: "Get comments of an experiment",
+    description: "Get comments of an experiment (Two-level depth)",
     tags: ["ExperimentComment"],
     parameters: [
       {
@@ -78,33 +85,47 @@ defineRouteMeta({
     ],
     responses: {
       200: {
-        description: "Comments returned successfully or null if comments are disabled",
+        description: "Successfully retrieved comments",
         content: {
           "application/json": {
             schema: {
               type: "object",
+              required: ["items", "pagination"],
               properties: {
                 items: {
                   type: "array",
                   items: {
                     type: "object",
+                    required: ["id", "text", "user", "upvotesCount", "userHasVoted", "children"],
                     properties: {
                       id: { type: "string", format: "uuid" },
                       text: { type: "string" },
                       createdAt: { type: "string", format: "date-time" },
-                      user: {
-                        type: "object",
-                        properties: {
-                          id: { type: "string", format: "uuid" },
-                          name: { type: "string" },
-                        },
-                        required: ["id", "name"],
-                      },
                       upvotesCount: { type: "integer" },
                       userHasVoted: { type: "boolean" },
-                      children: { type: "array", items: { $ref: "#/components/schemas/ExperimentComment" } },
+                      user: {
+                        type: "object",
+                        properties: { id: { type: "string" }, name: { type: "string" } },
+                      },
+                      children: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          required: ["id", "text", "user", "upvotesCount", "userHasVoted"],
+                          properties: {
+                            id: { type: "string", format: "uuid" },
+                            text: { type: "string" },
+                            createdAt: { type: "string", format: "date-time" },
+                            upvotesCount: { type: "integer" },
+                            userHasVoted: { type: "boolean" },
+                            user: {
+                              type: "object",
+                              properties: { id: { type: "string" }, name: { type: "string" } },
+                            },
+                          },
+                        },
+                      },
                     },
-                    required: ["id", "text", "createdAt", "user"],
                   },
                 },
                 pagination: {
@@ -115,25 +136,11 @@ defineRouteMeta({
                     total: { type: "integer" },
                     totalPages: { type: "integer" },
                   },
-                  required: ["page", "pageSize", "total"],
                 },
               },
-              required: ["items", "pagination"],
             },
           },
         },
-      },
-      400: {
-        description: "Invalid slug",
-      },
-      401: {
-        description: "No user is logged in",
-      },
-      403: {
-        description: "Unauthorized",
-      },
-      404: {
-        description: "Experiment not found",
       },
     },
   },

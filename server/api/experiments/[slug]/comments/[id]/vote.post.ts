@@ -14,43 +14,30 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Invalid id" })
   }
 
-  return prisma.$transaction(async (tx) => {
-    const existingComment = await tx.comment.findUnique({
-      where: { id: commentId },
-    })
-    if (!existingComment || existingComment.experimentId !== experiment.id) {
-      throw createError({ statusCode: 404, statusMessage: "Comment not found" })
-    }
-
-    const existingVote = await tx.commentVote.findUnique({
-      where: {
-        userId_commentId: {
-          userId: user.id,
-          commentId,
-        },
-      },
-    })
-
-    if (existingVote) {
-      await tx.commentVote.delete({
-        where: { userId_commentId: { userId: user.id, commentId } },
-      })
-      await tx.comment.update({
-        where: { id: commentId },
-        data: { upvotesCount: { decrement: 1 } },
-      })
-      return { voted: false }
-    } else {
-      await tx.commentVote.create({
-        data: { userId: user.id, commentId },
-      })
-      await tx.comment.update({
-        where: { id: commentId },
-        data: { upvotesCount: { increment: 1 } },
-      })
-      return { voted: true }
-    }
+  const existingComment = await prisma.comment.findUnique({
+    where: { id: commentId },
   })
+  if (!existingComment || existingComment.experimentId !== experiment.id) {
+    throw createError({ statusCode: 404, statusMessage: "Comment not found" })
+  }
+
+  const existingVote = await prisma.commentVote.findUnique({
+    where: {
+      userId_commentId: { userId: user.id, commentId },
+    },
+  })
+
+  if (existingVote) {
+    await prisma.commentVote.delete({
+      where: { userId_commentId: { userId: user.id, commentId } },
+    })
+    return { voted: false }
+  } else {
+    await prisma.commentVote.create({
+      data: { userId: user.id, commentId },
+    })
+    return { voted: true }
+  }
 })
 
 defineRouteMeta({

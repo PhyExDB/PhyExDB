@@ -270,7 +270,6 @@ model Comment {
   parentId     String?
   children     Comment[]     @relation("CommentToComment")
   votes        CommentVote[]
-  upvotesCount Int           @default(0)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
