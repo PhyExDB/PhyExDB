@@ -33,7 +33,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
     toast({
       title: "Report",
-      description: "ReportDialog erfolgreich gesendet! Vielen Dank!",
+      description: "Report erfolgreich gesendet! Vielen Dank!",
       variant: "success",
     })
   } catch {
