@@ -18,9 +18,10 @@ export default defineEventHandler(async (event) => {
     const existingComment = await tx.comment.findUnique({
       where: { id: commentId },
     })
-    if (!existingComment) {
+    if (!existingComment || existingComment.experimentId !== experiment.id) {
       throw createError({ statusCode: 404, statusMessage: "Comment not found" })
     }
+
     const existingVote = await tx.commentVote.findUnique({
       where: {
         userId_commentId: {
