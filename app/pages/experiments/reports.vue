@@ -2,7 +2,6 @@
 import type { ReportWithExperiment } from "~~/shared/types"
 
 const reports = ref<ReportWithExperiment[]>([])
-const router = useRouter()
 const loading = ref(false)
 
 async function loadReports() {

@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
       name: true,
       slug: true,
       updatedAt: true,
-      userId: true
+      userId: true,
     },
   })
 

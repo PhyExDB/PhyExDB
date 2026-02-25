@@ -36,8 +36,6 @@ const dropdownOpen = ref(false)
     v-if="user"
     v-model:open="dropdownOpen"
   >
-    <ReportNotification />
-
     <DropdownMenuTrigger as-child>
       <button
         class="focus:outline-none"

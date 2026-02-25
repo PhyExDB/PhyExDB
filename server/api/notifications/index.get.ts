@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)

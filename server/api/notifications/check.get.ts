@@ -2,9 +2,17 @@ import type { ModeratorTask } from "#shared/types/Review.type"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
-  if (!user) return { needsRevisionCount: 0, moderatorNotifications: 0, lastRejectedAt: null, moderatorLastUpdate: null }
+  if (!user) {
+    return {
+      needsRevisionCount: 0,
+      moderatorNotifications: 0,
+      lastRejectedAt: null,
+      moderatorLastUpdate: null,
+      unreadCount: 0,
+    }
+  }
 
-  const [rejected, moderatorData] = await Promise.all([
+  const [rejected, moderatorData, unreadCount] = await Promise.all([
     // REJECTED Versuche des Users
     prisma.experiment.aggregate({
       where: { userId: user.id, status: "REJECTED" },
@@ -27,6 +35,10 @@ export default defineEventHandler(async (event) => {
           },
         })
       : [],
+
+    prisma.notification.count({
+      where: { userId: user.id, isRead: false },
+    }),
   ])
 
   const relevantModTasks = (moderatorData as ModeratorTask[]).filter((exp) => {
@@ -41,5 +53,6 @@ export default defineEventHandler(async (event) => {
     moderatorLastUpdate: relevantModTasks.length > 0
       ? Math.max(...relevantModTasks.map(e => e.updatedAt.getTime()))
       : null,
+    unreadCount,
   }
 })

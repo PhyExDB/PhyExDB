@@ -1,7 +1,9 @@
+import type { NotificationType } from "@prisma/client"
 import { ExperimentStatus } from "@prisma/client"
 import { getExperimentReadyForReviewSchema } from "~~/shared/types"
 import { transformExperimentToSchemaType } from "~~/shared/types/Experiment.type"
 import { authorize } from "~~/server/utils/authorization"
+import { getModeratorIds } from "~~/server/utils/moderation"
 
 export default defineEventHandler(async (event) => {
   const experiment = await prisma.experiment.findFirst({
@@ -32,11 +34,25 @@ export default defineEventHandler(async (event) => {
   const experimentReviewSchema = getExperimentReadyForReviewSchema(sections, attributes)
   await experimentReviewSchema.parseAsync(experimentForReview)
 
-  await prisma.experiment.update({
-    where: { id: experiment.id },
-    data: {
-      status: "IN_REVIEW",
-    },
+  const moderatorIds = await getModeratorIds(experiment.userId ?? undefined)
+
+  await prisma.$transaction(async (tx) => {
+    await tx.experiment.update({
+      where: { id: experiment.id },
+      data: { status: "IN_REVIEW" },
+    })
+
+    if (moderatorIds.length > 0) {
+      await tx.notification.createMany({
+        data: moderatorIds.map(id => ({
+          userId: id,
+          type: "REVIEW_ASSIGNED" satisfies NotificationType,
+          title: "Review ausstehend",
+          message: `Ein neuer Versuch ("${experiment.name}") wartet auf Prüfung.`,
+          link: `/experiments/review`,
+        })),
+      })
+    }
   })
 })
 

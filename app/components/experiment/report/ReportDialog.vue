@@ -59,16 +59,16 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 <template>
   <Button
-      v-if="!canReport"
-      variant="outline"
-      class="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
-      @click="handleReportClick"
+    v-if="!canReport"
+    variant="outline"
+    class="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
+    @click="handleReportClick"
   >
     <TriangleAlert />
     Experiment melden
   </Button>
   <Dialog
-      v-else
+    v-else
     :open="open"
     @update:open="open = $event"
   >
