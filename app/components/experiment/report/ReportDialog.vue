@@ -10,13 +10,26 @@ const loading = ref(false)
 const open = ref(false)
 const serverError = ref("")
 const route = useRoute()
-const user = await useUser()
+const canReport = await allows(experimentAbilities.report)
 
 const formSchema = toTypedSchema(reportSchema)
 const form = useForm({
   validationSchema: formSchema,
   initialValues: { message: "" },
 })
+
+const handleReportClick = () => {
+  if (!canReport) {
+    toast({
+      title: "Anmeldung erforderlich",
+      description: "Du musst verifiziert sein, um Experimente zu melden.",
+      variant: "destructive",
+    })
+    return
+  }
+  open.value = true
+  setTimeout(() => navigateTo("/profile"), 500)
+}
 
 const onSubmit = form.handleSubmit(async (values) => {
   loading.value = true
@@ -45,12 +58,22 @@ const onSubmit = form.handleSubmit(async (values) => {
 </script>
 
 <template>
+  <Button
+      v-if="!canReport"
+      variant="outline"
+      class="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
+      @click="handleReportClick"
+  >
+    <TriangleAlert />
+    Experiment melden
+  </Button>
   <Dialog
+      v-else
     :open="open"
     @update:open="open = $event"
   >
     <DialogTrigger
-      v-if="user"
+      v-if="canReport"
       as-child
     >
       <Button
