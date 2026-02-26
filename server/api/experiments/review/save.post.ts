@@ -89,14 +89,12 @@ export default defineEventHandler(async (event) => {
       })
 
       if (experiment.userId) {
-        await tx.notification.create({
-          data: {
-            userId: experiment.userId,
-            type: "EXPERIMENT_REJECTED",
-            title: "Versuch beanstandet",
-            message: `Dein Versuch "${experiment.name}" wurde beanstandet.`,
-            link: `/experiments/edit/${experiment.id}`,
-          },
+        await createNotification({
+          userId: experiment.userId,
+          type: "EXPERIMENT_REJECTED",
+          title: "Versuch beanstandet",
+          message: `Dein Versuch "${experiment.name}" wurde beanstandet.`,
+          link: `/experiments/edit/${experiment.id}`,
         })
       }
 
@@ -124,14 +122,12 @@ export default defineEventHandler(async (event) => {
       })
 
       if (newStatus === "PUBLISHED" && experiment.userId) {
-        await tx.notification.create({
-          data: {
-            userId: experiment.userId,
-            type: "EXPERIMENT_PUBLISHED",
-            title: "Versuch veröffentlicht!",
-            message: `Dein Versuch "${experiment.name}" wurde veröffentlicht!`,
-            link: `/experiments/${experiment.slug}`,
-          },
+        await createNotification({
+          userId: experiment.userId,
+          type: "EXPERIMENT_PUBLISHED",
+          title: "Versuch veröffentlicht!",
+          message: `Dein Versuch "${experiment.name}" wurde veröffentlicht!`,
+          link: `/experiments/${experiment.slug}`,
         })
       }
 

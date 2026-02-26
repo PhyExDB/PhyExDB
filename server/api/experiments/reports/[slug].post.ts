@@ -27,14 +27,13 @@ export default defineEventHandler(async (event) => {
   })
 
   if (experiment.userId && experiment.userId !== user.id) {
-    await prisma.notification.create({
-      data: {
-        userId: experiment.userId,
-        type: "REPORT_NEW",
-        title: "Versuch gemeldet",
-        message: `Dein Versuch "${experiment.name}" wurde gemeldet.`,
-        link: `/experiments/${experiment.slug}`,
-      },
+    await createNotification({
+      userId: experiment.userId,
+      type: "REPORT_NEW",
+      title: "Versuch gemeldet",
+      message: `Dein Versuch "${experiment.name}" wurde gemeldet.`,
+      link: `/experiments/${experiment.slug}`,
+      reportId: report.id,
     })
   }
 
