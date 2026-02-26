@@ -66,13 +66,22 @@ const handleLinkClick = async (notif: Notification) => {
           <Bell class="size-6" />
         </div>
         <div>
-          <h1 class="text-3xl font-bold tracking-tight">Postfach</h1>
+          <h1 class="text-3xl font-bold tracking-tight">
+            Postfach
+          </h1>
           <div class="mt-1 flex items-center gap-2 text-sm">
-            <Badge v-if="notifications?.unreadCount" variant="secondary" class="gap-1.5 rounded-md px-1.5 py-0">
+            <Badge
+              v-if="notifications?.unreadCount"
+              variant="secondary"
+              class="gap-1.5 rounded-md px-1.5 py-0"
+            >
               <span class="size-1.5 rounded-full bg-primary animate-pulse" />
               {{ notifications.unreadCount }} neu
             </Badge>
-            <span v-else class="flex items-center gap-1.5 text-muted-foreground">
+            <span
+              v-else
+              class="flex items-center gap-1.5 text-muted-foreground"
+            >
               <CheckCheck class="size-4 text-emerald-500" /> Alles gelesen
             </span>
           </div>
@@ -82,15 +91,23 @@ const handleLinkClick = async (notif: Notification) => {
       <div class="flex items-center gap-2">
         <div class="inline-flex items-center rounded-lg border bg-muted/50 p-1">
           <Button
-              v-for="f in (['all', 'unread', 'read'] as const)" :key="f"
-              variant="ghost" size="sm"
-              :class="['h-7 px-3 text-xs font-medium', activeFilter === f && 'bg-background shadow-sm hover:bg-background']"
-              @click="activeFilter = f; page = 1"
+            v-for="f in (['all', 'unread', 'read'] as const)"
+            :key="f"
+            variant="ghost"
+            size="sm"
+            :class="['h-7 px-3 text-xs font-medium', activeFilter === f && 'bg-background shadow-sm hover:bg-background']"
+            @click="activeFilter = f; page = 1"
           >
             {{ f === 'all' ? 'Alle' : f === 'unread' ? 'Neu' : 'Archiv' }}
           </Button>
         </div>
-        <Button variant="outline" size="icon" class="rounded-lg" :disabled="!notifications?.unreadCount" @click="handleMarkAllRead">
+        <Button
+          variant="outline"
+          size="icon"
+          class="rounded-lg"
+          :disabled="!notifications?.unreadCount"
+          @click="handleMarkAllRead"
+        >
           <CheckCheck class="size-4" />
         </Button>
       </div>
@@ -99,14 +116,18 @@ const handleLinkClick = async (notif: Notification) => {
     <main class="mt-8 space-y-4">
       <template v-if="notifications?.items.length">
         <div
-            v-for="notif in notifications.items" :key="notif.id"
-            :class="[
+          v-for="notif in notifications.items"
+          :key="notif.id"
+          :class="[
             'relative flex flex-col gap-4 rounded-xl border p-4 transition-all md:flex-row',
-            notif.isRead ? 'bg-muted/30 opacity-75' : 'bg-card shadow-sm ring-1 ring-primary/5'
+            notif.isRead ? 'bg-muted/30 opacity-75' : 'bg-card shadow-sm ring-1 ring-primary/5',
           ]"
         >
           <div :class="['flex size-12 shrink-0 items-center justify-center rounded-xl border shadow-sm', typeConfig[notif.type].bg]">
-            <Icon :name="typeConfig[notif.type].icon" :class="['size-6', typeConfig[notif.type].color]" />
+            <Icon
+              :name="typeConfig[notif.type].icon"
+              :class="['size-6', typeConfig[notif.type].color]"
+            />
           </div>
 
           <div class="flex-1 space-y-1">
@@ -126,12 +147,12 @@ const handleLinkClick = async (notif: Notification) => {
 
             <div class="flex items-center justify-between pt-3">
               <Button
-                  v-if="notif.link"
-                  as-child
-                  size="sm"
-                  variant="secondary"
-                  class="h-8 gap-2 rounded-lg px-3 font-semibold"
-                  @click="handleLinkClick(notif)"
+                v-if="notif.link"
+                as-child
+                size="sm"
+                variant="secondary"
+                class="h-8 gap-2 rounded-lg px-3 font-semibold"
+                @click="handleLinkClick(notif)"
               >
                 <NuxtLink :to="notif.link">
                   Ansehen <ArrowRight class="size-3.5" />
@@ -140,10 +161,23 @@ const handleLinkClick = async (notif: Notification) => {
               <div v-else />
 
               <div class="flex gap-1">
-                <Button variant="ghost" size="icon" class="size-8 text-muted-foreground" @click="handleToggleRead(notif)">
-                  <component :is="notif.isRead ? Mail : MailOpen" class="size-4" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="size-8 text-muted-foreground"
+                  @click="handleToggleRead(notif)"
+                >
+                  <component
+                    :is="notif.isRead ? Mail : MailOpen"
+                    class="size-4"
+                  />
                 </Button>
-                <Button variant="ghost" size="icon" class="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10" @click="handleDelete(notif.id)">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  @click="handleDelete(notif.id)"
+                >
                   <Trash2 class="size-4" />
                 </Button>
               </div>
@@ -152,20 +186,38 @@ const handleLinkClick = async (notif: Notification) => {
         </div>
       </template>
 
-      <div v-else class="flex flex-col items-center justify-center rounded-[2.5rem] border-2 border-dashed py-24 text-center bg-muted/5">
+      <div
+        v-else
+        class="flex flex-col items-center justify-center rounded-[2.5rem] border-2 border-dashed py-24 text-center bg-muted/5"
+      >
         <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50 mb-4 ring-1 ring-border">
           <Inbox class="size-8 text-muted-foreground/40" />
         </div>
-        <h2 class="text-lg font-semibold tracking-tight">Postfach leer</h2>
+        <h2 class="text-lg font-semibold tracking-tight">
+          Postfach leer
+        </h2>
         <p class="text-sm text-muted-foreground max-w-xs mx-auto">
           {{ activeFilter === 'unread' ? 'Keine neuen Nachrichten vorhanden.' : 'Du hast derzeit keine Nachrichten in deinem Postfach.' }}
         </p>
-        <Button v-if="activeFilter !== 'all'" variant="link" class="mt-2" @click="activeFilter = 'all'">Alle anzeigen</Button>
+        <Button
+          v-if="activeFilter !== 'all'"
+          variant="link"
+          class="mt-2"
+          @click="activeFilter = 'all'"
+        >
+          Alle anzeigen
+        </Button>
       </div>
     </main>
 
-    <footer v-if="notifications?.pagination.total" class="mt-10 border-t pt-8 flex justify-center">
-      <MyPagination v-model="page" :page-meta="notifications.pagination" />
+    <footer
+      v-if="notifications?.pagination.total"
+      class="mt-10 border-t pt-8 flex justify-center"
+    >
+      <MyPagination
+        v-model="page"
+        :page-meta="notifications.pagination"
+      />
     </footer>
   </div>
 </template>

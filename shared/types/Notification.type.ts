@@ -1,4 +1,4 @@
-import type { NotificationType, ExperimentStatus } from '@prisma/client'
+import type { NotificationType, ExperimentStatus } from "@prisma/client"
 
 export type { NotificationType }
 
