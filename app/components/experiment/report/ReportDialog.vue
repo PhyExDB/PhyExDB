@@ -19,16 +19,12 @@ const form = useForm({
 })
 
 const handleReportClick = () => {
-  if (!canReport) {
-    toast({
-      title: "Anmeldung erforderlich",
-      description: "Du musst verifiziert sein, um Experimente zu melden.",
-      variant: "destructive",
-    })
-    return
-  }
-  open.value = true
-  setTimeout(() => navigateTo("/profile"), 500)
+  toast({
+    title: "Anmeldung erforderlich",
+    description: "Du musst verifiziert sein, um Experimente zu melden.",
+    variant: "destructive",
+  })
+  setTimeout(() => navigateTo("/profile"), 1500)
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
