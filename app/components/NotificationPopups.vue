@@ -5,7 +5,6 @@ const { data } = await useFetch("/api/notifications/check")
 type ActivePopup = "user" | "moderator" | "unread" | null
 const activePopup = ref<ActivePopup>(null)
 
-// Hilfsfunktion zur Ermittlung des nächsten anzuzeigenden Popups
 function determineActivePopup() {
   if (!data.value || !user) return
 

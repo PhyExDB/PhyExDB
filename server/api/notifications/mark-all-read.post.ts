@@ -9,3 +9,32 @@ export default defineEventHandler(async (event) => {
 
   return { success: true }
 })
+
+defineRouteMeta({
+  openAPI: {
+    summary: "Alle Benachrichtigungen als gelesen markieren",
+    description: "Setzt den Status 'isRead' für alle ungelesenen Benachrichtigungen des aktuell angemeldeten Benutzers auf true.",
+    tags: ["Notifications"],
+    responses: {
+      200: {
+        description: "Alle Benachrichtigungen erfolgreich aktualisiert",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                success: {
+                  type: "boolean",
+                  example: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      401: {
+        description: "Nicht authentifiziert - Benutzer muss eingeloggt sein",
+      },
+    },
+  },
+})

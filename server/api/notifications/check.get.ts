@@ -61,3 +61,56 @@ export default defineEventHandler(async (event) => {
     lastNotificationAt: notificationsData._max.createdAt?.getTime() ?? undefined,
   }
 })
+
+defineRouteMeta({
+  openAPI: {
+    summary: "Status-Check für Benachrichtigungen und Aufgaben",
+    description: "Liefert Zählerstände und Zeitstempel für ungelesene Nachrichten, abgelehnte Versuche und (für Moderatoren) offene Reviews.",
+    tags: ["Notifications"],
+    responses: {
+      200: {
+        description: "Status-Zusammenfassung",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                needsRevisionCount: {
+                  type: "integer",
+                  description: "Anzahl der eigenen Versuche mit Status REJECTED",
+                  example: 1,
+                },
+                lastRejectedAt: {
+                  type: "number",
+                  description: "Timestamp der letzten Ablehnung",
+                  nullable: true,
+                  example: 1715856000000,
+                },
+                moderatorNotifications: {
+                  type: "integer",
+                  description: "Anzahl der für den Mod relevanten offenen Reviews",
+                  example: 3,
+                },
+                moderatorLastUpdate: {
+                  type: "number",
+                  description: "Timestamp des neuesten relevanten Review-Updates",
+                  nullable: true,
+                },
+                unreadCount: {
+                  type: "integer",
+                  description: "Anzahl ungelesener Postfach-Nachrichten",
+                  example: 5,
+                },
+                lastNotificationAt: {
+                  type: "number",
+                  description: "Timestamp der neuesten ungelesenen Nachricht",
+                  nullable: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+})

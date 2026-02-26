@@ -40,3 +40,47 @@ export default defineEventHandler(async (event) => {
 
   return { success: true, reportId: report.id }
 })
+
+defineRouteMeta({
+  openAPI: {
+    summary: "Neuen Report für einen Versuch erstellen",
+    description: "Erstellt eine Meldung für ein Experiment und benachrichtigt den Besitzer, falls vorhanden.",
+    tags: ["Experiments", "Reports"],
+    requestBody: {
+      required: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            required: ["message"],
+            properties: {
+              message: {
+                type: "string",
+                description: "Der Inhalt der Meldung",
+                example: "Dieser Versuch enthält sachliche Fehler.",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Report erfolgreich erstellt",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                success: { type: "boolean", example: true },
+                reportId: { type: "string", format: "uuid" },
+              },
+            },
+          },
+        },
+      },
+      401: { description: "Nicht authentifiziert" },
+      404: { description: "Experiment nicht gefunden" },
+    },
+  },
+})

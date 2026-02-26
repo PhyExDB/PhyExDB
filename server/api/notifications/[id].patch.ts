@@ -17,3 +17,60 @@ export default defineEventHandler(async (event) => {
     data: { isRead: body.isRead ?? true },
   })
 })
+
+defineRouteMeta({
+  openAPI: {
+    summary: "Status einer Benachrichtigung aktualisieren",
+    description: "Markiert eine Benachrichtigung als gelesen oder ungelesen. Standardmäßig wird 'isRead' auf true gesetzt.",
+    tags: ["Notifications"],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        description: "Die ID der Benachrichtigung",
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              isRead: {
+                type: "boolean",
+                description: "Der neue Lesestatus",
+                default: true,
+                example: true,
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Benachrichtigung erfolgreich aktualisiert",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                isRead: { type: "boolean" },
+                userId: { type: "string" },
+                title: { type: "string" },
+                message: { type: "string" },
+                createdAt: { type: "string", format: "date-time" },
+              },
+            },
+          },
+        },
+      },
+      400: { description: "Ungültige Anfrage (ID fehlt)" },
+      401: { description: "Nicht authentifiziert" },
+      404: { description: "Benachrichtigung nicht gefunden" },
+    },
+  },
+})

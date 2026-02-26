@@ -40,3 +40,84 @@ export default defineEventHandler(async (event) => {
     },
   }
 })
+
+defineRouteMeta({
+  openAPI: {
+    summary: "Benachrichtigungen abrufen",
+    description: "Gibt eine paginierte Liste der Benachrichtigungen des aktuellen Nutzers zurück. Filterbar nach Lesestatus.",
+    tags: ["Notifications"],
+    parameters: [
+      {
+        name: "page",
+        in: "query",
+        description: "Die Seitenzahl für die Paginierung",
+        schema: { type: "integer", default: 1, example: 1 },
+      },
+      {
+        name: "pageSize",
+        in: "query",
+        description: "Anzahl der Elemente pro Seite",
+        schema: { type: "integer", default: 20, example: 10 },
+      },
+      {
+        name: "filter",
+        in: "query",
+        description: "Filtert Benachrichtigungen nach Lesestatus",
+        schema: {
+          type: "string",
+          enum: ["read", "unread"],
+          nullable: true,
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: "Paginierte Liste der Benachrichtigungen",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                items: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      title: { type: "string" },
+                      message: { type: "string" },
+                      isRead: { type: "boolean" },
+                      type: { type: "string" },
+                      link: { type: "string", nullable: true },
+                      createdAt: { type: "string", format: "date-time" },
+                      report: {
+                        type: "object",
+                        nullable: true,
+                        properties: {
+                          id: { type: "string" },
+                          message: { type: "string" },
+                          createdAt: { type: "string", format: "date-time" },
+                        },
+                      },
+                    },
+                  },
+                },
+                unreadCount: { type: "integer", example: 5 },
+                pagination: {
+                  type: "object",
+                  properties: {
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    total: { type: "integer" },
+                    totalPages: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      401: { description: "Nicht authentifiziert" },
+    },
+  },
+})

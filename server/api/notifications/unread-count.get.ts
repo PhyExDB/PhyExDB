@@ -8,3 +8,30 @@ export default defineEventHandler(async (event) => {
 
   return { count }
 })
+
+defineRouteMeta({
+  openAPI: {
+    summary: "Anzahl ungelesener Benachrichtigungen abrufen",
+    description: "Liefert die reine Anzahl der ungelesenen Benachrichtigungen für den aktuellen User. Wenn nicht eingeloggt, wird 0 zurückgegeben.",
+    tags: ["Notifications"],
+    responses: {
+      200: {
+        description: "Anzahl der ungelesenen Benachrichtigungen",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                count: {
+                  type: "integer",
+                  example: 3,
+                  description: "Die Anzahl der Nachrichten mit isRead: false",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+})
