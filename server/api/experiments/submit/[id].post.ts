@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
   const experimentReviewSchema = getExperimentReadyForReviewSchema(sections, attributes)
   await experimentReviewSchema.parseAsync(experimentForReview)
 
-  const moderatorIds = await getModeratorIds(experiment.userId ?? undefined)
+  const moderatorIds = await getModeratorIds(experiment.userId)
 
   await prisma.$transaction(async (tx) => {
     await tx.experiment.update({
