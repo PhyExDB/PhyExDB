@@ -30,16 +30,15 @@ export async function createNotification(options: CreateNotificationOptions) {
  * Erstellt Notifications für alle Moderatoren/Admins.
  */
 export async function notifyModerators(
-  options: Omit<CreateNotificationOptions, "userId">,
+  options: Omit<CreateNotificationOptions, "userId"> & { excludeId?: string },
 ) {
-  const moderators = await prisma.user.findMany({
-    where: { role: { in: ["MODERATOR", "ADMIN"] } },
-    select: { id: true },
-  })
+  const moderatorIds = await getModeratorIds(options.excludeId)
+
+  if (moderatorIds.length === 0) return
 
   await prisma.notification.createMany({
-    data: moderators.map(mod => ({
-      userId: mod.id,
+    data: moderatorIds.map(id => ({
+      userId: id,
       type: options.type,
       title: options.title,
       message: options.message,
