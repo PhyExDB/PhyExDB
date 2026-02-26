@@ -1,82 +1,89 @@
 <script setup lang="ts">
 import type { ReportWithExperiment } from "~~/shared/types"
 
-const reports = ref<ReportWithExperiment[]>([])
-const loading = ref(false)
+const { data: reports, refresh, status } = await useFetch<ReportWithExperiment[]>("/api/experiments/reports/mine", {
+  transform: data => data.filter(r => !r.seenByOwner),
+  default: () => [],
+})
 
-async function loadReports() {
-  try {
-    const data = await $fetch<ReportWithExperiment[]>("/api/experiments/reports/mine")
-    reports.value = data.filter(r => !r.seenByOwner)
-  } catch (err) {
-    console.error("Fehler beim Laden der Reports:", err)
-  }
-}
+const actionLoading = ref(false)
 
 async function markAsDone(reportId: string) {
-  loading.value = true
+  actionLoading.value = true
   try {
     await $fetch(`/api/experiments/reports/${reportId}/complete`, {
       method: "POST",
     })
-    reports.value = reports.value.filter(r => r.id !== reportId)
+    await refresh()
   } catch (err) {
     console.error("Fehler beim Markieren als erledigt:", err)
   } finally {
-    loading.value = false
+    actionLoading.value = false
   }
 }
-
-await loadReports()
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto space-y-6 py-8">
-    <h1 class="text-3xl font-bold mb-4">
+  <div class="max-w-4xl mx-auto space-y-6 py-8 px-4">
+    <h1 class="text-3xl font-bold tracking-tight">
       Offene Reports
     </h1>
 
     <div
-      v-if="reports.length === 0"
-      class="text-muted-foreground text-center py-8"
+      v-if="reports.length === 0 && status !== 'pending'"
+      class="text-muted-foreground text-center py-12 border-2 border-dashed rounded-xl"
     >
-      Keine offenen Reports.
+      Keine offenen Reports gefunden.
     </div>
 
     <div
-      v-for="report in reports"
-      :key="report.id"
-      class="border rounded-lg p-4 flex justify-between items-center"
+      v-else
+      class="space-y-4"
     >
-      <div>
-        <p class="font-semibold">
-          {{ report.experiment.name }}
-        </p>
-        <p class="text-sm text-muted-foreground">
-          {{ report.message }}
-        </p>
-        <p class="text-xs text-muted-foreground">
-          {{ new Date(report.createdAt).toLocaleString() }}
-        </p>
-      </div>
+      <div
+        v-for="report in reports"
+        :key="report.id"
+        class="border rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card shadow-sm"
+      >
+        <div class="space-y-1">
+          <p class="font-bold text-lg leading-none">
+            {{ report.experiment.name }}
+          </p>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            {{ report.message }}
+          </p>
+          <p class="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+            {{ new Date(report.createdAt).toLocaleString('de-DE') }}
+          </p>
+        </div>
 
-      <div class="flex gap-2">
-        <NuxtLink :to="`/experiments/edit/${report.experiment.slug}`">
+        <div class="flex gap-2 w-full sm:w-auto">
           <Button
+            as-child
             size="sm"
             variant="outline"
+            class="flex-1 sm:flex-none"
           >
-            Bearbeiten
+            <NuxtLink :to="`/experiments/edit/${report.experiment.slug}`">
+              Bearbeiten
+            </NuxtLink>
           </Button>
-        </NuxtLink>
-        <Button
-          size="sm"
-          variant="secondary"
-          :disabled="loading"
-          @click="markAsDone(report.id)"
-        >
-          Erledigt
-        </Button>
+
+          <Button
+            size="sm"
+            variant="secondary"
+            :disabled="actionLoading || status !== 'pending'"
+            class="flex-1 sm:flex-none"
+            @click="markAsDone(report.id)"
+          >
+            <Icon
+              v-if="actionLoading"
+              name="lucide:loader-2"
+              class="mr-2 h-4 w-4 animate-spin"
+            />
+            Erledigt
+          </Button>
+        </div>
       </div>
     </div>
   </div>
