@@ -9,11 +9,11 @@ export default defineEventHandler(async (event) => {
       lastRejectedAt: null,
       moderatorLastUpdate: null,
       unreadCount: 0,
+      lastNotificationAt: null,
     }
   }
 
-  const [rejected, moderatorData, unreadCount] = await Promise.all([
-    // REJECTED Versuche des Users
+  const [rejected, moderatorData, notificationsData] = await Promise.all([
     prisma.experiment.aggregate({
       where: { userId: user.id, status: "REJECTED" },
       _count: true,
@@ -34,10 +34,12 @@ export default defineEventHandler(async (event) => {
             },
           },
         })
-      : [],
+      : Promise.resolve([]),
 
-    prisma.notification.count({
+    prisma.notification.aggregate({
       where: { userId: user.id, isRead: false },
+      _count: true,
+      _max: { createdAt: true },
     }),
   ])
 
@@ -48,11 +50,14 @@ export default defineEventHandler(async (event) => {
 
   return {
     needsRevisionCount: rejected._count,
-    lastRejectedAt: rejected._max.updatedAt?.getTime() || null,
+    lastRejectedAt: rejected._max.updatedAt?.getTime() ?? undefined,
+
     moderatorNotifications: relevantModTasks.length,
     moderatorLastUpdate: relevantModTasks.length > 0
-      ? Math.max(...relevantModTasks.map(e => e.updatedAt.getTime()))
-      : null,
-    unreadCount,
+      ? Math.max(...relevantModTasks.map(e => new Date(e.updatedAt).getTime()))
+      : undefined,
+
+    unreadCount: notificationsData._count,
+    lastNotificationAt: notificationsData._max.createdAt?.getTime() ?? undefined,
   }
 })
