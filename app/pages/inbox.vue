@@ -1,40 +1,27 @@
 <script lang="ts" setup>
-import {
-  CheckCheck, Mail, MailOpen, Trash2, Bell,
-  Inbox, ArrowRight,
-} from "lucide-vue-next"
+import { CheckCheck, Mail, MailOpen, Trash2, Bell, Inbox, ArrowRight } from "lucide-vue-next"
+import type { Notification, NotificationResponse, NotificationType } from "~~/shared/types/Notification.type"
 
 await useUserOrThrowError()
-
 const { markAsRead, markAsUnread, markAllAsRead, deleteNotification } = useNotifications()
 
 const { page, pageSize } = getRequestPageMeta()
 const activeFilter = ref<"all" | "unread" | "read">("all")
 
-const { data: notifications, refresh } = await useLazyFetch("/api/notifications", {
-  query: {
-    page,
-    pageSize,
-    filter: activeFilter,
-  },
+const { data: notifications, refresh } = await useLazyFetch<NotificationResponse>("/api/notifications", {
+  query: { page, pageSize, filter: activeFilter },
 })
 
-interface Config { icon: string, colorClass: string, borderClass: string }
-
-const typeConfig: Record<string, Config> = {
-  REPORT_NEW: { icon: "lucide:triangle-alert", colorClass: "text-red-600 bg-red-50", borderClass: "border-red-100" },
-  REPORT_STATUS_UPDATE: { icon: "lucide:refresh-cw", colorClass: "text-blue-600 bg-blue-50", borderClass: "border-blue-100" },
-  EXPERIMENT_REJECTED: { icon: "lucide:ban", colorClass: "text-orange-600 bg-orange-50", borderClass: "border-orange-100" },
-  EXPERIMENT_PUBLISHED: { icon: "lucide:check-circle", colorClass: "text-emerald-600 bg-emerald-50", borderClass: "border-emerald-100" },
-  REVIEW_ASSIGNED: { icon: "lucide:clipboard-check", colorClass: "text-purple-600 bg-purple-50", borderClass: "border-purple-100" },
-  SYSTEM: { icon: "lucide:bell", colorClass: "text-slate-600 bg-slate-50", borderClass: "border-slate-100" },
+const typeConfig: Record<NotificationType, { icon: string, color: string, bg: string }> = {
+  REPORT_NEW: { icon: "lucide:triangle-alert", color: "text-destructive", bg: "bg-destructive/10 border-destructive/20" },
+  REPORT_STATUS_UPDATE: { icon: "lucide:refresh-cw", color: "text-blue-500", bg: "bg-blue-500/10 border-blue-500/20" },
+  EXPERIMENT_REJECTED: { icon: "lucide:ban", color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/20" },
+  EXPERIMENT_PUBLISHED: { icon: "lucide:check-circle", color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
+  REVIEW_ASSIGNED: { icon: "lucide:clipboard-check", color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
+  SYSTEM: { icon: "lucide:bell", color: "text-muted-foreground", bg: "bg-muted border-border" },
 }
 
-function getConfig(type: string): Config {
-  return (typeConfig[type] ?? typeConfig.SYSTEM) as Config
-}
-
-function formatDate(dateStr: string) {
+const formatDate = (dateStr: string | Date) => {
   const date = new Date(dateStr)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
@@ -49,26 +36,22 @@ function formatDate(dateStr: string) {
   return date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })
 }
 
-async function handleToggleRead(notif: any) {
-  if (notif.isRead) {
-    await markAsUnread(notif.id)
-  } else {
-    await markAsRead(notif.id)
-  }
+const handleToggleRead = async (notif: Notification) => {
+  notif.isRead ? await markAsUnread(notif.id) : await markAsRead(notif.id)
   await refresh()
 }
 
-async function handleDelete(id: string) {
+const handleDelete = async (id: string) => {
   await deleteNotification(id)
   await refresh()
 }
 
-async function handleMarkAllRead() {
+const handleMarkAllRead = async () => {
   await markAllAsRead()
   await refresh()
 }
 
-async function handleLinkClick(notif: any) {
+const handleLinkClick = async (notif: Notification) => {
   if (!notif.isRead) {
     await markAsRead(notif.id)
   }
@@ -76,189 +59,113 @@ async function handleLinkClick(notif: any) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-4xl px-4 py-10">
-    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 border-b pb-8">
+  <div class="mx-auto max-w-4xl p-6 lg:py-10">
+    <header class="flex flex-wrap items-center justify-between gap-4 border-b pb-8">
       <div class="flex items-center gap-4">
-        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 shadow-inner">
-          <Bell class="h-6 w-6 text-primary" />
+        <div class="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
+          <Bell class="size-6" />
         </div>
-        <div class="space-y-1">
-          <h1 class="text-4xl font-black tracking-tight text-foreground">
-            Postfach
-          </h1>
-
-          <div class="flex items-center gap-2">
-            <Badge
-              v-if="notifications?.unreadCount"
-              variant="secondary"
-              class="rounded-lg px-2 py-0"
-            >
-              <span class="mr-1 h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              {{ notifications.unreadCount }} ungelesen
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight">Postfach</h1>
+          <div class="mt-1 flex items-center gap-2 text-sm">
+            <Badge v-if="notifications?.unreadCount" variant="secondary" class="gap-1.5 rounded-md px-1.5 py-0">
+              <span class="size-1.5 rounded-full bg-primary animate-pulse" />
+              {{ notifications.unreadCount }} neu
             </Badge>
-            <span
-              v-else
-              class="text-sm text-muted-foreground flex items-center gap-1.5"
-            >
-              <CheckCheck class="h-4 w-4 text-emerald-500" />
-              Keine ungelesenen Nachrichten
+            <span v-else class="flex items-center gap-1.5 text-muted-foreground">
+              <CheckCheck class="size-4 text-emerald-500" /> Alles gelesen
             </span>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <div class="bg-muted/50 p-1 rounded-xl border flex items-center shadow-sm">
+      <div class="flex items-center gap-2">
+        <div class="inline-flex items-center rounded-lg border bg-muted/50 p-1">
           <Button
-            v-for="f in (['all', 'unread', 'read'] as const)"
-            :key="f"
-            :variant="activeFilter === f ? 'secondary' : 'ghost'"
-            size="sm"
-            class="rounded-lg h-8 text-xs font-semibold transition-all shadow-none"
-            @click="activeFilter = f; page = 1"
+              v-for="f in (['all', 'unread', 'read'] as const)" :key="f"
+              variant="ghost" size="sm"
+              :class="['h-7 px-3 text-xs font-medium', activeFilter === f && 'bg-background shadow-sm hover:bg-background']"
+              @click="activeFilter = f; page = 1"
           >
             {{ f === 'all' ? 'Alle' : f === 'unread' ? 'Neu' : 'Archiv' }}
           </Button>
         </div>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <Button
-                variant="outline"
-                size="icon"
-                class="h-10 w-10 rounded-xl transition-colors hover:bg-primary/5 active:scale-95"
-                :disabled="!notifications?.unreadCount"
-                @click="handleMarkAllRead"
-              >
-                <CheckCheck class="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Alle als gelesen markieren</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button variant="outline" size="icon" class="rounded-lg" :disabled="!notifications?.unreadCount" @click="handleMarkAllRead">
+          <CheckCheck class="size-4" />
+        </Button>
       </div>
     </header>
 
-    <div class="relative">
-      <div
-        v-if="notifications && notifications.items.length > 0"
-        class="space-y-4"
-      >
+    <main class="mt-8 space-y-4">
+      <template v-if="notifications?.items.length">
         <div
-          v-for="notif in notifications.items"
-          :key="notif.id"
-          :class="[
-            'group relative flex flex-col md:flex-row gap-5 rounded-2xl border p-5 transition-all duration-300',
-            notif.isRead
-              ? 'bg-card/40 border-border/60 grayscale-[0.2] opacity-80'
-              : 'bg-card border-primary/20 shadow-lg shadow-primary/5 ring-1 ring-primary/5 hover:border-primary/40',
+            v-for="notif in notifications.items" :key="notif.id"
+            :class="[
+            'relative flex flex-col gap-4 rounded-xl border p-4 transition-all md:flex-row',
+            notif.isRead ? 'bg-muted/30 opacity-75' : 'bg-card shadow-sm ring-1 ring-primary/5'
           ]"
         >
-          <div class="flex-shrink-0 flex md:flex-col items-center justify-between md:justify-start gap-4">
-            <div :class="['flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm border transition-transform group-hover:scale-105', getConfig(notif.type).colorClass, getConfig(notif.type).borderClass]">
-              <Icon
-                :name="getConfig(notif.type).icon"
-                class="h-7 w-7"
-              />
-            </div>
-            <time class="md:hidden text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              {{ formatDate(notif.createdAt) }}
-            </time>
+          <div :class="['flex size-12 shrink-0 items-center justify-center rounded-xl border shadow-sm', typeConfig[notif.type].bg]">
+            <Icon :name="typeConfig[notif.type].icon" :class="['size-6', typeConfig[notif.type].color]" />
           </div>
 
-          <div class="flex-1 space-y-3">
-            <div class="flex items-start justify-between gap-4">
+          <div class="flex-1 space-y-1">
+            <div class="flex items-start justify-between gap-2">
               <div class="space-y-1">
-                <h3 :class="['text-base tracking-tight leading-none', notif.isRead ? 'font-medium text-foreground/70' : 'font-bold text-foreground']">
+                <h3 :class="['text-sm leading-none', !notif.isRead ? 'font-bold' : 'font-medium text-foreground/70']">
                   {{ notif.title }}
                 </h3>
-                <p class="text-sm text-muted-foreground leading-relaxed pr-6 line-clamp-2">
+                <p class="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                   {{ notif.message }}
                 </p>
               </div>
-              <time class="hidden md:block text-[10px] font-bold text-muted-foreground uppercase tracking-widest pt-1 whitespace-nowrap">
+              <time class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground pt-0.5">
                 {{ formatDate(notif.createdAt) }}
               </time>
             </div>
 
-            <div class="flex items-center justify-between pt-2">
-              <div class="flex items-center gap-3">
-                <Button
+            <div class="flex items-center justify-between pt-3">
+              <Button
                   v-if="notif.link"
                   as-child
                   size="sm"
-                  class="h-9 rounded-xl font-bold px-4 group/btn transition-all active:scale-95 shadow-sm"
+                  variant="secondary"
+                  class="h-8 gap-2 rounded-lg px-3 font-semibold"
                   @click="handleLinkClick(notif)"
-                >
-                  <NuxtLink :to="notif.link">
-                    Ansehen
-                    <ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                  </NuxtLink>
-                </Button>
-              </div>
+              >
+                <NuxtLink :to="notif.link">
+                  Ansehen <ArrowRight class="size-3.5" />
+                </NuxtLink>
+              </Button>
+              <div v-else />
 
-              <div class="flex items-center gap-1.5">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  class="h-9 w-9 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                  title="Als gelesen/ungelesen markieren"
-                  @click="handleToggleRead(notif)"
-                >
-                  <component
-                    :is="notif.isRead ? Mail : MailOpen"
-                    class="h-4 w-4"
-                  />
+              <div class="flex gap-1">
+                <Button variant="ghost" size="icon" class="size-8 text-muted-foreground" @click="handleToggleRead(notif)">
+                  <component :is="notif.isRead ? Mail : MailOpen" class="size-4" />
                 </Button>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  class="h-9 w-9 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                  title="Löschen"
-                  @click="handleDelete(notif.id)"
-                >
-                  <Trash2 class="h-4 w-4" />
+                <Button variant="ghost" size="icon" class="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10" @click="handleDelete(notif.id)">
+                  <Trash2 class="size-4" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
 
-      <div
-        v-else
-        class="flex flex-col items-center justify-center py-32 bg-muted/10 rounded-[2rem] border-2 border-dashed border-muted/50"
-      >
-        <div class="h-20 w-20 bg-background rounded-3xl flex items-center justify-center mb-6 shadow-sm ring-1 ring-border">
-          <Inbox class="h-10 w-10 text-muted-foreground/30" />
+      <div v-else class="flex flex-col items-center justify-center rounded-[2.5rem] border-2 border-dashed py-24 text-center bg-muted/5">
+        <div class="flex size-16 items-center justify-center rounded-2xl bg-muted/50 mb-4 ring-1 ring-border">
+          <Inbox class="size-8 text-muted-foreground/40" />
         </div>
-        <h2 class="text-xl font-bold tracking-tight text-foreground/80 text-center px-4 text-balance">
-          Alles erledigt
-        </h2>
-        <p class="text-sm text-muted-foreground mt-2 max-w-[240px] text-center px-4">
-          {{ activeFilter === 'unread' ? 'Du hast alle neuen Nachrichten gelesen.' : 'Dein Postfach ist aktuell leer.' }}
+        <h2 class="text-lg font-semibold tracking-tight">Postfach leer</h2>
+        <p class="text-sm text-muted-foreground max-w-xs mx-auto">
+          {{ activeFilter === 'unread' ? 'Keine neuen Nachrichten vorhanden.' : 'Du hast derzeit keine Nachrichten in deinem Postfach.' }}
         </p>
-        <Button
-          v-if="activeFilter !== 'all'"
-          variant="link"
-          class="mt-4"
-          @click="activeFilter = 'all'"
-        >
-          Alle Nachrichten anzeigen
-        </Button>
+        <Button v-if="activeFilter !== 'all'" variant="link" class="mt-2" @click="activeFilter = 'all'">Alle anzeigen</Button>
       </div>
-    </div>
+    </main>
 
-    <div
-      v-if="notifications && notifications.pagination.total > 0"
-      class="mt-12 flex justify-center border-t pt-8"
-    >
-      <MyPagination
-        v-model="page"
-        :page-meta="notifications.pagination"
-      />
-    </div>
+    <footer v-if="notifications?.pagination.total" class="mt-10 border-t pt-8 flex justify-center">
+      <MyPagination v-model="page" :page-meta="notifications.pagination" />
+    </footer>
   </div>
 </template>
