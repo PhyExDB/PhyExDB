@@ -6,10 +6,10 @@ const { data: reports, refresh, status } = await useFetch<ReportWithExperiment[]
   default: () => [],
 })
 
-const actionLoading = ref(false)
+const currentlyProcessing = ref<string | null>(null)
 
 async function markAsDone(reportId: string) {
-  actionLoading.value = true
+  currentlyProcessing.value = reportId
   try {
     await $fetch(`/api/experiments/reports/${reportId}/complete`, {
       method: "POST",
@@ -18,7 +18,7 @@ async function markAsDone(reportId: string) {
   } catch (err) {
     console.error("Fehler beim Markieren als erledigt:", err)
   } finally {
-    actionLoading.value = false
+    currentlyProcessing.value = null
   }
 }
 </script>
@@ -70,16 +70,15 @@ async function markAsDone(reportId: string) {
           </Button>
 
           <Button
-            size="sm"
-            variant="secondary"
-            :disabled="actionLoading || status !== 'pending'"
-            class="flex-1 sm:flex-none"
-            @click="markAsDone(report.id)"
+              size="sm"
+              variant="secondary"
+              :disabled="currentlyProcessing !== null || status === 'pending'"
+              @click="markAsDone(report.id)"
           >
             <Icon
-              v-if="actionLoading"
-              name="lucide:loader-2"
-              class="mr-2 h-4 w-4 animate-spin"
+                v-if="currentlyProcessing === report.id"
+                name="lucide:loader-2"
+                class="mr-2 h-4 w-4 animate-spin"
             />
             Erledigt
           </Button>
