@@ -141,7 +141,7 @@ function closeUnreadPopup() {
           class="w-full"
           @click="closeUnreadPopup"
         >
-          <NuxtLink href="/notifications">Zum Postfach</NuxtLink>
+          <NuxtLink href="/inbox">Zum Postfach</NuxtLink>
         </Button>
       </template>
     </NotificationDialog>
