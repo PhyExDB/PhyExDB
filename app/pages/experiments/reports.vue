@@ -70,15 +70,15 @@ async function markAsDone(reportId: string) {
           </Button>
 
           <Button
-              size="sm"
-              variant="secondary"
-              :disabled="currentlyProcessing !== null || status === 'pending'"
-              @click="markAsDone(report.id)"
+            size="sm"
+            variant="secondary"
+            :disabled="currentlyProcessing !== null || status === 'pending'"
+            @click="markAsDone(report.id)"
           >
             <Icon
-                v-if="currentlyProcessing === report.id"
-                name="lucide:loader-2"
-                class="mr-2 h-4 w-4 animate-spin"
+              v-if="currentlyProcessing === report.id"
+              name="lucide:loader-2"
+              class="mr-2 h-4 w-4 animate-spin"
             />
             Erledigt
           </Button>
