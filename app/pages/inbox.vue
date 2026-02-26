@@ -37,7 +37,11 @@ const formatDate = (dateStr: string | Date) => {
 }
 
 const handleToggleRead = async (notif: Notification) => {
-  notif.isRead ? await markAsUnread(notif.id) : await markAsRead(notif.id)
+  if (notif.isRead) {
+    await markAsUnread(notif.id)
+  } else {
+    await markAsRead(notif.id)
+  }
   await refresh()
 }
 
