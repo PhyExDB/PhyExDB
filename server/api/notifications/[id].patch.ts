@@ -1,11 +1,16 @@
+import { z } from "zod"
+
+const patchSchema = z.object({
+  isRead: z.boolean().optional().default(true),
+})
+
 export default defineEventHandler(async (event) => {
-  const user = await getUser(event)
-  if (!user) throw createError({ statusCode: 401, statusMessage: "Nicht eingeloggt" })
+  const user = await getUserOrThrowError(event)
 
   const id = getRouterParam(event, "id")
   if (!id) throw createError({ statusCode: 400, statusMessage: "ID fehlt" })
 
-  const body = await readBody(event)
+  const body = await readValidatedBody(event, patchSchema.parse)
 
   const notification = await prisma.notification.findUnique({ where: { id } })
   if (!notification || notification.userId !== user.id) {
@@ -14,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
   return prisma.notification.update({
     where: { id },
-    data: { isRead: body.isRead ?? true },
+    data: { isRead: body.isRead },
   })
 })
 
