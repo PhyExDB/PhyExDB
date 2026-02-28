@@ -27,7 +27,6 @@ export function useNotifications() {
       method: "PATCH",
       body: { isRead: true },
     })
-    await refreshCount()
   }
 
   async function markAsUnread(id: string) {
@@ -35,7 +34,6 @@ export function useNotifications() {
       method: "PATCH",
       body: { isRead: false },
     })
-    await refreshCount()
   }
 
   async function markAllAsRead() {
@@ -45,7 +43,6 @@ export function useNotifications() {
 
   async function deleteNotification(id: string) {
     await $fetch(`/api/notifications/${id}`, { method: "DELETE" })
-    await refreshCount()
   }
 
   return {

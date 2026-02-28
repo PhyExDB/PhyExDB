@@ -3,7 +3,7 @@ import { CheckCheck, Mail, MailOpen, Trash2, Bell, Inbox, ArrowRight } from "luc
 import type { Notification, NotificationResponse, NotificationType } from "~~/shared/types/Notification.type"
 
 await useUserOrThrowError()
-const { markAsRead, markAsUnread, markAllAsRead, deleteNotification } = useNotifications()
+const { markAsRead, markAsUnread, markAllAsRead, deleteNotification, unreadCount } = useNotifications()
 
 const { page, pageSize } = getRequestPageMeta()
 const activeFilter = ref<"all" | "unread" | "read">("all")
@@ -43,21 +43,26 @@ const handleToggleRead = async (notif: Notification) => {
     await markAsRead(notif.id)
   }
   await refresh()
+  unreadCount.value = notifications.value?.unreadCount ?? 0
 }
 
 const handleDelete = async (id: string) => {
   await deleteNotification(id)
   await refresh()
+  unreadCount.value = notifications.value?.unreadCount ?? 0
 }
 
 const handleMarkAllRead = async () => {
   await markAllAsRead()
   await refresh()
+  unreadCount.value = 0
 }
 
 const handleLinkClick = async (notif: Notification) => {
   if (!notif.isRead) {
     await markAsRead(notif.id)
+    await refresh()
+    unreadCount.value = notifications.value?.unreadCount ?? 0
   }
 }
 </script>
