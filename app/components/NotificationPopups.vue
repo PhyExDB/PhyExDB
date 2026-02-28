@@ -53,31 +53,18 @@ onMounted(() => {
 function closePopup() {
   if (!data.value) return
 
-  if (activePopup.value === "user") {
-    if (data.value.lastRejectedAt) {
-      localStorage.setItem("last-rejected-seen", data.value.lastRejectedAt.toString())
-    }
-    if (data.value.lastNotificationAt) {
-      localStorage.setItem("last-inbox-seen", data.value.lastNotificationAt.toString())
-    }
-  } else if (activePopup.value === "moderator") {
-    if (data.value.moderatorLastUpdate) {
-      localStorage.setItem("last-mod-notif-seen", data.value.moderatorLastUpdate.toString())
-    }
-    if (data.value.lastNotificationAt) {
-      localStorage.setItem("last-inbox-seen", data.value.lastNotificationAt.toString())
-    }
-  } else if (activePopup.value === "unread") {
-    if (data.value.lastNotificationAt) {
-      localStorage.setItem("last-inbox-seen", data.value.lastNotificationAt.toString())
-    }
+  if (data.value.lastNotificationAt) {
+    localStorage.setItem("last-inbox-seen", data.value.lastNotificationAt.toString())
+  }
+
+  if (activePopup.value === "user" && data.value.lastRejectedAt) {
+    localStorage.setItem("last-rejected-seen", data.value.lastRejectedAt.toString())
+  } else if (activePopup.value === "moderator" && data.value.moderatorLastUpdate) {
+    localStorage.setItem("last-mod-notif-seen", data.value.moderatorLastUpdate.toString())
   }
 
   activePopup.value = null
-
-  setTimeout(() => {
-    determineActivePopup()
-  }, 300)
+  setTimeout(() => determineActivePopup(), 300)
 }
 </script>
 
