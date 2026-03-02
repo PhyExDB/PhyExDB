@@ -1,7 +1,7 @@
 import { UserRole } from "@prisma/client"
 
 /**
- * Holt alle IDs von Moderatoren und Admins
+ * Fetches all IDs of moderators and admins
  */
 export async function getModeratorIds(excludeId?: string | null): Promise<string[]> {
   const moderators = await prisma.user.findMany({
