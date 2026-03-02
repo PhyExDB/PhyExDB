@@ -28,14 +28,15 @@ model User {
   experiments   Experiment[]
   reviews       Review[]
 
-  twoFactorEnabled       Boolean  @default(false)
+  twoFactorEnabled       Boolean     @default(false)
   twoFactorSecret        String?
-  twoFactorRecoveryCodes String[] @default([])
+  twoFactorRecoveryCodes String[]    @default([])
 
-  banned       Boolean?
-  banReason    String?
-  banExpires   DateTime?
-  Favorite     Favorite[]
+  banned      Boolean?
+  banReason   String?
+  banExpires  DateTime?
+  CommentVote CommentVote[]
+  Favorite   Favorite[]
   Report       Report[]
   Notification Notification[]
 
@@ -59,7 +60,7 @@ model LegalDocument {
 }
 
 model Startpage {
-  id          Boolean  @id @default(true)
+  id          Boolean   @id @default(true)
   text        String
   description String
   files       File[]
@@ -118,11 +119,11 @@ enum ExperimentStatus {
 }
 
 model Sign {
-  id          String       @id @default(uuid())
-  name        String       @unique
+  id          String                        @id @default(uuid())
+  name        String                        @unique
   type        SignType
   iconPath    String
-  experiments Experiment[] @relation("ExperimentSigns")
+  experiments Experiment[]                  @relation("ExperimentSigns")
 }
 
 enum SignType {
@@ -179,7 +180,7 @@ model ExperimentAttributeValue {
 }
 
 model File {
-  id                    String           @id @default(uuid())
+  id                    String          @id @default(uuid())
   originalName          String
   path                  String
   mimeType              String
@@ -188,10 +189,10 @@ model File {
   startpage             Startpage?       @relation(fields: [startpageId], references: [id])
   startpageId           Boolean?
   userFile              UserFile?
-  createdBy             User?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy             User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById           String?
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 }
 
 model ExperimentFile {
@@ -265,28 +266,29 @@ model Verification {
 
 model Rating {
   value        Int
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@id(name: "compoundId", [userId, experimentId])
 }
 
 model Comment {
-  id           String     @id @default(uuid())
+  id           String      @id @default(uuid())
   text         String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
-  parent       Comment?   @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
+  parent       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
   parentId     String?
-  children     Comment[]  @relation("CommentToComment")
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  children     Comment[]     @relation("CommentToComment")
+  votes        CommentVote[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Review {
@@ -317,6 +319,16 @@ model SectionCritique {
   updatedAt        DateTime                 @updatedAt
 
   @@unique([reviewId, sectionContentId])
+}
+
+model CommentVote {
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String
+  createdAt DateTime @default(now())
+
+  @@id([userId, commentId])
 }
 
 model SeedStatus {

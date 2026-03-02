@@ -11,12 +11,12 @@ describe("Api Route api/experiments/[slug]/comments/index.post", () => {
   // definitions
   const body = generateMock(experimentCommentCreateSchema)
 
-  const data = comment
-  const expected = data
+  const expected: ExperimentComment = comment
 
   const context = u.getTestContext({
-    data, expected, endpoint,
-
+    data: comment,
+    expected,
+    endpoint,
     params: { slug: experiment.slug },
     body,
     user: users.user,

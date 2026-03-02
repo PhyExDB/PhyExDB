@@ -26,7 +26,11 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return result as ExperimentComment
+  return {
+    ...result,
+    userHasVoted: false,
+    children: [],
+  } as ExperimentComment
 })
 
 defineRouteMeta({
@@ -70,6 +74,8 @@ defineRouteMeta({
               properties: {
                 id: { type: "string", format: "uuid" },
                 text: { type: "string" },
+                upvotesCount: { type: "integer" },
+                userHasVoted: { type: "boolean" },
                 user: {
                   type: "object",
                   properties: {
