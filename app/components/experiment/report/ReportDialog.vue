@@ -45,8 +45,8 @@ const onSubmit = form.handleSubmit(async (values) => {
       description: "Report erfolgreich gesendet! Vielen Dank!",
       variant: "success",
     })
-  } catch {
-    serverError.value = "Fehler beim Senden"
+  } catch (err: unknown) {
+    serverError.value = err instanceof Error ? err.message : "Fehler beim Senden"
   } finally {
     loading.value = false
   }
