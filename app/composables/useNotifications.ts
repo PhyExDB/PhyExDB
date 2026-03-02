@@ -1,5 +1,8 @@
+import { useToast } from "~/components/ui/toast"
+
 export function useNotifications() {
   const unreadCount = useState<number>("notification-unread-count", () => 0)
+  const { toast } = useToast()
 
   const { data: countData, refresh: refreshCount } = useFetch("/api/notifications/unread-count", {
     server: false,
@@ -23,26 +26,62 @@ export function useNotifications() {
   }
 
   async function markAsRead(id: string) {
-    await $fetch(`/api/notifications/${id}`, {
-      method: "PATCH",
-      body: { isRead: true },
-    })
+    try {
+      await $fetch(`/api/notifications/${id}`, {
+        method: "PATCH",
+        body: { isRead: true },
+      })
+    } catch (e) {
+      toast({
+        title: "Fehler",
+        description: "Benachrichtigung konnte nicht als gelesen markiert werden.",
+        variant: "destructive",
+      })
+      throw e
+    }
   }
 
   async function markAsUnread(id: string) {
-    await $fetch(`/api/notifications/${id}`, {
-      method: "PATCH",
-      body: { isRead: false },
-    })
+    try {
+      await $fetch(`/api/notifications/${id}`, {
+        method: "PATCH",
+        body: { isRead: false },
+      })
+    } catch (e) {
+      toast({
+        title: "Fehler",
+        description: "Benachrichtigung konnte nicht als ungelesen markiert werden.",
+        variant: "destructive",
+      })
+      throw e
+    }
   }
 
   async function markAllAsRead() {
-    await $fetch("/api/notifications/mark-all-read", { method: "POST" })
-    unreadCount.value = 0
+    try {
+      await $fetch("/api/notifications/mark-all-read", { method: "POST" })
+      unreadCount.value = 0
+    } catch (e) {
+      toast({
+        title: "Fehler",
+        description: "Benachrichtigungen konnten nicht als gelesen markiert werden.",
+        variant: "destructive",
+      })
+      throw e
+    }
   }
 
   async function deleteNotification(id: string) {
-    await $fetch(`/api/notifications/${id}`, { method: "DELETE" })
+    try {
+      await $fetch(`/api/notifications/${id}`, { method: "DELETE" })
+    } catch (e) {
+      toast({
+        title: "Fehler",
+        description: "Benachrichtigung konnte nicht gelöscht werden.",
+        variant: "destructive",
+      })
+      throw e
+    }
   }
 
   return {
