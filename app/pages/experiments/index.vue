@@ -370,7 +370,7 @@ watch([sort, attributeFilter, page, pageSize, search, searchTitle, sectionSearch
     <!-- Experiment Count & Sorting -->
     <div class="flex flex-col sm:flex-row gap-1 justify-between items-center">
       <div class="order-2 sm:order-1 pt-2 sm:pt-0 w-full sm:w-auto flex items-center gap-4">
-        <span>{{ isLoading ? '...' : data?.items.length || 0 }} Experimente gefunden</span>
+        <span>{{ isLoading ? '...' : data?.pagination.total || 0 }} Experimente gefunden</span>
         <Button
           variant="outline"
           size="sm"
