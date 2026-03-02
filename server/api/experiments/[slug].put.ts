@@ -45,40 +45,33 @@ export default defineEventHandler(async (event) => {
         })),
       },
       sections: {
-        update: sanitizedExperimentData.sections.map(section => ({
-          where: {
-            id: section.experimentSectionContentId,
-          },
-          data: {
-            text: section.text,
-            files: {
-              upsert: section.files.map((file, index) => ({
-                where: {
-                  id: file.fileId,
-                },
-                update: {
-                  description: file.description,
-                  order: index,
-                },
-                create: {
-                  description: file.description,
-                  order: index,
-                  file: {
-                    connect: {
-                      id: file.fileId,
-                    },
-                  },
-                },
-              })),
+        update: sanitizedExperimentData.sections
+          .filter(section => !!section.experimentSectionContentId)
+          .map(section => ({
+            where: {
+              id: section.experimentSectionContentId,
             },
-          },
-        })),
+            data: {
+              text: section.text,
+              files: {
+                create: (section.files || [])
+                  .filter(file => !!file.fileId)
+                  .map((file, index) => ({
+                    description: file.description,
+                    order: index,
+                    file: {
+                      connect: { id: file.fileId },
+                    },
+                  })),
+              },
+            },
+          })),
       },
       attributes: {
         set: [],
         connect: sanitizedExperimentData.attributes
           .flatMap(attribute => attribute.valueIds)
-          .filter(valueId => valueId != undefined)
+          .filter((valueId): valueId is string => typeof valueId === "string" && valueId.length > 0)
           .map(valueId => ({
             id: valueId,
           })),
