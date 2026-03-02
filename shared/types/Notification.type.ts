@@ -3,7 +3,7 @@ import type { NotificationType, ExperimentStatus } from "@prisma/client"
 export type { NotificationType }
 
 /**
- * Interface für ein Experiment-Snippet innerhalb einer Benachrichtigung.
+ * Represents a simplified experiment object attached to notifications.
  */
 export interface NotificationExperiment {
   id: string
@@ -13,6 +13,9 @@ export interface NotificationExperiment {
   userId: string | null
 }
 
+/**
+ * Metadata for notifications triggered by reports.
+ */
 export interface NotificationReport {
   id: string
   message: string
@@ -21,6 +24,9 @@ export interface NotificationReport {
   experiment?: NotificationExperiment
 }
 
+/**
+ * The core Notification model.
+ */
 export interface Notification {
   id: string
   type: NotificationType
@@ -39,7 +45,7 @@ export interface Notification {
 }
 
 /**
- * Interface für die paginierte API-Antwort.
+ * Standard paginated response for the notification list API.
  */
 export interface NotificationResponse {
   items: Notification[]
@@ -50,8 +56,4 @@ export interface NotificationResponse {
     pageSize: number
     totalPages: number
   }
-}
-
-export function hasReport(notif: Notification): notif is Notification & { report: NotificationReport } {
-  return !!notif.report
 }

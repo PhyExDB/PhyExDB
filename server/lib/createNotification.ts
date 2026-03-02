@@ -10,8 +10,7 @@ interface CreateNotificationOptions {
 }
 
 /**
- * Erstellt eine Notification für einen User.
- * Kann überall im Server-Code aufgerufen werden, z.B. wenn ein Report erstellt wird.
+ * Creates a notification for a specific user.
  */
 export async function createNotification(options: CreateNotificationOptions) {
   return prisma.notification.create({
@@ -27,7 +26,7 @@ export async function createNotification(options: CreateNotificationOptions) {
 }
 
 /**
- * Erstellt Notifications für alle Moderatoren/Admins.
+ * Creates notifications for all moderators and admins.
  */
 export async function notifyModerators(
   options: Omit<CreateNotificationOptions, "userId"> & { excludeId?: string },
