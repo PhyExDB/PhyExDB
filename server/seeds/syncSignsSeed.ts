@@ -14,12 +14,7 @@ export default class SyncSignsSeed extends Seed {
    * Returns the signs to seed based on environment
    */
   private getSigns() {
-    if (import.meta.dev) {
-      // Use all signs in dev
-      return SIGNS
-    } else {
-      return SIGNS.filter(sign => sign.category === "safety")
-    }
+    return SIGNS;
   }
 
   /**
