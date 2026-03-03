@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { User, FlaskConical, Heart, UserX, Users, FolderTree, ClipboardCheck, LogOut } from "lucide-vue-next"
+import { User, FlaskConical, Heart, Users, FolderTree, ClipboardCheck, LogOut, AlertTriangle, Bell } from "lucide-vue-next"
 import getInitials from "~~/shared/utils/initials"
 
 const user = await useUser()
@@ -31,6 +31,7 @@ const dropdownOpen = ref(false)
 </script>
 
 <template>
+  <InboxBadge v-if="user" />
   <DropdownMenu
     v-if="user"
     v-model:open="dropdownOpen"
@@ -71,11 +72,36 @@ const dropdownOpen = ref(false)
         </DropdownMenuItem>
       </NuxtLink>
 
+      <NuxtLink href="/inbox">
+        <DropdownMenuItem as-child>
+          <span>
+            <Bell />
+            Postfach
+            <Badge
+              v-if="pendingReviewCount > 0"
+              variant="destructive"
+              class="ml-auto h-5 min-w-5 text-[10px]"
+            >
+              {{ pendingReviewCount }}
+            </Badge>
+          </span>
+        </DropdownMenuItem>
+      </NuxtLink>
+
       <NuxtLink href="/experiments/mine">
         <DropdownMenuItem as-child>
           <span>
             <FlaskConical />
             Meine Versuche
+          </span>
+        </DropdownMenuItem>
+      </NuxtLink>
+
+      <NuxtLink to="/experiments/reports">
+        <DropdownMenuItem as-child>
+          <span>
+            <AlertTriangle />
+            Reports
           </span>
         </DropdownMenuItem>
       </NuxtLink>

@@ -19,7 +19,13 @@ export default defineEventHandler(async (event) => {
 
   const experiment = await prisma.experiment.findUnique({
     where: { id: experimentId },
-    select: { updatedAt: true, userId: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      updatedAt: true,
+      userId: true,
+    },
   })
 
   if (!experiment) throw createError({ statusCode: 404, statusMessage: "Experiment nicht gefunden" })
@@ -82,6 +88,16 @@ export default defineEventHandler(async (event) => {
         },
       })
 
+      if (experiment.userId) {
+        await createNotification({
+          userId: experiment.userId,
+          type: "EXPERIMENT_REJECTED",
+          title: "Versuch beanstandet",
+          message: `Dein Versuch "${experiment.name}" wurde beanstandet.`,
+          link: `/experiments/edit/${experiment.id}`,
+        })
+      }
+
       return { success: true, message: "Beanstandet. Status auf REJECTED gesetzt." }
     } else {
       // FALL: AKZEPTIEREN
@@ -104,6 +120,16 @@ export default defineEventHandler(async (event) => {
           updatedAt: now,
         },
       })
+
+      if (newStatus === "PUBLISHED" && experiment.userId) {
+        await createNotification({
+          userId: experiment.userId,
+          type: "EXPERIMENT_PUBLISHED",
+          title: "Versuch veröffentlicht!",
+          message: `Dein Versuch "${experiment.name}" wurde veröffentlicht!`,
+          link: `/experiments/${experiment.slug}`,
+        })
+      }
 
       return {
         success: true,

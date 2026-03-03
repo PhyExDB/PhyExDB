@@ -2,10 +2,18 @@ import type { ModeratorTask } from "#shared/types/Review.type"
 
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
-  if (!user) return { needsRevisionCount: 0, moderatorNotifications: 0, lastRejectedAt: null, moderatorLastUpdate: null }
+  if (!user) {
+    return {
+      needsRevisionCount: 0,
+      moderatorNotifications: 0,
+      lastRejectedAt: null,
+      moderatorLastUpdate: null,
+      unreadCount: 0,
+      lastNotificationAt: null,
+    }
+  }
 
-  const [rejected, moderatorData] = await Promise.all([
-    // REJECTED Versuche des Users
+  const [rejected, moderatorData, notificationsData] = await Promise.all([
     prisma.experiment.aggregate({
       where: { userId: user.id, status: "REJECTED" },
       _count: true,
@@ -26,7 +34,13 @@ export default defineEventHandler(async (event) => {
             },
           },
         })
-      : [],
+      : Promise.resolve([]),
+
+    prisma.notification.aggregate({
+      where: { userId: user.id, isRead: false },
+      _count: true,
+      _max: { createdAt: true },
+    }),
   ])
 
   const relevantModTasks = (moderatorData as ModeratorTask[]).filter((exp) => {
@@ -36,10 +50,67 @@ export default defineEventHandler(async (event) => {
 
   return {
     needsRevisionCount: rejected._count,
-    lastRejectedAt: rejected._max.updatedAt?.getTime() || null,
+    lastRejectedAt: rejected._max.updatedAt?.getTime() ?? undefined,
+
     moderatorNotifications: relevantModTasks.length,
     moderatorLastUpdate: relevantModTasks.length > 0
-      ? Math.max(...relevantModTasks.map(e => e.updatedAt.getTime()))
-      : null,
+      ? Math.max(...relevantModTasks.map(e => new Date(e.updatedAt).getTime()))
+      : undefined,
+
+    unreadCount: notificationsData._count,
+    lastNotificationAt: notificationsData._max.createdAt?.getTime() ?? undefined,
   }
+})
+
+defineRouteMeta({
+  openAPI: {
+    summary: "Status-Check für Benachrichtigungen und Aufgaben",
+    description: "Liefert Zählerstände und Zeitstempel für ungelesene Nachrichten, abgelehnte Versuche und (für Moderatoren) offene Reviews.",
+    tags: ["Notifications"],
+    responses: {
+      200: {
+        description: "Status-Zusammenfassung",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                needsRevisionCount: {
+                  type: "integer",
+                  description: "Anzahl der eigenen Versuche mit Status REJECTED",
+                  example: 1,
+                },
+                lastRejectedAt: {
+                  type: "number",
+                  description: "Timestamp der letzten Ablehnung",
+                  nullable: true,
+                  example: 1715856000000,
+                },
+                moderatorNotifications: {
+                  type: "integer",
+                  description: "Anzahl der für den Mod relevanten offenen Reviews",
+                  example: 3,
+                },
+                moderatorLastUpdate: {
+                  type: "number",
+                  description: "Timestamp des neuesten relevanten Review-Updates",
+                  nullable: true,
+                },
+                unreadCount: {
+                  type: "integer",
+                  description: "Anzahl ungelesener Postfach-Nachrichten",
+                  example: 5,
+                },
+                lastNotificationAt: {
+                  type: "number",
+                  description: "Timestamp der neuesten ungelesenen Nachricht",
+                  nullable: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 })

@@ -37,6 +37,8 @@ model User {
   banExpires  DateTime?
   CommentVote CommentVote[]
   Favorite   Favorite[]
+  Report       Report[]
+  Notification Notification[]
 
   @@unique([email])
   @@map("user")
@@ -58,7 +60,7 @@ model LegalDocument {
 }
 
 model Startpage {
-  id          Boolean  @id @default(true)
+  id          Boolean   @id @default(true)
   text        String
   description String
   files       File[]
@@ -67,32 +69,33 @@ model Startpage {
 }
 
 model Experiment {
-  id             String                     @id @default(uuid())
-  name           String
-  slug           String                     @unique
-  signs          Sign[]                     @relation("ExperimentSigns")
-  user           User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId         String?
-  status         ExperimentStatus           @default(DRAFT)
-  duration       Int
-  previewImage   File?                      @relation(fields: [previewImageId], references: [id])
-  previewImageId String?
-  sections       ExperimentSectionContent[]
-  attributes     ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
-  ratings        Rating[]
-  ratingsCount   Int                        @default(0)
-  ratingsSum     Int                        @default(0)
-  ratingsAvg     Float                      @default(0)
-  comments       Comment[]
-  commentsEnabled Boolean                   @default(true)
-  revisionOf     Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
-  revisedBy      Experiment?                @relation("Revision")
-  revisionOfId   String?                    @unique
-  changeRequest  String?
-  createdAt      DateTime                   @default(now())
-  updatedAt      DateTime                   @updatedAt
-  reviews        Review[]
-  Favorite       Favorite[]
+  id              String                     @id @default(uuid())
+  name            String
+  slug            String                     @unique
+  signs           Sign[]                     @relation("ExperimentSigns")
+  user            User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId          String?
+  status          ExperimentStatus           @default(DRAFT)
+  duration        Int
+  previewImage    File?                      @relation(fields: [previewImageId], references: [id])
+  previewImageId  String?
+  sections        ExperimentSectionContent[]
+  attributes      ExperimentAttributeValue[] // implicit many to many, pivot managed by Prisma
+  ratings         Rating[]
+  ratingsCount    Int                        @default(0)
+  ratingsSum      Int                        @default(0)
+  ratingsAvg      Float                      @default(0)
+  comments        Comment[]
+  commentsEnabled Boolean                    @default(true)
+  revisionOf      Experiment?                @relation("Revision", fields: [revisionOfId], references: [id])
+  revisedBy       Experiment?                @relation("Revision")
+  revisionOfId    String?                    @unique
+  changeRequest   String?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  reviews         Review[]
+  Favorite        Favorite[]
+  Report          Report[]
 }
 
 model Favorite {
@@ -177,7 +180,7 @@ model ExperimentAttributeValue {
 }
 
 model File {
-  id                    String           @id @default(uuid())
+  id                    String          @id @default(uuid())
   originalName          String
   path                  String
   mimeType              String
@@ -186,10 +189,10 @@ model File {
   startpage             Startpage?       @relation(fields: [startpageId], references: [id])
   startpageId           Boolean?
   userFile              UserFile?
-  createdBy             User?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy             User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById           String?
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 }
 
 model ExperimentFile {
@@ -263,22 +266,22 @@ model Verification {
 
 model Rating {
   value        Int
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@id(name: "compoundId", [userId, experimentId])
 }
 
 model Comment {
-  id           String     @id @default(uuid())
+  id           String      @id @default(uuid())
   text         String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experiment   Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
   experimentId String
   parent       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
   parentId     String?
@@ -331,4 +334,45 @@ model CommentVote {
 model SeedStatus {
   name        String   @id
   performedAt DateTime @default(now())
+}
+
+model Report {
+  id           String         @id @default(uuid())
+  message      String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  experiment   Experiment     @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experimentId String
+  createdAt    DateTime       @default(now())
+  seenByOwner  Boolean        @default(false)
+  Notification Notification[]
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  reportId String?
+  report   Report? @relation(fields: [reportId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}
+
+enum NotificationType {
+  REPORT_NEW
+  REPORT_STATUS_UPDATE
+  EXPERIMENT_REJECTED
+  EXPERIMENT_PUBLISHED
+  REVIEW_ASSIGNED
+  SYSTEM
 }

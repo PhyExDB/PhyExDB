@@ -3,6 +3,7 @@ import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
 import { z } from "zod"
 import { ExperimentCommentDetail } from "#components"
+import ReportDialog from "~/components/experiment/report/ReportDialog.vue"
 
 const props = defineProps<{
   experiment: Pick<ExperimentList, "id" | "userId" | "status">
@@ -273,4 +274,6 @@ async function handleVote(commentId: string) {
       Kommentare für diesen Versuch erlauben
     </Button>
   </div>
+
+  <ReportDialog />
 </template>
