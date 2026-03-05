@@ -36,10 +36,10 @@ const onSubmit = form.handleSubmit(async (values) => {
     // Check if 2FA challenge is required
     try {
       const { data } = await useFetch("/api/2fa/status")
-      if (data.value?.setupRequired) {
-        await navigateTo("/profile?setup2fa=true")
-      } else if (data.value?.enabled && data.value?.required) {
+      if (data.value?.enabled && data.value?.required) {
         await navigateTo("/2fa/challenge")
+      } else if (!data.value?.enabled) {
+        await navigateTo("/2fa/setup")
       } else {
         followRedirect()
       }

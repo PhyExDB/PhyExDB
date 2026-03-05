@@ -2,6 +2,8 @@
 import UserDeleteAccountDialog from "~/components/user/UserDeleteAccountDialog.vue"
 import getInitials from "~~/shared/utils/initials"
 import { useToast } from "@/components/ui/toast/use-toast"
+import TwoFactorSetup from "~/pages/2fa/TwoFactorSetup.vue"
+import TwoFactorRecoveryDisplay from "~/pages/2fa/TwoFactorRecoveryDisplay.vue"
 
 definePageMeta({
   title: "Profile",
@@ -146,28 +148,32 @@ async function regenerateRecoveryCodes() {
   }
 }
 
-function copyRecoveryCodes() {
-  if (twofaRecoveryCodes.value && twofaRecoveryCodes.value.length > 0) {
-    navigator.clipboard.writeText(twofaRecoveryCodes.value.join("\n"))
-  } else {
-    toast({
-      title: "Keine Wiederherstellungscodes",
-      description: "Es sind keine Wiederherstellungscodes verfügbar.",
-      variant: "destructive",
-    })
+async function resetTwofa() {
+  if (!twofaCode.value) {
+    toast({ title: "Code erforderlich", description: "Bitte gib einen 2FA-Code oder Recovery-Code ein.", variant: "destructive" })
+    return
   }
-}
 
-function downloadRecoveryCodes() {
-  if (!twofaRecoveryCodes.value || twofaRecoveryCodes.value.length === 0) return
+  twofaLoading.value = true
+  try {
+    await $fetch("/api/2fa/disable", {
+      method: "POST",
+      body: { code: twofaCode.value },
+    })
 
-  const blob = new Blob([twofaRecoveryCodes.value.join("\n")], { type: "text/plain" })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = "2fa-recovery-codes-" + process.env.APP_IMAGE + ".txt"
-  a.click()
-  URL.revokeObjectURL(url)
+    twofaStatus.value.enabled = false
+    twofaSetup.value = null
+    twofaRecoveryCodes.value = null
+    twofaCode.value = ""
+
+    toast({ title: "2FA zurückgesetzt", description: "Du kannst nun ein neues Gerät einrichten.", variant: "success" })
+
+    await startTwofaSetup()
+  } catch (e: unknown) {
+    toast({ title: "Fehler", description: getErrorMessage(e), variant: "destructive" })
+  } finally {
+    twofaLoading.value = false
+  }
 }
 
 function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
@@ -328,179 +334,120 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
     </Card>
 
     <Card class="mt-4">
-      <CardContent class="p-6 space-y-4">
-        <div class="flex items-center space-x-2 text-xl">
-          <span>🔒</span>
-          <span>Zwei-Faktor-Authentifizierung</span>
-          <span
-            v-if="twofaStatus.enabled"
-            class="text-green-600 text-xl"
-          >aktiviert</span>
-          <span
-            v-else
-            class="text-red-600 text-xl"
-          >deaktiviert</span>
+      <CardContent class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-xl flex items-center gap-2">
+            <Icon
+              :name="twofaStatus.enabled ? 'heroicons:shield-check' : 'heroicons:shield-exclamation'"
+              :class="twofaStatus.enabled ? 'text-success-foreground' : 'text-destructive'"
+              size="1.2em"
+            />
+            Zwei-Faktor-Authentifizierung
+          </div>
+          <Badge
+            :variant="twofaStatus.enabled ? 'outline' : 'destructive'"
+            class="pointer-events-none select-none"
+          >
+            {{ twofaStatus.enabled ? 'Aktiviert' : 'Deaktiviert' }}
+          </Badge>
         </div>
 
-        <!-- 2FA Disabled -->
         <div
           v-if="!twofaStatus.enabled"
           class="space-y-4"
         >
-          <div class="text-sm text-yellow-600 font-medium">
-            2FA ist verpflichtend. Bitte richte die Zwei-Faktor-Authentifizierung ein, um die Anwendung nutzen zu können.
-          </div>
-          <Button
-            :loading="twofaLoading"
-            @click="startTwofaSetup"
-          >
-            Einrichtung starten
-          </Button>
+          <p class="text-muted-foreground mt-2 text-sm">
+            2FA ist für dein Konto verpflichtend. Bitte richte sie jetzt ein, um fortzufahren.
+          </p>
+
           <div
-            v-if="twofaSetup"
-            class="space-y-3"
+            v-if="!twofaSetup"
+            class="pt-2"
           >
-            <div class="text-sm">
-              Scanne diesen QR-Code mit deiner Authenticator-App oder verwende das Secret.
-            </div>
-            <div class="flex items-center space-x-4">
-              <div
-                v-if="qrLoading"
-                class="animate-spin w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full"
+            <Button
+              :loading="twofaLoading"
+              variant="outline"
+              @click="startTwofaSetup"
+            >
+              <Icon
+                name="heroicons:plus-circle"
+                class="mr-2 h-4 w-4"
               />
-              <img
-                v-else-if="qrDataUrl"
-                :src="qrDataUrl"
-                alt="QR"
-                class="border rounded"
-              >
-            </div>
-
-            <div class="flex flex-col mt-2 text-xs">
-              <div>
-                <strong>Secret:</strong> {{ twofaSetup.secret }}
-              </div>
-            </div>
-            <div class="grid gap-2 max-w-xs">
-              <label class="text-sm font-medium">6-stelliger Code</label>
-              <div class="flex space-x-2">
-                <Input
-                  v-model="twofaCode"
-                  class="h-10"
-                  placeholder="123456"
-                  inputmode="numeric"
-                  maxlength="6"
-                  @keyup.enter="confirmTwofaEnable"
-                />
-                <Button
-                  class="h-10"
-                  :loading="twofaLoading"
-                  @click="confirmTwofaEnable"
-                >
-                  Bestätigen
-                </Button>
-              </div>
-            </div>
+              Einrichtung starten
+            </Button>
           </div>
 
-          <!-- Recovery Codes for newly enabled 2FA -->
           <div
-            v-if="twofaRecoveryCodes"
-            class="space-y-2"
+            v-else
+            class="mt-6 border-t pt-6"
           >
-            <div class="text-sm font-medium">
-              Wiederherstellungscodes
-            </div>
-            <div class="text-xs text-yellow-600">
-              Diese Codes werden nur einmal angezeigt. Bitte sicher speichern.
-            </div>
-            <ul class="text-sm grid grid-cols-2 gap-2">
-              <li
-                v-for="c in twofaRecoveryCodes"
-                :key="c"
-                class="font-mono p-2 border rounded"
-              >
-                {{ c }}
-              </li>
-            </ul>
-            <div class="flex space-x-2 mt-1">
-              <Button
-                size="sm"
-                variant="outline"
-                @click="copyRecoveryCodes"
-              >
-                Kopieren
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                @click="downloadRecoveryCodes"
-              >
-                Als .txt speichern
-              </Button>
-            </div>
+            <TwoFactorSetup
+              v-model:code="twofaCode"
+              :setup="twofaSetup"
+              :qr-url="qrDataUrl"
+              :qr-loading="qrLoading"
+              :loading="twofaLoading"
+              @confirm="confirmTwofaEnable"
+            />
           </div>
         </div>
 
-        <!-- 2FA Enabled -->
         <div
           v-else
-          class="space-y-4"
+          class="space-y-6"
         >
-          <div class="grid gap-2 max-w-xs">
-            <label class="text-sm font-medium">Wiederherstellungscodes neu erzeugen</label>
-            <div class="flex space-x-2">
+          <p class="text-muted-foreground mt-2 text-sm italic">
+            Dein Konto ist durch eine zusätzliche Sicherheitsebene geschützt.
+          </p>
+
+          <div class="grid gap-4 max-w-sm mt-4">
+            <div class="space-y-2">
+              <Label class="text-sm font-medium">Sicherheits-Bestätigung</Label>
               <Input
                 v-model="twofaCode"
-                class="h-10"
-                placeholder="2FA-Code"
-                inputmode="text"
+                class="font-mono text-center text-lg tracking-widest"
+                placeholder="000000"
                 maxlength="11"
                 @keyup.enter="regenerateRecoveryCodes"
               />
+              <p class="text-[10px] text-muted-foreground">
+                Gib einen 2FA- oder Recovery-Code ein, um Änderungen vorzunehmen.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
               <Button
-                class="h-10"
                 variant="outline"
-                :loading="twofaLoading"
+                size="sm"
+                :disabled="!twofaCode || twofaLoading"
                 @click="regenerateRecoveryCodes"
               >
-                Bestätigen
+                <Icon
+                  name="heroicons:arrow-path"
+                  class="mr-2 h-4 w-4"
+                />
+                Codes neu erzeugen
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                class="text-destructive hover:bg-destructive/10"
+                :disabled="!twofaCode || twofaLoading"
+                @click="resetTwofa"
+              >
+                <Icon
+                  name="heroicons:device-phone-mobile"
+                  class="mr-2 h-4 w-4"
+                />
+                Gerät wechseln
               </Button>
             </div>
           </div>
-          <div
+
+          <TwoFactorRecoveryDisplay
             v-if="twofaRecoveryCodes"
-            class="space-y-2"
-          >
-            <div class="text-sm font-medium">
-              Neue Wiederherstellungscodes
-            </div>
-            <ul class="text-sm grid grid-cols-2 gap-2">
-              <li
-                v-for="c in twofaRecoveryCodes"
-                :key="c"
-                class="font-mono p-2 border rounded"
-              >
-                {{ c }}
-              </li>
-            </ul>
-            <div class="flex space-x-2 mt-1">
-              <Button
-                size="sm"
-                variant="outline"
-                @click="copyRecoveryCodes"
-              >
-                Kopieren
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                @click="downloadRecoveryCodes"
-              >
-                Als .txt speichern
-              </Button>
-            </div>
-          </div>
+            :codes="twofaRecoveryCodes"
+          />
         </div>
       </CardContent>
     </Card>

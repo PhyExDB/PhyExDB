@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   }
   const record = await prisma.user.findUnique({ where: { id: user.id }, select: { twoFactorEnabled: true } })
   const enabled = !!record?.twoFactorEnabled
-  if (!enabled) return { enabled: false, required: true, setupRequired: true }
+  if (!enabled) return { enabled: false, required: false, setupRequired: true }
 
   const cookies = parseCookies(event)
   const token = cookies["twofa_verified"]
