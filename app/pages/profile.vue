@@ -58,7 +58,6 @@ const twofaLoading = ref(false)
 const twofaSetup = ref<{ secret: string, otpauthUrl: string, issuer: string } | null>(null)
 const twofaCode = ref("")
 const twofaRecoveryCodes = ref<string[] | null>(null)
-const twofaDisableCode = ref("")
 const qrDataUrl = ref<string | null>(null)
 const qrLoading = ref(false)
 
@@ -142,40 +141,6 @@ async function regenerateRecoveryCodes() {
     }
   } catch (e: unknown) {
     toast({ title: "2FA Error", description: getErrorMessage(e), variant: "destructive" })
-  } finally {
-    twofaLoading.value = false
-  }
-}
-
-async function disableTwofa() {
-  if (!twofaDisableCode.value) {
-    toast({
-      title: "Fehler",
-      description: "Bitte gib den 2FA-Code ein",
-      variant: "destructive",
-    })
-    return
-  }
-
-  twofaLoading.value = true
-  try {
-    await $fetch("/api/2fa/disable", {
-      method: "POST",
-      body: { code: twofaDisableCode.value },
-    })
-    twofaStatus.value.enabled = false
-    twofaSetup.value = null
-    twofaRecoveryCodes.value = null
-    twofaCode.value = ""
-    twofaDisableCode.value = ""
-
-    toast({
-      title: "2FA deaktiviert",
-      description: "Die Zwei-Faktor-Authentifizierung wurde erfolgreich deaktiviert.",
-      variant: "success",
-    })
-  } catch (e: unknown) {
-    toast({ title: "2FA Fehler", description: getErrorMessage(e), variant: "destructive" })
   } finally {
     twofaLoading.value = false
   }
@@ -382,8 +347,8 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
           v-if="!twofaStatus.enabled"
           class="space-y-4"
         >
-          <div class="text-sm">
-            2FA ist aktuell deaktiviert.
+          <div class="text-sm text-yellow-600 font-medium">
+            2FA ist verpflichtend. Bitte richte die Zwei-Faktor-Authentifizierung ein, um die Anwendung nutzen zu können.
           </div>
           <Button
             :loading="twofaLoading"
@@ -533,27 +498,6 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
                 @click="downloadRecoveryCodes"
               >
                 Als .txt speichern
-              </Button>
-            </div>
-          </div>
-          <div class="grid gap-2 max-w-xs">
-            <label class="text-sm font-medium">2FA deaktivieren</label>
-            <div class="flex space-x-2">
-              <Input
-                v-model="twofaDisableCode"
-                class="h-10"
-                placeholder="2FA-Code"
-                inputmode="text"
-                maxlength="11"
-                @keyup.enter="disableTwofa"
-              />
-              <Button
-                class="h-10"
-                variant="destructive"
-                :loading="twofaLoading"
-                @click="disableTwofa"
-              >
-                Deaktivieren
               </Button>
             </div>
           </div>

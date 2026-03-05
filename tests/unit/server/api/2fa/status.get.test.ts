@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, vi, beforeEach } from "vitest"
-import { statusDisabled, statusEnabled, userWith2faEnabled, userWith2faDisabled } from "./data"
+import { statusDisabled, statusEnabled, statusNotLoggedIn, userWith2faEnabled, userWith2faDisabled } from "./data"
 import { setupH3Mocks, mockParseCookies, setupAuthMocks, setupTwofaMocks, mockGetUser } from "./setup"
 import { users } from "~~/tests/helpers/auth"
 import type { EndpointResult } from "~~/tests/helpers/utils"
@@ -59,7 +59,7 @@ describe("Api Route GET /api/2fa/status", () => {
   })
 
   describe("when user is not logged in", () => {
-    const expected = statusDisabled
+    const expected = statusNotLoggedIn
 
     const context = u.getTestContext({
       data: undefined,

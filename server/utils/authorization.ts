@@ -15,7 +15,9 @@ async function ensureTwofaIfRequired(event: Event, user: UserDetail | null): Pro
   const path = event.path || ""
   if (path.startsWith("/api/2fa")) return
   const record = await prisma.user.findUnique({ where: { id: user.id }, select: { twoFactorEnabled: true } })
-  if (!record?.twoFactorEnabled) return
+  if (!record?.twoFactorEnabled) {
+    throw createError({ statusCode: 401, statusMessage: "2FA setup required" })
+  }
   const cookies = parseCookies(event)
   const token = cookies["twofa_verified"]
   const verified = token ? verifyTwofaCookie(token, user.id) : false

@@ -6,21 +6,21 @@ import { verifyTwofaCookie, isTwofaGloballyEnabled } from "~~/server/utils/twofa
 export default defineEventHandler(async (event) => {
   const enabledGlobally = isTwofaGloballyEnabled()
   if (!enabledGlobally) {
-    return { enabled: false, required: false }
+    return { enabled: false, required: false, setupRequired: false }
   }
   const user = await getUser(event)
   if (!user) {
-    return { enabled: false, required: false }
+    return { enabled: false, required: false, setupRequired: false }
   }
   const record = await prisma.user.findUnique({ where: { id: user.id }, select: { twoFactorEnabled: true } })
   const enabled = !!record?.twoFactorEnabled
-  if (!enabled) return { enabled: false, required: false }
+  if (!enabled) return { enabled: false, required: true, setupRequired: true }
 
   const cookies = parseCookies(event)
   const token = cookies["twofa_verified"]
   const verified = token ? verifyTwofaCookie(token, user.id) : false
 
-  return { enabled: true, required: !verified }
+  return { enabled: true, required: !verified, setupRequired: false }
 })
 
 defineRouteMeta({
@@ -38,6 +38,7 @@ defineRouteMeta({
               properties: {
                 enabled: { type: "boolean", example: true },
                 required: { type: "boolean", example: false },
+                setupRequired: { type: "boolean", example: false },
               },
             },
           },
