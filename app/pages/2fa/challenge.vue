@@ -22,7 +22,7 @@ async function submitChallenge() {
   if (!isTotp && !isRecovery) {
     toast({
       title: "Ungültiges Format",
-      description: "Code (6 Ziffern) oder Recovery-Key (ABCDE-12345) nötig.",
+      description: "Bitte gib entweder einen 6-stelligen Code oder einen gültigen Wiederherstellungscode (z. B. ABCDE-12345) ein.",
       variant: "destructive",
     })
     loading.value = false
@@ -41,7 +41,11 @@ async function submitChallenge() {
       clearNuxtData()
       const target = route.query.redirect?.toString() || "/"
       await navigateTo(target, { replace: true })
-      toast({ title: "Erfolgreich", variant: "success" })
+      toast({
+        title: "Identität bestätigt",
+        description: "Zwei-Faktor-Authentifizierung erfolgreich abgeschlossen.",
+        variant: "success",
+      })
     }
   } catch {
     toast({
