@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     || EXEMPT_ROUTES.some(path => to.path === path || to.path.startsWith(path + "/"))
   ) return
 
-  const statusState = useState<TwoFactorStatus | null>('2fa-status', () => null)
+  const statusState = useState<TwoFactorStatus | null>("2fa-status", () => null)
 
   try {
     const status = await $fetch<TwoFactorStatus>("/api/2fa/status", {
@@ -18,7 +18,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
     statusState.value = status
     const target = getTwoFaRedirectTarget(status, to.fullPath)
     if (target) return navigateTo(target)
-
   } catch {
     statusState.value = null
     return navigateTo("/login")

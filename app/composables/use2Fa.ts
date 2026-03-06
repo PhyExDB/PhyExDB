@@ -1,14 +1,12 @@
-import { useToast } from "~/components/ui/toast";
-
 /**
- * Bestimmt das Navigationsziel basierend auf dem 2FA-Status.
- * @param status Der aktuelle TwoFactorStatus
- * @param currentPath Der aktuelle Pfad (um Endlosschleifen zu vermeiden)
- * @returns Das Ziel-Pfad-String oder null, wenn keine Aktion erforderlich ist
+ * Determines the navigation target based on the 2FA status.
+ * @param status The current TwoFactorStatus
+ * @param currentPath The current path (to prevent infinite loops)
+ * @returns The target path string or null if no action is required
  */
 export function getTwoFaRedirectTarget(
   status: TwoFactorStatus,
-  currentPath: string = ""
+  currentPath: string = "",
 ): string | null {
   if (!status.authenticated) {
     return "/login"
@@ -31,24 +29,16 @@ export function getTwoFaRedirectTarget(
 }
 
 export const use2fa = () => {
-  const status = useState<TwoFactorStatus | null>('2fa-status', () => null)
+  const status = useState<TwoFactorStatus | null>("2fa-status", () => null)
   const loading = ref(false)
-  const { toast } = useToast()
 
   const refreshStatus = async () => {
     const data = await $fetch<TwoFactorStatus>("/api/2fa/status", {
-      params: { t: Date.now() }
+      params: { t: Date.now() },
     })
     status.value = data
     return data
   }
 
-  const handleError = (e: any, title = "Fehler") => {
-    const message = e.data?.statusMessage || e.data?.message || e.message || "Ein unbekannter Fehler ist aufgetreten."
-    toast({ title, description: message, variant: "destructive" })
-    console.error(`[2FA Error]: ${title}`, e)
-  }
-
-  return { status, loading, refreshStatus, handleError }
+  return { status, loading, refreshStatus }
 }
-
