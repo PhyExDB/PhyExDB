@@ -7,62 +7,43 @@ definePageMeta({
 })
 
 const { toast } = useToast()
+const route = useRoute()
 const loading = ref(false)
 const twoFactorAuthCode = ref("")
-
-onMounted(async () => {
-  try {
-    const { data } = await useFetch("/api/2fa/status")
-    if (!data.value?.enabled || !data.value?.required) {
-      followRedirect()
-    }
-  } catch (err) {
-    console.error("Unexpected error fetching 2FA status:", err)
-    followRedirect()
-  }
-})
 
 async function submitChallenge() {
   if (loading.value || !twoFactorAuthCode.value.trim()) return
   loading.value = true
 
+  const input = twoFactorAuthCode.value.trim().toUpperCase()
+  const isTotp = /^\d{6}$/.test(input)
+  const isRecovery = /^[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(input)
+
+  if (!isTotp && !isRecovery) {
+    toast({
+      title: "Ungültiges Format",
+      description: "Code (6 Ziffern) oder Recovery-Key (ABCDE-12345) nötig.",
+      variant: "destructive",
+    })
+    loading.value = false
+    return
+  }
+
   try {
-    const input = twoFactorAuthCode.value.trim().toUpperCase()
-    const isTotp = /^\d{6}$/.test(input)
-    const isRecovery = /^[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(input)
+    const body = isTotp ? { code: input } : { recovery: input }
 
-    const body = isTotp
-      ? { code: input }
-      : isRecovery
-        ? { recovery: input }
-        : null
-
-    if (!body) {
-      toast({
-        title: "Ungültiges Format",
-        description: "Bitte gib entweder einen 6-stelligen Code oder einen gültigen Wiederherstellungscode (z. B. ABCDE-12345) ein.",
-        variant: "destructive",
-      })
-      loading.value = false
-      return
-    }
-
-    const { data } = await useFetch("/api/2fa/challenge", {
+    const res = await $fetch("/api/2fa/challenge", {
       method: "POST",
       body,
     })
 
-    if (data.value?.verified) {
-      followRedirect()
-    } else {
-      toast({
-        title: "Ungültiger Code",
-        description: "Bitte versuche es erneut.",
-        variant: "destructive",
-      })
+    if (res.verified) {
+      clearNuxtData()
+      const target = route.query.redirect?.toString() || "/"
+      await navigateTo(target, { replace: true })
+      toast({ title: "Erfolgreich", variant: "success" })
     }
-  } catch (e) {
-    console.error(e)
+  } catch {
     toast({
       title: "Überprüfung fehlgeschlagen",
       description: "Bitte versuche es erneut.",
@@ -75,37 +56,34 @@ async function submitChallenge() {
 </script>
 
 <template>
-  <div class="max-w-md w-full mx-auto">
-    <Card>
+  <div class="max-w-md w-full mx-auto pt-20">
+    <Card class="border-2 shadow-lg">
       <CardHeader>
-        <CardTitle>2FA erforderlich</CardTitle>
+        <CardTitle class="text-2xl">
+          2FA erforderlich
+        </CardTitle>
         <CardDescription>
-          Gib deinen 6-stelligen Authenticator-Code oder deinen Wiederherstellungscode ein.
+          Sicherheitscode aus deiner App oder Wiederherstellungsschlüssel eingeben.
         </CardDescription>
       </CardHeader>
 
       <CardContent class="grid gap-4">
-        <FormField
-          v-slot="{ componentField }"
-          name="2faInput"
-        >
-          <FormItem>
-            <FormLabel>Code</FormLabel>
-            <FormControl>
-              <Input
-                v-model="twoFactorAuthCode"
-                v-bind="componentField"
-                placeholder="123456 oder ABCDE-12345"
-                inputmode="text"
-                maxlength="11"
-                @keydown.enter.prevent="submitChallenge"
-              />
-            </FormControl>
-          </FormItem>
-        </FormField>
+        <div class="space-y-2">
+          <Label for="2fa-code">Code / Key</Label>
+          <Input
+            id="2fa-code"
+            v-model="twoFactorAuthCode"
+            placeholder="123456"
+            class="font-mono text-lg h-12 tracking-widest text-center"
+            maxlength="11"
+            autofocus
+            @keydown.enter.prevent="submitChallenge"
+          />
+        </div>
 
         <Button
           :loading="loading"
+          class="w-full h-11 text-lg"
           @click="submitChallenge"
         >
           Bestätigen

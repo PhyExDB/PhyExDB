@@ -2,6 +2,8 @@
 import UserDeleteAccountDialog from "~/components/user/UserDeleteAccountDialog.vue"
 import getInitials from "~~/shared/utils/initials"
 import { useToast } from "@/components/ui/toast/use-toast"
+import TwoFactorSetup from "~/pages/2fa/TwoFactorSetup.vue"
+import TwoFactorRecoveryDisplay from "~/pages/2fa/TwoFactorRecoveryDisplay.vue"
 
 definePageMeta({
   title: "Profile",
@@ -166,7 +168,7 @@ async function resetTwofa() {
     toast({
       title: "2FA zurückgesetzt",
       description: "Du kannst nun ein neues Gerät einrichten.",
-      variant: "success"
+      variant: "success",
     })
     await startTwofaSetup()
   } catch (e: unknown) {

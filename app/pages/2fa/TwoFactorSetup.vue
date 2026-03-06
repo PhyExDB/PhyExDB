@@ -61,9 +61,11 @@ defineEmits(["confirm"])
               placeholder="000000"
               class="font-mono tracking-[0.3em] text-center"
               maxlength="6"
+              @keydown.enter.prevent="$emit('confirm')"
             />
             <Button
               :loading="loading"
+              :disabled="(code?.length ?? 0) < 6"
               @click="$emit('confirm')"
             >
               Aktivieren

@@ -41,6 +41,11 @@ async function confirmEnable() {
     loading.value = false
   }
 }
+
+async function finishSetup() {
+  clearNuxtData()
+  await navigateTo("/profile", { replace: true })
+}
 </script>
 
 <template>
@@ -124,7 +129,7 @@ async function confirmEnable() {
           <Button
             class="w-full h-11"
             variant="default"
-            @click="navigateTo('/profile')"
+            @click="finishSetup"
           >
             Einrichtung abschließen
           </Button>
