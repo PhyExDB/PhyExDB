@@ -1,5 +1,3 @@
-import type { TwoFactorStatus } from "#shared/types/TwoFa.type"
-
 export default defineNuxtRouteMiddleware(async (to) => {
   const EXEMPT_ROUTES = ["/login", "/register", "/2fa/setup", "/2fa/challenge"]
 
@@ -15,17 +13,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
       headers: useRequestHeaders(["cookie"]),
     })
 
-    if (!status.authenticated) {
-      return navigateTo("/login")
-    }
+    const target = getTwoFaRedirectTarget(status, to.fullPath)
+    if (target) return navigateTo(target)
 
-    if (!status.enabled) {
-      return navigateTo("/2fa/setup")
-    }
-
-    if (!status.verified) {
-      return navigateTo(`/2fa/challenge?redirect=${encodeURIComponent(to.fullPath)}`)
-    }
   } catch {
     return navigateTo("/login")
   }

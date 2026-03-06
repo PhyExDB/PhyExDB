@@ -11,6 +11,7 @@ const { toast } = useToast()
 
 const formSchema = toTypedSchema(userLoginSchema)
 const form = useForm({ validationSchema: formSchema })
+const { refreshStatus } = use2fa()
 
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
@@ -20,7 +21,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   if (error) {
     if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
       lastWrong.value = true
-      form.validate()
+      await form.validate()
     } else if (error.status === 401 || error.message?.toLowerCase().includes("banned")) {
       lastBanned.value = true
 
@@ -34,26 +35,18 @@ const onSubmit = form.handleSubmit(async (values) => {
     }
   } else {
     try {
-      const status = await $fetch<TwoFactorStatus>("/api/2fa/status", {
-        params: { t: Date.now() },
-      })
+      const status = await refreshStatus()
+      const target = getTwoFaRedirectTarget(status, useRoute().fullPath)
 
-      if (!status.authenticated) {
-        return navigateTo("/login")
+      if (target) {
+        await navigateTo(target)
+      } else {
+        const redirect = useRoute().query.redirect?.toString() || "/"
+        await navigateTo(redirect)
       }
-
-      if (!status.enabled) {
-        return navigateTo("/2fa/setup")
-      }
-
-      if (!status.verified) {
-        return navigateTo("/2fa/challenge")
-      }
-
-      followRedirect()
     } catch (e) {
       console.error("[Login Flow Error]:", e)
-      followRedirect()
+      await navigateTo("/")
     }
   }
   loading.value = false
