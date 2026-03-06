@@ -40,6 +40,8 @@ vitest.stubGlobal("readBody", async (event: any) => {
   return event.body
 })
 
+vitest.stubGlobal("parseCookies", () => ({}))
+
 vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
   const actual = await importOriginal()
   return {
@@ -111,7 +113,33 @@ vitest.mock("#app", async (importOriginal) => {
 
 vitest.mock("~~/server/lib/prisma", () => ({ default: prisma }))
 
-vitest.mock("~~/server/utils/authorization", async importOriginal => ({
-  ...(await importOriginal() as any),
-  ensureTwofaIfRequired: vitest.fn(),
-}))
+vitest.mock("~~/server/utils/authorization", async (importOriginal) => {
+  const actual = (await importOriginal()) as any
+  const { evaluateAbility, evaluateUserAbility } = await import("~~/shared/utils/auth")
+
+  return {
+    ...actual,
+    ensureTwofaIfRequired: vitest.fn(),
+    authorize: async (event: any, ability: any, ...param: any[]) => {
+      const user = event.context.user ?? null
+      const result = evaluateAbility(user, ability, ...param)
+      if (result === "Not logged in") {
+        throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+      } else if (result === "Not authorized") {
+        throw createError({ statusCode: 403, statusMessage: "Not authorized" })
+      }
+      return result
+    },
+    authorizeUser: async (event: any, ability: any, ...param: any[]) => {
+      const user = event.context.user
+      if (!user) {
+        throw createError({ statusCode: 401, statusMessage: "Not logged in" })
+      }
+      const result = evaluateUserAbility(user, ability, ...param)
+      if (result === "Not authorized") {
+        throw createError({ statusCode: 403, statusMessage: "Not authorized" })
+      }
+      return result
+    },
+  }
+})

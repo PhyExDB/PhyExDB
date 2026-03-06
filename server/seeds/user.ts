@@ -49,6 +49,7 @@ export default class UserSeed extends Seed {
         role: "USER",
         email: "user@test.test",
         emailVerified: true,
+        twoFactorEnabled: true,
       },
       {
         id: uuidv4(),
@@ -56,6 +57,7 @@ export default class UserSeed extends Seed {
         role: "MODERATOR",
         email: "moderator@test.test",
         emailVerified: true,
+        twoFactorEnabled: true,
       },
       {
         id: uuidv4(),
@@ -63,6 +65,7 @@ export default class UserSeed extends Seed {
         role: "ADMIN",
         email: "admin@test.test",
         emailVerified: true,
+        twoFactorEnabled: true,
       },
       {
         id: uuidv4(),
@@ -70,6 +73,7 @@ export default class UserSeed extends Seed {
         role: "USER",
         email: "unverified@test.test",
         emailVerified: false,
+        twoFactorEnabled: false,
       },
     ]
     return users
@@ -83,6 +87,7 @@ export default class UserSeed extends Seed {
         role: "ADMIN",
         email: "admin@test.test",
         emailVerified: false,
+        twoFactorEnabled: false,
       },
       {
         id: uuidv4(),
@@ -90,6 +95,7 @@ export default class UserSeed extends Seed {
         role: "USER",
         email: "user@test.test",
         emailVerified: false,
+        twoFactorEnabled: false,
       },
     ]
     return users

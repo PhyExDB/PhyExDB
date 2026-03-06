@@ -10,6 +10,7 @@ export const users = {
     role: "USER",
     email: "user@test.test",
     emailVerified: true,
+    twoFactorEnabled: true,
   },
   user2: {
     id: uuidv4(),
@@ -17,6 +18,7 @@ export const users = {
     role: "USER",
     email: "user2@test.test",
     emailVerified: true,
+    twoFactorEnabled: true,
   },
   mod: {
     id: uuidv4(),
@@ -24,6 +26,7 @@ export const users = {
     role: "MODERATOR",
     email: "moderator@test.test",
     emailVerified: true,
+    twoFactorEnabled: true,
   },
   admin: {
     id: uuidv4(),
@@ -31,6 +34,7 @@ export const users = {
     role: "ADMIN",
     email: "admin@test.test",
     emailVerified: true,
+    twoFactorEnabled: true,
   },
   unverified: {
     id: uuidv4(),
@@ -38,6 +42,7 @@ export const users = {
     role: "USER",
     email: "unverified@test.test",
     emailVerified: false,
+    twoFactorEnabled: false,
   },
   guest: null,
 } satisfies Record<string, UserDetail | null>

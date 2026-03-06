@@ -27,6 +27,11 @@ export interface UserList extends BaseList {
    * Whether the user has emailVerified their account.
    */
   emailVerified: boolean
+
+  /**
+   * Indicates if 2FA is active for this account.
+   */
+  twoFactorEnabled: boolean
 }
 
 /**
