@@ -73,7 +73,7 @@ async function submitChallenge() {
           <Input
             id="2fa-code"
             v-model="twoFactorAuthCode"
-            placeholder="123456"
+            placeholder="123456 oder ABCDE-12345"
             class="font-mono text-lg h-12 tracking-widest text-center"
             maxlength="11"
             autofocus

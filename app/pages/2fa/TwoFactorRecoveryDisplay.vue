@@ -79,7 +79,7 @@ function downloadRecoveryCodes() {
             name="heroicons:arrow-down-tray"
             class="mr-2 h-4 w-4"
           />
-          Speichern (.txt)
+          Speichern
         </Button>
       </div>
     </div>

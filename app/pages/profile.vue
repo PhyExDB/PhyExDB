@@ -150,7 +150,11 @@ async function regenerateRecoveryCodes() {
 
 async function resetTwofa() {
   if (!twofaCode.value) {
-    toast({ title: "Code erforderlich", description: "Bitte gib einen 2FA-Code oder Recovery-Code ein.", variant: "destructive" })
+    toast({
+      title: "Fehler",
+      description: "Bitte gib einen 2FA-Code oder Recovery-Code ein.",
+      variant: "destructive"
+    })
     return
   }
 
