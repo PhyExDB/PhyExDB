@@ -4,22 +4,30 @@ import { getUser } from "~~/server/utils/auth"
 import { verifyTwofaCookie, isTwofaGloballyEnabled } from "~~/server/utils/twofa"
 
 export default defineEventHandler(async (event) => {
-  const enabledGlobally = isTwofaGloballyEnabled()
   const user = await getUser(event)
-  if (!enabledGlobally || !user) {
-    return { authenticated: !!user, enabled: false, required: false, setupRequired: false }
-  }
-  const record = await prisma.user.findUnique({ where: { id: user.id }, select: { twoFactorEnabled: true } })
-  const enabled = !!record?.twoFactorEnabled
-  if (!enabled) {
-    return { authenticated: true, enabled: false, required: false, setupRequired: true }
+  if (!user) {
+    return { authenticated: false, enabled: false, verified: false }
   }
 
+  if (!isTwofaGloballyEnabled()) {
+    return { authenticated: true, enabled: true, verified: true }
+  }
+
+  const record = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { twoFactorEnabled: true },
+  })
+
+  const enabled = !!record?.twoFactorEnabled
   const cookies = parseCookies(event)
   const token = cookies["twofa_verified"]
   const verified = token ? verifyTwofaCookie(token, user.id) : false
 
-  return { authenticated: true, enabled: true, required: !verified, setupRequired: false }
+  return {
+    authenticated: true,
+    enabled,
+    verified,
+  }
 })
 
 defineRouteMeta({
@@ -37,7 +45,6 @@ defineRouteMeta({
               properties: {
                 authenticated: { type: "boolean", example: true },
                 enabled: { type: "boolean", example: true },
-                required: { type: "boolean", example: false },
                 setupRequired: { type: "boolean", example: false },
               },
             },

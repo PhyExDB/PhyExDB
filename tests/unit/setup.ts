@@ -78,7 +78,11 @@ vitest.mock("#app", async (importOriginal) => {
     ...actual,
     useFetch: vitest.fn().mockImplementation((url: string) => {
       const responses: Record<string, unknown> = {
-        "/api/2fa/status": { enabled: false, required: false },
+        "/api/2fa/status": {
+          authenticated: false,
+          enabled: false,
+          verified: false,
+        },
         "/api/auth/session": { user: null },
       }
 

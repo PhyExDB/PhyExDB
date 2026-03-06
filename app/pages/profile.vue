@@ -55,7 +55,11 @@ function numberOfOwnExperiments(): string {
     : `${numberOfOwnExperiments} Experimente`
 }
 
-const twofaStatus = ref<{ enabled: boolean }>({ enabled: false })
+const twofaStatus = ref<TwoFactorStatus>({
+  authenticated: true,
+  enabled: false,
+  verified: false,
+})
 const twofaLoading = ref(false)
 const twofaSetup = ref<{ secret: string, otpauthUrl: string, issuer: string } | null>(null)
 const twofaCode = ref("")
@@ -63,7 +67,7 @@ const twofaRecoveryCodes = ref<string[] | null>(null)
 const qrDataUrl = ref<string | null>(null)
 const qrLoading = ref(false)
 
-const { data: twofaStatusData } = await useFetch("/api/2fa/status")
+const { data: twofaStatusData } = await useFetch<TwoFactorStatus>("/api/2fa/status")
 if (twofaStatusData?.value) {
   twofaStatus.value = twofaStatusData.value
 }
@@ -109,16 +113,16 @@ async function confirmTwofaEnable() {
   if (!twofaCode.value) return
   twofaLoading.value = true
   try {
-    const res = await $fetch("/api/2fa/enable", { method: "POST", body: { code: twofaCode.value } })
+    const res = await $fetch<{ recoveryCodes: string[] }>("/api/2fa/enable", {
+      method: "POST",
+      body: { code: twofaCode.value },
+    })
     if (res?.recoveryCodes) {
       twofaRecoveryCodes.value = res.recoveryCodes
-      toast({
-        title: "2FA aktiviert",
-        description: "Die Zwei-Faktor-Authentifizierung wurde erfolgreich aktiviert.",
-        variant: "success",
-      })
+      toast({ title: "2FA aktiviert", variant: "success" })
       twofaCode.value = ""
       twofaStatus.value.enabled = true
+      twofaStatus.value.verified = true
     }
   } catch (e: unknown) {
     toast({ title: "2FA Error", description: getErrorMessage(e), variant: "destructive" })
@@ -153,18 +157,16 @@ async function resetTwofa() {
     toast({
       title: "Fehler",
       description: "Bitte gib einen 2FA-Code oder Recovery-Code ein.",
-      variant: "destructive"
+      variant: "destructive",
     })
     return
   }
 
   twofaLoading.value = true
   try {
-    await $fetch("/api/2fa/disable", {
-      method: "POST",
-      body: { code: twofaCode.value },
-    })
+    await $fetch("/api/2fa/disable", { method: "POST", body: { code: twofaCode.value } })
     twofaStatus.value.enabled = false
+    twofaStatus.value.verified = false
     twofaSetup.value = null
     twofaRecoveryCodes.value = null
     twofaCode.value = ""

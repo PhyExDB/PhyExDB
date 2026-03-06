@@ -33,18 +33,26 @@ const onSubmit = form.handleSubmit(async (values) => {
       console.error(error)
     }
   } else {
-    // Check if 2FA challenge is required
     try {
-      const { data } = await useFetch("/api/2fa/status")
-      if (data.value?.enabled && data.value?.required) {
-        await navigateTo("/2fa/challenge")
-      } else if (!data.value?.enabled) {
-        await navigateTo("/2fa/setup")
-      } else {
-        followRedirect()
+      const status = await $fetch<TwoFactorStatus>("/api/2fa/status", {
+        params: { t: Date.now() },
+      })
+
+      if (!status.authenticated) {
+        return navigateTo("/login")
       }
+
+      if (!status.enabled) {
+        return navigateTo("/2fa/setup")
+      }
+
+      if (!status.verified) {
+        return navigateTo("/2fa/challenge")
+      }
+
+      followRedirect()
     } catch (e) {
-      console.error(e)
+      console.error("[Login Flow Error]:", e)
       followRedirect()
     }
   }
