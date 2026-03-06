@@ -37,11 +37,6 @@ export interface UserDetail extends UserList {
    * The email of the user.
    */
   email: string
-
-  /**
-   * Flag to indicate the user has passed the 2FA challenge in this session.
-   */
-  twoFactorVerified?: boolean
 }
 
 /**
