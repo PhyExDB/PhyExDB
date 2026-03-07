@@ -29,28 +29,6 @@ test.describe("Login Page", () => {
   })
 
   test("should display errors and work correctly with 2FA", async ({ page }) => {
-    let verified = false
-
-    await page.route("**/api/2fa/status*", async (route) => {
-      await route.fulfill({
-        status: 200,
-        json: {
-          authenticated: true,
-          enabled: true,
-          verified,
-        },
-      })
-    })
-
-    await page.route("**/api/2fa/challenge", async (route) => {
-      if (route.request().method() === "POST") {
-        verified = true
-        await route.fulfill({
-          status: 200,
-          json: { verified: true },
-        })
-      }
-    })
     const testUser = users.user
 
     await page.route("**/api/auth/login", async (route) => {
