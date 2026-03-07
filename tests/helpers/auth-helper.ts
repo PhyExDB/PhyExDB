@@ -1,35 +1,30 @@
 import { expect, type Page } from "@playwright/test"
 import { generateTOTP } from "@epic-web/totp"
 
-export async function loginWith2fa(page: Page) {
+export async function loginWith2fa(page: Page, email: string, password: string = "password") {
   const TEST_2FA_SECRET = "JBSWY3DPEHPK3PXP"
   let verified = false
 
   await page.route("**/api/2fa/status*", async (route) => {
-    await route.fulfill({
-      status: 200,
-      json: {
-        authenticated: true,
-        enabled: true,
-        verified,
-      },
-    })
+    await route.fulfill({ status: 200, json: { authenticated: true, enabled: true, verified } })
   })
 
   await page.route("**/api/2fa/challenge", async (route) => {
     if (route.request().method() === "POST") {
       verified = true
-
-      await route.fulfill({
-        status: 200,
-        json: { verified: true },
-      })
+      await route.fulfill({ status: 200, json: { verified: true } })
     }
   })
 
-  await page.getByRole("button", { name: "Anmelden" }).click()
+  await page.waitForLoadState("networkidle")
 
-  await page.waitForURL(url => url.pathname.includes("/2fa/challenge"))
+  await page.locator("input#email").fill(email)
+  await page.locator("input#password").fill(password)
+
+  await Promise.all([
+    page.waitForURL(url => url.pathname.includes("/2fa/challenge")),
+    page.getByRole("button", { name: "Anmelden" }).dispatchEvent("click"),
+  ])
 
   const codeInput = page.getByLabel("Code / Key")
   await expect(codeInput).toBeVisible()
@@ -44,7 +39,7 @@ export async function loginWith2fa(page: Page) {
   await codeInput.fill(otp)
 
   await Promise.all([
-    page.waitForURL("**/profile"),
+    page.waitForURL(url => url.pathname.includes("/profile")),
     page.getByRole("button", { name: "Bestätigen" }).click(),
   ])
 }
