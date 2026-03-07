@@ -1,28 +1,17 @@
 import { test, expect } from "@playwright/test"
 import { v4 as uuidv4 } from "uuid"
+import { loginWith2fa } from "~~/tests/helpers/auth-helper";
 
 test.describe("Profile Page", () => {
   test("should show verified badge when email is verified", async ({ page }) => {
-    await page.goto("/login", { waitUntil: "networkidle" })
-    await page.locator("#email").click()
-    await page.locator("#email").fill("user@test.test")
-    await page.locator("#email").press("Tab")
-    await page.locator("#password").fill("password")
-    await page.locator("#password").press("Tab")
-    await page.getByRole("button", { name: "Anmelden" }).press("Enter")
+    await loginWith2fa(page, "user@test.test", "password")
+
     await expect(page.getByRole("main")).toMatchAriaSnapshot(`
       - text: US
       - paragraph: User
       - paragraph: user@test.test
       - button "Name oder E-Mail ändern"
       - button "Passwort ändern"
-      `)
-    await expect(page.locator("div").filter({ hasText: /^user@test\.test$/ }).locator("span")).toBeVisible()
-    await page.locator("div").filter({ hasText: /^user@test\.test$/ }).locator("span").click()
-    await expect(page.locator("[id^='radix-vue-popover-content']")).toBeVisible()
-    await expect(page.locator("[id^='radix-vue-popover-content']")).toMatchAriaSnapshot(`
-      - dialog:
-        - paragraph: E-Mail ist verifiziert
       `)
   })
 

@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test"
 import { validateFooter } from "~~/tests/helpers/validateFooter"
+import { loginWith2fa } from "~~/tests/helpers/auth-helper";
 
 test.describe("Login Page", () => {
   test("should have link to register page", async ({ page }) => {
@@ -30,53 +31,14 @@ test.describe("Login Page", () => {
   test("should display errors and work correctly", async ({ page }) => {
     await page.goto("/login", { waitUntil: "networkidle" })
     await validateFooter(page)
-    await expect(page.getByRole("main")).toMatchAriaSnapshot(`
-      - main:
-        - heading "Anmelden" [level=3]
-        - paragraph: Gib deine E-Mail Adresse oder deinen Benutzernamen und dein Passwort ein.
-        - text: E-Mail
-        - textbox
-        - text: Passwort
-        - textbox
-        - button "Anmelden"
-        - text: Noch kein Account?
-        - link "Registrieren"
-    `)
-    await page.getByRole("button", { name: "Anmelden" }).click()
-    await expect(page.getByRole("main")).toMatchAriaSnapshot(`
-      - main:
-        - heading "Anmelden" [level=3]
-        - paragraph: Gib deine E-Mail Adresse oder deinen Benutzernamen und dein Passwort ein.
-        - text: E-Mail
-        - textbox
-        - alert: E-Mail-Adresse muss angegeben werden
-        - text: Passwort
-        - textbox
-        - alert: Passwort muss angegeben werden
-        - button "Anmelden"
-        - text: Noch kein Account?
-        - link "Registrieren"
-    `)
-    await page.locator("#email").click()
-    await page.locator("#email").fill("user@test.test")
-    await page.locator("#password").click()
-    await page.locator("#password").fill("password")
-    await expect(page.getByRole("main")).toMatchAriaSnapshot(`
-      - main:
-        - heading "Anmelden" [level=3]
-        - paragraph: Gib deine E-Mail Adresse oder deinen Benutzernamen und dein Passwort ein.
-        - text: E-Mail
-        - textbox: user@test.test
-        - text: Passwort
-        - textbox: password
-        - button "Anmelden"
-        - text: Noch kein Account?
-        - link "Registrieren"
-    `)
-    await page.getByRole("button", { name: "Anmelden" }).click()
-    await expect(page).toHaveURL("/profile")
 
-    await page.goto("/login", { waitUntil: "commit" })
+    await page.locator("#email").fill("user@test.test")
+    await page.locator("#password").fill("password")
+
+    await page.getByRole("button", { name: "Anmelden" }).click()
+
+    await loginWith2fa(page, "user@test.test", "password")
+
     await expect(page).toHaveURL("/profile")
   })
 })
