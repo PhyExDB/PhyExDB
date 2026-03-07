@@ -1,4 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+  if (import.meta.server) return
+
   const EXEMPT_ROUTES = ["/login", "/register", "/2fa/setup", "/2fa/challenge"]
 
   if (

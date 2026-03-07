@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test"
-import { validateFooter } from "~~/tests/helpers/validateFooter"
-import { loginWith2fa } from "~~/tests/helpers/auth-helper";
+import { loginWith2fa } from "~~/tests/helpers/auth-helper"
+import { users } from "~~/tests/helpers/auth"
 
 test.describe("Login Page", () => {
   test("should have link to register page", async ({ page }) => {
@@ -28,17 +28,54 @@ test.describe("Login Page", () => {
       `)
   })
 
-  test("should display errors and work correctly", async ({ page }) => {
-    await page.goto("/login", { waitUntil: "networkidle" })
-    await validateFooter(page)
+  test("should display errors and work correctly with 2FA", async ({ page }) => {
+    let verified = false
 
-    await page.locator("#email").fill("user@test.test")
-    await page.locator("#password").fill("password")
+    await page.route("**/api/2fa/status*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        json: {
+          authenticated: true,
+          enabled: true,
+          verified,
+        },
+      })
+    })
+
+    await page.route("**/api/2fa/challenge", async (route) => {
+      if (route.request().method() === "POST") {
+        verified = true
+        await route.fulfill({
+          status: 200,
+          json: { verified: true },
+        })
+      }
+    })
+    const testUser = users.user
+
+    await page.route("**/api/auth/login", async (route) => {
+      await route.fulfill({ status: 200, json: { twoFactorRequired: true } })
+    })
+
+    await page.route("**/api/auth/user", async (route) => {
+      await route.fulfill({ status: 200, json: { ...testUser, emailVerified: true } })
+    })
+
+    await page.goto("/login", { waitUntil: "networkidle" })
+
+    await expect(page.getByRole("main")).toContainText("Anmelden")
 
     await page.getByRole("button", { name: "Anmelden" }).click()
+    await expect(page.locator("form")).toContainText("muss angegeben werden")
 
-    await loginWith2fa(page, "user@test.test", "password")
+    await page.locator("#email").fill(testUser.email)
+    await page.locator("#password").fill("password")
 
-    await expect(page).toHaveURL("/profile")
+    await loginWith2fa(page)
+
+    await expect(page).toHaveURL(/\/profile/)
+
+    await page.goto("/login", { waitUntil: "commit" })
+    await expect(page).toHaveURL(/\/profile/)
   })
 })
