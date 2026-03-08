@@ -49,7 +49,7 @@ test.describe("Login Page", () => {
     await page.locator("#email").fill(testUser.email)
     await page.locator("#password").fill("password")
 
-    await loginWith2fa(page, testUser.email, "password")
+    await loginWith2fa(page)
 
     await expect(page).toHaveURL(/\/profile/)
 
