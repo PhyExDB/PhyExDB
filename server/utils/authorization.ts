@@ -11,7 +11,7 @@ async function ensureTwofaIfRequired(event: Event, user: UserDetail | null): Pro
   const enabledGlobally = (process.env.TWOFA_ENABLED ?? "true").toLowerCase() !== "false"
   if (!enabledGlobally || !user) return
   const path = event.path || ""
-  if (path.startsWith("/api/2fa") || path.startsWith("/api/auth")) return
+  if (path.startsWith("/api/2fa") || path.startsWith("/api/auth") || path.startsWith("/api/legal")) return
   const record = await prisma.user.findUnique({ where: { id: user.id }, select: { twoFactorEnabled: true } })
 
   // Wenn 2FA im DB-Record fehlt -> SETUP nötig

@@ -29,12 +29,7 @@ test.describe("Legal Page", () => {
     })
 
     test(`should update the legal documents once for ${slug}`, async ({ page }) => {
-      await page.goto("/login", { waitUntil: "networkidle" })
-      // log in as administrator
-      await page.locator("#email").fill("admin@test.test")
-      await page.locator("#password").fill("password")
-      await page.getByRole("button", { name: "Anmelden" }).click()
-      await page.waitForNavigation({ waitUntil: "networkidle" })
+      await loginAsAdmin(page)
       await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
       await page.getByRole("button", { name: "Bearbeiten" }).click()
 
@@ -57,12 +52,7 @@ test.describe("Legal Page", () => {
     })
 
     test(`should update the legal documents twice for ${slug}`, async ({ page }) => {
-      await page.goto("/login", { waitUntil: "networkidle" })
-      // log in as administrator
-      await page.locator("#email").fill("admin@test.test")
-      await page.locator("#password").fill("password")
-      await page.getByRole("button", { name: "Anmelden" }).click()
-      await page.waitForNavigation({ waitUntil: "networkidle" })
+      await loginAsAdmin(page)
       await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
       await page.getByRole("button", { name: "Bearbeiten" }).click()
 
@@ -101,12 +91,7 @@ test.describe("Legal Page", () => {
     })
 
     test(`should update the legal documents for Title and Content and updates the legal document with only text/title for ${slug}`, async ({ page }) => {
-      await page.goto("/login", { waitUntil: "networkidle" })
-      // log in as administrator
-      await page.locator("#email").fill("admin@test.test")
-      await page.locator("#password").fill("password")
-      await page.getByRole("button", { name: "Anmelden" }).click()
-      await page.waitForNavigation({ waitUntil: "networkidle" })
+      await loginAsAdmin(page)
       await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
       await page.getByRole("button", { name: "Bearbeiten" }).click()
 
@@ -168,3 +153,27 @@ test.describe("Legal Page", () => {
     })
   })
 })
+
+/**
+ * Logs in as admin and handles the 2FA challenge flow.
+ * After this function completes, the browser has a fully authenticated + 2FA-verified session.
+ */
+async function loginAsAdmin(page: import("@playwright/test").Page) {
+  await page.route("**/api/2fa/status*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ authenticated: true, enabled: true, verified: true }),
+    })
+  })
+
+  await page.goto("/login", { waitUntil: "networkidle" })
+  await page.locator("#email").fill("admin@test.test")
+  await page.locator("#password").fill("password")
+  await page.getByRole("button", { name: "Anmelden" }).click()
+
+  await page.waitForURL(url => !url.pathname.includes("/login"))
+  await page.waitForLoadState("networkidle")
+
+  await page.unroute("**/api/2fa/status*")
+}

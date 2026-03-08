@@ -55,12 +55,12 @@ const onSubmit = form.handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div>
+  <div v-if="legal">
     <div class="prose dark:prose-invert max-w-full">
       <h1>
-        {{ legal!.name }}
+        {{ legal.name }}
       </h1>
-      <div v-html="legal!.text" />
+      <div v-html="legal.text" />
     </div>
     <AuthCan
       :ability="legalAbilities.put"
