@@ -321,6 +321,11 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
 }
+
+function handleReportDismissed(reportId: string) {
+  if (!experiment.value?.openReports) return
+  experiment.value.openReports = experiment.value.openReports.filter(r => r.id !== reportId)
+}
 </script>
 
 <template>
@@ -340,8 +345,9 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         @submit="onSubmit"
       >
         <ExperimentReportAlert
-            v-if="user?.id === experiment?.userId"
-            :experiment="experiment"
+          v-if="experiment"
+          :experiment="experiment"
+          @report-dismissed="handleReportDismissed"
         />
 
         <div

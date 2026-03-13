@@ -85,7 +85,7 @@ export interface ExperimentDetail extends ExperimentList {
   reviews: ReviewSummary[]
   updatedAt: string | Date
   alreadyReviewedByMe: boolean
-  openReports?: { message: string, createdAt: string | Date }[]
+  openReports?: { id: string, message: string, createdAt: string | Date }[]
 }
 
 /**

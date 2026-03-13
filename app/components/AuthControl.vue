@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { User, FlaskConical, Heart, Users, FolderTree, ClipboardCheck, LogOut, AlertTriangle, Bell } from "lucide-vue-next"
+import { User, FlaskConical, Heart, Users, FolderTree, ClipboardCheck, LogOut, Bell } from "lucide-vue-next"
 import getInitials from "~~/shared/utils/initials"
 
 const user = await useUser()
