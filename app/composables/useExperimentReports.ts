@@ -22,8 +22,8 @@ export function useExperimentReports(experiment: Ref<ExperimentDetail | null | u
     }
   }
 
-  async function startRevision(experimentValue?: ExperimentDetail) {
-    const exp = experimentValue ?? experiment.value
+  async function startRevision() {
+    const exp = experiment.value
     if (!exp) return
 
     if (exp.revisedBy) {
