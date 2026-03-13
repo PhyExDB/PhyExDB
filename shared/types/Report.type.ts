@@ -1,19 +1,25 @@
 import type { ExperimentList } from "./Experiment.type"
 
 /**
- * Represents a report on an experiment.
+ * Minimal data required to display a report notification.
  */
-export interface Report {
+export interface ReportItem {
   id: string
   message: string
-  userId: string
-  experimentId: string
-  seenByOwner: boolean
   createdAt: string | Date
 }
 
 /**
- * ReportDialog with included experiment info.
+ * Represents a full report of an experiment.
+ */
+export interface Report extends ReportItem {
+  userId: string
+  experimentId: string
+  seenByOwner: boolean
+}
+
+/**
+ * Report with included experiment info.
  */
 export interface ReportWithExperiment extends Report {
   experiment: ExperimentList

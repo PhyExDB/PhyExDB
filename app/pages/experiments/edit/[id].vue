@@ -322,10 +322,7 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
   return `Abb. ${globalIndex + 1}`
 }
 
-function handleReportDismissed(reportId: string) {
-  if (!experiment.value?.openReports) return
-  experiment.value.openReports = experiment.value.openReports.filter(r => r.id !== reportId)
-}
+const { openReports, dismissReport, startRevision } = useExperimentReports(toRef(() => experiment.value))
 </script>
 
 <template>
@@ -345,9 +342,10 @@ function handleReportDismissed(reportId: string) {
         @submit="onSubmit"
       >
         <ExperimentReportAlert
-          v-if="experiment"
-          :experiment="experiment"
-          @report-dismissed="handleReportDismissed"
+          :reports="openReports"
+          :show-revision-button="false"
+          @dismiss="(id) => dismissReport(id)"
+          @start-revision="startRevision"
         />
 
         <div

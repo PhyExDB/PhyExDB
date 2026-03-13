@@ -1,56 +1,21 @@
 <script setup lang="ts">
 import { AlertTriangle } from "lucide-vue-next"
-import { useToast } from "@/components/ui/toast/use-toast"
+import type { ReportItem } from "~~/shared/types/Report.type"
 
-const props = defineProps<{
-  experiment?: ExperimentDetail
+defineProps<{
+  reports: ReportItem[]
+  showRevisionButton?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: "reportDismissed", id: string): void
+  dismiss: [id: string]
+  startRevision: []
 }>()
-
-const { toast } = useToast()
-
-async function dismissReport(reportId: string) {
-  if (!confirm("Bist du sicher, dass du diese Bemängelung ablehnen möchtest? Sie wird dann nicht mehr angezeigt.")) {
-    return
-  }
-
-  try {
-    await $fetch(`/api/experiments/reports/${reportId}/complete`, {
-      method: "POST",
-    })
-
-    emit("reportDismissed", reportId)
-
-    toast({
-      title: "Erfolgreich",
-      description: "Die Bemängelung wurde ausgeblendet.",
-    })
-  } catch {
-    toast({
-      title: "Fehler",
-      description: "Aktion konnte nicht ausgeführt werden.",
-      variant: "destructive",
-    })
-  }
-}
-
-async function startRevision() {
-  if (!props.experiment) return
-
-  if (props.experiment.revisedBy) {
-    await navigateTo(`/experiments/edit/${props.experiment.revisedBy.id}`)
-  } else {
-    await duplicateExperiment(props.experiment, true)
-  }
-}
 </script>
 
 <template>
   <div
-    v-if="experiment?.openReports?.length"
+    v-if="reports.length"
     class="mb-6 overflow-hidden rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50 shadow-sm"
   >
     <div class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/50 px-4 py-3 text-amber-900 dark:text-amber-100">
@@ -63,7 +28,7 @@ async function startRevision() {
     <div class="p-4 space-y-4">
       <ul class="space-y-3">
         <li
-          v-for="report in experiment.openReports"
+          v-for="report in reports"
           :key="report.id"
           class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/50"
         >
@@ -81,10 +46,11 @@ async function startRevision() {
           </div>
 
           <Button
+            type="button"
             size="sm"
             variant="ghost"
             class="text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800 shrink-0"
-            @click="dismissReport(report.id)"
+            @click.prevent="emit('dismiss', report.id)"
           >
             <Icon
               name="heroicons:eye-slash"
@@ -96,13 +62,14 @@ async function startRevision() {
       </ul>
 
       <div
-        v-if="!$route.path.includes('/edit/')"
+        v-if="showRevisionButton"
         class="pt-2 border-t border-amber-200 dark:border-amber-800"
       >
         <Button
+          type="button"
           variant="outline"
           class="w-full sm:w-auto bg-amber-100 dark:bg-amber-900 border-amber-300 dark:border-amber-700 hover:bg-amber-200 dark:hover:bg-amber-800 text-amber-900 dark:text-amber-100"
-          @click="startRevision"
+          @click="emit('startRevision')"
         >
           <Icon
             name="heroicons:arrow-path"

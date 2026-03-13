@@ -6,7 +6,6 @@ import type { Review } from "~~/shared/types/Review.type"
 import { getSignIconUrl } from "~/utils/signs"
 
 const user = await useUser()
-const emit = defineEmits(['refresh'])
 const { experiment } = defineProps<{
   experiment?: ExperimentDetail
   preview?: boolean
@@ -162,9 +161,7 @@ function getServerFileName(path: string) {
   return path.split("/").pop() || "download"
 }
 
-function handleReportDismissed() {
-  emit("refresh")
-}
+const { openReports, dismissReport, startRevision } = useExperimentReports(toRef(() => experiment))
 </script>
 
 <template>
@@ -185,9 +182,10 @@ function handleReportDismissed() {
     </Button>
 
     <ExperimentReportAlert
-      v-if="user?.id === experiment.userId"
-      :experiment="experiment"
-      @report-dismissed="handleReportDismissed"
+      :reports="openReports"
+      :show-revision-button="true"
+      @dismiss="(id) => dismissReport(id)"
+      @start-revision="startRevision"
     />
 
     <!-- Experiment Name -->

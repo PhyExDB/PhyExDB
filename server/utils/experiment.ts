@@ -185,10 +185,12 @@ export function mapExperimentToDetail(
     changeRequest: experiment.changeRequest ?? undefined,
     openReports: [
       ...(experiment.Report?.map(report => ({
+        id: report.id,
         message: report.message,
         createdAt: report.createdAt,
       })) ?? []),
       ...(experiment.revisionOf?.Report?.map(report => ({
+        id: report.id,
         message: report.message,
         createdAt: report.createdAt,
       })) ?? []),
