@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertTriangle } from "lucide-vue-next"
+import { AlertTriangle, Calendar, EyeOff, SearchCheck } from "lucide-vue-next"
 import type { ReportItem } from "~~/shared/types/Report.type"
 
 defineProps<{
@@ -37,10 +37,7 @@ const emit = defineEmits<{
               "{{ report.message }}"
             </p>
             <div class="flex items-center gap-2 mt-2 text-[10px] text-amber-700/70 dark:text-amber-400/70 uppercase font-semibold">
-              <Icon
-                name="heroicons:calendar"
-                class="w-3 h-3"
-              />
+              <Calendar class="w-3 h-3" />
               {{ new Date(report.createdAt).toLocaleDateString() }}
             </div>
           </div>
@@ -52,10 +49,7 @@ const emit = defineEmits<{
             class="text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800 shrink-0"
             @click.prevent="emit('dismiss', report.id)"
           >
-            <Icon
-              name="heroicons:eye-slash"
-              class="w-4 h-4 mr-2"
-            />
+            <EyeOff />
             Ablehnen
           </Button>
         </li>
@@ -71,10 +65,7 @@ const emit = defineEmits<{
           class="w-full sm:w-auto bg-amber-100 dark:bg-amber-900 border-amber-300 dark:border-amber-700 hover:bg-amber-200 dark:hover:bg-amber-800 text-amber-900 dark:text-amber-100"
           @click="emit('startRevision')"
         >
-          <Icon
-            name="heroicons:arrow-path"
-            class="w-4 h-4 mr-2"
-          />
+          <SearchCheck />
           Meldung überprüfen
         </Button>
       </div>
