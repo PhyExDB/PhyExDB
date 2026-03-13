@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import type { Sign } from "~~/shared/types/Sign.type"
 import type { LightboxSection } from "~/components/ui/carousel/interface"
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
-import type { Review } from "~~/shared/types/Review.type"
 import { getSignIconUrl } from "~/utils/signs"
 
 const user = await useUser()
@@ -235,7 +233,6 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(toRef
             :disabled="experiment.status === 'IN_REVIEW'"
             :class="{ 'opacity-50': experiment.status === 'IN_REVIEW' }"
             @click="duplicateExperiment(experiment, true)"
-            @click.prevent
           >
             <span>
               Überarbeiten
