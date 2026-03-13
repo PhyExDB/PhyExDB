@@ -60,7 +60,7 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
       <div class="flex flex-col sm:flex-row justify-center gap-2 pt-3 sm:pt-0">
         <!-- Creation of revision for already published experiments -->
         <Button
-          v-if="(experiment.status === 'PUBLISHED' || experiment.openReportsCount) && !experiment.revisedBy"
+          v-if="experiment.status === 'PUBLISHED' && !experiment.revisedBy"
           variant="outline"
           :class="{ 'border-destructive text-destructive hover:bg-destructive/10': experiment.openReportsCount }"
           @click="duplicateExperiment(experiment, true)"
