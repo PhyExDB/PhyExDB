@@ -1,11 +1,12 @@
 <script lang="ts" setup>
+import { Pencil, Copy, Trash, AlertTriangle } from "lucide-vue-next"
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
 import { badgeColorClass } from "~/utils/experiment"
 
 const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
   experiment: {
     type: Object as PropType<
-      Partial<Pick<ExperimentList, "revisedBy">> &
+      Partial<Pick<ExperimentList, "revisedBy" | "openReportsCount">> &
       Pick<ExperimentList, "id" | "name" | "status" | "slug" | "isFavorited">
     >,
     required: true,
@@ -47,21 +48,32 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
         >
           {{ badgeTitleForExperimentStatus(experiment.status) }}
         </Badge>
+        <Badge
+          v-if="experiment.openReportsCount && experiment.openReportsCount > 0"
+          variant="destructive"
+          class="flex items-center gap-1"
+        >
+          <AlertTriangle class="h-3 w-3" />
+          {{ experiment.openReportsCount }} {{ experiment.openReportsCount === 1 ? 'Mangel' : 'Mängel' }}
+        </Badge>
       </div>
       <div class="flex flex-col sm:flex-row justify-center gap-2 pt-3 sm:pt-0">
         <!-- Creation of revision for already published experiments -->
         <Button
-          v-if="experiment.status === 'PUBLISHED' && !experiment.revisedBy"
+          v-if="(experiment.status === 'PUBLISHED' || experiment.openReportsCount) && !experiment.revisedBy"
           variant="outline"
+          :class="{ 'border-destructive text-destructive hover:bg-destructive/10': experiment.openReportsCount }"
           @click="duplicateExperiment(experiment, true)"
           @click.prevent
         >
+          <Pencil />
           Überarbeiten
         </Button>
         <Button
           v-if="experiment.status === 'DRAFT' || experiment.status == 'REJECTED'"
           variant="outline"
         >
+          <Pencil />
           Bearbeiten
         </Button>
         <!-- Duplication for any non-published experiment -->
@@ -70,6 +82,7 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
           @click="duplicateExperiment(experiment, false)"
           @click.prevent
         >
+          <Copy />
           Duplizieren
         </Button>
         <ConfirmDeleteAlertDialog
@@ -82,6 +95,7 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
             class="hover:bg-destructive hover:text-destructive-foreground"
             @click.prevent
           >
+            <Trash />
             Löschen
           </Button>
         </ConfirmDeleteAlertDialog>

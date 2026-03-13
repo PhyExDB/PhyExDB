@@ -339,6 +339,11 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         class="grid gap-4 lg:w-2/3"
         @submit="onSubmit"
       >
+        <ExperimentReportAlert
+            v-if="user?.id === experiment?.userId"
+            :experiment="experiment"
+        />
+
         <div
           v-if="experiment?.changeRequest"
           class="text-destructive"

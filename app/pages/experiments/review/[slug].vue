@@ -17,7 +17,7 @@ if (!experiment.value) {
   })
 }
 
-if (experiment.value && experiment.value.status !== "IN_REVIEW") {
+if (experiment.value && experiment.value.status !== "IN_REVIEW" && experiment.value.status !== "PUBLISHED") {
   await navigateTo("/")
 }
 

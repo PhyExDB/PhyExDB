@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
       slug: true,
       updatedAt: true,
       userId: true,
+      revisionOfId: true,
     },
   })
 
@@ -88,6 +89,17 @@ export default defineEventHandler(async (event) => {
         },
       })
 
+      // mark all reports as seen after new review step
+      await tx.report.updateMany({
+        where: {
+          experimentId: experiment.id,
+          seenByOwner: false,
+        },
+        data: {
+          seenByOwner: true,
+        },
+      })
+
       if (experiment.userId) {
         await createNotification({
           userId: experiment.userId,
@@ -122,6 +134,35 @@ export default defineEventHandler(async (event) => {
       })
 
       if (newStatus === "PUBLISHED" && experiment.userId) {
+        if (experiment.revisionOfId) {
+          // mark all reports of old experiment as seen
+          await tx.report.updateMany({
+            where: {
+              experimentId: experiment.revisionOfId,
+              seenByOwner: false,
+            },
+            data: {
+              seenByOwner: true,
+            },
+          })
+
+          // delete the old experiment
+          await tx.experiment.delete({
+            where: { id: experiment.revisionOfId },
+          })
+        }
+
+        // mark all reports of new experiment as seen
+        await tx.report.updateMany({
+          where: {
+            experimentId: experiment.id,
+            seenByOwner: false,
+          },
+          data: {
+            seenByOwner: true,
+          },
+        })
+
         await createNotification({
           userId: experiment.userId,
           type: "EXPERIMENT_PUBLISHED",

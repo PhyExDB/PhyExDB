@@ -98,15 +98,6 @@ const dropdownOpen = ref(false)
         </DropdownMenuItem>
       </NuxtLink>
 
-      <NuxtLink to="/experiments/reports">
-        <DropdownMenuItem as-child>
-          <span>
-            <AlertTriangle />
-            Reports
-          </span>
-        </DropdownMenuItem>
-      </NuxtLink>
-
       <NuxtLink href="/experiments/favorites">
         <DropdownMenuItem as-child>
           <span>

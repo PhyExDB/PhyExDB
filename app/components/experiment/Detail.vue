@@ -179,6 +179,12 @@ function getServerFileName(path: string) {
       />
       Zurück
     </Button>
+
+    <ExperimentReportAlert
+        v-if="user?.id === experiment.userId"
+        :experiment="experiment"
+    />
+
     <!-- Experiment Name -->
     <div class="flex items-center">
       <h1 class="text-4xl font-extrabold mr-2">
@@ -257,6 +263,20 @@ function getServerFileName(path: string) {
           >
             <span>
               Löschen
+            </span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            v-if="(user.role !== 'USER' && experiment.userId !== user.id && experiment.status === 'PUBLISHED')"
+            class="text-destructive"
+            @click="navigateTo(`/experiments/review/${experiment.slug}`)"
+          >
+            <span class="flex items-center">
+              <Icon
+                name="heroicons:exclamation-triangle"
+                class="mr-2 w-4 h-4"
+              />
+              Beanstanden (Moderation)
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>

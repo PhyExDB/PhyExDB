@@ -1,3 +1,5 @@
+import type { ExperimentList } from "./Experiment.type"
+
 /**
  * Represents a report on an experiment.
  */
@@ -14,13 +16,5 @@ export interface Report {
  * ReportDialog with included experiment info.
  */
 export interface ReportWithExperiment extends Report {
-  experiment: {
-    id: string
-    name: string
-    slug: string
-    createdAt: string | Date
-    updatedAt: string | Date
-    userId: string | null
-    status: string
-  }
+  experiment: ExperimentList
 }
