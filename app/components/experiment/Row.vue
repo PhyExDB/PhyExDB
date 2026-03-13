@@ -54,7 +54,7 @@ const { experiment, deleteExperiment, duplicateExperiment } = defineProps({
           class="flex items-center gap-1"
         >
           <AlertTriangle class="h-3 w-3" />
-          {{ experiment.openReportsCount }} {{ experiment.openReportsCount === 1 ? 'Mangel' : 'Mängel' }}
+          {{ experiment.openReportsCount }} {{ experiment.openReportsCount === 1 ? 'Meldung' : 'Meldungen' }}
         </Badge>
       </div>
       <div class="flex flex-col sm:flex-row justify-center gap-2 pt-3 sm:pt-0">

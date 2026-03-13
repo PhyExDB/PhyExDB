@@ -21,7 +21,7 @@ const emit = defineEmits<{
     <div class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/50 px-4 py-3 text-amber-900 dark:text-amber-100">
       <AlertTriangle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
       <h2 class="text-lg font-bold">
-        Offene Bemängelungen
+        Offene Meldungen
       </h2>
     </div>
 
@@ -75,7 +75,7 @@ const emit = defineEmits<{
             name="heroicons:arrow-path"
             class="w-4 h-4 mr-2"
           />
-          Mängel jetzt beheben
+          Meldung überprüfen
         </Button>
       </div>
     </div>

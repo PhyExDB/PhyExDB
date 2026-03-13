@@ -14,7 +14,7 @@ export function useExperimentReports(experiment: Ref<ExperimentDetail | null | u
 
     try {
       await $fetch(`/api/experiments/reports/${id}/complete`, { method: "POST" })
-      toast({ title: "Erfolgreich", description: "Die Bemängelung wurde ausgeblendet.", variant: "success" })
+      toast({ title: "Erfolgreich", description: "Die Meldung wurde ausgeblendet.", variant: "success" })
     } catch (error) {
       dismissedIds.value = new Set([...dismissedIds.value].filter(x => x !== id))
       console.error("Dismiss failed:", error)
