@@ -413,16 +413,18 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(toRef
           <h2 class="text-3xl font-bold">
             {{ section.experimentSection.name }}
           </h2>
-          <LatexContent
-            v-if="!isRiskAssessmentSection(section) && section.text && section.text.length && section.text != '<p></p>'"
-            :content="section.text"
-          />
-          <p
-            v-else-if="!isRiskAssessmentSection(section)"
-            class="text-muted-foreground"
-          >
-            Keine Beschreibung vorhanden
-          </p>
+          <template v-if="!isRiskAssessmentSection(section)">
+            <LatexContent
+              v-if="section.text && section.text !== '<p></p>'"
+              :content="section.text"
+            />
+            <p
+              v-else
+              class="text-muted-foreground"
+            >
+              Keine Beschreibung vorhanden
+            </p>
+          </template>
         </template>
 
         <CarouselWithPreview
