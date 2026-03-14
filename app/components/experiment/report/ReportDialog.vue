@@ -11,6 +11,7 @@ const open = ref(false)
 const serverError = ref("")
 const route = useRoute()
 const canReport = await allows(experimentAbilities.report)
+const user = await useUser()
 
 const formSchema = toTypedSchema(reportSchema)
 const form = useForm({
@@ -18,13 +19,16 @@ const form = useForm({
   initialValues: { message: "" },
 })
 
-const handleReportClick = () => {
-  toast({
-    title: "Anmeldung erforderlich",
-    description: "Du musst verifiziert sein, um Experimente zu melden.",
-    variant: "destructive",
-  })
-  setTimeout(() => navigateTo("/profile"), 1500)
+const handleClick = () => {
+  if (!user.value) {
+    toast({ title: "Fehler", description: "Bitte logge dich ein!", variant: "destructive" })
+    return navigateTo("/login")
+  }
+
+  if (canReport.value === false) {
+    toast({ title: "Fehler", description: "Bitte verifiziere dich!", variant: "destructive" })
+    return navigateTo("/profile")
+  }
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -45,8 +49,8 @@ const onSubmit = form.handleSubmit(async (values) => {
       description: "Report erfolgreich gesendet! Vielen Dank!",
       variant: "success",
     })
-  } catch (err: unknown) {
-    serverError.value = err instanceof Error ? err.message : "Fehler beim Senden"
+  } catch {
+    serverError.value = "Fehler beim Senden"
   } finally {
     loading.value = false
   }
@@ -55,21 +59,20 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 <template>
   <Button
-    v-if="!canReport"
+    v-if="canReport === false"
     variant="outline"
     class="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
-    @click="handleReportClick"
+    @click="handleClick"
   >
     <TriangleAlert />
     Experiment melden
   </Button>
   <Dialog
-    v-else
+    v-else-if="canReport === true"
     :open="open"
     @update:open="open = $event"
   >
     <DialogTrigger
-      v-if="canReport"
       as-child
     >
       <Button
