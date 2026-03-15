@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue"
 import { useToast } from "@/components/ui/toast/use-toast"
 
 const { toast } = useToast()
@@ -19,35 +18,37 @@ const canChangeRole = computed(() => user.value?.id !== props.id)
 
 const position = ref<UserRole>(props.role)
 
-watch(
-  () => props.role,
-  (newVal) => {
-    if (newVal !== position.value) position.value = newVal
-  },
-)
+watch(() => props.role, (newVal) => {
+  position.value = newVal
+})
 
-watch(position, async (newVal, oldVal) => {
-  if (newVal === oldVal) return
+async function updateRole(newVal: string) {
+  const role = newVal as UserRole
+  if (role === props.role) return
+
   try {
     await $fetch(`/api/users/${props.id}/role`, {
       method: "PUT",
-      body: { role: newVal as UserRole },
+      body: { role },
     })
-    emit("changed", { role: newVal })
+
+    position.value = role
+    emit("changed", { role })
+
     toast({
       title: "Rolle geändert",
-      description: `${props.name}'s Rolle wurde erfolgreich zu ${capitalizeFirstLetter(newVal)} geändert.`,
+      description: `${props.name}'s Rolle wurde erfolgreich zu ${capitalizeFirstLetter(role)} geändert.`,
       variant: "success",
     })
   } catch {
-    position.value = oldVal as UserRole
+    position.value = props.role
     toast({
       title: "Fehler beim Ändern der Rolle",
       description: "Die Rolle konnte nicht aktualisiert werden. Bitte versuche es erneut.",
       variant: "destructive",
     })
   }
-})
+}
 </script>
 
 <template>
@@ -68,7 +69,10 @@ watch(position, async (newVal, oldVal) => {
         v-if="canChangeRole"
         class="w-56"
       >
-        <DropdownMenuRadioGroup v-model="position">
+        <DropdownMenuRadioGroup
+            :model-value="position"
+            @update:model-value="updateRole"
+        >
           <DropdownMenuRadioItem value="USER">
             User
           </DropdownMenuRadioItem>

@@ -37,7 +37,7 @@ const table = useVueTable({
       <Input
         v-model="search"
         class="max-w-sm"
-        placeholder="Filtern nach Name, E-Mail und Rolle ..."
+        placeholder="Filtern nach Name, E-Mail oder Rolle ..."
       />
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
