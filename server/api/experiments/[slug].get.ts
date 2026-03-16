@@ -98,6 +98,22 @@ defineRouteMeta({
                     },
                   },
                 },
+                openReportsCount: {
+                  type: "number",
+                  description: "The count of open reports for this experiment",
+                },
+                openReports: {
+                  type: "array",
+                  description: "List of open reports",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", format: "uuid" },
+                      message: { type: "string" },
+                      createdAt: { type: "string", format: "date-time" },
+                    },
+                  },
+                },
                 sections: {
                   type: "array",
                   items: {

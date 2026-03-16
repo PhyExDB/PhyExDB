@@ -41,12 +41,14 @@ if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECT
 
 const { data: sections } = await useFetch("/api/experiments/sections")
 const { data: attributes } = await useFetch("/api/experiments/attributes")
+const { data: availableSigns } = await useFetch<Sign[]>("/api/signs")
+const latestReview = computed(() => {
+  if (!reviews.value?.length) return null
+  return [...reviews.value].sort((a, b) =>
+    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  )[0]
+})
 
-const allSigns = ref<Sign[]>([])
-
-const { data: allSignsData } = await useFetch<Sign[]>("/api/signs")
-allSigns.value = allSignsData.value ?? []
-const availableSigns = computed(() => allSigns.value)
 function isRiskAssessmentSection(sectionName: string | undefined) {
   return sectionName === "Gefährdungsbeurteilung"
 }
@@ -321,6 +323,8 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
 }
+
+const { openReports, dismissReport, startRevision } = useExperimentReports(experiment)
 </script>
 
 <template>
@@ -339,6 +343,13 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
         class="grid gap-4 lg:w-2/3"
         @submit="onSubmit"
       >
+        <ExperimentReportAlert
+          :reports="openReports"
+          :show-revision-button="false"
+          @dismiss="(id) => dismissReport(id)"
+          @start-revision="startRevision"
+        />
+
         <div
           v-if="experiment?.changeRequest"
           class="text-destructive"
@@ -616,36 +627,31 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
           </DraggableList>
           <!-- Critiques für diese Section -->
           <div
-            v-if="reviews && reviews.length"
+            v-if="latestReview"
             class="mt-6"
           >
             <div
-              v-for="review in [[...reviews].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]]"
-              :key="review?.id"
+              v-if="latestReview.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === section.id)"
+              class="space-y-2"
             >
-              <div
-                v-if="review && review.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === section.id)"
-                class="space-y-2"
-              >
-                <h3 class="font-semibold text-sm flex items-center gap-2">
-                  <Icon
-                    name="heroicons:user-circle"
-                    class="w-4 h-4"
-                  />
-                  Aktuelles Feedback
-                </h3>
+              <h3 class="font-semibold text-sm flex items-center gap-2">
+                <Icon
+                  name="heroicons:user-circle"
+                  class="w-4 h-4"
+                />
+                Aktuelles Feedback
+              </h3>
 
-                <div
-                  v-for="critique in review.sectionsCritiques.filter(c => c.sectionContent.experimentSection.id === section.id)"
-                  :key="critique.id"
-                  class="border rounded-lg p-4 bg-destructive/5 border-destructive/20 shadow-sm"
-                >
-                  <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
-                    Korrekturhinweis
-                  </p>
-                  <div class="prose prose-sm dark:prose-invert">
-                    <LatexContent :content="critique.critique" />
-                  </div>
+              <div
+                v-for="critique in latestReview.sectionsCritiques.filter(c => c.sectionContent.experimentSection.id === section.id)"
+                :key="critique.id"
+                class="border rounded-lg p-4 bg-destructive/5 border-destructive/20 shadow-sm"
+              >
+                <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
+                  Korrekturhinweis
+                </p>
+                <div class="prose prose-sm dark:prose-invert">
+                  <LatexContent :content="critique.critique" />
                 </div>
               </div>
             </div>
@@ -658,7 +664,6 @@ function getImageTitle(sectionIndex: number, fileIndex: number) {
             type="submit"
             class="w-full"
             :disabled="!formChanged"
-            @click="onSubmit()"
           >
             {{ formChanged? "Speichern" : "Alles Gespeichert" }}
           </Button>

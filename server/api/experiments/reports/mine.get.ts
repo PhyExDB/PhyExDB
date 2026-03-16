@@ -1,26 +1,25 @@
+import { mapExperimentToList, experimentIncludeForToList } from "~~/server/utils/experiment"
+
 export default defineEventHandler(async (event) => {
   const user = await getUserOrThrowError(event)
 
-  return prisma.report.findMany({
+  const reports = await prisma.report.findMany({
     where: {
       experiment: { userId: user.id },
       seenByOwner: false,
     },
     include: {
       experiment: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          createdAt: true,
-          updatedAt: true,
-          userId: true,
-          status: true,
-        },
+        include: experimentIncludeForToList,
       },
     },
     orderBy: { createdAt: "desc" },
   })
+
+  return reports.map(report => ({
+    ...report,
+    experiment: mapExperimentToList(report.experiment),
+  }))
 })
 
 defineRouteMeta({

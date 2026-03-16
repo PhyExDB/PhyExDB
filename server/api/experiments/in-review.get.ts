@@ -17,17 +17,11 @@ export default defineEventHandler(async (event) => {
   })
 
   const filteredAndMapped = allExperiments.reduce<(ExperimentList & { completedReviewsCount: number })[]>((acc, exp) => {
-    const expTime = new Date(exp.updatedAt).getTime()
-
-    const currentRoundReviews = (exp.reviews || []).filter(r =>
-      r.status === "COMPLETED"
-      && new Date(r.updatedAt).getTime() >= expTime,
-    )
-
+    const currentRoundReviews = getUpToDateCompletedReviews(exp.updatedAt, exp.reviews || [])
     const alreadyParticipatedInThisRound = currentRoundReviews.some(r => r.reviewerId === user.id)
 
     if (!alreadyParticipatedInThisRound) {
-      const mapped = mapExperimentToList(exp as ExperimentIncorrectList) as ExperimentList
+      const mapped = mapExperimentToList(exp)
       acc.push({
         ...mapped,
         completedReviewsCount: currentRoundReviews.length,

@@ -49,6 +49,11 @@ export const experimentIncludeForToList = {
   revisionOf: true,
   revisedBy: true,
   signs: experimentSignsInclude,
+  Report: {
+    where: {
+      seenByOwner: false,
+    },
+  },
 } satisfies Prisma.ExperimentInclude
 
 /**
@@ -57,6 +62,15 @@ export const experimentIncludeForToList = {
  */
 export const experimentIncludeForToDetail = {
   ...experimentIncludeForToList,
+  revisionOf: {
+    include: {
+      Report: {
+        where: {
+          seenByOwner: false,
+        },
+      },
+    },
+  },
   sections: {
     orderBy: {
       experimentSection: {
@@ -139,6 +153,7 @@ export function mapExperimentToList(
     previewImage: experiment.previewImage ?? undefined,
     revisionOf: experiment.revisionOf ?? undefined,
     revisedBy: experiment.revisedBy ?? undefined,
+    openReportsCount: experiment.Report?.length ?? 0,
   }
 }
 
@@ -168,5 +183,17 @@ export function mapExperimentToDetail(
     reviews: [],
     alreadyReviewedByMe: false,
     changeRequest: experiment.changeRequest ?? undefined,
+    openReports: [
+      ...(experiment.Report?.map(report => ({
+        id: report.id,
+        message: report.message,
+        createdAt: report.createdAt,
+      })) ?? []),
+      ...(experiment.revisionOf?.Report?.map(report => ({
+        id: report.id,
+        message: report.message,
+        createdAt: report.createdAt,
+      })) ?? []),
+    ],
   }
 }

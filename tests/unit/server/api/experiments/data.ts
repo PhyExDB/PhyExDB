@@ -44,6 +44,7 @@ export const lists: ExperimentList[] = [
     ratingsSum: 0,
     ratingsCount: 0,
     signs: [],
+    openReportsCount: 0,
   },
   {
     id: uuidv4(),
@@ -62,6 +63,7 @@ export const lists: ExperimentList[] = [
     ratingsSum: 0,
     ratingsCount: 0,
     signs: [],
+    openReportsCount: 0,
   },
 ] as ExperimentList[]
 
@@ -84,6 +86,8 @@ export const detail: ExperimentDetail = {
   changeRequest: undefined,
   completedReviewsCount: 0,
   alreadyReviewedByMe: false,
+  openReports: [],
+  openReportsCount: 0,
 }
 
 function attributesToDb(attributes: ExperimentList["attributes"]): ExperimentIncorrectList["attributes"] {

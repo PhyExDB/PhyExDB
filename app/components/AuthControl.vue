@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { User, FlaskConical, Heart, Users, FolderTree, ClipboardCheck, LogOut, AlertTriangle, Bell } from "lucide-vue-next"
+import { User, FlaskConical, Heart, Users, FolderTree, ClipboardCheck, LogOut, Bell } from "lucide-vue-next"
 import getInitials from "~~/shared/utils/initials"
 
 const user = await useUser()
@@ -9,6 +9,7 @@ const canReviewExperiments = await allows(experimentAbilities.review)
 const { data: notificationData, refresh: refreshNotifications } = await useFetch("/api/notifications/check", {
   server: false,
 })
+const unreadInboxCount = computed(() => notificationData.value?.unreadCount ?? 0)
 const pendingReviewCount = computed(() => notificationData.value?.moderatorNotifications ?? 0)
 
 async function signOut() {
@@ -78,11 +79,11 @@ const dropdownOpen = ref(false)
             <Bell />
             Postfach
             <Badge
-              v-if="pendingReviewCount > 0"
+              v-if="unreadInboxCount > 0"
               variant="destructive"
               class="ml-auto h-5 min-w-5 text-[10px]"
             >
-              {{ pendingReviewCount }}
+              {{ unreadInboxCount }}
             </Badge>
           </span>
         </DropdownMenuItem>
@@ -93,15 +94,6 @@ const dropdownOpen = ref(false)
           <span>
             <FlaskConical />
             Meine Versuche
-          </span>
-        </DropdownMenuItem>
-      </NuxtLink>
-
-      <NuxtLink to="/experiments/reports">
-        <DropdownMenuItem as-child>
-          <span>
-            <AlertTriangle />
-            Reports
           </span>
         </DropdownMenuItem>
       </NuxtLink>

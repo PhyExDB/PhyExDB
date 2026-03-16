@@ -1,5 +1,3 @@
-import type { ModeratorTask } from "#shared/types/Review.type"
-
 export default defineEventHandler(async (event) => {
   const user = await getUser(event)
   if (!user) {
@@ -43,18 +41,16 @@ export default defineEventHandler(async (event) => {
     }),
   ])
 
-  const relevantModTasks = (moderatorData as ModeratorTask[]).filter((exp) => {
-    const myReview = exp.reviews[0]
-    return !myReview || (myReview.status !== "COMPLETED" || myReview.updatedAt < exp.updatedAt)
-  })
+  const relevantModTasks = filterPendingModeratorTasks(user.id, moderatorData as ModeratorTask[])
+  const taskTimestamps = relevantModTasks.map(e => new Date(e.updatedAt).getTime())
 
   return {
     needsRevisionCount: rejected._count,
     lastRejectedAt: rejected._max.updatedAt?.getTime() ?? undefined,
 
     moderatorNotifications: relevantModTasks.length,
-    moderatorLastUpdate: relevantModTasks.length > 0
-      ? Math.max(...relevantModTasks.map(e => new Date(e.updatedAt).getTime()))
+    moderatorLastUpdate: taskTimestamps.length > 0
+      ? Math.max(...taskTimestamps)
       : undefined,
 
     unreadCount: notificationsData._count,
