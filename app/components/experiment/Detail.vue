@@ -1,12 +1,9 @@
 <script lang="ts" setup>
-import type { Sign } from "~~/shared/types/Sign.type"
 import type { LightboxSection } from "~/components/ui/carousel/interface"
 import FavoriteButton from "~/components/experiment/favorites/FavoriteButton.vue"
-import type { Review } from "~~/shared/types/Review.type"
 import { getSignIconUrl } from "~/utils/signs"
 
 const user = await useUser()
-
 const { experiment } = defineProps<{
   experiment?: ExperimentDetail
   preview?: boolean
@@ -161,6 +158,8 @@ async function downloadFile(url: string) {
 function getServerFileName(path: string) {
   return path.split("/").pop() || "download"
 }
+
+const { openReports, dismissReport, startRevision } = useExperimentReports(toRef(() => experiment))
 </script>
 
 <template>
@@ -179,6 +178,14 @@ function getServerFileName(path: string) {
       />
       Zurück
     </Button>
+
+    <ExperimentReportAlert
+      :reports="openReports"
+      :show-revision-button="true"
+      @dismiss="(id) => dismissReport(id)"
+      @start-revision="startRevision"
+    />
+
     <!-- Experiment Name -->
     <div class="flex items-center">
       <h1 class="text-4xl font-extrabold mr-2">
@@ -226,7 +233,6 @@ function getServerFileName(path: string) {
             :disabled="experiment.status === 'IN_REVIEW'"
             :class="{ 'opacity-50': experiment.status === 'IN_REVIEW' }"
             @click="duplicateExperiment(experiment, true)"
-            @click.prevent
           >
             <span>
               Überarbeiten
@@ -257,6 +263,20 @@ function getServerFileName(path: string) {
           >
             <span>
               Löschen
+            </span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            v-if="(user.role !== 'USER' && experiment.userId !== user.id && experiment.status === 'PUBLISHED')"
+            class="text-destructive"
+            @click="navigateTo(`/experiments/review/${experiment.slug}`)"
+          >
+            <span class="flex items-center">
+              <Icon
+                name="heroicons:exclamation-triangle"
+                class="mr-2 w-4 h-4"
+              />
+              Beanstanden (Moderation)
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -393,16 +413,18 @@ function getServerFileName(path: string) {
           <h2 class="text-3xl font-bold">
             {{ section.experimentSection.name }}
           </h2>
-          <LatexContent
-            v-if="!isRiskAssessmentSection(section) && section.text && section.text.length && section.text != '<p></p>'"
-            :content="section.text"
-          />
-          <p
-            v-else-if="!isRiskAssessmentSection(section)"
-            class="text-muted-foreground"
-          >
-            Keine Beschreibung vorhanden
-          </p>
+          <template v-if="!isRiskAssessmentSection(section)">
+            <LatexContent
+              v-if="section.text && section.text !== '<p></p>'"
+              :content="section.text"
+            />
+            <p
+              v-else
+              class="text-muted-foreground"
+            >
+              Keine Beschreibung vorhanden
+            </p>
+          </template>
         </template>
 
         <CarouselWithPreview

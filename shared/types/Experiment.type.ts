@@ -63,6 +63,10 @@ export interface ExperimentList extends SlugList {
 
   favoriteNumberForSequence?: number
   favoriteCategory?: string | null
+  /**
+   * The count of open reports for this experiment.
+   */
+  openReportsCount?: number
 }
 
 /**
@@ -81,6 +85,7 @@ export interface ExperimentDetail extends ExperimentList {
   reviews: ReviewSummary[]
   updatedAt: string | Date
   alreadyReviewedByMe: boolean
+  openReports?: ReportItem[]
 }
 
 /**
