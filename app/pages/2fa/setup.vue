@@ -14,6 +14,7 @@ const qrDataUrl = ref<string | null>(null)
 const secret = ref<string | null>(null)
 const twofaCode = ref("")
 const recoveryCodes = ref<string[] | null>(null)
+const inputRef = ref<any>(null)
 
 onMounted(async () => {
   try {
@@ -24,6 +25,10 @@ onMounted(async () => {
     toast({ title: "Fehler", description: "Setup fehlgeschlagen.", variant: "destructive" })
   } finally {
     qrLoading.value = false
+    await nextTick(() => {
+      const input = inputRef.value?.$el?.querySelector('input') || inputRef.value?.$el
+      input?.focus()
+    })
   }
 })
 
@@ -39,6 +44,9 @@ async function confirmEnable() {
     toast({ title: "Fehler", description: "Code ungültig.", variant: "destructive" })
   } finally {
     loading.value = false
+    await nextTick(() => {
+      inputRef.value?.$el?.querySelector('input')?.focus()
+    })
   }
 }
 
@@ -103,6 +111,7 @@ async function finishSetup() {
             <div class="space-y-3">
               <Label class="text-xs font-bold uppercase tracking-widest text-center block">Bestätigungscode</Label>
               <Input
+                ref="inputRef"
                 v-model="twofaCode"
                 placeholder="000 000"
                 class="h-12 text-center text-2xl font-mono tracking-[0.3em]"
