@@ -28,6 +28,8 @@ export default defineEventHandler(async (event) => {
   })
 
   setTwofaCookie(event, user.id)
+
+  return { recoveryCodes: recovery }
 })
 
 defineRouteMeta({
