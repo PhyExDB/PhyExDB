@@ -1,3 +1,5 @@
+import { setTwofaCookie } from "~~/server/utils/twofa"
+
 export default defineEventHandler(async (event) => {
   ensure2faEnabledGlobally()
 

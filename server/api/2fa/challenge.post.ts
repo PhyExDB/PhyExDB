@@ -1,5 +1,6 @@
 import prisma from "../../lib/prisma"
 import { ensure2faEnabledGlobally, verifyTwofaInput } from "~~/server/utils/twoFaHandler"
+import { setTwofaCookie } from "~~/server/utils/twofa"
 
 export default defineEventHandler(async (event) => {
   ensure2faEnabledGlobally()
