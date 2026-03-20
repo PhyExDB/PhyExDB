@@ -1,6 +1,4 @@
-import { setCookie } from "h3"
 import prisma from "../../lib/prisma"
-import { signTwofaCookie } from "~~/server/utils/twofa"
 import { ensure2faEnabledGlobally, verifyTwofaInput } from "~~/server/utils/twoFaHandler"
 
 export default defineEventHandler(async (event) => {
@@ -19,14 +17,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const token = signTwofaCookie(user.id)
-  setCookie(event, "twofa_verified", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 12,
-  })
+  setTwofaCookie(event, user.id)
 
   return { verified: true }
 })

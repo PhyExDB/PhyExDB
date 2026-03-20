@@ -2,6 +2,7 @@ import crypto from "node:crypto"
 import { generateTOTP, verifyTOTP, getTOTPAuthUri } from "@epic-web/totp"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
+import { H3Event } from "h3";
 
 const DEFAULT_STEP = Number(process.env.TWOFA_STEP ?? 30)
 const DEFAULT_DIGITS = Number(process.env.TWOFA_DIGITS ?? 6)
@@ -74,7 +75,7 @@ export function isTwofaGloballyEnabled(): boolean {
 }
 
 export function signTwofaCookie(userId: string): string {
-  return jwt.sign({ userId, typ: "2fa" }, COOKIE_SECRET, { algorithm: "HS256", expiresIn: "12h" })
+  return jwt.sign({ userId, typ: "2fa" }, COOKIE_SECRET, { algorithm: "HS256", expiresIn: "30d" })
 }
 
 export function verifyTwofaCookie(token: string, userId: string): boolean {
@@ -84,4 +85,18 @@ export function verifyTwofaCookie(token: string, userId: string): boolean {
   } catch {
     return false
   }
+}
+
+/**
+ * Signs a 2FA token and sets the 'twofa_verified' cookie for 30 days.
+ */
+export function setTwofaCookie(event: H3Event, userId: string) {
+  const token = signTwofaCookie(userId)
+  setCookie(event, "twofa_verified", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+  })
 }
