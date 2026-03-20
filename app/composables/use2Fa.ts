@@ -33,12 +33,27 @@ export const use2fa = () => {
   const loading = ref(false)
 
   const refreshStatus = async () => {
-    const data = await $fetch<TwoFactorStatus>("/api/2fa/status", {
-      params: { t: Date.now() },
-    })
-    status.value = data
-    return data
+    loading.value = true
+    try {
+      const data = await $fetch<TwoFactorStatus>("/api/2fa/status", {
+        params: { t: Date.now() },
+      })
+      status.value = data
+      return data
+    } finally {
+      loading.value = false
+    }
   }
 
-  return { status, loading, refreshStatus }
+  const isVerified = computed(() => {
+    if (!status.value) return false
+    return status.value.verified
+  })
+
+  return {
+    status,
+    loading,
+    refreshStatus,
+    isVerified
+  }
 }
