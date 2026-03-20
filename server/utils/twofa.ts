@@ -1,5 +1,6 @@
 import crypto from "node:crypto"
 import { generateTOTP, verifyTOTP, getTOTPAuthUri } from "@epic-web/totp"
+import { setCookie } from "h3"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { H3Event } from "h3";
