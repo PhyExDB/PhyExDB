@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
   )
 
   setResponseStatus(event, 201)
-  return mapExperimentToDetail(newExperiment as ExperimentIncorrectDetail)
+  return mapExperimentToDetail(newExperiment as ExperimentDetailPrismaPayload)
 })
 
 defineRouteMeta({

@@ -23,11 +23,15 @@ export default defineEventHandler(async (event) => {
           name: true,
         },
       },
+      _count: {
+        select: { votes: true },
+      },
     },
   })
 
   return {
     ...result,
+    upvotesCount: result._count.votes,
     userHasVoted: false,
     children: [],
   } as ExperimentComment
