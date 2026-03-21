@@ -70,8 +70,8 @@ async function updateRole(newVal: string) {
         class="w-56"
       >
         <DropdownMenuRadioGroup
-            :model-value="position"
-            @update:model-value="updateRole"
+          :model-value="position"
+          @update:model-value="updateRole"
         >
           <DropdownMenuRadioItem value="USER">
             User
