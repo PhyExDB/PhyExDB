@@ -1,7 +1,7 @@
 # ================================
 # Build image
 # ================================
-FROM --platform=$BUILDPLATFORM node:23-alpine AS build
+FROM node:23-alpine AS build
 
 # Update and install the latest dependencies for the alpine version
 RUN apk update && apk upgrade && apk add openssl
