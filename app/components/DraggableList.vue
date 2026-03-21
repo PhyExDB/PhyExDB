@@ -16,24 +16,24 @@ const emit = defineEmits<{
   (e: "update:values", value: T[]): void
 }>()
 
-const [parent, items] = useDragAndDrop(values, { group: group })
+const [parent, items] = useDragAndDrop([...values], {
+  group: group,
+  // Watch for changes in the `items` array and emit an event when the order changes
+  onSort: () => {
+    nextTick(() => emit("update:values", [...items.value]))
+  },
+})
 
 // Watch for changes in the `values` prop and update `items`
 watch(
-  () => values,
-  (newValues) => {
-    items.value = [...newValues] // Sync `items` with the prop values
+  () => values.map(v => v.id).join(","),
+  (newIds) => {
+    const currentIds = items.value.map(i => i.id).join(",")
+    if (currentIds !== newIds) {
+      items.value = [...values]
+    }
   },
-  { deep: true, immediate: true },
-)
-
-// Watch for changes in the `items` array and emit an event when the order changes
-watch(
-  items,
-  (newItems) => {
-    emit("update:values", [...newItems]) // Notify the parent of the updated order
-  },
-  { deep: true },
+  { immediate: true },
 )
 </script>
 

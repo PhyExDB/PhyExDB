@@ -163,6 +163,7 @@ export function getExperimentSchema(
 
     sections: z.array(z.object({
       experimentSectionContentId: z.string().uuid().optional(),
+      experimentSectionId: z.string().uuid(),
       text: z.string(),
       files: z.array(z.object({
         fileId: z.string().uuid(),
