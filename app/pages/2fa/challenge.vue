@@ -38,7 +38,11 @@ async function submitChallenge() {
     })
 
     if (res.verified) {
-      clearNuxtData()
+      const statusState = useState<TwoFactorStatus | null>("2fa-status")
+      if (statusState.value) {
+        statusState.value = { ...statusState.value, verified: true }
+      }
+
       const target = route.query.redirect?.toString() || "/"
       await navigateTo(target, { replace: true })
       toast({
