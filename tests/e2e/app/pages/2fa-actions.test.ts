@@ -107,27 +107,27 @@ function withoutTwofaCookie(storageState: StorageState): StorageState {
 }
 
 test.describe("Admin API — 2FA enforcement", () => {
-  test("GET /api/users returns 401 without twofa_verified cookie", async ({ browser }) => {
+  test("GET /api/users returns 403 without twofa_verified cookie", async ({ browser }) => {
     const rawState = await fs.readFile(path.join(AUTH_DIR, "admin.json"), "utf-8")
     const storageState = withoutTwofaCookie(JSON.parse(rawState) as StorageState)
 
     const context = await browser.newContext({ storageState })
     try {
       const res = await context.request.get("/api/users")
-      expect(res.status()).toBe(401)
+      expect(res.status()).toBe(403)
     } finally {
       await context.close()
     }
   })
 
-  test("POST /api/users/:id/ban returns 401 without twofa_verified cookie", async ({ browser }) => {
+  test("POST /api/users/:id/ban returns 403 without twofa_verified cookie", async ({ browser }) => {
     const rawState = await fs.readFile(path.join(AUTH_DIR, "admin.json"), "utf-8")
     const storageState = withoutTwofaCookie(JSON.parse(rawState) as StorageState)
 
     const context = await browser.newContext({ storageState })
     try {
       const res = await context.request.post("/api/users/00000000-0000-0000-0000-000000000000/ban")
-      expect(res.status()).toBe(401)
+      expect(res.status()).toBe(403)
     } finally {
       await context.close()
     }
@@ -139,7 +139,7 @@ test.describe("Admin API — 2FA enforcement", () => {
     })
     try {
       const res = await context.request.get("/api/users")
-      expect(res.status()).toBe(401)
+      expect(res.status()).toBe(403)
     } finally {
       await context.close()
     }
