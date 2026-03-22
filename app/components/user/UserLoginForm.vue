@@ -17,40 +17,35 @@ const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
 
-  const { error } = await useAuth().client.signIn.email(values)
-  if (error) {
-    if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
-      lastWrong.value = true
-      await form.validate()
-    } else if (error.status === 401 || error.message?.toLowerCase().includes("banned")) {
-      lastBanned.value = true
-
-      toast({
-        title: "Account gesperrt",
-        description: "Dein Account wurde gesperrt. Bitte kontaktiere einen Administrator.",
-        variant: "destructive",
-      })
-    } else {
-      console.error(error)
+  try {
+    const { error } = await useAuth().client.signIn.email(values)
+    if (error) {
+      handleAuthError(error)
+      return
     }
-  } else {
-    // Check if 2FA challenge is required
-    try {
-      const status = await refreshStatus()
-      const target = getTwoFaRedirectTarget(status, useRoute().fullPath)
 
-      if (target) {
-        await navigateTo(target)
-      } else {
-        const redirect = useRoute().query.redirect?.toString() || "/"
-        await navigateTo(redirect)
-      }
-    } catch {
-      await navigateTo("/")
-    }
+    const status = await refreshStatus()
+    await followRedirect(status)
+  } catch {
+    await navigateTo("/")
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 })
+
+function handleAuthError(error: any) {
+  if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
+    lastWrong.value = true
+    form.validate()
+  } else if (error.status === 401 || error.message?.toLowerCase().includes("banned")) {
+    lastBanned.value = true
+    toast({
+      title: "Account gesperrt",
+      description: "Dein Account wurde gesperrt. Bitte kontaktiere einen Administrator.",
+      variant: "destructive",
+    })
+  }
+}
 </script>
 
 <template>

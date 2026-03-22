@@ -417,7 +417,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
               <Input
                 v-model="twofaCode"
                 class="font-mono text-center text-lg tracking-widest"
-                placeholder="000000 oder ABCDE-00000"
+                placeholder="000000 oder ABCDE-12345"
                 maxlength="11"
                 @keyup.enter="regenerateRecoveryCodes"
               />
