@@ -40,6 +40,8 @@ vitest.stubGlobal("readBody", async (event: any) => {
   return event.body
 })
 
+vitest.stubGlobal("parseCookies", () => ({}))
+
 vitest.mock(import("~~/server/utils/auth"), async (importOriginal) => {
   const actual = await importOriginal()
   return {

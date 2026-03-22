@@ -4,6 +4,7 @@ import { getUser, getUserOrThrowError } from "./auth"
 import type { Ability, UserAbility } from "~~/shared/utils/auth"
 import { evaluateAbility, evaluateUserAbility } from "~~/shared/utils/auth"
 import { verifyTwofaCookie } from "~~/server/utils/twofa"
+import { parseCookies, createError } from "h3"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

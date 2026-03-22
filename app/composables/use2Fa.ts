@@ -51,7 +51,12 @@ export function getTwoFaRedirectTarget(
 }
 
 export const use2fa = () => {
-  const status = useState<TwoFactorStatus | null>("2fa-status", () => null)
+  const status = useState<TwoFactorStatus | null>("2fa-status", () => ({
+    authenticated: false,
+    enabled: false,
+    verified: false,
+    required: false
+  }))
 
   const refreshStatus = async () => {
     const data = await $fetch<TwoFactorStatus>("/api/2fa/status", {
