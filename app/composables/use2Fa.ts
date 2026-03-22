@@ -52,27 +52,37 @@ export function getTwoFaRedirectTarget(
 
 export const use2fa = () => {
   const status = useState<TwoFactorStatus | null>("2fa-status", () => null)
-  const loading = ref(false)
 
   const refreshStatus = async () => {
-    loading.value = true
     try {
       const data = await $fetch<TwoFactorStatus>("/api/2fa/status", {
         params: { t: Date.now() },
       })
       status.value = data
       return data
-    } finally {
-      loading.value = false
+    } catch (e) {
+      status.value = null
+      return null
     }
   }
 
-  const isVerified = computed(() => status.value?.verified ?? false)
+  const setVerified = () => {
+    if (status.value) {
+      status.value = { ...status.value, verified: true, authenticated: true }
+    }
+  }
+
+  const logout = async () => {
+    await $fetch("/api/auth/logout", { method: "POST" })
+    status.value = null
+    clearNuxtData()
+    await navigateTo("/login")
+  }
 
   return {
     status,
-    loading,
     refreshStatus,
-    isVerified,
+    setVerified,
+    logout
   }
 }

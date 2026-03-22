@@ -72,7 +72,7 @@ async function submit() {
         statusState.value = { ...statusState.value, verified: true }
       }
 
-      await navigateTo(sanitizeRedirect(route.query.redirect?.toString()), { replace: true })
+      await followRedirect(statusState.value)
       toast({
         title: "Identität bestätigt",
         description: "Zwei-Faktor-Authentifizierung erfolgreich abgeschlossen.",

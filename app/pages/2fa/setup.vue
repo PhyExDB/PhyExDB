@@ -70,8 +70,9 @@ async function confirmEnable() {
 }
 
 async function finishSetup() {
-  clearNuxtData()
-  await navigateTo("/profile", { replace: true })
+  const { refreshStatus } = use2fa()
+  const newStatus = await refreshStatus()
+  await followRedirect(newStatus)
 }
 
 async function copySecret() {
