@@ -12,9 +12,13 @@ async function ensureTwofaIfRequired(event: Event, user: UserDetail | null): Pro
   if (!enabledGlobally || !user) return
   const path = event.path || ""
   if (path.startsWith("/api/2fa") || path.startsWith("/api/auth") || path.startsWith("/api/legal")) return
-  const record = await prisma.user.findUnique({ where: { id: user.id }, select: { twoFactorEnabled: true } })
 
-  // Wenn 2FA im DB-Record fehlt -> SETUP nötig
+  const record = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { twoFactorEnabled: true },
+  })
+
+  // If 2FA is missing in the database record -> SETUP is required
   if (!record?.twoFactorEnabled) {
     throw createError({ statusCode: 403, statusMessage: "2FA_SETUP_REQUIRED" })
   }
@@ -23,7 +27,7 @@ async function ensureTwofaIfRequired(event: Event, user: UserDetail | null): Pro
   const token = cookies["twofa_verified"]
   const verified = token ? verifyTwofaCookie(token, user.id) : false
 
-  // Wenn 2FA aktiviert aber nicht verifiziert -> CHALLENGE nötig
+  // If 2FA is enabled but not verified in the current session -> CHALLENGE is required
   if (!verified) {
     throw createError({ statusCode: 403, statusMessage: "2FA_CHALLENGE_REQUIRED" })
   }

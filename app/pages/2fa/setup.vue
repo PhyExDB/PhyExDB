@@ -25,7 +25,11 @@ onMounted(async () => {
     qrDataUrl.value = data.qrDataUrl
     secret.value = data.secret
   } catch {
-    toast({ title: "Fehler", description: "Setup fehlgeschlagen.", variant: "destructive" })
+    toast({
+      title: "Fehler",
+      description: "Setup fehlgeschlagen.",
+      variant: "destructive",
+    })
   } finally {
     qrLoading.value = false
     await nextTick(() => inputRef.value?.focus())
@@ -57,7 +61,7 @@ async function confirmEnable() {
     toast({
       title: "Ungültiger Code",
       description: "Bitte versuche es erneut.",
-      variant: "destructive"
+      variant: "destructive",
     })
     await nextTick(() => inputRef.value?.focus())
   } finally {

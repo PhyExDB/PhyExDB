@@ -73,6 +73,6 @@ export const use2fa = () => {
     status,
     loading,
     refreshStatus,
-    isVerified
+    isVerified,
   }
 }

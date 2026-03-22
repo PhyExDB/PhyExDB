@@ -164,7 +164,10 @@ async function resetTwofa() {
 
   twofaLoading.value = true
   try {
-    await $fetch("/api/2fa/disable", { method: "POST", body: { code: twofaCode.value } })
+    await $fetch("/api/2fa/disable", {
+      method: "POST",
+      body: { code: twofaCode.value },
+    })
     twofaStatus.value.enabled = false
     twofaStatus.value.verified = false
     twofaSetup.value = null
@@ -414,7 +417,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
               <Input
                 v-model="twofaCode"
                 class="font-mono text-center text-lg tracking-widest"
-                placeholder="000000"
+                placeholder="000000 oder ABCDE-00000"
                 maxlength="11"
                 @keyup.enter="regenerateRecoveryCodes"
               />

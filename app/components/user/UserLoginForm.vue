@@ -34,6 +34,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       console.error(error)
     }
   } else {
+    // Check if 2FA challenge is required
     try {
       const status = await refreshStatus()
       const target = getTwoFaRedirectTarget(status, useRoute().fullPath)
@@ -44,8 +45,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         const redirect = useRoute().query.redirect?.toString() || "/"
         await navigateTo(redirect)
       }
-    } catch (e) {
-      console.error("[Login Flow Error]:", e)
+    } catch {
       await navigateTo("/")
     }
   }
