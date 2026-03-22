@@ -8,6 +8,7 @@ definePageMeta({
 })
 
 const { toast } = useToast()
+const { refreshStatus } = use2fa()
 const step = ref<"setup" | "codes">("setup")
 const qrLoading = ref(true)
 const qrDataUrl = ref<string | null>(null)
@@ -21,7 +22,7 @@ const codeError = ref(false)
 
 onMounted(async () => {
   try {
-    const data = await $fetch("/api/2fa/setup")
+    const data = await $fetch<{ qrDataUrl: string, secret: string }>("/api/2fa/setup")
     qrDataUrl.value = data.qrDataUrl
     secret.value = data.secret
   } catch {
@@ -32,16 +33,22 @@ onMounted(async () => {
     })
   } finally {
     qrLoading.value = false
-    await nextTick(() => inputRef.value?.focus())
+    nextTick(() => inputRef.value?.focus())
+  }
+})
+
+watch(twofaCode, (val) => {
+  if (val.length === 6 && !enabling.value) {
+    confirmEnable()
   }
 })
 
 function onCodeInput(e: Event) {
-  const digits = (e.target as HTMLInputElement).value.replace(/\D/g, "").slice(0, 6)
+  const el = e.target as HTMLInputElement
+  const digits = el.value.replace(/\D/g, "").slice(0, 6)
   twofaCode.value = digits
-  ;(e.target as HTMLInputElement).value = digits
+  el.value = digits
   codeError.value = false
-  if (digits.length === 6) confirmEnable()
 }
 
 async function confirmEnable() {
@@ -70,15 +77,17 @@ async function confirmEnable() {
 }
 
 async function finishSetup() {
-  const { refreshStatus } = use2fa()
-  const newStatus = await refreshStatus()
-  await followRedirect(newStatus)
+  const status = await refreshStatus()
+  await followRedirect(status)
 }
 
-async function copySecret() {
+const copySecret = async () => {
   if (!secret.value) return
   await navigator.clipboard.writeText(secret.value)
-  toast({ title: "Secret kopiert", variant: "success" })
+  toast({
+    title: "Secret kopiert",
+    variant: "success",
+  })
 }
 </script>
 

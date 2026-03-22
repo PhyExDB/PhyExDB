@@ -11,7 +11,7 @@ export async function followRedirect(status?: TwoFactorStatus | null) {
   if (status) {
     const twoFaTarget = getTwoFaRedirectTarget(status, route.fullPath)
     if (twoFaTarget) {
-      return navigateTo(twoFaTarget);
+      return navigateTo(twoFaTarget)
     }
   }
 
@@ -32,6 +32,6 @@ export async function navigateToWithRedirect(targetPath: string) {
 
   return navigateTo({
     path: targetPath,
-    query: { redirect: route.fullPath }
+    query: { redirect: route.fullPath },
   })
 }

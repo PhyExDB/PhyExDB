@@ -19,8 +19,8 @@ const hint = computed(() => {
   if (hasError.value) return "Ungültiger Code – bitte erneut versuchen."
   if (code.value.length === 0) return null
   return isTotp.value || isRecoveryCode.value
-      ? "Code bereit"
-      : isRecoveryCode.value ? "Wiederherstellungscode erkannt" : `${code.value.length} / 6 Ziffern`
+    ? "Code bereit"
+    : isRecoveryCode.value ? "Wiederherstellungscode erkannt" : `${code.value.length} / 6 Ziffern`
 })
 
 watch(code, (newVal) => {

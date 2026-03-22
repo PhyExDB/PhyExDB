@@ -2,6 +2,7 @@
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
+import type { AuthError } from "#shared/types/Error.type"
 
 const loading = ref(false)
 const lastWrong = ref(false)
@@ -33,7 +34,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   }
 })
 
-function handleAuthError(error: any) {
+function handleAuthError(error: AuthError) {
   if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
     lastWrong.value = true
     form.validate()

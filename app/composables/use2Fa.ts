@@ -60,7 +60,7 @@ export const use2fa = () => {
       })
       status.value = data
       return data
-    } catch (e) {
+    } catch {
       status.value = null
       return null
     }
@@ -83,6 +83,6 @@ export const use2fa = () => {
     status,
     refreshStatus,
     setVerified,
-    logout
+    logout,
   }
 }
