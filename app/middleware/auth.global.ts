@@ -18,10 +18,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
     })
 
     statusState.value = status
+
     const target = getTwoFaRedirectTarget(status, to.fullPath)
     if (target) return navigateTo(target)
   } catch {
     statusState.value = null
-    return navigateTo("/login")
   }
 })

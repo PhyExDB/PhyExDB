@@ -1,5 +1,6 @@
 /**
  * Determines the navigation target based on the 2FA status.
+ * Only redirects authenticated users — guests can browse freely.
  * @param status The current TwoFactorStatus
  * @param currentPath The current path (to prevent infinite loops)
  * @returns The target path string or null if no action is required
@@ -8,8 +9,9 @@ export function getTwoFaRedirectTarget(
   status: TwoFactorStatus,
   currentPath: string = "",
 ): string | null {
+  // Unauthenticated users are allowed to browse — no forced login
   if (!status.authenticated) {
-    return "/login"
+    return null
   }
 
   if (!status.enabled) {
