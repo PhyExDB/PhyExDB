@@ -6,10 +6,12 @@ import TwoFactorSetup from "~/pages/2fa/TwoFactorSetup.vue"
 import TwoFactorRecoveryDisplay from "~/pages/2fa/TwoFactorRecoveryDisplay.vue"
 
 definePageMeta({
-  title: "Profile",
-  description: "Change your information",
+  title: "Profil",
+  description: "Verwalte deine Kontoinformationen",
 })
 const user = await useUserOrThrowError()
+const { toast } = useToast()
+const { status: twofaStatus, setup, enable, disable, regenerateRecoveries, refreshStatus } = use2fa()
 
 const { data: ownExperiments } = await useLazyFetch("/api/experiments/mine", {
   query: {
@@ -17,16 +19,22 @@ const { data: ownExperiments } = await useLazyFetch("/api/experiments/mine", {
   },
 })
 const { data: experimentsToReview } = await useFetch("/api/experiments/in-review?pageSize=0")
-
-const emailVerifiedPopoverOpen = ref(false)
-
-const verifiedValue = user.value?.emailVerified
-  ? "verifiziert"
-  : "nicht verifiziert"
-
 const canReviewExperiments = await allows(experimentAbilities.review)
 
-const { toast } = useToast()
+const emailVerifiedPopoverOpen = ref(false)
+const twofaLoading = ref(false)
+const qrLoading = ref(false)
+const twofaSetupData = ref<{ secret: string, qrDataUrl: string } | null>(null)
+const qrDataUrl = ref<string | null>(null)
+const twofaCode = ref("")
+const twofaRecoveryCodes = ref<string[] | null>(null)
+
+if (!twofaStatus.value) {
+  await refreshStatus()
+}
+
+const verifiedValue = computed(() => user.value?.emailVerified ? "verifiziert" : "nicht verifiziert")
+const getExperimentText = (count: number) => count === 1 ? "1 Experiment" : `${count} Experimente`
 
 async function sendVerificationEmail() {
   await useAuth().client.sendVerificationEmail({
@@ -41,71 +49,23 @@ async function sendVerificationEmail() {
   emailVerifiedPopoverOpen.value = false
 }
 
-function numberOfExperimentsToReview(): string {
-  const numberOfExperimentsToReview = experimentsToReview?.value?.pagination.total ?? 0
-  return numberOfExperimentsToReview === 1
-    ? "1 Experiment"
-    : `${numberOfExperimentsToReview} Experimente`
-}
-
-function numberOfOwnExperiments(): string {
-  const numberOfOwnExperiments = ownExperiments?.value?.pagination.total ?? 0
-  return numberOfOwnExperiments === 1
-    ? "1 Experiment"
-    : `${numberOfOwnExperiments} Experimente`
-}
-
-const twofaStatus = ref<TwoFactorStatus>({
-  authenticated: true,
-  enabled: false,
-  verified: false,
-})
-const twofaLoading = ref(false)
-const twofaSetup = ref<{ secret: string, otpauthUrl: string, issuer: string } | null>(null)
-const twofaCode = ref("")
-const twofaRecoveryCodes = ref<string[] | null>(null)
-const qrDataUrl = ref<string | null>(null)
-const qrLoading = ref(false)
-
-const { data: twofaStatusData } = await useFetch<TwoFactorStatus>("/api/2fa/status")
-if (twofaStatusData?.value) {
-  twofaStatus.value = twofaStatusData.value
-}
-
 async function startTwofaSetup() {
-  twofaLoading.value = true
   qrLoading.value = true
+  twofaLoading.value = true
   twofaRecoveryCodes.value = null
   try {
-    const { data } = await useFetch("/api/2fa/setup")
-    if (data.value) {
-      twofaSetup.value = data.value
-      qrDataUrl.value = data.value.qrDataUrl
-    }
-  } catch (e: unknown) {
-    let message = "Unbekannter Fehler"
-
-    if (typeof e === "object" && e !== null) {
-      const err = e as {
-        message?: string
-        data?: { message?: string }
-      }
-
-      if (err.data?.message) {
-        message = err.data.message
-      } else if (err.message) {
-        message = err.message
-      }
-    }
-    console.error(e)
+    const data = await setup()
+    twofaSetupData.value = data
+    qrDataUrl.value = data.qrDataUrl
+  } catch {
     toast({
-      title: "2FA-Einrichtung fehlgeschlagen",
-      description: `${message} — bitte Migrationen ausführen und Session prüfen.`,
+      title: "Setup fehlgeschlagen",
+      description: "Es ist ein Fehler aufgetreten. Versuche es erneut.",
       variant: "destructive",
     })
   } finally {
-    twofaLoading.value = false
     qrLoading.value = false
+    twofaLoading.value = false
   }
 }
 
@@ -113,46 +73,50 @@ async function confirmTwofaEnable() {
   if (!twofaCode.value) return
   twofaLoading.value = true
   try {
-    const res = await $fetch<{ recoveryCodes: string[] }>("/api/2fa/enable", {
-      method: "POST",
-      body: { code: twofaCode.value },
+    const res = await enable(twofaCode.value)
+    twofaRecoveryCodes.value = res.recoveryCodes || null
+    twofaCode.value = ""
+
+    toast({
+      title: "2FA erfolgreich aktiviert",
+      description: "Dein Konto ist jetzt durch einen zweiten Faktor geschützt. Bitte sichere deine Wiederherstellungscodes.",
+      variant: "success",
     })
-    if (res?.recoveryCodes) {
-      twofaRecoveryCodes.value = res.recoveryCodes
-      toast({ title: "2FA aktiviert", variant: "success" })
-      twofaCode.value = ""
-      twofaStatus.value.enabled = true
-      twofaStatus.value.verified = true
-    }
-  } catch (e: unknown) {
-    toast({ title: "2FA Error", description: getErrorMessage(e), variant: "destructive" })
+  } catch {
+    toast({
+      title: "Aktivierung fehlgeschlagen",
+      description: "Der eingegebene Code ist ungültig oder abgelaufen.",
+      variant: "destructive",
+    })
   } finally {
     twofaLoading.value = false
   }
 }
 
-async function regenerateRecoveryCodes() {
+async function handleRegenerateCodes() {
   if (!twofaCode.value) return
   twofaLoading.value = true
   try {
-    const res = await $fetch("/api/2fa/recoveries", { method: "POST", body: { code: twofaCode.value } })
-    if (res?.recoveryCodes) {
-      twofaRecoveryCodes.value = res.recoveryCodes
-      toast({
-        title: "Wiederherstellungscodes neu erzeugt",
-        description: "Die neuen Codes wurden erfolgreich generiert.",
-        variant: "success",
-      })
-      twofaCode.value = ""
-    }
-  } catch (e: unknown) {
-    toast({ title: "2FA Error", description: getErrorMessage(e), variant: "destructive" })
+    const res = await regenerateRecoveries(twofaCode.value)
+    twofaRecoveryCodes.value = res.recoveryCodes || null
+    twofaCode.value = ""
+    toast({
+      title: "Wiederherstellungscodes neu erzeugt",
+      description: "Die neuen Codes wurden erfolgreich generiert.",
+      variant: "success",
+    })
+  } catch {
+    toast({
+      title: "Fehler beim Generieren",
+      description: "Bitte überprüfe deinen 2FA-Code.",
+      variant: "destructive",
+    })
   } finally {
     twofaLoading.value = false
   }
 }
 
-async function resetTwofa() {
+async function handleResetTwofa() {
   if (!twofaCode.value) {
     toast({
       title: "Fehler",
@@ -164,39 +128,25 @@ async function resetTwofa() {
 
   twofaLoading.value = true
   try {
-    await $fetch("/api/2fa/disable", {
-      method: "POST",
-      body: { code: twofaCode.value },
-    })
-    twofaStatus.value.enabled = false
-    twofaStatus.value.verified = false
-    twofaSetup.value = null
-    twofaRecoveryCodes.value = null
+    await disable(twofaCode.value)
     twofaCode.value = ""
-
+    twofaSetupData.value = null
+    twofaRecoveryCodes.value = null
     toast({
       title: "2FA zurückgesetzt",
       description: "Du kannst nun ein neues Gerät einrichten.",
       variant: "success",
     })
     await startTwofaSetup()
-  } catch (e: unknown) {
-    toast({ title: "2FA Fehler", description: getErrorMessage(e), variant: "destructive" })
+  } catch {
+    toast({
+      title: "Deaktivierung fehlgeschlagen",
+      description: "Der Code konnte nicht verifiziert werden.",
+      variant: "destructive",
+    })
   } finally {
     twofaLoading.value = false
   }
-}
-
-function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
-  if (typeof e !== "object" || e === null) return fallback
-
-  const err = e as { message?: string, statusMessage?: string, data?: { message?: string, statusMessage?: string } }
-
-  return err.data?.statusMessage
-    ?? err.statusMessage
-    ?? err.data?.message
-    ?? err.message
-    ?? fallback
 }
 </script>
 
@@ -231,22 +181,13 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
                 <p class="text-muted-foreground">
                   {{ user.email }}
                 </p>
-                <Popover
-                  :open="emailVerifiedPopoverOpen"
-                  @update:open="emailVerifiedPopoverOpen = $event"
-                >
+                <Popover v-model:open="emailVerifiedPopoverOpen">
                   <PopoverTrigger as-child>
                     <Icon
-                      v-if="user.emailVerified"
+                      :name="user.emailVerified ? 'heroicons:check-badge' : 'heroicons:exclamation-circle'"
+                      :class="user.emailVerified ? 'text-success-foreground' : 'text-destructive'"
                       size="1.2em"
-                      class="text-success-foreground"
-                      name="heroicons:check-badge"
-                    />
-                    <Icon
-                      v-else
-                      size="1.2em"
-                      class="text-destructive"
-                      name="heroicons:exclamation-circle"
+                      class="cursor-pointer"
                     />
                   </PopoverTrigger>
                   <PopoverContent class="w-auto">
@@ -306,10 +247,10 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
           Versuche überprüfen
         </div>
         <p class="text-muted-foreground mt-2">
-          Es gibt {{ numberOfExperimentsToReview() }} zur Überprüfung.
+          Es gibt {{ getExperimentText(experimentsToReview?.pagination?.total ?? 0) }} zur Überprüfung.
         </p>
         <NuxtLink
-          v-if="experimentsToReview?.items?.length"
+          v-if="experimentsToReview?.pagination?.total"
           to="/experiments/review"
         >
           <Button
@@ -329,7 +270,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
           Meine Versuche
         </div>
         <p class="text-muted-foreground mt-2">
-          Du hast {{ numberOfOwnExperiments() }} erstellt.
+          Du hast {{ getExperimentText(ownExperiments?.pagination?.total ?? 0) }} erstellt.
         </p>
         <NuxtLink
           to="/experiments/mine"
@@ -372,7 +313,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
           </p>
 
           <div
-            v-if="!twofaSetup"
+            v-if="!twofaSetupData"
             class="pt-2"
           >
             <Button
@@ -394,7 +335,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
           >
             <TwoFactorSetup
               v-model:code="twofaCode"
-              :setup="twofaSetup"
+              :setup="twofaSetupData"
               :qr-url="qrDataUrl"
               :qr-loading="qrLoading"
               :loading="twofaLoading"
@@ -419,7 +360,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
                 class="font-mono text-center text-lg tracking-widest"
                 placeholder="000000 oder ABCDE-12345"
                 maxlength="11"
-                @keyup.enter="regenerateRecoveryCodes"
+                @keyup.enter="handleRegenerateCodes"
               />
               <p class="text-[10px] text-muted-foreground">
                 Gib einen 2FA- oder Recovery-Code ein, um Änderungen vorzunehmen.
@@ -431,7 +372,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
                 variant="outline"
                 size="sm"
                 :disabled="!twofaCode || twofaLoading"
-                @click="regenerateRecoveryCodes"
+                @click="handleRegenerateCodes"
               >
                 <Icon
                   name="heroicons:arrow-path"
@@ -444,7 +385,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
                 size="sm"
                 class="text-destructive hover:bg-destructive/10"
                 :disabled="!twofaCode || twofaLoading"
-                @click="resetTwofa"
+                @click="handleResetTwofa"
               >
                 <Icon
                   name="heroicons:device-phone-mobile"

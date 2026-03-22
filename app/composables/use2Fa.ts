@@ -1,6 +1,6 @@
 /**
  * Paths that exist only for authentication/2FA purposes and should never be
- * used as a post-auth redirect target. Defined once here and reused everywhere.
+ * used as a post-auth redirect target.
  */
 export const AUTH_ONLY_PATHS = [
   "/login",
@@ -54,35 +54,45 @@ export const use2fa = () => {
   const status = useState<TwoFactorStatus | null>("2fa-status", () => null)
 
   const refreshStatus = async () => {
-    try {
-      const data = await $fetch<TwoFactorStatus>("/api/2fa/status", {
-        params: { t: Date.now() },
-      })
-      status.value = data
-      return data
-    } catch {
-      status.value = null
-      return null
-    }
+    const data = await $fetch<TwoFactorStatus>("/api/2fa/status", {
+      params: { t: Date.now() },
+    })
+    status.value = data
+    return data
   }
 
-  const setVerified = () => {
-    if (status.value) {
-      status.value = { ...status.value, verified: true, authenticated: true }
-    }
+  const performAction = async (endpoint: string, code?: string) => {
+    const res = await $fetch<{ recoveryCodes?: string[] }>(`/api/2fa/${endpoint}`, {
+      method: "POST",
+      body: code ? { code } : undefined,
+    })
+    await refreshStatus()
+    return res
   }
 
   const logout = async () => {
     await $fetch("/api/auth/logout", { method: "POST" })
-    status.value = null
     clearNuxtData()
-    await navigateTo("/login")
+    return navigateTo("/login")
+  }
+
+  const setVerified = () => {
+    if (!status.value) {
+      status.value = { authenticated: true, enabled: false, verified: true }
+    } else {
+      status.value = { ...status.value, verified: true, authenticated: true }
+    }
   }
 
   return {
     status,
     refreshStatus,
-    setVerified,
     logout,
+    setup: () => $fetch<{ qrDataUrl: string, secret: string }>("/api/2fa/setup"),
+    enable: (code: string) => performAction("enable", code),
+    disable: (code: string) => performAction("disable", code),
+    regenerateRecoveries: (code: string) => performAction("recoveries", code),
+    setVerified,
+    isVerified: computed(() => status.value?.verified ?? false),
   }
 }
