@@ -7,61 +7,56 @@ definePageMeta({
 })
 
 const { toast } = useToast()
-const route = useRoute()
 const loading = ref(false)
 const code = ref("")
 const hasError = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
-
-const isRecoveryCode = computed(() =>
-  code.value.length > 0 && !/^\d+$/.test(code.value),
-)
+const isRecoveryCode = computed(() => /^[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(code.value))
+const isTotp = computed(() => /^\d{6}$/.test(code.value))
 
 const hint = computed(() => {
   if (loading.value) return null
   if (hasError.value) return "Ungültiger Code – bitte erneut versuchen."
   if (code.value.length === 0) return null
-  if (!isRecoveryCode.value) return `${code.value.length} / 6 Ziffern`
-  return "Wiederherstellungscode erkannt"
+  return isTotp.value || isRecoveryCode.value
+      ? "Code bereit"
+      : isRecoveryCode.value ? "Wiederherstellungscode erkannt" : `${code.value.length} / 6 Ziffern`
+})
+
+watch(code, (newVal) => {
+  if (loading.value) return
+
+  if (/^\d{6}$/.test(newVal) || /^[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(newVal)) {
+    submit()
+  }
 })
 
 function onInput(e: Event) {
   const el = e.target as HTMLInputElement
   hasError.value = false
-  const raw = el.value.toUpperCase()
+  let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "")
 
-  if (/^\d*$/.test(raw)) {
-    // TOTP: digits only, max 6
+  if (/^\d+$/.test(raw)) {
+    // TOTP Path
     code.value = raw.slice(0, 6)
-    el.value = code.value
-    if (code.value.length === 6) submit()
   } else {
-    // Recovery code: XXXXX-XXXXX — auto-insert dash
-    let clean = raw.replace(/[^A-Z0-9-]/g, "")
-    if (clean.length > 5 && !clean.includes("-")) {
-      clean = clean.slice(0, 5) + "-" + clean.slice(5)
+    // Recovery Path: Format XXXXX-XXXXX
+    if (raw.length > 5) {
+      raw = `${raw.slice(0, 5)}-${raw.slice(5, 10)}`
     }
-    code.value = clean.slice(0, 11)
-    el.value = code.value
-    if (code.value.length === 11) submit()
+    code.value = raw.slice(0, 11)
   }
+
+  el.value = code.value
 }
 
 async function submit() {
   if (loading.value) return
-  const input = code.value.trim().toUpperCase()
-  const validTotp = /^\d{6}$/.test(input)
-  const validRecovery = /^[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(input)
-
-  if (!validTotp && !validRecovery) {
-    hasError.value = true
-    return
-  }
 
   loading.value = true
   try {
-    const body = validTotp ? { code: input } : { recovery: input }
-    const res = await $fetch("/api/2fa/challenge", {
+    const body = isTotp.value ? { code: code.value } : { recovery: code.value }
+    const res = await $fetch<{ verified: boolean }>("/api/2fa/challenge", {
       method: "POST",
       body,
     })
