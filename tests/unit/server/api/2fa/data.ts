@@ -33,23 +33,8 @@ export const userWith2faSetupInProgress = {
 /**
  * Mock 2FA status responses
  */
-export const statusEnabled: TwoFactorStatus = {
-  authenticated: true,
-  enabled: true,
-  verified: false,
-}
-
-export const statusDisabled: TwoFactorStatus = {
-  authenticated: true,
-  enabled: false,
-  verified: false,
-}
-
-export const statusNotLoggedIn: TwoFactorStatus = {
-  authenticated: false,
-  enabled: false,
-  verified: false,
-}
+export const statusEnabled = { enabled: true, required: true }
+export const statusDisabled = { enabled: false, required: false }
 
 /**
  * Mock enable response with recovery codes
