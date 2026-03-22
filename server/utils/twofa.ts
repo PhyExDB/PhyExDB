@@ -1,9 +1,9 @@
 import crypto from "node:crypto"
 import { generateTOTP, verifyTOTP, getTOTPAuthUri } from "@epic-web/totp"
+import type { H3Event } from "h3"
 import { setCookie } from "h3"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
-import { H3Event } from "h3";
 
 const DEFAULT_STEP = Number(process.env.TWOFA_STEP ?? 30)
 const DEFAULT_DIGITS = Number(process.env.TWOFA_DIGITS ?? 6)

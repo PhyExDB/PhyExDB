@@ -9,7 +9,8 @@ definePageMeta({
 
 const user = await useUser()
 if (user.value) {
-  followRedirect()
+  const redirect = sanitizeRedirect(useRoute().query.redirect?.toString())
+  await navigateTo(redirect, { replace: true })
 }
 </script>
 
