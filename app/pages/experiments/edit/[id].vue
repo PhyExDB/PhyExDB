@@ -51,6 +51,20 @@ const latestReview = computed(() => {
   )[0]
 })
 
+const critiquesMap = computed(() => {
+  const map: Record<string, any[]> = {}
+
+  latestReview.value?.sectionsCritiques?.forEach(critique => {
+    const id = critique.sectionContent?.experimentSection?.id
+    if (id) {
+      if (!map[id]) map[id] = []
+      map[id].push(critique)
+    }
+  })
+
+  return map
+})
+
 function isRiskAssessmentSection(sectionName: string | undefined) {
   return sectionName === "Gefährdungsbeurteilung"
 }
@@ -81,7 +95,7 @@ const form = useForm({
         experimentSectionContentId: experimentSection?.id,
         experimentSectionId: section.id,
         files: (experimentSection?.files ?? []).map(file => ({
-          fileId: file.file?.id ?? "",
+          fileId: file.file?.id,
           description: file.description ?? undefined,
         })),
       }
@@ -636,33 +650,22 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(exper
             </template>
           </DraggableList>
           <!-- Critiques für diese Section -->
-          <div
-            v-if="latestReview"
-            class="mt-6"
-          >
-            <div
-              v-if="latestReview.sectionsCritiques.some(c => c.sectionContent?.experimentSection?.id === section.id)"
-              class="space-y-2"
-            >
-              <h3 class="font-semibold text-sm flex items-center gap-2">
-                <Icon
-                  name="heroicons:user-circle"
-                  class="w-4 h-4"
-                />
-                Aktuelles Feedback
-              </h3>
+          <div v-if="critiquesMap[section.id]" class="mt-6 space-y-2">
+            <h3 class="font-semibold text-sm flex items-center gap-2">
+              <Icon name="heroicons:user-circle" class="w-4 h-4" />
+              Aktuelles Feedback
+            </h3>
 
-              <div
-                v-for="critique in latestReview.sectionsCritiques.filter(c => c.sectionContent?.experimentSection?.id === section.id)"
+            <div
+                v-for="critique in critiquesMap[section.id]" :key="critique.id">
                 :key="critique.id"
                 class="border rounded-lg p-4 bg-destructive/5 border-destructive/20 shadow-sm"
-              >
-                <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
-                  Korrekturhinweis
-                </p>
-                <div class="prose prose-sm dark:prose-invert">
-                  <LatexContent :content="critique.critique" />
-                </div>
+            >
+              <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
+                Korrekturhinweis
+              </p>
+              <div class="prose prose-sm dark:prose-invert">
+                <LatexContent :content="critique.critique" />
               </div>
             </div>
           </div>
