@@ -35,8 +35,14 @@ export default abstract class Seed {
    * Runs the seed.
    */
   async afterRun(): Promise<void> {
-    await prisma.seedStatus.create({
-      data: {
+    await prisma.seedStatus.upsert({
+      where: {
+        name: this.name,
+      },
+      update: {
+        performedAt: new Date(),
+      },
+      create: {
         name: this.name,
       },
     })

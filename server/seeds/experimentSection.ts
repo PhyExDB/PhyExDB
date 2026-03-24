@@ -25,12 +25,22 @@ export default class ExperimentSectionSeed extends Seed {
       "Gefährdungsbeurteilung",
     ]
 
-    await prisma.experimentSection.createMany({
-      data: sections.map((section, index) => ({
-        name: section,
-        slug: slugify(section),
-        order: index,
-      })),
-    })
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i]
+      const slug = slugify(section)
+
+      await prisma.experimentSection.upsert({
+        where: { slug: slug },
+        update: {
+          name: section,
+          order: i,
+        },
+        create: {
+          name: section,
+          slug: slug,
+          order: i,
+        },
+      })
+    }
   }
 }

@@ -57,22 +57,48 @@ export default class ExperimentAttributeSeed extends Seed {
       },
     ]
 
-    await Promise.all(attributes.map(async (attribute, index) => {
-      await prisma.experimentAttribute.create({
-        data: {
+    for (let i = 0; i < attributes.length; i++) {
+      const attribute = attributes[i]
+      const attributeSlug = slugify(attribute.name)
+
+      await prisma.experimentAttribute.upsert({
+        where: { slug: attributeSlug },
+        update: {
           name: attribute.name,
-          slug: slugify(attribute.name),
           multipleSelection: attribute.multipleSelection,
-          order: index,
-          values: {
-            create: attribute.values.map((value, valueIndex) => ({
-              value: value,
-              slug: slugify(value),
-              order: valueIndex,
-            })),
-          },
+          order: i,
+        },
+        create: {
+          name: attribute.name,
+          slug: attributeSlug,
+          multipleSelection: attribute.multipleSelection,
+          order: i,
         },
       })
-    }))
+
+      const dbAttribute = await prisma.experimentAttribute.findUniqueOrThrow({
+        where: { slug: attributeSlug },
+      })
+
+      for (let j = 0; j < attribute.values.length; j++) {
+        const value = attribute.values[j]
+        const valueSlug = slugify(value)
+
+        await prisma.experimentAttributeValue.upsert({
+          where: { slug: valueSlug },
+          update: {
+            value: value,
+            order: j,
+            attributeId: dbAttribute.id,
+          },
+          create: {
+            value: value,
+            slug: valueSlug,
+            order: j,
+            attributeId: dbAttribute.id,
+          },
+        })
+      }
+    }
   }
 }

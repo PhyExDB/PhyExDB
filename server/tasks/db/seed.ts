@@ -28,7 +28,7 @@ export default defineTask({
     try {
       for (const seed of seeds) {
         const shouldRun = await seed.shouldRun()
-        if (shouldRun) {
+        if (shouldRun || ["experimentSection", "experimentAttribute"].includes(seed.name)) {
           logger.info(`Running seed: ${seed.name}`)
           await seed.seed()
           await seed.afterRun()
