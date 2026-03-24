@@ -18,7 +18,7 @@ const emit = defineEmits<{
 
 const [parent, items] = useDragAndDrop([...values], {
   group: group,
-  // Watch for changes in the `items` array and emit an event when the order changes
+  // Triggers when the user reorders elements; emits the new state to the parent component
   onSort: () => {
     nextTick(() => emit("update:values", [...items.value]))
   },
