@@ -21,7 +21,7 @@ export default defineVitestConfig({
     environment: "nuxt",
     setupFiles: ["./tests/unit/setup.ts"],
     env: {
-      TWOFA_ENABLED: 'false',
+      TWOFA_ENABLED: "false",
     },
     coverage: {
       reportsDirectory: "./coverage",

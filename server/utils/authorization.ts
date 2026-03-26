@@ -1,10 +1,10 @@
+import { parseCookies, createError } from "h3"
 import prisma from "../lib/prisma"
 import type { Event } from "./utils"
 import { getUser, getUserOrThrowError } from "./auth"
 import type { Ability, UserAbility } from "~~/shared/utils/auth"
 import { evaluateAbility, evaluateUserAbility } from "~~/shared/utils/auth"
 import { verifyTwofaCookie } from "~~/server/utils/twofa"
-import { parseCookies, createError } from "h3"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

@@ -55,7 +55,7 @@ export const use2fa = () => {
     authenticated: false,
     enabled: false,
     verified: false,
-    required: false
+    required: false,
   }))
 
   const refreshStatus = async () => {
