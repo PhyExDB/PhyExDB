@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 const user = (await useUser()).value
 const { data } = await useFetch("/api/notifications/check")
+const { isVerified } = use2fa()
 
 type ActivePopup = "user" | "moderator" | "unread" | null
 const activePopup = ref<ActivePopup>(null)
 
 function determineActivePopup() {
-  if (!data.value || !user) return
+  if (!data.value || !user || !isVerified.value) return
 
   const lastRejectedSeen = Number(localStorage.getItem("last-rejected-seen") || 0)
   const lastModSeen = Number(localStorage.getItem("last-mod-notif-seen") || 0)

@@ -2,6 +2,7 @@
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { useToast } from "@/components/ui/toast/use-toast"
+import type { AuthError } from "#shared/types/Error.type"
 
 const loading = ref(false)
 const lastWrong = ref(false)
@@ -11,43 +12,41 @@ const { toast } = useToast()
 
 const formSchema = toTypedSchema(userLoginSchema)
 const form = useForm({ validationSchema: formSchema })
+const { refreshStatus } = use2fa()
 
 const onSubmit = form.handleSubmit(async (values) => {
   if (loading.value) return
   loading.value = true
 
-  const { error } = await useAuth().client.signIn.email(values)
-  if (error) {
-    if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
-      lastWrong.value = true
-      form.validate()
-    } else if (error.status === 401 || error.message?.toLowerCase().includes("banned")) {
-      lastBanned.value = true
+  try {
+    const { error } = await useAuth().client.signIn.email(values)
+    if (error) {
+      handleAuthError(error)
+      return
+    }
 
-      toast({
-        title: "Account gesperrt",
-        description: "Dein Account wurde gesperrt. Bitte kontaktiere einen Administrator.",
-        variant: "destructive",
-      })
-    } else {
-      console.error(error)
-    }
-  } else {
-    // Check if 2FA challenge is required
-    try {
-      const { data } = await useFetch("/api/2fa/status")
-      if (data.value?.enabled && data.value?.required) {
-        await navigateTo("/2fa/challenge")
-      } else {
-        followRedirect()
-      }
-    } catch (e) {
-      console.error(e)
-      followRedirect()
-    }
+    const status = await refreshStatus()
+    await followRedirect(status)
+  } catch {
+    await navigateTo("/")
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 })
+
+function handleAuthError(error: AuthError) {
+  if (error.code === "INVALID_EMAIL_OR_PASSWORD") {
+    lastWrong.value = true
+    form.validate()
+  } else if (error.status === 401 || error.message?.toLowerCase().includes("banned")) {
+    lastBanned.value = true
+    toast({
+      title: "Account gesperrt",
+      description: "Dein Account wurde gesperrt. Bitte kontaktiere einen Administrator.",
+      variant: "destructive",
+    })
+  }
+}
 </script>
 
 <template>

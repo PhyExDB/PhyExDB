@@ -34,7 +34,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       form.validate()
     }
   } else {
-    await navigateTo("/profile")
+    await navigateTo("/2fa/setup")
   }
   loading.value = false
 })

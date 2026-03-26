@@ -26,9 +26,7 @@ if (!user.value) {
 }
 
 const emailVerified = user.value?.emailVerified
-
 const loading = ref(false)
-
 const experimentId = getId()
 const { data: experiment } = await useFetch<ExperimentDetail>(`/api/experiments/${experimentId}`)
 
@@ -42,11 +40,29 @@ if (experiment.value?.status !== "DRAFT" && experiment.value?.status !== "REJECT
 const { data: sections } = await useFetch("/api/experiments/sections")
 const { data: attributes } = await useFetch("/api/experiments/attributes")
 const { data: availableSigns } = await useFetch<Sign[]>("/api/signs")
+const { data: reviews } = await useFetch(
+  `/api/experiments/review/by-experiment?experimentId=${experimentId}`,
+)
+
 const latestReview = computed(() => {
   if (!reviews.value?.length) return null
   return [...reviews.value].sort((a, b) =>
     new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   )[0]
+})
+
+const critiquesMap = computed(() => {
+  const map: Record<string, SectionCritique[]> = {}
+
+  latestReview.value?.sectionsCritiques?.forEach((critique) => {
+    const id = critique.sectionContent?.experimentSection?.id
+    if (id) {
+      if (!map[id]) map[id] = []
+      map[id].push(critique)
+    }
+  })
+
+  return map
 })
 
 function isRiskAssessmentSection(sectionName: string | undefined) {
@@ -77,20 +93,19 @@ const form = useForm({
       return {
         text: experimentSection?.text ?? "",
         experimentSectionContentId: experimentSection?.id,
-        files: experimentSection?.files.map(file => ({
-          fileId: file.file.id,
+        experimentSectionId: section.id,
+        files: (experimentSection?.files ?? []).map(file => ({
+          fileId: file.file?.id,
           description: file.description ?? undefined,
-        })) ?? [],
+        })),
       }
     }) ?? [],
-    signs: experiment.value?.signs.map(s => ({ id: s.id })) ?? [],
+    signs: (experiment.value?.signs ?? []).map(s => ({ id: s.id })),
   },
 })
 
 let formValuesClone = JSON.stringify(form.values)
-const formChanged = toRef(() => {
-  return formValuesClone !== JSON.stringify(form.values)
-})
+const formChanged = computed(() => formValuesClone !== JSON.stringify(form.values))
 
 let interval: string | number | NodeJS.Timeout | null | undefined = null
 
@@ -158,10 +173,6 @@ async function uploadPreviewImage(newFiles: [File]) {
     deleteFiles([oldFileId])
   }
 }
-
-const { data: reviews } = await useFetch(
-  `/api/experiments/review/by-experiment?experimentId=${experimentId}`,
-)
 
 async function uploadSectionFile(sectionIndex: number, newFiles: File[]) {
   const sectionName = sections.value?.[sectionIndex]?.name
@@ -255,22 +266,26 @@ async function saveForm(values: typeof form.values) {
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
-  if (!user.value) return
-  if (!emailVerified) return
-  if (loading.value) return
+  if (!user.value || !emailVerified || loading.value) return
   loading.value = true
 
-  const response = await saveForm(values)
-  experiment.value = response
-  formValuesClone = JSON.stringify(form.values)
-
-  loading.value = false
-
-  toast({
-    title: "Versuch gespeichert",
-    description: "Der Versuch wurde erfolgreich gespeichert.",
-    variant: "success",
-  })
+  try {
+    experiment.value = await saveForm(values)
+    formValuesClone = JSON.stringify(form.values)
+    toast({
+      title: "Versuch gespeichert",
+      description: "Der Versuch wurde erfolgreich gespeichert.",
+      variant: "success",
+    })
+  } catch {
+    toast({
+      title: "Fehler beim Speichern",
+      description: "Der Versuch konnte nicht gespeichert werden.",
+      variant: "error",
+    })
+  } finally {
+    loading.value = false
+  }
 })
 
 async function submitForReview() {
@@ -320,8 +335,17 @@ const sectionImageStartIndices = computed(() => {
 })
 
 function getImageTitle(sectionIndex: number, fileIndex: number) {
+  if (!sectionImageStartIndices.value || sectionImageStartIndices.value.length <= sectionIndex) {
+    return `Abb. ?`
+  }
   const globalIndex = (sectionImageStartIndices.value[sectionIndex] ?? 0) + fileIndex
   return `Abb. ${globalIndex + 1}`
+}
+
+function getFilesForSection(sectionId: string) {
+  if (!experiment.value?.sections) return []
+  const sectionContent = experiment.value.sections.find(s => s.experimentSection.id === sectionId)
+  return sectionContent?.files ?? []
 }
 
 const { openReports, dismissReport, startRevision } = useExperimentReports(experiment)
@@ -500,7 +524,7 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(exper
         </FormField>
 
         <template
-          v-for="section in sections"
+          v-for="(section, index) in sections"
           :key="section.id"
         >
           <h2 class="text-3xl font-semibold mt-2">
@@ -516,13 +540,13 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(exper
           <FormField
             v-if="!isRiskAssessmentSection(section.name)"
             v-slot="{ componentField }"
-            :name="`sections[${section.order}].text`"
+            :name="`sections[${index}].text`"
           >
             <FormItem>
               <FormLabel>Beschreibung</FormLabel>
               <FormControl>
                 <TipTapEditor
-                  :id="`sections[${section.order}].text`"
+                  :id="`sections[${index}].text`"
                   v-bind="componentField"
                   :show-headings="false"
                   @click.prevent
@@ -540,13 +564,13 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(exper
               : 'Ziehe Dateien hierher oder klicke, um Dateien hochzuladen.'"
             icon="heroicons:cloud-arrow-up"
             :accept="isRiskAssessmentSection(section.name) ? ['application/pdf'] : sectionFileAccepts"
-            @dropped="event => uploadSectionFile(section.order, event)"
+            @dropped="event => uploadSectionFile(index, event)"
           />
           <DraggableList
-            :values="experiment?.sections[section.order]?.files ?? []"
-            @update:values="newFileOrder => updateFiles(section.order, newFileOrder)"
+            :values="getFilesForSection(section.id)"
+            @update:values="newFileOrder => updateFiles(index, newFileOrder)"
           >
-            <template #item="{ item, index }">
+            <template #item="{ item, index: fileIndex }">
               <Card
                 class="flex items-center"
               >
@@ -566,7 +590,7 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(exper
                 <div class="flex flex-col flex-1 md:flex-row items-center">
                   <FormField
                     v-slot="{ componentField, value }"
-                    :name="`sections[${section.order}].files[${index}].description`"
+                    :name="`sections[${index}].files[${fileIndex}].description`"
                   >
                     <FormItem class="flex-1 p-4 w-full">
                       <FormLabel class="flex justify-between items-end">
@@ -575,7 +599,7 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(exper
                             v-if="item.file.mimeType.startsWith('image')"
                             class="font-semibold"
                           >
-                            {{ getImageTitle(section.order, index) }}
+                            {{ getImageTitle(index, fileIndex) }}
                           </div>
                           <NuxtLink
                             :to="item.file.path"
@@ -613,7 +637,7 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(exper
 
                     <Button
                       variant="ghost"
-                      @click="removeFile(section.order, item.file.id)"
+                      @click="removeFile(index, item.file.id)"
                     >
                       <Icon
                         name="heroicons:trash"
@@ -627,32 +651,29 @@ const { openReports, dismissReport, startRevision } = useExperimentReports(exper
           </DraggableList>
           <!-- Critiques für diese Section -->
           <div
-            v-if="latestReview"
-            class="mt-6"
+            v-if="critiquesMap[section.id]"
+            class="mt-6 space-y-2"
           >
-            <div
-              v-if="latestReview.sectionsCritiques.some(c => c.sectionContent.experimentSection.id === section.id)"
-              class="space-y-2"
-            >
-              <h3 class="font-semibold text-sm flex items-center gap-2">
-                <Icon
-                  name="heroicons:user-circle"
-                  class="w-4 h-4"
-                />
-                Aktuelles Feedback
-              </h3>
+            <h3 class="font-semibold text-sm flex items-center gap-2">
+              <Icon
+                name="heroicons:user-circle"
+                class="w-4 h-4"
+              />
+              Aktuelles Feedback
+            </h3>
 
-              <div
-                v-for="critique in latestReview.sectionsCritiques.filter(c => c.sectionContent.experimentSection.id === section.id)"
-                :key="critique.id"
-                class="border rounded-lg p-4 bg-destructive/5 border-destructive/20 shadow-sm"
+            <div
+              v-for="critique in critiquesMap[section.id]"
+              :key="critique.id"
+            >
+              :key="critique.id"
+              class="border rounded-lg p-4 bg-destructive/5 border-destructive/20 shadow-sm"
               >
-                <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
-                  Korrekturhinweis
-                </p>
-                <div class="prose prose-sm dark:prose-invert">
-                  <LatexContent :content="critique.critique" />
-                </div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-destructive mb-2">
+                Korrekturhinweis
+              </p>
+              <div class="prose prose-sm dark:prose-invert">
+                <LatexContent :content="critique.critique" />
               </div>
             </div>
           </div>

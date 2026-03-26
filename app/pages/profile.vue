@@ -2,12 +2,16 @@
 import UserDeleteAccountDialog from "~/components/user/UserDeleteAccountDialog.vue"
 import getInitials from "~~/shared/utils/initials"
 import { useToast } from "@/components/ui/toast/use-toast"
+import TwoFactorSetup from "~/pages/2fa/TwoFactorSetup.vue"
+import TwoFactorRecoveryDisplay from "~/pages/2fa/TwoFactorRecoveryDisplay.vue"
 
 definePageMeta({
-  title: "Profile",
-  description: "Change your information",
+  title: "Profil",
+  description: "Verwalte deine Kontoinformationen",
 })
 const user = await useUserOrThrowError()
+const { toast } = useToast()
+const { status: twofaStatus, setup, enable, disable, regenerateRecoveries, refreshStatus } = use2fa()
 
 const { data: ownExperiments } = await useLazyFetch("/api/experiments/mine", {
   query: {
@@ -15,16 +19,22 @@ const { data: ownExperiments } = await useLazyFetch("/api/experiments/mine", {
   },
 })
 const { data: experimentsToReview } = await useFetch("/api/experiments/in-review?pageSize=0")
-
-const emailVerifiedPopoverOpen = ref(false)
-
-const verifiedValue = user.value?.emailVerified
-  ? "verifiziert"
-  : "nicht verifiziert"
-
 const canReviewExperiments = await allows(experimentAbilities.review)
 
-const { toast } = useToast()
+const emailVerifiedPopoverOpen = ref(false)
+const twofaLoading = ref(false)
+const qrLoading = ref(false)
+const twofaSetupData = ref<{ secret: string, qrDataUrl: string } | null>(null)
+const qrDataUrl = ref<string | null>(null)
+const twofaCode = ref("")
+const twofaRecoveryCodes = ref<string[] | null>(null)
+
+if (!twofaStatus.value) {
+  await refreshStatus()
+}
+
+const verifiedValue = computed(() => user.value?.emailVerified ? "verifiziert" : "nicht verifiziert")
+const getExperimentText = (count: number) => count === 1 ? "1 Experiment" : `${count} Experimente`
 
 async function sendVerificationEmail() {
   await useAuth().client.sendVerificationEmail({
@@ -39,68 +49,23 @@ async function sendVerificationEmail() {
   emailVerifiedPopoverOpen.value = false
 }
 
-function numberOfExperimentsToReview(): string {
-  const numberOfExperimentsToReview = experimentsToReview?.value?.pagination.total ?? 0
-  return numberOfExperimentsToReview === 1
-    ? "1 Experiment"
-    : `${numberOfExperimentsToReview} Experimente`
-}
-
-function numberOfOwnExperiments(): string {
-  const numberOfOwnExperiments = ownExperiments?.value?.pagination.total ?? 0
-  return numberOfOwnExperiments === 1
-    ? "1 Experiment"
-    : `${numberOfOwnExperiments} Experimente`
-}
-
-const twofaStatus = ref<{ enabled: boolean }>({ enabled: false })
-const twofaLoading = ref(false)
-const twofaSetup = ref<{ secret: string, otpauthUrl: string, issuer: string } | null>(null)
-const twofaCode = ref("")
-const twofaRecoveryCodes = ref<string[] | null>(null)
-const twofaDisableCode = ref("")
-const qrDataUrl = ref<string | null>(null)
-const qrLoading = ref(false)
-
-const { data: twofaStatusData } = await useFetch("/api/2fa/status")
-if (twofaStatusData?.value) {
-  twofaStatus.value = twofaStatusData.value
-}
-
 async function startTwofaSetup() {
-  twofaLoading.value = true
   qrLoading.value = true
+  twofaLoading.value = true
   twofaRecoveryCodes.value = null
   try {
-    const { data } = await useFetch("/api/2fa/setup")
-    if (data.value) {
-      twofaSetup.value = data.value
-      qrDataUrl.value = data.value.qrDataUrl
-    }
-  } catch (e: unknown) {
-    let message = "Unbekannter Fehler"
-
-    if (typeof e === "object" && e !== null) {
-      const err = e as {
-        message?: string
-        data?: { message?: string }
-      }
-
-      if (err.data?.message) {
-        message = err.data.message
-      } else if (err.message) {
-        message = err.message
-      }
-    }
-    console.error(e)
+    const data = await setup()
+    twofaSetupData.value = data
+    qrDataUrl.value = data.qrDataUrl
+  } catch {
     toast({
-      title: "2FA-Einrichtung fehlgeschlagen",
-      description: `${message} — bitte Migrationen ausführen und Session prüfen.`,
+      title: "Setup fehlgeschlagen",
+      description: "Es ist ein Fehler aufgetreten. Versuche es erneut.",
       variant: "destructive",
     })
   } finally {
-    twofaLoading.value = false
     qrLoading.value = false
+    twofaLoading.value = false
   }
 }
 
@@ -108,50 +73,54 @@ async function confirmTwofaEnable() {
   if (!twofaCode.value) return
   twofaLoading.value = true
   try {
-    const res = await $fetch("/api/2fa/enable", { method: "POST", body: { code: twofaCode.value } })
-    if (res?.recoveryCodes) {
-      twofaRecoveryCodes.value = res.recoveryCodes
-      toast({
-        title: "2FA aktiviert",
-        description: "Die Zwei-Faktor-Authentifizierung wurde erfolgreich aktiviert.",
-        variant: "success",
-      })
-      twofaCode.value = ""
-      twofaStatus.value.enabled = true
-    }
-  } catch (e: unknown) {
-    toast({ title: "2FA Error", description: getErrorMessage(e), variant: "destructive" })
+    const res = await enable(twofaCode.value)
+    twofaRecoveryCodes.value = res.recoveryCodes || null
+    twofaCode.value = ""
+
+    toast({
+      title: "2FA erfolgreich aktiviert",
+      description: "Dein Konto ist jetzt durch einen zweiten Faktor geschützt. Bitte sichere deine Wiederherstellungscodes.",
+      variant: "success",
+    })
+  } catch {
+    toast({
+      title: "Aktivierung fehlgeschlagen",
+      description: "Der eingegebene Code ist ungültig oder abgelaufen.",
+      variant: "destructive",
+    })
   } finally {
     twofaLoading.value = false
   }
 }
 
-async function regenerateRecoveryCodes() {
+async function handleRegenerateCodes() {
   if (!twofaCode.value) return
   twofaLoading.value = true
   try {
-    const res = await $fetch("/api/2fa/recoveries", { method: "POST", body: { code: twofaCode.value } })
-    if (res?.recoveryCodes) {
-      twofaRecoveryCodes.value = res.recoveryCodes
-      toast({
-        title: "Wiederherstellungscodes neu erzeugt",
-        description: "Die neuen Codes wurden erfolgreich generiert.",
-        variant: "success",
-      })
-      twofaCode.value = ""
-    }
-  } catch (e: unknown) {
-    toast({ title: "2FA Error", description: getErrorMessage(e), variant: "destructive" })
+    const res = await regenerateRecoveries(twofaCode.value)
+    twofaRecoveryCodes.value = res.recoveryCodes || null
+    twofaCode.value = ""
+    toast({
+      title: "Wiederherstellungscodes neu erzeugt",
+      description: "Die neuen Codes wurden erfolgreich generiert.",
+      variant: "success",
+    })
+  } catch {
+    toast({
+      title: "Fehler beim Generieren",
+      description: "Bitte überprüfe deinen 2FA-Code.",
+      variant: "destructive",
+    })
   } finally {
     twofaLoading.value = false
   }
 }
 
-async function disableTwofa() {
-  if (!twofaDisableCode.value) {
+async function handleResetTwofa() {
+  if (!twofaCode.value) {
     toast({
       title: "Fehler",
-      description: "Bitte gib den 2FA-Code ein",
+      description: "Bitte gib einen 2FA-Code oder Recovery-Code ein.",
       variant: "destructive",
     })
     return
@@ -159,62 +128,25 @@ async function disableTwofa() {
 
   twofaLoading.value = true
   try {
-    await $fetch("/api/2fa/disable", {
-      method: "POST",
-      body: { code: twofaDisableCode.value },
-    })
-    twofaStatus.value.enabled = false
-    twofaSetup.value = null
-    twofaRecoveryCodes.value = null
+    await disable(twofaCode.value)
     twofaCode.value = ""
-    twofaDisableCode.value = ""
-
+    twofaSetupData.value = null
+    twofaRecoveryCodes.value = null
     toast({
-      title: "2FA deaktiviert",
-      description: "Die Zwei-Faktor-Authentifizierung wurde erfolgreich deaktiviert.",
+      title: "2FA zurückgesetzt",
+      description: "Du kannst nun ein neues Gerät einrichten.",
       variant: "success",
     })
-  } catch (e: unknown) {
-    toast({ title: "2FA Fehler", description: getErrorMessage(e), variant: "destructive" })
+    await startTwofaSetup()
+  } catch {
+    toast({
+      title: "Deaktivierung fehlgeschlagen",
+      description: "Der Code konnte nicht verifiziert werden.",
+      variant: "destructive",
+    })
   } finally {
     twofaLoading.value = false
   }
-}
-
-function copyRecoveryCodes() {
-  if (twofaRecoveryCodes.value && twofaRecoveryCodes.value.length > 0) {
-    navigator.clipboard.writeText(twofaRecoveryCodes.value.join("\n"))
-  } else {
-    toast({
-      title: "Keine Wiederherstellungscodes",
-      description: "Es sind keine Wiederherstellungscodes verfügbar.",
-      variant: "destructive",
-    })
-  }
-}
-
-function downloadRecoveryCodes() {
-  if (!twofaRecoveryCodes.value || twofaRecoveryCodes.value.length === 0) return
-
-  const blob = new Blob([twofaRecoveryCodes.value.join("\n")], { type: "text/plain" })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = "2fa-recovery-codes-" + process.env.APP_IMAGE + ".txt"
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
-  if (typeof e !== "object" || e === null) return fallback
-
-  const err = e as { message?: string, statusMessage?: string, data?: { message?: string, statusMessage?: string } }
-
-  return err.data?.statusMessage
-    ?? err.statusMessage
-    ?? err.data?.message
-    ?? err.message
-    ?? fallback
 }
 </script>
 
@@ -249,22 +181,13 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
                 <p class="text-muted-foreground">
                   {{ user.email }}
                 </p>
-                <Popover
-                  :open="emailVerifiedPopoverOpen"
-                  @update:open="emailVerifiedPopoverOpen = $event"
-                >
+                <Popover v-model:open="emailVerifiedPopoverOpen">
                   <PopoverTrigger as-child>
                     <Icon
-                      v-if="user.emailVerified"
+                      :name="user.emailVerified ? 'heroicons:check-badge' : 'heroicons:exclamation-circle'"
+                      :class="user.emailVerified ? 'text-success-foreground' : 'text-destructive'"
                       size="1.2em"
-                      class="text-success-foreground"
-                      name="heroicons:check-badge"
-                    />
-                    <Icon
-                      v-else
-                      size="1.2em"
-                      class="text-destructive"
-                      name="heroicons:exclamation-circle"
+                      class="cursor-pointer"
                     />
                   </PopoverTrigger>
                   <PopoverContent class="w-auto">
@@ -324,10 +247,10 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
           Versuche überprüfen
         </div>
         <p class="text-muted-foreground mt-2">
-          Es gibt {{ numberOfExperimentsToReview() }} zur Überprüfung.
+          Es gibt {{ getExperimentText(experimentsToReview?.pagination?.total ?? 0) }} zur Überprüfung.
         </p>
         <NuxtLink
-          v-if="experimentsToReview?.items?.length"
+          v-if="experimentsToReview?.pagination?.total"
           to="/experiments/review"
         >
           <Button
@@ -347,7 +270,7 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
           Meine Versuche
         </div>
         <p class="text-muted-foreground mt-2">
-          Du hast {{ numberOfOwnExperiments() }} erstellt.
+          Du hast {{ getExperimentText(ownExperiments?.pagination?.total ?? 0) }} erstellt.
         </p>
         <NuxtLink
           to="/experiments/mine"
@@ -363,200 +286,120 @@ function getErrorMessage(e: unknown, fallback = "Ungültiger Code"): string {
     </Card>
 
     <Card class="mt-4">
-      <CardContent class="p-6 space-y-4">
-        <div class="flex items-center space-x-2 text-xl">
-          <span>🔒</span>
-          <span>Zwei-Faktor-Authentifizierung</span>
-          <span
-            v-if="twofaStatus.enabled"
-            class="text-green-600 text-xl"
-          >aktiviert</span>
-          <span
-            v-else
-            class="text-red-600 text-xl"
-          >deaktiviert</span>
+      <CardContent class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-xl flex items-center gap-2">
+            <Icon
+              :name="twofaStatus.enabled ? 'heroicons:shield-check' : 'heroicons:shield-exclamation'"
+              :class="twofaStatus.enabled ? 'text-success-foreground' : 'text-destructive'"
+              size="1.2em"
+            />
+            Zwei-Faktor-Authentifizierung
+          </div>
+          <Badge
+            :variant="twofaStatus.enabled ? 'outline' : 'destructive'"
+            class="pointer-events-none select-none"
+          >
+            {{ twofaStatus.enabled ? 'Aktiviert' : 'Deaktiviert' }}
+          </Badge>
         </div>
 
-        <!-- 2FA Disabled -->
         <div
           v-if="!twofaStatus.enabled"
           class="space-y-4"
         >
-          <div class="text-sm">
-            2FA ist aktuell deaktiviert.
-          </div>
-          <Button
-            :loading="twofaLoading"
-            @click="startTwofaSetup"
-          >
-            Einrichtung starten
-          </Button>
+          <p class="text-muted-foreground mt-2 text-sm">
+            2FA ist für dein Konto verpflichtend. Bitte richte sie jetzt ein, um fortzufahren.
+          </p>
+
           <div
-            v-if="twofaSetup"
-            class="space-y-3"
+            v-if="!twofaSetupData"
+            class="pt-2"
           >
-            <div class="text-sm">
-              Scanne diesen QR-Code mit deiner Authenticator-App oder verwende das Secret.
-            </div>
-            <div class="flex items-center space-x-4">
-              <div
-                v-if="qrLoading"
-                class="animate-spin w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full"
+            <Button
+              :loading="twofaLoading"
+              variant="outline"
+              @click="startTwofaSetup"
+            >
+              <Icon
+                name="heroicons:plus-circle"
+                class="mr-2 h-4 w-4"
               />
-              <img
-                v-else-if="qrDataUrl"
-                :src="qrDataUrl"
-                alt="QR"
-                class="border rounded"
-              >
-            </div>
-
-            <div class="flex flex-col mt-2 text-xs">
-              <div>
-                <strong>Secret:</strong> {{ twofaSetup.secret }}
-              </div>
-            </div>
-            <div class="grid gap-2 max-w-xs">
-              <label class="text-sm font-medium">6-stelliger Code</label>
-              <div class="flex space-x-2">
-                <Input
-                  v-model="twofaCode"
-                  class="h-10"
-                  placeholder="123456"
-                  inputmode="numeric"
-                  maxlength="6"
-                  @keyup.enter="confirmTwofaEnable"
-                />
-                <Button
-                  class="h-10"
-                  :loading="twofaLoading"
-                  @click="confirmTwofaEnable"
-                >
-                  Bestätigen
-                </Button>
-              </div>
-            </div>
+              Einrichtung starten
+            </Button>
           </div>
 
-          <!-- Recovery Codes for newly enabled 2FA -->
           <div
-            v-if="twofaRecoveryCodes"
-            class="space-y-2"
+            v-else
+            class="mt-6 border-t pt-6"
           >
-            <div class="text-sm font-medium">
-              Wiederherstellungscodes
-            </div>
-            <div class="text-xs text-yellow-600">
-              Diese Codes werden nur einmal angezeigt. Bitte sicher speichern.
-            </div>
-            <ul class="text-sm grid grid-cols-2 gap-2">
-              <li
-                v-for="c in twofaRecoveryCodes"
-                :key="c"
-                class="font-mono p-2 border rounded"
-              >
-                {{ c }}
-              </li>
-            </ul>
-            <div class="flex space-x-2 mt-1">
-              <Button
-                size="sm"
-                variant="outline"
-                @click="copyRecoveryCodes"
-              >
-                Kopieren
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                @click="downloadRecoveryCodes"
-              >
-                Als .txt speichern
-              </Button>
-            </div>
+            <TwoFactorSetup
+              v-model:code="twofaCode"
+              :setup="twofaSetupData"
+              :qr-url="qrDataUrl"
+              :qr-loading="qrLoading"
+              :loading="twofaLoading"
+              @confirm="confirmTwofaEnable"
+            />
           </div>
         </div>
 
-        <!-- 2FA Enabled -->
         <div
           v-else
-          class="space-y-4"
+          class="space-y-6"
         >
-          <div class="grid gap-2 max-w-xs">
-            <label class="text-sm font-medium">Wiederherstellungscodes neu erzeugen</label>
-            <div class="flex space-x-2">
+          <p class="text-muted-foreground mt-2 text-sm italic">
+            Dein Konto ist durch eine zusätzliche Sicherheitsebene geschützt.
+          </p>
+
+          <div class="grid gap-4 max-w-sm mt-4">
+            <div class="space-y-2">
+              <Label class="text-sm font-medium">Sicherheits-Bestätigung</Label>
               <Input
                 v-model="twofaCode"
-                class="h-10"
-                placeholder="2FA-Code"
-                inputmode="text"
+                class="font-mono text-center text-lg tracking-widest"
+                placeholder="000000 oder ABCDE-12345"
                 maxlength="11"
-                @keyup.enter="regenerateRecoveryCodes"
+                @keyup.enter="handleRegenerateCodes"
               />
+              <p class="text-[10px] text-muted-foreground">
+                Gib einen 2FA- oder Recovery-Code ein, um Änderungen vorzunehmen.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
               <Button
-                class="h-10"
                 variant="outline"
-                :loading="twofaLoading"
-                @click="regenerateRecoveryCodes"
+                size="sm"
+                :disabled="!twofaCode || twofaLoading"
+                @click="handleRegenerateCodes"
               >
-                Bestätigen
+                <Icon
+                  name="heroicons:arrow-path"
+                  class="mr-2 h-4 w-4"
+                />
+                Codes neu erzeugen
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                class="text-destructive hover:bg-destructive/10"
+                :disabled="!twofaCode || twofaLoading"
+                @click="handleResetTwofa"
+              >
+                <Icon
+                  name="heroicons:device-phone-mobile"
+                  class="mr-2 h-4 w-4"
+                />
+                Gerät wechseln
               </Button>
             </div>
           </div>
-          <div
+
+          <TwoFactorRecoveryDisplay
             v-if="twofaRecoveryCodes"
-            class="space-y-2"
-          >
-            <div class="text-sm font-medium">
-              Neue Wiederherstellungscodes
-            </div>
-            <ul class="text-sm grid grid-cols-2 gap-2">
-              <li
-                v-for="c in twofaRecoveryCodes"
-                :key="c"
-                class="font-mono p-2 border rounded"
-              >
-                {{ c }}
-              </li>
-            </ul>
-            <div class="flex space-x-2 mt-1">
-              <Button
-                size="sm"
-                variant="outline"
-                @click="copyRecoveryCodes"
-              >
-                Kopieren
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                @click="downloadRecoveryCodes"
-              >
-                Als .txt speichern
-              </Button>
-            </div>
-          </div>
-          <div class="grid gap-2 max-w-xs">
-            <label class="text-sm font-medium">2FA deaktivieren</label>
-            <div class="flex space-x-2">
-              <Input
-                v-model="twofaDisableCode"
-                class="h-10"
-                placeholder="2FA-Code"
-                inputmode="text"
-                maxlength="11"
-                @keyup.enter="disableTwofa"
-              />
-              <Button
-                class="h-10"
-                variant="destructive"
-                :loading="twofaLoading"
-                @click="disableTwofa"
-              >
-                Deaktivieren
-              </Button>
-            </div>
-          </div>
+            :codes="twofaRecoveryCodes"
+          />
         </div>
       </CardContent>
     </Card>
