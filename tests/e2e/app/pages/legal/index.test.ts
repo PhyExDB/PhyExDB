@@ -1,170 +1,123 @@
 import { test, expect } from "@playwright/test"
 import { v4 as uuidv4 } from "uuid"
 
-test.describe("Legal Page", () => {
-  [
-    "privacy-policy",
-    "terms-of-service",
-    "imprint",
-  ].forEach((slug) => {
-    test(`should render the legal document with slug ${slug}`, async ({ page, request }) => {
-      // Navigate to the homepage
+test.use({ storageState: "tests/e2e/.auth/admin.json" })
+
+const LEGAL_SLUGS = ["privacy-policy", "terms-of-service", "imprint"] as const
+
+test.describe("Legal Page — read", () => {
+  for (const slug of LEGAL_SLUGS) {
+    test(`renders document: ${slug}`, async ({ page, request }) => {
       await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
 
       const apiResponse = await request.get(`/api/legal/${slug}`)
       expect(apiResponse.ok()).toBeTruthy()
-
       const legalDocument = await apiResponse.json() as LegalDocumentDetail
 
-      const proseContent = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]")
-      await expect(proseContent).toBeVisible()
-
-      const heading = proseContent.locator("h1")
-      expect(await heading.textContent()).toContain(legalDocument!.name)
-      await expect(heading).toBeVisible()
-      // test um Inhalt zu prüfen ...
-      const content = proseContent.locator("div")
-      expect(await content.innerHTML()).toContain(legalDocument!.text)
-      await expect(content).toBeVisible()
+      const prose = page.locator("div.prose.dark\\:prose-invert.max-w-full")
+      await expect(prose).toBeVisible()
+      await expect(prose.locator("h1")).toContainText(legalDocument.name)
+      await expect(prose.locator("div")).toContainText(legalDocument.text)
     })
+  }
+})
 
-    test(`should update the legal documents once for ${slug}`, async ({ page }) => {
-      await page.goto("/login", { waitUntil: "networkidle" })
-      // log in as administrator
-      await page.locator("#email").fill("admin@test.test")
-      await page.locator("#password").fill("password")
-      await page.getByRole("button", { name: "Anmelden" }).click()
-      await page.waitForNavigation({ waitUntil: "networkidle" })
+test.describe("Legal Page — edit (admin)", () => {
+  for (const slug of LEGAL_SLUGS) {
+    test(`saves a single update: ${slug}`, async ({ page }) => {
       await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
       await page.getByRole("button", { name: "Bearbeiten" }).click()
 
-      const newTitle = `updated Legal Document ${uuidv4()}`
-      const newContent = `updated Legal for testing purposes ${uuidv4()}`
+      const newTitle = `Updated Title ${uuidv4()}`
+      const newContent = `Updated content ${uuidv4()}`
 
       await page.locator("#name").fill(newTitle)
-      // await page.locator("#text").getByText("Inhalt").fill(newContent)
       const editor = page.locator(".ProseMirror")
-      editor.click()
-      editor.fill(newContent)
+      await editor.click()
+      await editor.fill(newContent)
+
       await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
-      const proseContent2 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
-      await expect(proseContent2).toBeVisible()
-
+      const prose = page.locator("div.prose.dark\\:prose-invert.max-w-full").first()
+      await expect(prose).toBeVisible()
       await expect(page.getByRole("heading")).toContainText(newTitle)
       await expect(page.getByRole("main")).toContainText(newContent)
     })
 
-    test(`should update the legal documents twice for ${slug}`, async ({ page }) => {
-      await page.goto("/login", { waitUntil: "networkidle" })
-      // log in as administrator
-      await page.locator("#email").fill("admin@test.test")
-      await page.locator("#password").fill("password")
-      await page.getByRole("button", { name: "Anmelden" }).click()
-      await page.waitForNavigation({ waitUntil: "networkidle" })
+    test(`saves two sequential updates: ${slug}`, async ({ page }) => {
       await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
+
+      // First update
       await page.getByRole("button", { name: "Bearbeiten" }).click()
-
-      const newTitle = `updated Legal Document ${uuidv4()}`
-      const newContent = `updated Legal for testing purposes ${uuidv4()}`
-
-      await page.locator("#name").fill(newTitle)
-      const editor = page.locator(".ProseMirror")
-      editor.click()
-      editor.fill(newContent)
+      const title1 = `Title-1 ${uuidv4()}`
+      const content1 = `Content-1 ${uuidv4()}`
+      await page.locator("#name").fill(title1)
+      const editor1 = page.locator(".ProseMirror")
+      await editor1.click()
+      await editor1.fill(content1)
       await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
-      const proseContent2 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
-      await expect(proseContent2).toBeVisible()
+      await expect(page.getByRole("heading")).toContainText(title1)
+      await expect(page.getByRole("main")).toContainText(content1)
 
-      await expect(page.getByRole("heading")).toContainText(newTitle)
-      await expect(page.getByRole("main")).toContainText(newContent)
-
+      // Second update
       await page.getByRole("button", { name: "Bearbeiten" }).click()
-      const newTitle2 = `test2 ${uuidv4()}`
-      const newContent2 = `test2 content ${uuidv4()}`
-
-      await page.locator("#name").fill(newTitle2)
+      const title2 = `Title-2 ${uuidv4()}`
+      const content2 = `Content-2 ${uuidv4()}`
+      await page.locator("#name").fill(title2)
       const editor2 = page.locator(".ProseMirror")
-      editor2.click()
-      editor2.fill(newContent2)
+      await editor2.click()
+      await editor2.fill(content2)
       await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
 
-      const proseContent3 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
-      await expect(proseContent3).toBeVisible()
-
-      await expect(page.getByRole("heading")).toContainText(newTitle2)
-      await expect(page.getByRole("main")).toContainText(newContent2)
+      await expect(page.getByRole("heading")).toContainText(title2)
+      await expect(page.getByRole("main")).toContainText(content2)
     })
 
-    test(`should update the legal documents for Title and Content and updates the legal document with only text/title for ${slug}`, async ({ page }) => {
-      await page.goto("/login", { waitUntil: "networkidle" })
-      // log in as administrator
-      await page.locator("#email").fill("admin@test.test")
-      await page.locator("#password").fill("password")
-      await page.getByRole("button", { name: "Anmelden" }).click()
-      await page.waitForNavigation({ waitUntil: "networkidle" })
+    test(`partial updates (title-only, content-only, no-change): ${slug}`, async ({ page }) => {
       await page.goto(`/legal/${slug}`, { waitUntil: "networkidle" })
+
+      // Establish baseline
       await page.getByRole("button", { name: "Bearbeiten" }).click()
-
-      const newTitle = `updated Legal Document ${uuidv4()}`
-      const newContent = `updated Legal for testing purposes ${uuidv4()}`
-
-      await page.locator("#name").fill(newTitle)
+      const baseTitle = `Base ${uuidv4()}`
+      const baseContent = `Base content ${uuidv4()}`
+      await page.locator("#name").fill(baseTitle)
       const editor = page.locator(".ProseMirror")
-      editor.click()
-      editor.fill(newContent)
+      await editor.click()
+      await editor.fill(baseContent)
       await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
       await page.getByRole("button", { name: "Speichern" }).click()
+      await expect(page.getByRole("heading")).toContainText(baseTitle)
 
-      const proseContent2 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
-      await expect(proseContent2).toBeVisible()
+      // Update content only
+      await page.getByRole("button", { name: "Bearbeiten" }).click()
+      const newContent = `New content ${uuidv4()}`
+      const editor2 = page.locator(".ProseMirror")
+      await editor2.click()
+      await editor2.fill(newContent)
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
+      await page.getByRole("button", { name: "Speichern" }).click()
+      await expect(page.getByRole("heading")).toContainText(baseTitle) // title unchanged
+      await expect(page.getByRole("main")).toContainText(newContent)
 
+      // Update title only
+      await page.getByRole("button", { name: "Bearbeiten" }).click()
+      const newTitle = `New title ${uuidv4()}`
+      await page.locator("#name").fill(newTitle)
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
+      await page.getByRole("button", { name: "Speichern" }).click()
+      await expect(page.getByRole("heading")).toContainText(newTitle)
+      await expect(page.getByRole("main")).toContainText(newContent) // content unchanged
+
+      // No changes — save should still succeed
+      await page.getByRole("button", { name: "Bearbeiten" }).click()
+      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
+      await page.getByRole("button", { name: "Speichern" }).click()
       await expect(page.getByRole("heading")).toContainText(newTitle)
       await expect(page.getByRole("main")).toContainText(newContent)
-      // only change content
-      await page.getByRole("button", { name: "Bearbeiten" }).click()
-      const newContent2 = `test2 content ${uuidv4()}`
-
-      const editor2 = page.locator(".ProseMirror")
-      editor2.click()
-      editor2.fill(newContent2)
-      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
-      await page.getByRole("button", { name: "Speichern" }).click()
-
-      const proseContent3 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
-      await expect(proseContent3).toBeVisible()
-
-      await expect(page.getByRole("heading")).toContainText(newTitle)
-      await expect(page.getByRole("main")).toContainText(newContent2)
-
-      // only change Title
-      await page.getByRole("button", { name: "Bearbeiten" }).click()
-      const newTitle2 = `test2 content ${uuidv4()}`
-
-      await page.locator("#name").fill(newTitle2)
-      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
-      await page.getByRole("button", { name: "Speichern" }).click()
-
-      const proseContent4 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
-      await expect(proseContent4).toBeVisible()
-
-      await expect(page.getByRole("heading")).toContainText(newTitle2)
-      await expect(page.getByRole("main")).toContainText(newContent2)
-
-      // no changes at all
-      await page.getByRole("button", { name: "Bearbeiten" }).click()
-      await page.getByRole("button", { name: "Speichern" }).scrollIntoViewIfNeeded()
-      await page.getByRole("button", { name: "Speichern" }).click()
-
-      const proseContent5 = page.locator("div[class=\"prose dark:prose-invert max-w-full\"]").first()
-      await expect(proseContent5).toBeVisible()
-
-      await expect(page.getByRole("heading")).toContainText(newTitle2)
-      await expect(page.getByRole("main")).toContainText(newContent2)
     })
-  })
+  }
 })

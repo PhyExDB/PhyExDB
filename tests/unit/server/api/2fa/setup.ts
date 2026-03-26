@@ -3,6 +3,7 @@
  * This file contains common mocks and utilities used across all 2FA tests
  */
 import { vi, it, expect } from "vitest"
+import type { Endpoint } from "better-auth"
 import { enableResponse } from "./data"
 import { users } from "~~/tests/helpers/auth"
 

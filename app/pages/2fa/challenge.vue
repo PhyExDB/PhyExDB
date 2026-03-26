@@ -85,24 +85,18 @@ async function submitChallenge() {
       </CardHeader>
 
       <CardContent class="grid gap-4">
-        <FormField
-          v-slot="{ componentField }"
-          name="2faInput"
-        >
-          <FormItem>
-            <FormLabel>Code</FormLabel>
-            <FormControl>
-              <Input
-                v-model="twoFactorAuthCode"
-                v-bind="componentField"
-                placeholder="123456 oder ABCDE-12345"
-                inputmode="text"
-                maxlength="11"
-                @keydown.enter.prevent="submitChallenge"
-              />
-            </FormControl>
-          </FormItem>
-        </FormField>
+        <div class="space-y-2">
+          <Label for="2faInput">Code</Label>
+          <Input
+            id="2faInput"
+            v-model="twoFactorAuthCode"
+            placeholder="123456 oder ABCDE-12345"
+            inputmode="text"
+            maxlength="11"
+            :disabled="loading"
+            @keydown.enter.prevent="submitChallenge"
+          />
+        </div>
 
         <Button
           :loading="loading"
