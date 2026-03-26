@@ -29,6 +29,7 @@ export default defineConfig({
   // Creates auth state files (.auth/*.json) once before the whole suite
   globalSetup: "./tests/e2e/global-setup.ts",
 
+  // Configure projects for major browser
   projects: [
     {
       name: "chromium",
