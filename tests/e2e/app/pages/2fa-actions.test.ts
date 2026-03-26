@@ -10,7 +10,7 @@ test.describe("Admin actions — with valid 2FA session", () => {
   test("can access user management page", async ({ page }) => {
     await page.goto("/users")
     await expect(page.getByRole("main")).toBeVisible()
-    await expect(page.getByPlaceholder("Filtern nach Name, E-Mail und Rolle ...")).toBeVisible()
+    await expect(page.getByPlaceholder("Filtern nach Name, E-Mail oder Rolle ...")).toBeVisible()
   })
 
   test("can search for users", async ({ page }) => {
