@@ -6,7 +6,7 @@ type ActivePopup = "user" | "moderator" | "unread" | null
 const activePopup = ref<ActivePopup>(null)
 
 function determineActivePopup() {
-  if (!user) return
+  if (!import.meta.client || !notificationSummary.value || !user) return
 
   const data = notificationSummary.value
   const lastRejectedSeen = Number(localStorage.getItem("last-rejected-seen") || 0)
