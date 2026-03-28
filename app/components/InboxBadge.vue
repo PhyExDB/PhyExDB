@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { Bell } from "lucide-vue-next"
 
-const { unreadCount } = useNotifications()
+const { notificationSummary } = useNotifications()
+const unreadCount = computed(() => notificationSummary.value.unreadCount)
 </script>
 
 <template>

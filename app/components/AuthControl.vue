@@ -5,12 +5,9 @@ import getInitials from "~~/shared/utils/initials"
 const user = await useUser()
 const canSeeUsers = await allows(userAbilities.getAll)
 const canReviewExperiments = await allows(experimentAbilities.review)
-
-const { data: notificationData, refresh: refreshNotifications } = await useFetch("/api/notifications/check", {
-  server: false,
-})
-const unreadInboxCount = computed(() => notificationData.value?.unreadCount ?? 0)
-const pendingReviewCount = computed(() => notificationData.value?.moderatorNotifications ?? 0)
+const { notificationSummary, refreshSummary } = useNotifications()
+const unreadInboxCount = computed(() => notificationSummary.value.unreadCount)
+const pendingReviewCount = computed(() => notificationSummary.value.moderatorNotifications)
 
 async function signOut() {
   await useAuth().client.signOut()
@@ -24,7 +21,7 @@ async function signOut() {
 const route = useRoute()
 watch(() => route.fullPath, () => {
   if (canReviewExperiments) {
-    refreshNotifications()
+    refreshSummary()
   }
 }, { immediate: true })
 
@@ -48,7 +45,7 @@ const dropdownOpen = ref(false)
           </Avatar>
 
           <div
-            v-if="canReviewExperiments && pendingReviewCount > 0 && !dropdownOpen"
+            v-if="((canReviewExperiments && pendingReviewCount > 0) || unreadInboxCount > 0) && !dropdownOpen"
             class="absolute -right-0.5 -top-0.5 flex h-4 w-4"
           >
             <Badge
