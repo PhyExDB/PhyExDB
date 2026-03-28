@@ -66,6 +66,26 @@ export default defineEventHandler(async (event) => {
               },
             },
           })),
+        create: sanitizedExperimentData.sections
+          .map((section, index) => ({ section, globalSectionId: sections[index].id }))
+          .filter(({ section }) => !section.experimentSectionContentId)
+          .map(({ section, globalSectionId }) => ({
+            text: section.text,
+            experimentSection: {
+              connect: { id: globalSectionId },
+            },
+            files: {
+              create: (section.files || [])
+                .filter(file => !!file.fileId)
+                .map((file, index) => ({
+                  description: file.description,
+                  order: index,
+                  file: {
+                    connect: { id: file.fileId },
+                  },
+                })),
+            },
+          })),
       },
       attributes: {
         set: [],
