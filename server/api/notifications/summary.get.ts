@@ -60,8 +60,8 @@ export default defineEventHandler(async (event) => {
 
 defineRouteMeta({
   openAPI: {
-    summary: "Status-Check für Benachrichtigungen und Aufgaben",
-    description: "Liefert Zählerstände und Zeitstempel für ungelesene Nachrichten, abgelehnte Versuche und (für Moderatoren) offene Reviews.",
+    summary: "Status-Zusammenfassung für Benachrichtigungen und Aufgaben",
+    description: "Liefert Zählerstände und Zeitstempel für ungelesene Nachrichten, abgelehnte Versuche und offene Reviews.",
     tags: ["Notifications"],
     responses: {
       200: {

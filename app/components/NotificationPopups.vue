@@ -1,22 +1,23 @@
 <script lang="ts" setup>
 const user = (await useUser()).value
-const { data } = await useFetch("/api/notifications/check")
+const { notificationSummary } = useNotifications()
 
 type ActivePopup = "user" | "moderator" | "unread" | null
 const activePopup = ref<ActivePopup>(null)
 
 function determineActivePopup() {
-  if (!data.value || !user) return
+  if (!import.meta.client || !notificationSummary.value || !user) return
 
+  const data = notificationSummary.value
   const lastRejectedSeen = Number(localStorage.getItem("last-rejected-seen") || 0)
   const lastModSeen = Number(localStorage.getItem("last-mod-notif-seen") || 0)
   const lastInboxSeen = Number(localStorage.getItem("last-inbox-seen") || 0)
 
   // 1. Priorität: Ablehnung
   if (
-    data.value.lastRejectedAt
-    && data.value.lastRejectedAt > lastRejectedSeen
-    && data.value.needsRevisionCount > 0
+    data.lastRejectedAt
+    && data.lastRejectedAt > lastRejectedSeen
+    && data.needsRevisionCount > 0
   ) {
     activePopup.value = "user"
     return
@@ -25,9 +26,9 @@ function determineActivePopup() {
   // 2. Priorität: Moderator Aufgaben
   if (
     user.role !== "USER"
-    && data.value.moderatorLastUpdate
-    && data.value.moderatorLastUpdate > lastModSeen
-    && data.value.moderatorNotifications > 0
+    && data.moderatorLastUpdate
+    && data.moderatorLastUpdate > lastModSeen
+    && data.moderatorNotifications > 0
   ) {
     activePopup.value = "moderator"
     return
@@ -35,9 +36,9 @@ function determineActivePopup() {
 
   // 3. Priorität: Postfach (Nur wenn neue Nachricht seit dem letzten Schließen)
   if (
-    data.value.unreadCount > 0
-    && data.value.lastNotificationAt
-    && data.value.lastNotificationAt > lastInboxSeen
+    data.unreadCount > 0
+    && data.lastNotificationAt
+    && data.lastNotificationAt > lastInboxSeen
   ) {
     activePopup.value = "unread"
     return
@@ -50,17 +51,21 @@ onMounted(() => {
   determineActivePopup()
 })
 
-function closePopup() {
-  if (!data.value) return
+watch(() => notificationSummary.value, () => {
+  determineActivePopup()
+}, { deep: true })
 
-  if (data.value.lastNotificationAt) {
-    localStorage.setItem("last-inbox-seen", data.value.lastNotificationAt.toString())
+function closePopup() {
+  const data = notificationSummary.value
+
+  if (data.lastNotificationAt) {
+    localStorage.setItem("last-inbox-seen", data.lastNotificationAt.toString())
   }
 
-  if (activePopup.value === "user" && data.value.lastRejectedAt) {
-    localStorage.setItem("last-rejected-seen", data.value.lastRejectedAt.toString())
-  } else if (activePopup.value === "moderator" && data.value.moderatorLastUpdate) {
-    localStorage.setItem("last-mod-notif-seen", data.value.moderatorLastUpdate.toString())
+  if (activePopup.value === "user" && data.lastRejectedAt) {
+    localStorage.setItem("last-rejected-seen", data.lastRejectedAt.toString())
+  } else if (activePopup.value === "moderator" && data.moderatorLastUpdate) {
+    localStorage.setItem("last-mod-notif-seen", data.moderatorLastUpdate.toString())
   }
 
   activePopup.value = null
@@ -79,12 +84,13 @@ function closePopup() {
     >
       <NotificationItem
         title="Neue Beanstandung!"
-        :description="`${data?.needsRevisionCount} ${data?.needsRevisionCount === 1 ? 'Versuch benötigt' : 'Versuche benötigen'} eine Korrektur.`"
+        :description="`${notificationSummary.needsRevisionCount} ${notificationSummary.needsRevisionCount === 1 ? 'Versuch benötigt' : 'Versuche benötigen'} eine Korrektur.`"
         icon="heroicons:pencil-square"
         color-class="bg-red-500/10 text-red-600"
       />
       <template #footer>
         <Button
+          as-child
           class="w-full"
           @click="closePopup"
         >
@@ -100,14 +106,12 @@ function closePopup() {
       description="Es gibt neue Versuche zur Überprüfung."
       @update:open="(val) => !val && closePopup()"
     >
-      <div class="rounded-xl bg-muted/50 p-6 text-center border">
-        <span class="text-6xl font-light tracking-tighter text-foreground">
-          {{ data?.moderatorNotifications }}
-        </span>
-        <p class="mt-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Offene Reviews
-        </p>
-      </div>
+      <NotificationItem
+        title="Review ausstehend"
+        :description="`${notificationSummary.moderatorNotifications} ${notificationSummary.moderatorNotifications === 1 ? 'Versuch wartet' : 'Versuche warten'} auf deine Prüfung.`"
+        icon="heroicons:clipboard-document-list"
+        color-class="bg-amber-500/10 text-amber-600"
+      />
       <template #footer>
         <div class="flex gap-3">
           <Button
@@ -118,6 +122,7 @@ function closePopup() {
             Später
           </Button>
           <Button
+            as-child
             class="flex-1"
             @click="closePopup"
           >
@@ -130,18 +135,19 @@ function closePopup() {
     <NotificationDialog
       :open="activePopup === 'unread'"
       icon-name="heroicons:bell"
-      title="Benachrichtigungen"
+      title="Neue Benachrichtigungen"
       description="Du hast neue Nachrichten in deinem Postfach."
       @update:open="(val) => !val && closePopup()"
     >
       <NotificationItem
-        :title="`${data?.unreadCount} neue Nachricht(en)`"
-        description="Schau in dein Postfach, um die Details zu sehen."
+        title="Postfach"
+        :description="`Du hast ${notificationSummary.unreadCount} neue ${notificationSummary.unreadCount === 1 ? 'Nachricht' : 'Nachrichten'}.`"
         icon="heroicons:envelope"
         color-class="bg-blue-500/10 text-blue-600"
       />
       <template #footer>
         <Button
+          as-child
           class="w-full"
           @click="closePopup"
         >
