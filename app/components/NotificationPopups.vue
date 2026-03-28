@@ -90,6 +90,7 @@ function closePopup() {
       />
       <template #footer>
         <Button
+          as-child
           class="w-full"
           @click="closePopup"
         >
@@ -121,6 +122,7 @@ function closePopup() {
             Später
           </Button>
           <Button
+            as-child
             class="flex-1"
             @click="closePopup"
           >
@@ -145,6 +147,7 @@ function closePopup() {
       />
       <template #footer>
         <Button
+          as-child
           class="w-full"
           @click="closePopup"
         >
