@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const colorMode = useColorMode()
 
+// test
+
 const colorModes = [
   {
     name: "Hell",
