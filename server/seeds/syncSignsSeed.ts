@@ -14,7 +14,7 @@ export default class SyncSignsSeed extends Seed {
    * Returns the signs to seed based on environment
    */
   private getSigns() {
-    return SIGNS;
+    return SIGNS
   }
 
   /**
